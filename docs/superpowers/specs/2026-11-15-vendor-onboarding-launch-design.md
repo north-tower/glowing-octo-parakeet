@@ -2,7 +2,8 @@
 
 **Status:** Approved for implementation (infra locked)  
 **Date:** 2026-11-15  
-**Repos:** `C:\Users\mhki\hub` (Next.js app), `C:\Users\mhki\nakuruhub\nakuruhub` (Express API + DB)  
+**Repo (implementation):** `C:\Users\mhki\hub` only — Next.js UI + `app/api` + `lib/server`.  
+**Reference (read-only):** `C:\Users\mhki\nakuruhub\nakuruhub\server` — port logic, do not implement there.  
 **Related:** [Next.js migration plan](../plans/2026-11-15-nakuruhub-nextjs-migration.md) Phase 5  
 **Implementation plan:** [vendor-onboarding-launch plan](../plans/2026-11-15-vendor-onboarding-launch.md)
 
@@ -165,26 +166,28 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-  Browser[Next.js app hub]
-  API[Express API nakuruhub/server]
-  DB[(PostgreSQL)]
-  Store[(Private object storage)]
-  SMS[SMS provider]
+  Browser[Next.js hub]
+  API[app/api Route Handlers]
+  Lib[lib/server]
+  DB[(Supabase Postgres)]
+  Store[(Supabase Storage)]
+  Mail[Mailgun]
 
-  Browser -->|HTTPS + credentials| API
-  API --> DB
-  API --> Store
-  API --> SMS
+  Browser -->|same origin /api| API
+  API --> Lib
+  Lib --> DB
+  Lib --> Store
+  Lib --> Mail
 ```
 
 **Integration pattern (launch):**
 
-- Next.js calls API from the browser with `credentials: 'include'` for refresh cookie on `/auth/*`.
-- Access token: memory or short-lived storage; `Authorization: Bearer` on API calls.
-- CSRF: existing `X-Requested-With` + Origin checks on API (`middleware.js`).
-- CORS: API `origin` set to production Next URL.
+- Browser calls **relative** `/api/...` with `credentials: 'include'` for refresh cookie on `/api/auth/*`.
+- Access token: in-memory on client; `Authorization: Bearer` on API calls.
+- Route Handlers delegate to `lib/server/*` (ported from reference Express handlers).
+- **No separate API process** and no CORS for production same-origin deploy.
 
-Alternative (later): Next Route Handlers as BFF proxy—out of scope for v1 unless CORS/cookie issues force it.
+**Do not** implement or deploy the prototype `nakuruhub/server` for launch.
 
 ### 6.2 Document storage
 

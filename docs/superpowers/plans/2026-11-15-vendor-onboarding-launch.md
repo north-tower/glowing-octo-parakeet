@@ -4,94 +4,159 @@
 
 **Goal:** Ship a public launch where vendors apply with documents, pass admin review, publish shop products and service listings on a live catalog, with customers checking out shop orders (COD) and requesting service quotes—backed by Supabase Postgres/Storage and Mailgun email OTP.
 
-**Architecture:** Keep the existing Express API (`nakuruhub/server`) as the security boundary; connect it to **Supabase PostgreSQL** via `DATABASE_URL` and **Supabase Storage** for ID documents using the **service role** server-side only. Replace SMS OTP with **Mailgun** transactional email. The Next.js app (`hub`) becomes a client of the API with `credentials: 'include'` for refresh cookies and Bearer access tokens.
+**Architecture:** Implement **everything in the Next.js repo** `C:\Users\mhki\hub` only. **Do not** edit or deploy `C:\Users\mhki\nakuruhub\nakuruhub` — use its `server/` tree as a **read-only reference** when porting handlers. Backend lives in `lib/server/` (TypeScript) + **App Router Route Handlers** under `app/api/`* (same origin as the UI). Data: **Supabase PostgreSQL** + **Supabase Storage** (service role, server-only). Auth: **Mailgun** email OTP + httpOnly refresh cookies on `/api/auth/`*.
 
-**Tech stack:** Node 20+, Express 4, `pg`, Zod, Supabase (Postgres + Storage), Mailgun HTTP API, Next.js 16 (App Router), Playwright e2e.
+**Tech stack:** Next.js 16 (App Router), React 19, TypeScript, `pg`, Zod, `@supabase/supabase-js`, Mailgun HTTP API, Vitest, Playwright e2e, pnpm.
+
+## Implementation repository (mandatory)
+
+
+| Rule                    | Detail                                                                                  |
+| ----------------------- | --------------------------------------------------------------------------------------- |
+| **Work here**           | `C:\Users\mhki\hub` — all migrations, API routes, UI, scripts, tests                    |
+| **Do not implement in** | `nakuruhub` prototype (no commits, no new files)                                        |
+| **Reference only**      | Port logic from `nakuruhub/server/src/*.js` → `lib/server/*.ts` + `app/api/**/route.ts` |
+| **API URL (client)**    | Prefer **relative** `/api/...` (no second process, no CORS in production)               |
+| **Env files**           | `.env.local` (gitignored), `.env.example` (committed template)                          |
+
+
+
 
 ## Global Constraints
 
 - **Spec:** [2026-11-15-vendor-onboarding-launch-design.md](../specs/2026-11-15-vendor-onboarding-launch-design.md) — launch categories `shop` and `services` only; nothing public until admin `approve`; Verified is separate for M-Pesa later.
-- **Repos:** API changes in `C:\Users\mhki\nakuruhub\nakuruhub\server`; UI in `C:\Users\mhki\hub`.
 - **Auth:** Customer/vendor sign-in = **email OTP only** (Mailgun). Staff = email + password + TOTP — never email OTP alone.
-- **Secrets:** Never commit `.env`. Supabase service role key and Mailgun API key only on API server.
+- **Secrets:** Never commit `.env.local`. Supabase service role + Mailgun only in server code (Route Handlers + `lib/server`).
 - **Phone:** Optional on `users.phone` for delivery; Kenyan format when present (`+2547…`). Checkout may override per order.
 - **Documents:** Private bucket only; max 5 MB; MIME allowlist `jpeg`, `png`, `webp`, `pdf`.
 - **Open questions (locked):** Reject = generic “rejected, contact support”; services may use `price_kes = 0`; new inquiry notifies vendor via **email** (Mailgun), not SMS.
-- **CORS:** `APP_ORIGIN` must match the Next.js origin (e.g. `http://localhost:3000` in dev).
-- **Read** `node_modules/next/dist/docs/` before changing Next routing/auth patterns.
+- **Same-origin API:** Route Handlers set cookies on the app domain; no separate `APP_ORIGIN` CORS setup unless you add an external API later.
+- **Read** `node_modules/next/dist/docs/` before changing routing, Route Handlers, or cookies.
 
-## File map (new / major)
 
-| Path | Responsibility |
-|------|----------------|
-| `server/db/migrations/003_supabase_launch.sql` | PostGIS + core schema (idempotent where possible) |
-| `server/db/migrations/004_email_otp_and_launch_tables.sql` | Email auth, `vendor_documents`, `service_inquiries` |
-| `server/src/mailgun.js` | Send OTP and transactional mail |
-| `server/src/email-otp.js` | HMAC codes, daily cap (replaces phone keying) |
-| `server/src/storage.js` | Supabase Storage signed upload/download |
-| `server/src/documents.js` | Vendor document routes |
-| `server/src/inquiries.js` | Service inquiry routes |
-| `server/test/` | `node:test` + `supertest` integration tests |
-| `hub/lib/nakuru/api.ts` | `fetch` wrapper, CSRF header, refresh |
-| `hub/components/app/auth/EmailOtpForm.tsx` | OTP UI |
-| `hub/app/staff/page.tsx` | Staff vendor queue (protected) |
+
+## File map (new / major — repo root `hub`)
+
+
+| Path                                                      | Responsibility                                                    |
+| --------------------------------------------------------- | ----------------------------------------------------------------- |
+| `supabase/migrations/003_supabase_launch.sql`             | PostGIS + core schema (port from reference `nakuruhub/server/db`) |
+| `supabase/migrations/004_email_otp_and_launch_tables.sql` | Email auth, `vendor_documents`, `service_inquiries`               |
+| `docs/db/README-supabase.md`                              | How to apply migrations on Supabase                               |
+| `lib/server/config.ts`                                    | Env validation (Mailgun, Supabase, JWT secrets)                   |
+| `lib/server/db.ts`                                        | `pg` Pool + `tx()`                                                |
+| `lib/server/mailgun.ts`                                   | Transactional email                                               |
+| `lib/server/email-otp.ts`                                 | HMAC OTP issue/check                                              |
+| `lib/server/storage.ts`                                   | Supabase Storage upload + signed download                         |
+| `lib/server/schemas.ts`                                   | Zod (port from reference `schemas.js`)                            |
+| `lib/server/auth.ts`                                      | Sessions, JWT access, refresh cookie helpers                      |
+| `lib/server/*.ts`                                         | Domain logic (vendors, catalog, orders, inquiries, documents)     |
+| `app/api/auth/otp/request/route.ts`                       | `POST` — send OTP email                                           |
+| `app/api/auth/otp/verify/route.ts`                        | `POST` — set refresh cookie + return access                       |
+| `app/api/auth/refresh/route.ts`                           | `POST` — rotate refresh                                           |
+| `app/api/**/route.ts`                                     | Other endpoints mirroring reference API paths                     |
+| `lib/nakuru/api.ts`                                       | Browser `fetch('/api/...')` + refresh retry                       |
+| `components/app/auth/EmailOtpForm.tsx`                    | OTP UI                                                            |
+| `app/staff/page.tsx`                                      | Staff vendor queue                                                |
+| `scripts/create-staff.ts`                                 | Bootstrap admin (run with `pnpm exec tsx`)                        |
+| `tests/api/*.test.ts`                                     | Vitest API tests                                                  |
+
+
+
 
 ## Task index (parent → sub-tasks)
 
 Long-running work is split into **sub-tasks** `N.M` so each subagent session can finish in one reviewable unit (~30–90 min). Short tasks stay single blocks with steps only.
 
-| Parent | Sub-tasks | When to split further |
-|--------|-----------|------------------------|
-| **1** Supabase + env | 1.1–1.4 | — |
-| **2** DB migrations | 2.1–2.6 | Largest SQL task |
-| **3** Mailgun | steps only | — |
-| **4** Email OTP | steps only | — |
-| **5** Auth email | 5.1–5.5 | — |
-| **6** API tests | steps only | — |
-| **7** Storage helper | steps only | — |
-| **8** Document routes | 8.1–8.6 | Multipart + admin |
-| **9–10** Inquiries + guards | steps only | — |
-| **11** API client | 11.1–11.5 | CORS/cookies |
-| **12** Email OTP UI | 12.1–12.4 | — |
-| **13** Vendor apply UI | 13.1–13.5 | — |
-| **14** Staff queue | 14.1–14.5 | — |
-| **15** Live catalog | 15.1–15.5 | Many views |
-| **16** Vendor products | 16.1–16.3 | — |
-| **17** Checkout API | 17.1–17.6 | Cart ID migration |
-| **18** Inquiry UI | 18.1–18.3 | — |
-| **19–20** Launch | 19.1–19.3, 20.1–20.4 | — |
+
+| Parent                      | Sub-tasks            | When to split further |
+| --------------------------- | -------------------- | --------------------- |
+| **0** Hub API skeleton      | 0.1–0.3              | Do first              |
+| **1** Supabase + env        | 1.1–1.4              | —                     |
+| **2** DB migrations         | 2.1–2.6              | Largest SQL task      |
+| **3** Mailgun               | steps only           | —                     |
+| **4** Email OTP             | steps only           | —                     |
+| **5** Auth email            | 5.1–5.5              | —                     |
+| **6** API tests             | steps only           | —                     |
+| **7** Storage helper        | steps only           | —                     |
+| **8** Document routes       | 8.1–8.6              | Multipart + admin     |
+| **9–10** Inquiries + guards | steps only           | —                     |
+| **11** API client           | 11.1–11.5            | Same-origin `/api`    |
+| **12** Email OTP UI         | 12.1–12.4            | —                     |
+| **13** Vendor apply UI      | 13.1–13.5            | —                     |
+| **14** Staff queue          | 14.1–14.5            | —                     |
+| **15** Live catalog         | 15.1–15.5            | Many views            |
+| **16** Vendor products      | 16.1–16.3            | —                     |
+| **17** Checkout API         | 17.1–17.6            | Cart ID migration     |
+| **18** Inquiry UI           | 18.1–18.3            | —                     |
+| **19–20** Launch            | 19.1–19.3, 20.1–20.4 | —                     |
+
+
+**Subagent brief:** Work only in `C:\Users\mhki\hub`. Use `nakuruhub/server` as read-only reference when porting.
 
 ---
 
+
+
 ## Phase P0 — Supabase + API foundation
+
+
+
+### Task 0: Hub API skeleton (prerequisite)
+
+**Files:**
+
+- Create: `app/api/health/route.ts`
+- Create: `lib/server/config.ts`, `lib/server/db.ts` (minimal stubs)
+- Create: `docs/db/api-route-map.md`
+
+- [ ] **0.1** Create folders: `lib/server/`, `app/api/`, `supabase/migrations/`, `tests/api/`.
+- [x] **0.2** `GET /api/health` → `{ ok: true }`; extend with DB ping in Task 2.6.
+- [ ] **0.3** In `docs/db/api-route-map.md`, map reference Express paths → `app/api/**/route.ts` (auth, listings, vendors, admin, orders, products, inquiries).
+
+---
+
+
+
+## Phase P0 (continued) — Supabase + API foundation
+
+
 
 ### Task 1: Supabase project and env wiring
 
 **Files:**
-- Modify: `server/.env.example`
-- Modify: `server/src/config.js`
-- Create: `server/db/README-supabase.md`
+
+- Modify: `.env.example`
+- Modify: `lib/server/config.ts`
+- Create: `docs/db/README-supabase.md`
 
 **Interfaces:**
+
 - Produces: `config.supabase`, `config.mailgun`, relaxed production checks (no Africa's Talking).
+
+
 
 #### Sub-task 1.1: Supabase cloud setup (ops)
 
-- [ ] Create Supabase project (note **project ref** and region).
-- [ ] Database → Extensions → enable **postgis** and **pgcrypto** (if not already).
-- [ ] Storage → create bucket **`vendor-documents`**, **private**, no public policies.
-- [ ] Settings → Database → copy **Session pooler** URI for `DATABASE_URL`.
-- [ ] Settings → API → copy `SUPABASE_URL` and **service role** key (server only).
+- [x] Create Supabase project (note **project ref** and region).
+- [x] Database → Extensions → enable **postgis** and **pgcrypto** (if not already).
+- [x] Storage → create bucket `**vendor-documents**`, **private**, no public policies.
+- [x] Settings → Database → copy **Session pooler** URI for `DATABASE_URL`.
+- [x] Settings → API → copy `SUPABASE_URL` and **service role** key (server only).
+
+
 
 #### Sub-task 1.2: Local `.env` (developer)
 
-- [ ] Copy `server/.env.example` → `server/.env` (never commit).
-- [ ] Set `DATABASE_URL`, `SUPABASE_*`, Mailgun placeholders; `APP_ORIGIN=http://localhost:3000`.
-- [ ] Set `PORT=3001` on API so Next can use 3000.
+- [x] Copy `.env.example` → `.env.local` (never commit).
+- [x] Set `DATABASE_URL`, `SUPABASE_*`, Mailgun, JWT secrets in `.env.local`.
+- [x] Run one terminal only: `pnpm dev` (port 3000).
 
-#### Sub-task 1.3: Commit `.env.example` + `config.js`
 
-- [ ] **Step 4:** Extend `.env.example`:
+
+#### Sub-task 1.3: Commit `.env.example` + `lib/server/config.ts`
+
+- [x] **Step 4:** Extend `.env.example`:
 
 ```env
 DATABASE_URL=postgresql://postgres.[ref]:[password]@aws-0-[region].pooler.supabase.com:5432/postgres
@@ -105,7 +170,7 @@ OTP_ENFORCE_VENDOR_DOCS=false
 LAUNCH_CATEGORIES=shop,services
 ```
 
-- [ ] **Step 5:** Update `config.js` — remove production hard-fail on `AT_USERNAME`; require Mailgun in production:
+- [x] **Step 5:** Implement `lib/server/config.ts` — require Mailgun in production (no Africa's Talking):
 
 ```javascript
 const prod = (process.env.NODE_ENV || 'development') === 'production';
@@ -129,45 +194,59 @@ module.exports = {
 };
 ```
 
-- [ ] **Step 6:** Document in `README-supabase.md` how to run SQL migrations in SQL Editor vs `psql`.
+- [x] **Step 6:** Migrations in `supabase/migrations/` — run **003** then **004** in Supabase SQL Editor (README deferred).
+
+
 
 #### Sub-task 1.4: Docs + smoke
 
-- [ ] **Step 6:** Document in `README-supabase.md` how to run SQL migrations in SQL Editor vs `psql`.
-- [ ] **Step 7:** Run `npm start` locally with Supabase `DATABASE_URL`; expect fail until migrations (Task 2).
+- [x] **Step 6:** Document in `README-supabase.md` how to run SQL migrations in SQL Editor vs `psql`.
+- [x] **Step 7:** Run `pnpm dev`; hit `GET /api/health` (`{ ok, db }`); see `docs/db/README-supabase.md` if `db: "error"`.
 
 ---
+
+
 
 ### Task 2: Database migrations on Supabase
 
 **Files:**
-- Create: `server/db/migrations/003_supabase_launch.sql`
-- Create: `server/db/migrations/004_email_otp_and_launch_tables.sql`
+
+- Create: `supabase/migrations/003_supabase_launch.sql`
+- Create: `supabase/migrations/004_email_otp_and_launch_tables.sql`
 
 **Interfaces:**
+
 - Produces: tables from `schema.sql` + launch additions; `users.email` as login identity.
+
+
 
 #### Sub-task 2.1: Scaffold migration files in repo
 
-- [ ] Create `server/db/migrations/003_supabase_launch.sql` (empty header + comment: run on empty DB).
-- [ ] Create `server/db/migrations/004_email_otp_and_launch_tables.sql`.
-- [ ] In `README-supabase.md`, document run order: **003 then 004**.
+- [x] Create `supabase/migrations/003_supabase_launch.sql` (empty header + comment: run on empty DB).
+- [x] Create `supabase/migrations/004_email_otp_and_launch_tables.sql`.
+- [x] In `README-supabase.md`, document run order: **003 then 004**.
+
+
 
 #### Sub-task 2.2: Port core schema into `003` (~45 min)
 
-- [ ] Paste `server/db/schema.sql` into `003` (extensions, `users`, OTP, `vendors`, `orders`, `products`, etc.).
-- [ ] Append `server/db/migrations/002_orders_products_payments.sql` if not already reflected in schema.
-- [ ] Remove or comment `create role nakuruhub_app` — Supabase uses `postgres` / pooler user for dev.
-- [ ] Run `003` in Supabase SQL Editor; fix PostGIS or syntax errors until green.
+- [x] Paste from reference `nakuruhub/server/db/schema.sql` into `003` (extensions, `users`, OTP, `vendors`, `orders`, `products`, etc.).
+- [x] Append reference `nakuruhub/server/db/migrations/002_orders_products_payments.sql` if not already reflected in schema.
+- [x] Remove or comment `create role nakuruhub_app` — Supabase uses `postgres` / pooler user for dev.
+- [x] Run `003` in Supabase SQL Editor; fix PostGIS or syntax errors until green.
+
+
 
 #### Sub-task 2.3: Fix OTP table primary keys for email (pre-004)
 
-- [ ] Confirm `otp_codes` PK is `phone` today — plan rename in 004.
-- [ ] If fresh DB: optionally define `otp_codes(email text primary key)` in 003 instead of phone to skip rename (keep one source of truth).
+- [x] Confirm `otp_codes` PK is `phone` today — plan rename in 004. _(Fresh DB: email PK in `003`.)_
+- [x] If fresh DB: optionally define `otp_codes(email text primary key)` in 003 instead of phone to skip rename (keep one source of truth).
+
+
 
 #### Sub-task 2.4: Email + launch tables in `004`
 
-- [ ] **Step 2:** Add `004_email_otp_and_launch_tables.sql`:
+- [x] **Step 2:** Add `004_email_otp_and_launch_tables.sql`:
 
 ```sql
 -- Email as primary login; phone optional for delivery
@@ -203,73 +282,60 @@ create index if not exists service_inquiries_product on service_inquiries(produc
 create index if not exists service_inquiries_customer on service_inquiries(customer_id);
 ```
 
-- [ ] Add `unique` on `users(email)` where not null (in addition to `users_email_lower` index).
-- [ ] Migrate `otp_daily` PK from `phone` to `email` if 003 created phone columns.
+- [x] Add `unique` on `users(email)` where not null (in addition to `users_email_lower` index).
+- [x] Migrate `otp_daily` PK from `phone` to `email` if 003 created phone columns. _(N/A — email in `003`.)_
+
+
 
 #### Sub-task 2.5: Apply `004` on Supabase
 
-- [ ] Run `004` in SQL Editor; resolve conflicts if 003 already used email columns.
-- [ ] Re-run API `npm start`; should connect without relation errors.
+- [x] Run `004` in SQL Editor; resolve conflicts if 003 already used email columns.
+- [x] Re-run `pnpm dev` + `GET /api/health`; DB ping should succeed.
+
+
 
 #### Sub-task 2.6: Verification queries
 
-- [ ] **Step 4:** In SQL Editor: confirm tables `users`, `vendors`, `products`, `vendor_documents`, `service_inquiries`, `otp_codes`.
-- [ ] `select column_name from information_schema.columns where table_name='users' and column_name='email';`
+- [x] **Step 4:** In SQL Editor: confirm tables `users`, `vendors`, `products`, `vendor_documents`, `service_inquiries`, `otp_codes`.
+- [x] `select column_name from information_schema.columns where table_name='users' and column_name='email';`
 - [ ] Optional: insert test user row with email only (no phone).
 
 ---
 
+
+
 ### Task 3: Mailgun sender
 
 **Files:**
-- Create: `server/src/mailgun.js`
-- Modify: `server/package.json` (no new deps — use `fetch`)
+
+- Create: `lib/server/mailgun.ts`
+- Create: `app/api/auth/otp/request/route.ts` (wires mailgun + email-otp in later tasks)
+- Modify: `package.json` (no new deps — use `fetch`)
 
 **Interfaces:**
+
 - Produces: `sendMail({ to, subject, text, html })`
 
-- [ ] **Step 1:** Implement:
+- [x] **Step 1:** Implement `lib/server/mailgun.ts` — `sendMail({ to, subject, text, html })`.
 
-```javascript
-'use strict';
-const c = require('./config');
-
-async function sendMail({ to, subject, text, html }) {
-  const { key, domain, from } = c.mailgun;
-  if (!key || !domain) {
-    if (c.env === 'production') throw new Error('Mailgun not configured');
-    console.log('[dev mail]', to, subject, text);
-    return;
-  }
-  const body = new URLSearchParams({ from, to, subject, text, ...(html ? { html } : {}) });
-  const r = await fetch(`https://api.mailgun.net/v3/${domain}/messages`, {
-    method: 'POST',
-    headers: {
-      Authorization: 'Basic ' + Buffer.from(`api:${key}`).toString('base64'),
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body,
-  });
-  if (!r.ok) throw new Error('Mailgun error ' + r.status);
-}
-
-module.exports = { sendMail };
-```
-
-- [ ] **Step 2:** Smoke test in dev (Mailgun sandbox or log mode).
+- [x] **Step 2:** Smoke test in dev (Mailgun sandbox or log mode) — `lib/server/mailgun.test.ts` + `pnpm test`.
 
 ---
+
+
 
 ### Task 4: Email OTP module
 
 **Files:**
-- Create: `server/src/email-otp.js`
-- Modify: `server/src/otp.js` → re-export or delete and update imports to `email-otp.js`
+
+- Create: `lib/server/email-otp.ts`
+- Delete port of reference `otp.js` after email module lands (no parallel phone OTP in hub)
 
 **Interfaces:**
+
 - Produces: `issue(email)`, `check(email, code)` — same contract as old `otp.js` but email-keyed.
 
-- [ ] **Step 1:** Implement `email-otp.js` (copy `otp.js`, replace `phone` with normalized lowercased email, call `mailgun.sendMail`):
+- [ ] **Step 1:** Implement `lib/server/email-otp.ts` (port reference `otp.js`; email key; call `mailgun.sendMail`):
 
 ```javascript
 const code = String(crypto.randomInt(0, 1000000)).padStart(6, '0');
@@ -280,26 +346,32 @@ await sendMail({
 });
 ```
 
-- [ ] **Step 2:** Update `auth.js` imports from `./otp` to `./email-otp`.
+- [ ] **Step 2:** Wire `email-otp` from `app/api/auth/otp/request/route.ts` and `verify/route.ts`.
 
-- [ ] **Step 3:** Deprecate `sms.js` usage in auth path (keep file for optional future alerts).
+- [ ] **Step 3:** Do not port `sms.js` — hub uses Mailgun only.
 
 ---
+
+
 
 ### Task 5: Zod schemas + auth routes (email)
 
 **Files:**
-- Modify: `server/src/schemas.js`
-- Modify: `server/src/auth.js`
-- Modify: `server/scripts/create-staff.js`
-- Modify: `server/src/orders.js` (if reads default phone from user — allow null)
+
+- Modify: `lib/server/schemas.ts`
+- Modify: `lib/server/auth.ts` + `app/api/auth/**/route.ts`
+- Create: `scripts/create-staff.ts`
+- Modify: `lib/server/orders.ts` (if reads default phone from user — allow null)
 
 **Interfaces:**
+
 - Produces: `email`, `otpReq`/`otpVerify` on email; `users` upsert on `email`.
+
+
 
 #### Sub-task 5.1: Schemas only
 
-- [ ] **Step 1:** Add to `schemas.js`:
+- [ ] **Step 1:** Add to `lib/server/schemas.ts`:
 
 ```javascript
 const email = z
@@ -317,12 +389,14 @@ module.exports = {
 };
 ```
 
-- [ ] Grep `schemas.js` for `phone` exports still needed for `orderNew.phone` and rider scripts.
-- [ ] Run `node -e "require('./src/schemas')"` from `server/` — no throw.
+- [ ] Grep `schemas.ts` for `phone` exports still needed for `orderNew.phone` and rider scripts.
+- [ ] Run `pnpm exec tsc --noEmit` — schemas compile.
+
+
 
 #### Sub-task 5.2: Customer OTP routes
 
-- [ ] **Step 2:** `auth.js` — replace `phone` in OTP routes with `email`; user insert:
+- [ ] **Step 2:** Port reference `auth.js` OTP handlers into `app/api/auth/otp/*/route.ts` + `lib/server/auth.ts`; user insert:
 
 ```javascript
 const u = (
@@ -352,56 +426,71 @@ const u = (
 - [ ] Update audit events: `otp_fail` / `login` still fire with user id.
 - [ ] `GET /me` returns `{ id, role }` — optionally add `email` later (not required v1).
 
+
+
 #### Sub-task 5.3: Staff auth
 
 - [ ] **Step 3:** Staff login: query `where lower(email)=$1 and role in ('admin','support')`.
-- [ ] **Step 4:** Update `create-staff.js` to insert `email` column; usage: `STAFF_PASSWORD=... node scripts/create-staff.js admin@example.com admin`.
+- [ ] **Step 4:** `scripts/create-staff.ts` inserts `email`; usage: `STAFF_PASSWORD=... pnpm exec tsx scripts/create-staff.ts admin@example.com admin`.
 - [ ] Migrate existing staff rows manually in SQL if any phone-only staff exist.
+
+
 
 #### Sub-task 5.4: Downstream phone references
 
-- [ ] `orders.js`: when `d.phone` missing, use `users.phone` or require checkout phone field (no crash on null email-era users).
+- [ ] `lib/server/orders.ts`: when `d.phone` missing, use `users.phone` or require checkout phone field (no crash on null email-era users).
 - [ ] `payments` / M-Pesa paths: unchanged for launch.
+
+
 
 #### Sub-task 5.5: Manual auth smoke
 
-- [ ] **Step 5:** `curl -X POST http://127.0.0.1:3001/auth/otp/request -H 'Content-Type: application/json' -d '{"email":"you@example.com"}'`
+- [ ] **Step 5:** `curl -X POST http://127.0.0.1:3000/api/auth/otp/request -H 'Content-Type: application/json' -d '{"email":"you@example.com"}'`
 - [ ] Read code from Mailgun logs or dev console.
 - [ ] Verify → receive `access`; `GET /me` with Bearer token.
 
 ---
 
+
+
 ### Task 6: API test harness
 
 **Files:**
-- Create: `server/test/auth-email.test.js`
-- Modify: `server/package.json` — `"test": "node --test test/**/*.test.js"`
+
+- Create: `tests/api/auth-email.test.ts`
+- Modify: `package.json` — ensure `"test": "vitest run"` covers `tests/api`
 
 **Interfaces:**
+
 - Consumes: running API or test app instance.
 
 - [ ] **Step 1:** Add `supertest` as devDependency.
-
 - [ ] **Step 2:** Write test that mocks Mailgun (set `MAILGUN_API_KEY` empty, read code from dev hook or test-only `OTP_TEST_EMAIL` env).
-
-- [ ] **Step 3:** Run `npm test` — document expected PASS.
+- [ ] **Step 3:** Run `pnpm test` — document expected PASS.
 
 ---
 
+
+
 ## Phase P1 — Documents (Supabase Storage)
+
+
 
 ### Task 7: Storage helper
 
 **Files:**
-- Create: `server/src/storage.js`
+
+- Create: `lib/server/storage.ts`
 
 **Interfaces:**
+
 - Produces: `createUploadPath(vendorId, docId)`, `signUpload(storageKey, mime)`, `signDownload(storageKey, expiresSec)`
 
 - [ ] **Step 1:** Use Supabase Storage REST or `@supabase/supabase-js` (add dependency):
 
 ```bash
-cd server && npm install @supabase/supabase-js
+pnpm add @supabase/supabase-js pg zod argon2 jsonwebtoken otplib
+pnpm add -D @types/pg
 ```
 
 - [ ] **Step 2:** Implement service-role client; upload via `storage.from('vendor-documents').upload(path, buffer, { contentType, upsert: false })`.
@@ -410,16 +499,22 @@ cd server && npm install @supabase/supabase-js
 
 ---
 
+
+
 ### Task 8: Document routes
 
 **Files:**
-- Create: `server/src/documents.js`
-- Modify: `server/src/app.js` — mount router
-- Modify: `server/src/vendors.js` — optional doc gate on `POST /vendors`
-- Modify: `server/package.json` — `multer` or `busboy` for multipart
+
+- Create: `lib/server/documents.ts`
+- Create: `app/api/vendors/me/documents/route.ts` (and nested `[id]/url/route.ts` as needed)
+- Modify: `lib/server/vendors.ts` + `app/api/vendors/route.ts` — optional doc gate on `POST /vendors`
+- Modify: `package.json` — `multer` or `busboy` for multipart
 
 **Interfaces:**
+
 - Produces: routes per spec §8.1; `POST /vendors` checks `national_id_front` when `otpEnforceVendorDocs`.
+
+
 
 #### Sub-task 8.1: Upload route + validation
 
@@ -427,26 +522,36 @@ cd server && npm install @supabase/supabase-js
 - [ ] `POST /vendors/me/documents` — fields: `kind`, file body; MIME allowlist.
 - [ ] Resolve vendor: latest `pending` or `approved` row for `owner_id` (create stub vendor row rules if apply-after-upload).
 
+
+
 #### Sub-task 8.2: Storage write + DB row
 
 - [ ] Storage path: `vendors/{vendorId}/{documentId}/{filename}`.
 - [ ] Insert `vendor_documents` row after successful upload.
 - [ ] On storage failure, do not insert row (or delete orphan).
 
+
+
 #### Sub-task 8.3: Vendor read APIs
 
 - [ ] `GET /vendors/me/documents` — metadata only.
 - [ ] `GET /vendors/me/documents/:id/url` — `{ url, expiresIn }` signed URL.
+
+
 
 #### Sub-task 8.4: Admin read APIs
 
 - [ ] `GET /admin/vendors/:vendorId/documents` — admin role.
 - [ ] `GET /admin/vendors/:vendorId/documents/:id/url` — audit `document_view` event.
 
+
+
 #### Sub-task 8.5: Apply gate on `POST /vendors`
 
 - [ ] If `otpEnforceVendorDocs`: require `national_id_front` exists for owner before insert.
 - [ ] If `services` in categories: require ≥1 `category_doc`.
+
+
 
 #### Sub-task 8.6: Tests + authz
 
@@ -455,62 +560,80 @@ cd server && npm install @supabase/supabase-js
 
 ---
 
+
+
 ## Phase P2 — Service inquiries + launch guards
+
+
 
 ### Task 9: Service inquiries API
 
 **Files:**
-- Create: `server/src/inquiries.js`
-- Modify: `server/src/schemas.js` — `inquiryNew`
-- Modify: `server/src/app.js`
+
+- Create: `lib/server/inquiries.ts`
+- Create: `app/api/service-inquiries/route.ts`, `app/api/vendor/inquiries/route.ts`
+- Modify: `lib/server/schemas.ts` — `inquiryNew`
 
 **Interfaces:**
+
 - Produces: `POST /service-inquiries`, `GET /vendor/inquiries`, `GET /service-inquiries/mine`
 
 - [ ] **Step 1:** Implement handlers per spec; on create, load vendor owner email and `mailgun.sendMail` “New quote request”.
-
 - [ ] **Step 2:** Rate limit: 20/hour per customer.
-
 - [ ] **Step 3:** Test: non-service product returns 400.
 
 ---
 
+
+
 ### Task 10: Launch category guard
 
 **Files:**
-- Modify: `server/src/vendors.js`
-- Modify: `server/src/schemas.js` — `vendorNew.categories` refine against `config.launchCategories`
+
+- Modify: `lib/server/vendors.ts`
+- Modify: `lib/server/schemas.ts` — `vendorNew.categories` refine against `config.launchCategories`
 
 - [ ] **Step 1:** Reject `property`, `cars`, `stays`, `taxi` at validation.
-
 - [ ] **Step 2:** Test POST with invalid category → 400.
 
 ---
 
+
+
 ## Phase P3 — Next.js API client + email OTP UI
+
+
 
 ### Task 11: API client and auth context
 
 **Files:**
-- Create: `hub/lib/nakuru/api.ts`
-- Create: `hub/lib/nakuru/auth.ts`
-- Create: `hub/components/app/AppAuthProvider.tsx`
-- Modify: `hub/components/app/AppProvider.tsx` — nest auth provider
-- Create: `hub/.env.local.example`
+
+- Create: `lib/nakuru/api.ts`
+- Create: `lib/nakuru/auth.ts`
+- Create: `components/app/AppAuthProvider.tsx`
+- Modify: `components/app/AppProvider.tsx` — nest auth provider
+- Create: `.env.local.example`
 
 **Interfaces:**
+
 - Produces: `apiFetch(path, opts)`, `useAuth()` with `accessToken`, `login()`, `logout()`, auto-refresh on 401.
+
+
 
 #### Sub-task 11.1: Environment
 
-- [ ] `hub/.env.local`: `NEXT_PUBLIC_API_URL=http://127.0.0.1:3001`
-- [ ] Document dual-terminal dev: `server` on 3001, `pnpm dev` on 3000.
-- [ ] Confirm `server` `APP_ORIGIN=http://localhost:3000`.
+- [ ] `.env.local`: optional `NEXT_PUBLIC_API_BASE=` empty (use relative `/api`).
+- [ ] Single terminal: `pnpm dev` on 3000 only.
+- [ ] No CORS spike required for same-origin (Sub-task 11.5 becomes cookie `httpOnly` + `secure` check only).
+
+
 
 #### Sub-task 11.2: `apiFetch` core
 
 - [ ] Create `lib/nakuru/api.ts` with base URL, JSON parse, error type `{ error: string }`.
 - [ ] Headers: `Content-Type`, `X-Requested-With: nakuruhub`, optional `Authorization`.
+
+
 
 #### Sub-task 11.3: Token refresh
 
@@ -518,11 +641,15 @@ cd server && npm install @supabase/supabase-js
 - [ ] Update in-memory access token; retry original request.
 - [ ] On refresh fail: clear session, return unauthenticated.
 
+
+
 #### Sub-task 11.4: `AppAuthProvider`
 
 - [ ] `useAuth()`: `user`, `accessToken`, `setSessionFromOtp`, `logout()`.
 - [ ] `logout` → `POST /auth/logout` + clear state.
 - [ ] Wrap marketplace in `app/app/page.tsx` or `AppProvider`.
+
+
 
 #### Sub-task 11.5: CORS spike (checkpoint)
 
@@ -531,28 +658,39 @@ cd server && npm install @supabase/supabase-js
 
 ---
 
+
+
 ### Task 12: Email OTP form + account entry
 
 **Files:**
-- Create: `hub/components/app/auth/EmailOtpForm.tsx`
-- Modify: `hub/components/app/views/AccountView.tsx`
-- Modify: `hub/components/app/views/VendorView.tsx`
-- Modify: `hub/components/app/SignInBar.tsx` if present
+
+- Create: `components/app/auth/EmailOtpForm.tsx`
+- Modify: `components/app/views/AccountView.tsx`
+- Modify: `components/app/views/VendorView.tsx`
+- Modify: `components/app/SignInBar.tsx` if present
+
+
 
 #### Sub-task 12.1: Email step UI
 
 - [ ] Input type email, validation, submit → `POST /auth/otp/request`.
 - [ ] Loading + error toasts (reuse `Toast` pattern).
 
+
+
 #### Sub-task 12.2: Code step UI
 
 - [ ] Six-digit input, verify → `POST /auth/otp/verify` → `setSessionFromOtp`.
 - [ ] Resend cooldown aligned with server 60s rule.
 
+
+
 #### Sub-task 12.3: Account shell
 
 - [ ] `AccountView`: guest shows `EmailOtpForm`; signed-in shows email + sign out.
 - [ ] Remove copy “Phone (OTP verified)” from vendor registration (vendor apply is separate).
+
+
 
 #### Sub-task 12.4: Vendor deep link
 
@@ -561,17 +699,24 @@ cd server && npm install @supabase/supabase-js
 
 ---
 
+
+
 ### Task 13: Vendor apply + document upload UI
 
 **Files:**
-- Create: `hub/components/app/vendor/VendorApplyForm.tsx`
-- Create: `hub/components/app/vendor/DocumentUpload.tsx`
-- Modify: `hub/components/app/views/VendorView.tsx`
+
+- Create: `components/app/vendor/VendorApplyForm.tsx`
+- Create: `components/app/vendor/DocumentUpload.tsx`
+- Modify: `components/app/views/VendorView.tsx`
+
+
 
 #### Sub-task 13.1: Application form
 
 - [ ] Name + category chips (`shop`, `services` only; hide waitlist cats or show disabled).
 - [ ] `POST /vendors` on submit; handle `429 too_many_pending`.
+
+
 
 #### Sub-task 13.2: Document upload component
 
@@ -579,15 +724,21 @@ cd server && npm install @supabase/supabase-js
 - [ ] `FormData` POST to `/vendors/me/documents` per file.
 - [ ] Progress + 5MB client-side check.
 
+
+
 #### Sub-task 13.3: Apply flow order
 
 - [ ] Decide UX: documents before or after `POST /vendors` (recommend: create pending vendor first, then uploads tied to vendor id from `GET /vendors/mine`).
 - [ ] Enforce UI validation: cannot submit application without ID front.
 
+
+
 #### Sub-task 13.4: Status dashboard
 
 - [ ] Poll or load `GET /vendors/mine` for `status`, `verified`, `categories`.
 - [ ] Approved → show `VendorProductForm` placeholder area (Task 16).
+
+
 
 #### Sub-task 13.5: Remove demo vendor state
 
@@ -595,32 +746,45 @@ cd server && npm install @supabase/supabase-js
 
 ---
 
+
+
 ### Task 14: Staff vendor queue
 
 **Files:**
-- Create: `hub/app/staff/page.tsx`
-- Create: `hub/components/staff/StaffLoginForm.tsx`
-- Create: `hub/components/staff/StaffVendorQueue.tsx`
-- Modify: `hub/components/app/views/AccountView.tsx` — hide demo admin row
+
+- Create: `app/staff/page.tsx`
+- Create: `components/staff/StaffLoginForm.tsx`
+- Create: `components/staff/StaffVendorQueue.tsx`
+- Modify: `components/app/views/AccountView.tsx` — hide demo admin row
+
+
 
 #### Sub-task 14.1: Staff route shell
 
 - [ ] `app/staff/page.tsx` client component; no link from public landing (bookmark only).
+
+
 
 #### Sub-task 14.2: Staff login (separate session)
 
 - [ ] `StaffLoginForm`: email, password, TOTP → `POST /auth/staff/login`.
 - [ ] Store staff access token in `sessionStorage` key `nakuruhub-staff-access` (not customer context).
 
+
+
 #### Sub-task 14.3: Pending queue table
 
 - [ ] Fetch `GET /admin/vendors?status=pending`.
 - [ ] Rows: name, categories, created_at, actions.
 
+
+
 #### Sub-task 14.4: Approve / reject / verify + docs
 
 - [ ] Wire `POST /admin/vendors/:id/approve|reject|verify`.
 - [ ] “View documents” → admin doc list → open signed URL in new tab.
+
+
 
 #### Sub-task 14.5: Retire demo admin
 
@@ -628,37 +792,52 @@ cd server && npm install @supabase/supabase-js
 
 ---
 
+
+
 ## Phase P4 — Catalog, listings, checkout
+
+
 
 ### Task 15: Live catalog
 
 **Files:**
-- Create: `hub/lib/nakuru/listings.ts`
-- Modify: `hub/components/app/views/HomeView.tsx`
-- Modify: `hub/components/app/views/CategoryView.tsx`
-- Modify: `hub/components/app/ProductCard.tsx`
-- Modify: `hub/lib/nakuru/types.ts`
-- Modify: `hub/lib/nakuru/data/items.ts` — fallback when `NEXT_PUBLIC_USE_LIVE_CATALOG !== 'true'`
+
+- Create: `lib/nakuru/listings.ts`
+- Modify: `components/app/views/HomeView.tsx`
+- Modify: `components/app/views/CategoryView.tsx`
+- Modify: `components/app/ProductCard.tsx`
+- Modify: `lib/nakuru/types.ts`
+- Modify: `lib/nakuru/data/items.ts` — fallback when `NEXT_PUBLIC_USE_LIVE_CATALOG !== 'true'`
+
+
 
 #### Sub-task 15.1: Types + fetch layer
 
 - [ ] Define `ApiListing` type matching `GET /listings` JSON.
 - [ ] `fetchListings({ category?, query? })` with 30s client cache or SWR-less simple state.
 
+
+
 #### Sub-task 15.2: Adapter to UI model
 
 - [ ] `toProductCardItem(api)` maps `id`, `title`, `price`, `emoji`, `vendor`, `verified`, `category`.
 - [ ] UUID `id` replaces numeric demo ids when live catalog on.
+
+
 
 #### Sub-task 15.3: HomeView integration
 
 - [ ] Load listings on mount when `USE_LIVE_CATALOG`.
 - [ ] Loading skeleton + empty state copy.
 
+
+
 #### Sub-task 15.4: CategoryView + search
 
 - [ ] Pass `category` query param to API.
 - [ ] Client filter search on title if API has no search v1.
+
+
 
 #### Sub-task 15.5: ProductCard CTA split
 
@@ -667,20 +846,29 @@ cd server && npm install @supabase/supabase-js
 
 ---
 
+
+
 ### Task 16: Vendor product forms
 
 **Files:**
-- Create: `hub/components/app/vendor/VendorProductForm.tsx`
-- Modify: `hub/components/app/views/VendorView.tsx`
+
+- Create: `components/app/vendor/VendorProductForm.tsx`
+- Modify: `components/app/views/VendorView.tsx`
+
+
 
 #### Sub-task 16.1: Create form
 
 - [ ] Mode toggle shop vs service (from approved categories only).
 - [ ] POST `/products` body per `productNew`.
 
+
+
 #### Sub-task 16.2: My listings list
 
 - [ ] GET `/vendor/products`; table with title, price, active, category.
+
+
 
 #### Sub-task 16.3: Edit / deactivate
 
@@ -688,37 +876,52 @@ cd server && npm install @supabase/supabase-js
 
 ---
 
+
+
 ### Task 17: Shop checkout against API
 
 **Files:**
-- Modify: `hub/components/app/views/CartView.tsx`
-- Modify: `hub/lib/nakuru/reducer.ts` — cart keys as string UUIDs
-- Create: `hub/lib/nakuru/orders.ts`
+
+- Modify: `components/app/views/CartView.tsx`
+- Modify: `lib/nakuru/reducer.ts` — cart keys as string UUIDs
+- Create: `lib/nakuru/orders.ts`
+
+
 
 #### Sub-task 17.1: Cart identity migration
 
 - [ ] Cart state: `Record<string, number>` works for UUID strings; audit `itemById` usage.
 - [ ] When live catalog off, keep demo ids; when on, only API ids in cart.
 
+
+
 #### Sub-task 17.2: Checkout payload
 
 - [ ] Build `orderNew`: items `{ productId, qty }`, zone, address, `payment: 'cod'`.
 - [ ] Map reducer `pay` mpesa → only if API supports and cart verified.
+
+
 
 #### Sub-task 17.3: Delivery phone field
 
 - [ ] Checkout input `07xx` → `orderNew.phone` optional schema.
 - [ ] Copy explains SMS/rider contact (not OTP).
 
+
+
 #### Sub-task 17.4: Place order + errors
 
 - [ ] Handle `409 out_of_stock`, `400 mpesa_needs_verified_vendor`.
 - [ ] Clear cart on success; toast order id.
 
+
+
 #### Sub-task 17.5: Order history (customer)
 
 - [ ] Optional v1: `GET /orders/mine` if exists — else stub “orders in email”.
 - [ ] Or keep demo order list until server customer list wired — document gap.
+
+
 
 #### Sub-task 17.6: Regression demo mode
 
@@ -726,22 +929,31 @@ cd server && npm install @supabase/supabase-js
 
 ---
 
+
+
 ### Task 18: Service inquiry UI
 
 **Files:**
-- Create: `hub/components/app/ServiceInquiryModal.tsx`
-- Create: `hub/components/app/vendor/VendorInquiriesList.tsx`
-- Modify: `hub/components/app/ProductCard.tsx` or detail sheet
+
+- Create: `components/app/ServiceInquiryModal.tsx`
+- Create: `components/app/vendor/VendorInquiriesList.tsx`
+- Modify: `components/app/ProductCard.tsx` or detail sheet
+
+
 
 #### Sub-task 18.1: Customer modal
 
 - [ ] Require login; optional message textarea.
 - [ ] `POST /service-inquiries` with `productId`.
 
+
+
 #### Sub-task 18.2: Vendor inquiries list
 
 - [ ] Approved vendor sees open inquiries on vendor tab.
 - [ ] `GET /vendor/inquiries`; mark closed when API supports.
+
+
 
 #### Sub-task 18.3: ProductCard hook-up
 
@@ -749,23 +961,34 @@ cd server && npm install @supabase/supabase-js
 
 ---
 
+
+
 ## Phase P5 — Anchor seeding + launch gate
+
+
 
 ### Task 19: Anchor vendor seed script
 
 **Files:**
-- Create: `server/scripts/seed-anchor-vendor.js`
-- Create: `hub/docs/runbooks/anchor-vendors.md`
+
+- Create: `scripts/seed-anchor-vendor.ts`
+- Create: `docs/runbooks/anchor-vendors.md`
+
+
 
 #### Sub-task 19.1: Seed script
 
 - [ ] CLI: email, vendor name, categories array, path to products JSON.
 - [ ] Uses DB directly; does not bypass audit — log to stdout for manual audit entry.
 
+
+
 #### Sub-task 19.2: Runbook
 
 - [ ] Offline consent + doc collection steps.
 - [ ] Staff approve on `/staff`; vendor adds products via UI or script.
+
+
 
 #### Sub-task 19.3: Launch inventory gate
 
@@ -773,24 +996,35 @@ cd server && npm install @supabase/supabase-js
 
 ---
 
+
+
 ### Task 20: E2E and production env
 
 **Files:**
-- Modify: `hub/e2e/app-smoke.spec.mjs`
-- Modify: `hub/README.md`, `server/.env.example`
+
+- Modify: `e2e/app-smoke.spec.mjs`
+- Modify: `README.md`, `.env.example`
+
+
 
 #### Sub-task 20.1: Playwright staging profile
 
 - [ ] Env flag to hit staging API or skip OTP tests with `@requires-mailgun` tag.
+
+
 
 #### Sub-task 20.2: Mailgun production domain
 
 - [ ] SPF, DKIM, DMARC for sending domain.
 - [ ] Suppression / bounce handling link in runbook.
 
+
+
 #### Sub-task 20.3: Supabase production
 
 - [ ] PITR or daily backups on; restrict service role to API IPs if possible.
+
+
 
 #### Sub-task 20.4: Secret rotation doc
 
@@ -798,37 +1032,47 @@ cd server && npm install @supabase/supabase-js
 
 ---
 
+
+
 ## Verification matrix
 
-| Check | Command / action |
-|-------|------------------|
-| API health | `curl -s http://127.0.0.1:3001/me` → 401 |
-| Email OTP | Request + verify flow in dev |
+
+| Check         | Command / action                              |
+| ------------- | --------------------------------------------- |
+| API health    | `curl -s http://127.0.0.1:3000/api/me` → 401  |
+| Email OTP     | Request + verify flow in dev                  |
 | Listings gate | Pending vendor product not in `GET /listings` |
-| Documents | 403 cross-user download |
-| Next catalog | `NEXT_PUBLIC_USE_LIVE_CATALOG=true pnpm dev` |
-| Staff queue | `/staff` approve pending vendor |
-| Shop E2E | OTP → browse → cart → COD order |
-| Service E2E | Inquiry email received in Mailgun logs |
+| Documents     | 403 cross-user download                       |
+| Next catalog  | `NEXT_PUBLIC_USE_LIVE_CATALOG=true pnpm dev`  |
+| Staff queue   | `/staff` approve pending vendor               |
+| Shop E2E      | OTP → browse → cart → COD order               |
+| Service E2E   | Inquiry email received in Mailgun logs        |
+
 
 ---
+
+
 
 ## Spec coverage self-review
 
-| Spec section | Task(s) |
-|--------------|---------|
+
+| Spec section        | Task(s)                 |
+| ------------------- | ----------------------- |
 | §2 success criteria | Tasks 5, 8–9, 15–18, 19 |
-| §3 decisions | Task 10, 14 |
-| §6.2 documents | Tasks 7–8 |
-| §6.3 inquiries | Task 9, 18 |
-| §7 data model | Task 2 |
-| §8 API | Tasks 5, 8–10 |
-| §9 frontend | Tasks 11–18 |
-| §11 anchors | Task 19 |
-| Email OTP (infra) | Tasks 3–5, 12 |
-| Supabase | Tasks 1–2, 7 |
+| §3 decisions        | Task 10, 14             |
+| §6.2 documents      | Tasks 7–8               |
+| §6.3 inquiries      | Task 9, 18              |
+| §7 data model       | Task 2                  |
+| §8 API              | Tasks 5, 8–10           |
+| §9 frontend         | Tasks 11–18             |
+| §11 anchors         | Task 19                 |
+| Email OTP (infra)   | Tasks 3–5, 12           |
+| Supabase            | Tasks 1–2, 7            |
+
 
 ---
+
+
 
 ## Suggested commit sequence
 
@@ -846,5 +1090,6 @@ cd server && npm install @supabase/supabase-js
 
 **Execution options:**
 
-1. **Subagent-driven** — one sub-task per session, review between sub-tasks  
+1. **Subagent-driven** — one sub-task per session, review between sub-tasks
 2. **Inline** — run sub-tasks in order in this chat (start with **1.1** or **2.1**)
+
