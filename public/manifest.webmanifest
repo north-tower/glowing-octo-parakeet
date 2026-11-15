@@ -1,0 +1,18 @@
+{
+  "name": "NakuruHub",
+  "short_name": "NakuruHub",
+  "description": "Shop, homes, cars and services in Nakuru",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f1f6f5",
+  "theme_color": "#0d5c58",
+  "lang": "en-KE",
+  "icons": [
+    {
+      "src": "/assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

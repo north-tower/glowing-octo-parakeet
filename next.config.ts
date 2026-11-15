@@ -1,7 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  async redirects() {
+    return [
+      { source: "/landing.html", destination: "/", permanent: true },
+      { source: "/index.html", destination: "/app", permanent: true },
+    ];
+  },
   cacheComponents: true,
   partialPrefetching: true,
   turbopack: {
