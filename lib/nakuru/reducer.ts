@@ -11,6 +11,7 @@ import type {
   AccView,
   CategoryId,
   NakuruState,
+  Order,
   PayMethod,
   TabId,
 } from "@/lib/nakuru/types";
@@ -62,7 +63,10 @@ export type NakuruAction =
   | { type: "CART_INC"; id: string }
   | { type: "CART_DEC"; id: string }
   | { type: "PLACE_ORDER" }
-  | { type: "ADV_ORDER"; id: number }
+  | { type: "CLEAR_CART" }
+  | { type: "SET_ORDERS"; orders: Order[] }
+  | { type: "APPEND_ORDERS"; orders: Order[] }
+  | { type: "ADV_ORDER"; id: number | string }
   | { type: "VC_TOGGLE"; cat: CategoryId }
   | { type: "SET_VN"; vn: string }
   | { type: "SET_VP"; vp: string }
@@ -193,6 +197,17 @@ export function nakuruReducer(
       else next[action.id] = cur - 1;
       return { state: { ...state, cart: next } };
     }
+    case "CLEAR_CART":
+      return { state: { ...state, cart: {} } };
+    case "SET_ORDERS":
+      return { state: { ...state, orders: action.orders } };
+    case "APPEND_ORDERS":
+      return {
+        state: {
+          ...state,
+          orders: [...state.orders, ...action.orders],
+        },
+      };
     case "PLACE_ORDER": {
       const ids = Object.keys(state.cart);
       if (!ids.length || isOutsideArea(state.area)) return { state };
@@ -225,9 +240,10 @@ export function nakuruReducer(
       };
     }
     case "ADV_ORDER": {
-      const orders = state.orders.map((o) =>
-        o.id === action.id && o.s < 4 ? { ...o, s: o.s + 1 } : o,
-      );
+      const orders = state.orders.map((o) => {
+        if (o.live || o.id !== action.id || o.s >= 4) return o;
+        return { ...o, s: o.s + 1 };
+      });
       return { state: { ...state, orders } };
     }
     case "VC_TOGGLE": {

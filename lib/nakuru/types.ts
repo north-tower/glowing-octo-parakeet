@@ -25,11 +25,15 @@ export type Listing = {
 };
 
 export type Order = {
-  id: number;
+  /** Demo ids are numbers; live orders use server UUIDs. */
+  id: number | string;
   total: number;
   pay: string;
   s: number;
   code: string;
+  /** True when synced from `POST /orders` or `GET /orders/mine`. */
+  live?: boolean;
+  status?: string;
 };
 
 export type VendorApplication = {

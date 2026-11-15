@@ -616,7 +616,7 @@ pnpm add -D @types/pg
 #### Sub-task 13.2: Status dashboard
 
 - [ ] Poll or load `GET /vendors/mine` for `status`, `verified`, `categories`.
-- [ ] Approved → show `VendorProductForm` placeholder area (Task 16).
+- [x] Approved → show `VendorProductForm` (Task 16).
 
 #### Sub-task 13.3: Remove demo vendor state
 
@@ -703,20 +703,22 @@ pnpm add -D @types/pg
 **Files:**
 
 - Create: `components/app/vendor/VendorProductForm.tsx`
+- Create: `lib/server/products.ts`
+- Create: `app/api/products/route.ts`, `app/api/vendor/products/route.ts`, `app/api/products/[id]/update/route.ts`
 - Modify: `components/app/views/VendorView.tsx`
 
 #### Sub-task 16.1: Create form
 
-- [ ] Mode toggle shop vs service (from approved categories only).
-- [ ] POST `/products` body per `productNew`.
+- [x] Mode toggle shop vs service (from approved categories only).
+- [x] POST `/products` body per `productNew`.
 
 #### Sub-task 16.2: My listings list
 
-- [ ] GET `/vendor/products`; table with title, price, active, category.
+- [x] GET `/vendor/products`; table with title, price, active, category.
 
 #### Sub-task 16.3: Edit / deactivate
 
-- [ ] POST `/products/:id/update` for price, stock, `active: false`.
+- [x] POST `/products/:id/update` for price, stock, `active: false`.
 
 ---
 
@@ -730,32 +732,32 @@ pnpm add -D @types/pg
 
 #### Sub-task 17.1: Cart identity migration
 
-- [ ] Cart state: `Record<string, number>` works for UUID strings; audit `itemById` usage.
-- [ ] When live catalog off, keep demo ids; when on, only API ids in cart.
+- [x] Cart state: `Record<string, number>` works for UUID strings; audit `itemById` usage.
+- [x] When live catalog off, keep demo ids; when on, only API ids in cart.
 
 #### Sub-task 17.2: Checkout payload
 
-- [ ] Build `orderNew`: items `{ productId, qty }`, zone, address, `payment: 'cod'`.
-- [ ] Map reducer `pay` mpesa → only if API supports and cart verified.
+- [x] Build `orderNew`: items `{ productId, qty }`, zone, address, `payment: 'cod'`.
+- [x] Map reducer `pay` mpesa → only if API supports and cart verified.
 
 #### Sub-task 17.3: Delivery phone field
 
-- [ ] Checkout input `07xx` → `orderNew.phone` optional schema.
-- [ ] Copy explains SMS/rider contact (not OTP).
+- [x] Checkout input `07xx` → `orderNew.phone` optional schema.
+- [x] Copy explains SMS/rider contact (not OTP).
 
 #### Sub-task 17.4: Place order + errors
 
-- [ ] Handle `409 out_of_stock`, `400 mpesa_needs_verified_vendor`.
-- [ ] Clear cart on success; toast order id.
+- [x] Handle `409 out_of_stock`, `400 mpesa_needs_verified_vendor`.
+- [x] Clear cart on success; toast order id.
 
 #### Sub-task 17.5: Order history (customer)
 
-- [ ] Optional v1: `GET /orders/mine` if exists — else stub “orders in email”.
-- [ ] Or keep demo order list until server customer list wired — document gap.
+- [x] Optional v1: `GET /orders/mine` if exists — else stub “orders in email”.
+- [x] Or keep demo order list until server customer list wired — document gap.
 
 #### Sub-task 17.6: Regression demo mode
 
-- [ ] With `USE_LIVE_CATALOG=false`, cart still uses demo place order path.
+- [x] With `USE_LIVE_CATALOG=false`, cart still uses demo place order path.
 
 ---
 

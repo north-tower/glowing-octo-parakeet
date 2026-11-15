@@ -17,6 +17,7 @@ import {
   ListingsSkeleton,
 } from "@/components/app/catalog/ListingsStates";
 import { useCatalogListings } from "@/lib/nakuru/use-catalog-listings";
+import { useListingAct } from "@/lib/nakuru/use-listing-act";
 import { isOutsideArea } from "@/lib/nakuru/area";
 import { kes } from "@/lib/nakuru/format";
 import type { CategoryId } from "@/lib/nakuru/types";
@@ -69,6 +70,7 @@ function catalogCategoryForFilter(cat: CategoryId): CategoryId | "all" {
 
 export function HomeView() {
   const { state, dispatch, toast } = useNakuruApp();
+  const { onAct, serviceInquiryEnabled, inquiryModal } = useListingAct();
   const { carRef, ci } = useHomeCarousel(state.tab === "home");
   const liveCatalog = isLiveCatalogEnabled();
 
@@ -147,6 +149,7 @@ export function HomeView() {
 
     return (
       <>
+        {inquiryModal}
         {warn}
         {error ? (
           <div className="err" style={{ marginBottom: 8 }}>
@@ -161,7 +164,8 @@ export function HomeView() {
               <ProductCard
                 key={String(i.id)}
                 item={i}
-                onAct={(id) => dispatch({ type: "ITEM_ACT", id })}
+                serviceInquiryEnabled={serviceInquiryEnabled}
+                onAct={onAct}
               />
             ))}
           </div>
@@ -182,6 +186,7 @@ export function HomeView() {
 
   return (
     <>
+      {inquiryModal}
       <div className="trust">
         <div>
           🛡️<b>Verified vendors</b>ID and shop checked
@@ -318,7 +323,8 @@ export function HomeView() {
             <ProductCard
               key={String(i.id)}
               item={i}
-              onAct={(id) => dispatch({ type: "ITEM_ACT", id })}
+              serviceInquiryEnabled={serviceInquiryEnabled}
+              onAct={onAct}
             />
           ))}
         </div>
@@ -332,7 +338,7 @@ export function HomeView() {
               <ProductCard
                 key={i.id}
                 item={i}
-                onAct={(id) => dispatch({ type: "ITEM_ACT", id })}
+                onAct={onAct}
               />
             ))}
         </div>

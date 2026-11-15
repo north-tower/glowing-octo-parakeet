@@ -16,12 +16,14 @@ import {
   ListingsSkeleton,
 } from "@/components/app/catalog/ListingsStates";
 import { useCatalogListings } from "@/lib/nakuru/use-catalog-listings";
+import { useListingAct } from "@/lib/nakuru/use-listing-act";
 import type { CategoryId } from "@/lib/nakuru/types";
 
 const BROWSE_SIDES = new Set(["shop", "property", "cars", "services"]);
 
 export function CategoryView() {
   const { state, dispatch, toast } = useNakuruApp();
+  const { onAct, serviceInquiryEnabled, inquiryModal } = useListingAct();
   const s = state.side;
   const liveCatalog = isLiveCatalogEnabled();
   const apiCategory =
@@ -40,6 +42,7 @@ export function CategoryView() {
 
   return (
     <div className="cl">
+      {inquiryModal}
       <div className="sd">
         {SIDE.map((x) => (
           <button
@@ -146,7 +149,8 @@ export function CategoryView() {
                       <ProductCard
                         key={String(i.id)}
                         item={i}
-                        onAct={(id) => dispatch({ type: "ITEM_ACT", id })}
+                        serviceInquiryEnabled={serviceInquiryEnabled}
+                        onAct={onAct}
                       />
                     ))}
                   </div>

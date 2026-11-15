@@ -8,6 +8,7 @@ import { useAuth } from "@/components/app/AppAuthProvider";
 import { useNakuruApp } from "@/components/app/AppProvider";
 import { VendorApplyForm } from "@/components/app/vendor/VendorApplyForm";
 import { VendorProductForm } from "@/components/app/vendor/VendorProductForm";
+import { VendorInquiriesList } from "@/components/app/vendor/VendorInquiriesList";
 import { apiFetch, ApiError } from "@/lib/nakuru/api";
 import { useLiveApi } from "@/lib/nakuru/api-mode";
 import { CATS, SOON, TOOLS, categoryName } from "@/lib/nakuru/data/constants";
@@ -175,6 +176,7 @@ function LiveVendorPanel() {
             approvedCategories={cats}
             toast={toast}
           />
+          {cats.includes("services") ? <VendorInquiriesList /> : null}
         </>
       ) : primary.status === "rejected" ? (
         <VendorApplyForm onApplied={() => void loadMine()} toast={toast} />
