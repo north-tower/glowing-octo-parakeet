@@ -24,6 +24,9 @@ function resolveUrl(path: string): string {
   return base ? `${base}${p}` : p;
 }
 
+const STAFF_TOTP_REQUIRED =
+  process.env.NEXT_PUBLIC_STAFF_TOTP_REQUIRED === "true";
+
 export function StaffLoginForm({ onLoggedIn }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -45,7 +48,7 @@ export function StaffLoginForm({ onLoggedIn }: Props) {
         setError("Password must be at least 12 characters.");
         return;
       }
-      if (!/^\d{6}$/.test(totp)) {
+      if (STAFF_TOTP_REQUIRED && !/^\d{6}$/.test(totp)) {
         setError("Enter the 6-digit code from your authenticator app.");
         return;
       }
@@ -59,7 +62,11 @@ export function StaffLoginForm({ onLoggedIn }: Props) {
             "Content-Type": "application/json",
             "X-Requested-With": "nakuruhub",
           },
-          body: JSON.stringify({ email: normalized, password, totp }),
+          body: JSON.stringify({
+            email: normalized,
+            password,
+            ...(STAFF_TOTP_REQUIRED ? { totp } : {}),
+          }),
         });
         const data = (await res.json().catch(() => null)) as {
           access?: string;
@@ -69,7 +76,9 @@ export function StaffLoginForm({ onLoggedIn }: Props) {
         if (!res.ok || !data?.access) {
           const msg =
             data?.error === "invalid_credentials"
-              ? "Invalid email, password, or authenticator code."
+              ? STAFF_TOTP_REQUIRED
+                ? "Invalid email, password, or authenticator code."
+                : "Invalid email or password."
               : "Could not sign in.";
           setError(msg);
           return;
@@ -90,8 +99,9 @@ export function StaffLoginForm({ onLoggedIn }: Props) {
     <form onSubmit={submit}>
       <h2>Staff sign-in</h2>
       <p className="m" style={{ marginBottom: 12 }}>
-        Password and authenticator required. Customer OTP does not grant staff
-        access.
+        {STAFF_TOTP_REQUIRED
+          ? "Password and authenticator required. Customer OTP does not grant staff access."
+          : "Password only for now. Customer OTP does not grant staff access."}
       </p>
       {error ? <div className="err">{error}</div> : null}
       <label htmlFor="staff-email">Work email</label>
@@ -115,19 +125,25 @@ export function StaffLoginForm({ onLoggedIn }: Props) {
         required
         minLength={12}
       />
-      <label htmlFor="staff-totp">Authenticator code</label>
-      <input
-        id="staff-totp"
-        type="text"
-        inputMode="numeric"
-        autoComplete="one-time-code"
-        pattern="\d{6}"
-        maxLength={6}
-        value={totp}
-        onChange={(e) => setTotp(e.target.value.replace(/\D/g, "").slice(0, 6))}
-        disabled={busy}
-        required
-      />
+      {STAFF_TOTP_REQUIRED ? (
+        <>
+          <label htmlFor="staff-totp">Authenticator code</label>
+          <input
+            id="staff-totp"
+            type="text"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            pattern="\d{6}"
+            maxLength={6}
+            value={totp}
+            onChange={(e) =>
+              setTotp(e.target.value.replace(/\D/g, "").slice(0, 6))
+            }
+            disabled={busy}
+            required
+          />
+        </>
+      ) : null}
       <button type="submit" className="btn full" disabled={busy} style={{ marginTop: 14 }}>
         {busy ? "Signing in…" : "Sign in"}
       </button>

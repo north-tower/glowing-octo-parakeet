@@ -53,6 +53,8 @@ export const config = {
     serviceKey: supabaseServiceKey,
   },
   otpEnforceVendorDocs: process.env.OTP_ENFORCE_VENDOR_DOCS === "true",
+  /** Set `STAFF_TOTP_REQUIRED=true` when staff must use an authenticator app. */
+  staffTotpRequired: process.env.STAFF_TOTP_REQUIRED === "true",
   launchCategories: (process.env.LAUNCH_CATEGORIES || "shop,services")
     .split(",")
     .map((s) => s.trim())

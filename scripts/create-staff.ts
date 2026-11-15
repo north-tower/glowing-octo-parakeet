@@ -1,5 +1,6 @@
 import argon2 from "argon2";
 import { generateSecret, generateURI } from "otplib";
+import { config } from "../lib/server/config";
 import { db } from "../lib/server/db";
 import { email as emailSchema } from "../lib/server/schemas";
 import { enc } from "../lib/server/secrets";
@@ -24,8 +25,9 @@ const staffEmail = parsed.data;
 
 async function main() {
   const hash = await argon2.hash(pw, { type: argon2.argon2id });
-  const secret = generateSecret();
-  const encSecret = enc(secret);
+  const withTotp = config.staffTotpRequired;
+  const secret = withTotp ? generateSecret() : null;
+  const encSecret = secret ? enc(secret) : null;
 
   const updated = await db.q(
     `update users
@@ -44,8 +46,13 @@ async function main() {
     );
   }
 
-  console.log(`Staff account ready for ${staffEmail} (${role}). Add to your authenticator app:`);
-  console.log(generateURI({ issuer: "NakuruHub", label: staffEmail, secret }));
+  console.log(`Staff account ready for ${staffEmail} (${role}).`);
+  if (withTotp && secret) {
+    console.log("Add to your authenticator app:");
+    console.log(generateURI({ issuer: "NakuruHub", label: staffEmail, secret }));
+  } else {
+    console.log("Sign in at /staff with email and password (TOTP is off).");
+  }
   await db.pool.end();
 }
 

@@ -100,7 +100,7 @@ export const staff = z
   .object({
     email,
     password: z.string().min(12).max(128),
-    totp: z.string().regex(/^\d{6}$/),
+    totp: z.string().regex(/^\d{6}$/).optional(),
   })
   .strict();
 

@@ -101,7 +101,12 @@ export async function staffLogin(
 
   const step = Math.floor(Date.now() / 30_000);
   let okTotp = false;
-  if (u?.totp_secret) {
+  const totpEnforced = config.staffTotpRequired;
+  if (!totpEnforced) {
+    okTotp = true;
+  } else if (!u?.totp_secret) {
+    okTotp = false;
+  } else if (u.totp_secret) {
     try {
       const secret = decryptTotpSecret(u.totp_secret);
       const totpOk = await verifyTotp({ token: totpCode, secret });
@@ -113,11 +118,18 @@ export async function staffLogin(
 
   let ok = !!(u && !u.disabled && !locked && okPw && okTotp);
   if (ok && u) {
-    const burn = await db.q(
-      "update users set totp_step = $2, failed_logins = 0, locked_until = null where id = $1 and coalesce(totp_step, 0) < $2 returning id",
-      [u.id, step],
-    );
-    ok = (burn.rowCount ?? 0) === 1;
+    if (totpEnforced) {
+      const burn = await db.q(
+        "update users set totp_step = $2, failed_logins = 0, locked_until = null where id = $1 and coalesce(totp_step, 0) < $2 returning id",
+        [u.id, step],
+      );
+      ok = (burn.rowCount ?? 0) === 1;
+    } else {
+      await db.q(
+        "update users set failed_logins = 0, locked_until = null where id = $1",
+        [u.id],
+      );
+    }
   }
 
   if (!ok) {

@@ -7,6 +7,7 @@ import {
   staffLogin,
   startSession,
 } from "@/lib/server/auth";
+import { config } from "@/lib/server/config";
 import { staff } from "@/lib/server/schemas";
 
 export async function POST(req: Request) {
@@ -23,7 +24,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "bad_request" }, { status: 400 });
   }
 
-  const u = await staffLogin(b.data.email, b.data.password, b.data.totp);
+  if (config.staffTotpRequired && !b.data.totp) {
+    return NextResponse.json({ error: "bad_request" }, { status: 400 });
+  }
+
+  const u = await staffLogin(
+    b.data.email,
+    b.data.password,
+    b.data.totp ?? "",
+  );
   if (!u) {
     await audit("staff_login_fail", null, ip);
     return NextResponse.json({ error: "invalid_credentials" }, { status: 401 });
