@@ -504,9 +504,9 @@ pnpm add -D @types/pg
 
 - Produces: `POST /service-inquiries`, `GET /vendor/inquiries`, `GET /service-inquiries/mine`
 
-- [ ] **Step 1:** Implement handlers per spec; on create, load vendor owner email and `mailgun.sendMail` “New quote request”.
-- [ ] **Step 2:** Rate limit: 20/hour per customer.
-- [ ] **Step 3:** Test: non-service product returns 400.
+- [x] **Step 1:** Implement handlers per spec; on create, load vendor owner email and `mailgun.sendMail` “New quote request”.
+- [x] **Step 2:** Rate limit: 20/hour per customer.
+- [x] **Step 3:** Test: non-service product returns 400.
 
 ---
 
@@ -517,8 +517,8 @@ pnpm add -D @types/pg
 - Modify: `lib/server/vendors.ts`
 - Modify: `lib/server/schemas.ts` — `vendorNew.categories` refine against `config.launchCategories`
 
-- [ ] **Step 1:** Reject `property`, `cars`, `stays`, `taxi` at validation.
-- [ ] **Step 2:** Test POST with invalid category → 400.
+- [x] **Step 1:** Reject `property`, `cars`, `stays`, `taxi` at validation.
+- [x] **Step 2:** Test POST with invalid category → 400.
 
 ---
 
@@ -540,26 +540,26 @@ pnpm add -D @types/pg
 
 #### Sub-task 11.1: Environment
 
-- [ ] `.env.local`: optional `NEXT_PUBLIC_API_BASE=` empty (use relative `/api`).
-- [ ] Single terminal: `pnpm dev` on 3000 only.
-- [ ] No CORS spike required for same-origin (Sub-task 11.5 becomes cookie `httpOnly` + `secure` check only).
+- [x] `.env.local`: optional `NEXT_PUBLIC_API_BASE=` empty (use relative `/api`).
+- [x] Single terminal: `pnpm dev` on 3000 only.
+- [x] No CORS spike required for same-origin (Sub-task 11.5 becomes cookie `httpOnly` + `secure` check only).
 
 #### Sub-task 11.2: `apiFetch` core
 
-- [ ] Create `lib/nakuru/api.ts` with base URL, JSON parse, error type `{ error: string }`.
-- [ ] Headers: `Content-Type`, `X-Requested-With: nakuruhub`, optional `Authorization`.
+- [x] Create `lib/nakuru/api.ts` with base URL, JSON parse, error type `{ error: string }`.
+- [x] Headers: `Content-Type`, `X-Requested-With: nakuruhub`, optional `Authorization`.
 
 #### Sub-task 11.3: Token refresh
 
-- [ ] On 401 once: `POST /auth/refresh` with `credentials: 'include'`.
-- [ ] Update in-memory access token; retry original request.
-- [ ] On refresh fail: clear session, return unauthenticated.
+- [x] On 401 once: `POST /auth/refresh` with `credentials: 'include'`.
+- [x] Update in-memory access token; retry original request.
+- [x] On refresh fail: clear session, return unauthenticated.
 
 #### Sub-task 11.4: `AppAuthProvider`
 
-- [ ] `useAuth()`: `user`, `accessToken`, `setSessionFromOtp`, `logout()`.
-- [ ] `logout` → `POST /auth/logout` + clear state.
-- [ ] Wrap marketplace in `app/app/page.tsx` or `AppProvider`.
+- [x] `useAuth()`: `user`, `accessToken`, `setSessionFromOtp`, `logout()`.
+- [x] `logout` → `POST /auth/logout` + clear state.
+- [x] Wrap marketplace in `app/app/page.tsx` or `AppProvider`.
 
 #### Sub-task 11.5: CORS spike (checkpoint)
 

@@ -4,7 +4,6 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useRef,
   useState,
@@ -17,6 +16,7 @@ import {
   type NakuruAction,
 } from "@/lib/nakuru/reducer";
 import type { NakuruState } from "@/lib/nakuru/types";
+import { AppAuthProvider } from "@/components/app/AppAuthProvider";
 
 type NakuruContextValue = {
   state: NakuruState;
@@ -75,17 +75,19 @@ export function AppProvider({ children }: ProviderProps) {
   );
 
   return (
-    <NakuruContext.Provider value={value}>
-      {children}
-      <div
-        id="toast"
-        className="toast"
-        role="status"
-        aria-live="polite"
-        hidden={!toastVisible}
-      >
-        {toastText}
-      </div>
-    </NakuruContext.Provider>
+    <AppAuthProvider>
+      <NakuruContext.Provider value={value}>
+        {children}
+        <div
+          id="toast"
+          className="toast"
+          role="status"
+          aria-live="polite"
+          hidden={!toastVisible}
+        >
+          {toastText}
+        </div>
+      </NakuruContext.Provider>
+    </AppAuthProvider>
   );
 }
