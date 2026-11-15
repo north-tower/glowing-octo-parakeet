@@ -30,7 +30,8 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      {/* Phase 3: scope `landing` to `/` only via route layout */}
+      <body className="landing">{children}</body>
     </html>
   );
 }

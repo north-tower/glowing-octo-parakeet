@@ -4,9 +4,18 @@ import Link from "next/link";
 import { Bi } from "@/components/landing/Bi";
 import { LangToggle } from "@/components/landing/LangToggle";
 import { useLandingNav } from "@/components/landing/hooks/useLandingNav";
+import { useLandingLang } from "@/components/landing/LandingLangContext";
 
 export function LandingHeader() {
-  const { toggleMenu } = useLandingNav();
+  const { toggleMenu, menuOpen } = useLandingNav();
+  const { t } = useLandingLang();
+
+  const navLinks = [
+    { href: "#categories", en: "Categories", sw: "Kategoria" },
+    { href: "#why", en: "Why sell", sw: "Kwa nini uuze" },
+    { href: "#how", en: "How it works", sw: "Jinsi inavyofanya" },
+    { href: "#faq", en: "FAQ", sw: "Maswali" },
+  ] as const;
 
   return (
     <header className="top" id="site-header">
@@ -18,10 +27,16 @@ export function LandingHeader() {
           <span className="logo-text">NakuruHub</span>
         </Link>
         <nav className="top-nav" id="site-nav" aria-label="On this page">
-          <Bi as="a" href="#categories" en="Categories" sw="Kategoria" />
-          <Bi as="a" href="#why" en="Why sell" sw="Kwa nini uuze" />
-          <Bi as="a" href="#how" en="How it works" sw="Jinsi inavyofanya" />
-          <Bi as="a" href="#faq" en="FAQ" sw="Maswali" />
+          {navLinks.map((item) => (
+            <a
+              key={item.href}
+              href={item.href}
+              data-en={item.en}
+              data-sw={item.sw}
+            >
+              {t(item.en, item.sw)}
+            </a>
+          ))}
         </nav>
         <div className="header-actions">
           <LangToggle />
@@ -34,7 +49,7 @@ export function LandingHeader() {
           <button
             type="button"
             className="nav-menu-btn"
-            aria-expanded={false}
+            aria-expanded={menuOpen}
             aria-controls="site-nav"
             aria-label="Open menu"
             onClick={toggleMenu}
