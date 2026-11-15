@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Ship a public launch where vendors apply with documents, pass admin review, publish shop products and service listings on a live catalog, with customers checking out shop orders (COD) and requesting service quotes—backed by Supabase Postgres/Storage and Mailgun email OTP.
+**Goal:** Ship a public launch where vendors apply after **email OTP** verification, pass **admin review** (no in-app document upload at launch), publish shop products and service listings on a live catalog, with customers checking out shop orders (COD) and requesting service quotes—backed by Supabase Postgres and Mailgun email OTP.
 
-**Architecture:** Implement **everything in the Next.js repo** `C:\Users\mhki\hub` only. **Do not** edit or deploy `C:\Users\mhki\nakuruhub\nakuruhub` — use its `server/` tree as a **read-only reference** when porting handlers. Backend lives in `lib/server/` (TypeScript) + **App Router Route Handlers** under `app/api/`* (same origin as the UI). Data: **Supabase PostgreSQL** + **Supabase Storage** (service role, server-only). Auth: **Mailgun** email OTP + httpOnly refresh cookies on `/api/auth/`*.
+**Architecture:** Implement **everything in the Next.js repo** `C:\Users\mhki\hub` only. **Do not** edit or deploy `C:\Users\mhki\nakuruhub\nakuruhub` — use its `server/` tree as a **read-only reference** when porting handlers. Backend lives in `lib/server/` (TypeScript) + **App Router Route Handlers** under `app/api/`* (same origin as the UI). Data: **Supabase PostgreSQL** (launch). **Supabase Storage / vendor documents (Phase P1) — skipped for launch** — see § Phase P1. Auth: **Mailgun** email OTP + httpOnly refresh cookies on `/api/auth/`*.
 
 **Tech stack:** Next.js 16 (App Router), React 19, TypeScript, `pg`, Zod, `@supabase/supabase-js`, Mailgun HTTP API, Vitest, Playwright e2e, pnpm.
 
@@ -20,20 +20,17 @@
 | **Env files**           | `.env.local` (gitignored), `.env.example` (committed template)                          |
 
 
-
-
 ## Global Constraints
 
 - **Spec:** [2026-11-15-vendor-onboarding-launch-design.md](../specs/2026-11-15-vendor-onboarding-launch-design.md) — launch categories `shop` and `services` only; nothing public until admin `approve`; Verified is separate for M-Pesa later.
 - **Auth:** Customer/vendor sign-in = **email OTP only** (Mailgun). Staff = email + password + TOTP — never email OTP alone.
 - **Secrets:** Never commit `.env.local`. Supabase service role + Mailgun only in server code (Route Handlers + `lib/server`).
 - **Phone:** Optional on `users.phone` for delivery; Kenyan format when present (`+2547…`). Checkout may override per order.
-- **Documents:** Private bucket only; max 5 MB; MIME allowlist `jpeg`, `png`, `webp`, `pdf`.
-- **Open questions (locked):** Reject = generic “rejected, contact support”; services may use `price_kes = 0`; new inquiry notifies vendor via **email** (Mailgun), not SMS.
+- **Vendor identity (launch):** **Email OTP only** — no self-serve ID/category upload or Storage integration until post-launch. Keep `OTP_ENFORCE_VENDOR_DOCS=false`; staff judge applications from business name, categories, and optional notes (offline KYC for anchors if needed).
+- **Documents (deferred — Phase P1):** When enabled later: private bucket; max 5 MB; MIME allowlist `jpeg`, `png`, `webp`, `pdf`. `vendor_documents` table may exist from migrations but unused at launch.
+- **Open questions (locked):** Reject = generic “rejected, contact support”; services may use `price_kes = 0`; new inquiry notifies vendor via **email** (Mailgun), not SMS; **P1 document storage skipped for launch** (2026-11-15).
 - **Same-origin API:** Route Handlers set cookies on the app domain; no separate `APP_ORIGIN` CORS setup unless you add an external API later.
 - **Read** `node_modules/next/dist/docs/` before changing routing, Route Handlers, or cookies.
-
-
 
 ## File map (new / major — repo root `hub`)
 
@@ -62,8 +59,6 @@
 | `tests/api/*.test.ts`                                     | Vitest API tests                                                  |
 
 
-
-
 ## Task index (parent → sub-tasks)
 
 Long-running work is split into **sub-tasks** `N.M` so each subagent session can finish in one reviewable unit (~30–90 min). Short tasks stay single blocks with steps only.
@@ -78,12 +73,12 @@ Long-running work is split into **sub-tasks** `N.M` so each subagent session can
 | **4** Email OTP             | steps only           | —                     |
 | **5** Auth email            | 5.1–5.5              | —                     |
 | **6** API tests             | steps only           | —                     |
-| **7** Storage helper        | steps only           | —                     |
-| **8** Document routes       | 8.1–8.6              | Multipart + admin     |
+| **7** Storage helper        | **SKIP (launch)**    | Phase P1 deferred     |
+| **8** Document routes       | **SKIP (launch)**    | Phase P1 deferred     |
 | **9–10** Inquiries + guards | steps only           | —                     |
 | **11** API client           | 11.1–11.5            | Same-origin `/api`    |
 | **12** Email OTP UI         | 12.1–12.4            | —                     |
-| **13** Vendor apply UI      | 13.1–13.5            | —                     |
+| **13** Vendor apply UI      | 13.1–13.3            | No uploads at launch  |
 | **14** Staff queue          | 14.1–14.5            | —                     |
 | **15** Live catalog         | 15.1–15.5            | Many views            |
 | **16** Vendor products      | 16.1–16.3            | —                     |
@@ -96,11 +91,7 @@ Long-running work is split into **sub-tasks** `N.M` so each subagent session can
 
 ---
 
-
-
 ## Phase P0 — Supabase + API foundation
-
-
 
 ### Task 0: Hub API skeleton (prerequisite)
 
@@ -116,11 +107,7 @@ Long-running work is split into **sub-tasks** `N.M` so each subagent session can
 
 ---
 
-
-
 ## Phase P0 (continued) — Supabase + API foundation
-
-
 
 ### Task 1: Supabase project and env wiring
 
@@ -134,8 +121,6 @@ Long-running work is split into **sub-tasks** `N.M` so each subagent session can
 
 - Produces: `config.supabase`, `config.mailgun`, relaxed production checks (no Africa's Talking).
 
-
-
 #### Sub-task 1.1: Supabase cloud setup (ops)
 
 - [x] Create Supabase project (note **project ref** and region).
@@ -144,15 +129,11 @@ Long-running work is split into **sub-tasks** `N.M` so each subagent session can
 - [x] Settings → Database → copy **Session pooler** URI for `DATABASE_URL`.
 - [x] Settings → API → copy `SUPABASE_URL` and **service role** key (server only).
 
-
-
 #### Sub-task 1.2: Local `.env` (developer)
 
 - [x] Copy `.env.example` → `.env.local` (never commit).
 - [x] Set `DATABASE_URL`, `SUPABASE_*`, Mailgun, JWT secrets in `.env.local`.
 - [x] Run one terminal only: `pnpm dev` (port 3000).
-
-
 
 #### Sub-task 1.3: Commit `.env.example` + `lib/server/config.ts`
 
@@ -196,16 +177,12 @@ module.exports = {
 
 - [x] **Step 6:** Migrations in `supabase/migrations/` — run **003** then **004** in Supabase SQL Editor (README deferred).
 
-
-
 #### Sub-task 1.4: Docs + smoke
 
 - [x] **Step 6:** Document in `README-supabase.md` how to run SQL migrations in SQL Editor vs `psql`.
 - [x] **Step 7:** Run `pnpm dev`; hit `GET /api/health` (`{ ok, db }`); see `docs/db/README-supabase.md` if `db: "error"`.
 
 ---
-
-
 
 ### Task 2: Database migrations on Supabase
 
@@ -218,15 +195,11 @@ module.exports = {
 
 - Produces: tables from `schema.sql` + launch additions; `users.email` as login identity.
 
-
-
 #### Sub-task 2.1: Scaffold migration files in repo
 
 - [x] Create `supabase/migrations/003_supabase_launch.sql` (empty header + comment: run on empty DB).
 - [x] Create `supabase/migrations/004_email_otp_and_launch_tables.sql`.
 - [x] In `README-supabase.md`, document run order: **003 then 004**.
-
-
 
 #### Sub-task 2.2: Port core schema into `003` (~45 min)
 
@@ -235,14 +208,10 @@ module.exports = {
 - [x] Remove or comment `create role nakuruhub_app` — Supabase uses `postgres` / pooler user for dev.
 - [x] Run `003` in Supabase SQL Editor; fix PostGIS or syntax errors until green.
 
-
-
 #### Sub-task 2.3: Fix OTP table primary keys for email (pre-004)
 
-- [x] Confirm `otp_codes` PK is `phone` today — plan rename in 004. _(Fresh DB: email PK in `003`.)_
+- [x] Confirm `otp_codes` PK is `phone` today — plan rename in 004. *(Fresh DB: email PK in `003`.)*
 - [x] If fresh DB: optionally define `otp_codes(email text primary key)` in 003 instead of phone to skip rename (keep one source of truth).
-
-
 
 #### Sub-task 2.4: Email + launch tables in `004`
 
@@ -283,16 +252,12 @@ create index if not exists service_inquiries_customer on service_inquiries(custo
 ```
 
 - [x] Add `unique` on `users(email)` where not null (in addition to `users_email_lower` index).
-- [x] Migrate `otp_daily` PK from `phone` to `email` if 003 created phone columns. _(N/A — email in `003`.)_
-
-
+- [x] Migrate `otp_daily` PK from `phone` to `email` if 003 created phone columns. *(N/A — email in `003`.)*
 
 #### Sub-task 2.5: Apply `004` on Supabase
 
 - [x] Run `004` in SQL Editor; resolve conflicts if 003 already used email columns.
 - [x] Re-run `pnpm dev` + `GET /api/health`; DB ping should succeed.
-
-
 
 #### Sub-task 2.6: Verification queries
 
@@ -301,8 +266,6 @@ create index if not exists service_inquiries_customer on service_inquiries(custo
 - [ ] Optional: insert test user row with email only (no phone).
 
 ---
-
-
 
 ### Task 3: Mailgun sender
 
@@ -317,12 +280,9 @@ create index if not exists service_inquiries_customer on service_inquiries(custo
 - Produces: `sendMail({ to, subject, text, html })`
 
 - [x] **Step 1:** Implement `lib/server/mailgun.ts` — `sendMail({ to, subject, text, html })`.
-
 - [x] **Step 2:** Smoke test in dev (Mailgun sandbox or log mode) — `lib/server/mailgun.test.ts` + `pnpm test`.
 
 ---
-
-
 
 ### Task 4: Email OTP module
 
@@ -352,8 +312,6 @@ await sendMail({
 
 ---
 
-
-
 ### Task 5: Zod schemas + auth routes (email)
 
 **Files:**
@@ -367,11 +325,9 @@ await sendMail({
 
 - Produces: `email`, `otpReq`/`otpVerify` on email; `users` upsert on `email`.
 
-
-
 #### Sub-task 5.1: Schemas only
 
-- [ ] **Step 1:** Add to `lib/server/schemas.ts`:
+- [x] **Step 1:** Add to `lib/server/schemas.ts`:
 
 ```javascript
 const email = z
@@ -389,14 +345,12 @@ module.exports = {
 };
 ```
 
-- [ ] Grep `schemas.ts` for `phone` exports still needed for `orderNew.phone` and rider scripts.
-- [ ] Run `pnpm exec tsc --noEmit` — schemas compile.
-
-
+- [x] Grep `schemas.ts` for `phone` exports still needed for `orderNew.phone` and rider scripts.
+- [x] Run `pnpm exec tsc --noEmit` — schemas compile.
 
 #### Sub-task 5.2: Customer OTP routes
 
-- [ ] **Step 2:** Port reference `auth.js` OTP handlers into `app/api/auth/otp/*/route.ts` + `lib/server/auth.ts`; user insert:
+- [x] **Step 2:** Port reference `auth.js` OTP handlers into `app/api/auth/otp/*/route.ts` + `lib/server/auth.ts`; user insert:
 
 ```javascript
 const u = (
@@ -423,25 +377,19 @@ const u = (
  (await db.q('select id, role, disabled from users where lower(email)=lower($1)', [b.data.email])).rows[0];
 ```
 
-- [ ] Update audit events: `otp_fail` / `login` still fire with user id.
-- [ ] `GET /me` returns `{ id, role }` — optionally add `email` later (not required v1).
-
-
+- [x] Update audit events: `otp_fail` / `login` still fire with user id.
+- [x] `GET /me` returns `{ id, role }` — optionally add `email` later (not required v1).
 
 #### Sub-task 5.3: Staff auth
 
-- [ ] **Step 3:** Staff login: query `where lower(email)=$1 and role in ('admin','support')`.
-- [ ] **Step 4:** `scripts/create-staff.ts` inserts `email`; usage: `STAFF_PASSWORD=... pnpm exec tsx scripts/create-staff.ts admin@example.com admin`.
-- [ ] Migrate existing staff rows manually in SQL if any phone-only staff exist.
-
-
+- [x] **Step 3:** Staff login: query `where lower(email)=$1 and role in ('admin','support')`.
+- [x] **Step 4:** `scripts/create-staff.ts` inserts `email`; usage: `STAFF_PASSWORD=... pnpm exec tsx scripts/create-staff.ts admin@example.com admin`.
+- [x] Migrate existing staff rows manually in SQL if any phone-only staff exist. *(N/A — email auth on fresh DB.)*
 
 #### Sub-task 5.4: Downstream phone references
 
-- [ ] `lib/server/orders.ts`: when `d.phone` missing, use `users.phone` or require checkout phone field (no crash on null email-era users).
-- [ ] `payments` / M-Pesa paths: unchanged for launch.
-
-
+- [x] `lib/server/orders.ts`: when `d.phone` missing, use `users.phone` or require checkout phone field (no crash on null email-era users).
+- [x] `payments` / M-Pesa paths: unchanged for launch.
 
 #### Sub-task 5.5: Manual auth smoke
 
@@ -450,8 +398,6 @@ const u = (
 - [ ] Verify → receive `access`; `GET /me` with Bearer token.
 
 ---
-
-
 
 ### Task 6: API test harness
 
@@ -464,19 +410,17 @@ const u = (
 
 - Consumes: running API or test app instance.
 
-- [ ] **Step 1:** Add `supertest` as devDependency.
-- [ ] **Step 2:** Write test that mocks Mailgun (set `MAILGUN_API_KEY` empty, read code from dev hook or test-only `OTP_TEST_EMAIL` env).
-- [ ] **Step 3:** Run `pnpm test` — document expected PASS.
+- [x] **Step 1:** Add `supertest` as devDependency.
+- [x] **Step 2:** Write test that mocks Mailgun (set `MAILGUN_API_KEY` empty, read code from dev hook or test-only `OTP_TEST_EMAIL` env).
+- [x] **Step 3:** Run `pnpm test` — document expected PASS.
 
 ---
 
+## **Phase P1 — Documents (Supabase Storage)** — **SKIPPED for launch**
 
+> **Decision (2026-11-15):** Vendor onboarding is **verified with email OTP only** for launch. Admin approve/reject uses application metadata (name, categories, contact email)—no in-app document upload, signed URLs, or Storage writes. Re-enable this phase when product requires ID/category files in-app (set `OTP_ENFORCE_VENDOR_DOCS=true` and implement Tasks 7–8).
 
-## Phase P1 — Documents (Supabase Storage)
-
-
-
-### Task 7: Storage helper
+### Task 7: Storage helper *(deferred)*
 
 **Files:**
 
@@ -499,9 +443,7 @@ pnpm add -D @types/pg
 
 ---
 
-
-
-### Task 8: Document routes
+### Task 8: Document routes *(deferred)*
 
 **Files:**
 
@@ -514,15 +456,11 @@ pnpm add -D @types/pg
 
 - Produces: routes per spec §8.1; `POST /vendors` checks `national_id_front` when `otpEnforceVendorDocs`.
 
-
-
 #### Sub-task 8.1: Upload route + validation
 
 - [ ] Add multipart middleware (max 5MB).
 - [ ] `POST /vendors/me/documents` — fields: `kind`, file body; MIME allowlist.
 - [ ] Resolve vendor: latest `pending` or `approved` row for `owner_id` (create stub vendor row rules if apply-after-upload).
-
-
 
 #### Sub-task 8.2: Storage write + DB row
 
@@ -530,28 +468,20 @@ pnpm add -D @types/pg
 - [ ] Insert `vendor_documents` row after successful upload.
 - [ ] On storage failure, do not insert row (or delete orphan).
 
-
-
 #### Sub-task 8.3: Vendor read APIs
 
 - [ ] `GET /vendors/me/documents` — metadata only.
 - [ ] `GET /vendors/me/documents/:id/url` — `{ url, expiresIn }` signed URL.
-
-
 
 #### Sub-task 8.4: Admin read APIs
 
 - [ ] `GET /admin/vendors/:vendorId/documents` — admin role.
 - [ ] `GET /admin/vendors/:vendorId/documents/:id/url` — audit `document_view` event.
 
-
-
 #### Sub-task 8.5: Apply gate on `POST /vendors`
 
 - [ ] If `otpEnforceVendorDocs`: require `national_id_front` exists for owner before insert.
 - [ ] If `services` in categories: require ≥1 `category_doc`.
-
-
 
 #### Sub-task 8.6: Tests + authz
 
@@ -560,11 +490,7 @@ pnpm add -D @types/pg
 
 ---
 
-
-
 ## Phase P2 — Service inquiries + launch guards
-
-
 
 ### Task 9: Service inquiries API
 
@@ -584,8 +510,6 @@ pnpm add -D @types/pg
 
 ---
 
-
-
 ### Task 10: Launch category guard
 
 **Files:**
@@ -598,11 +522,7 @@ pnpm add -D @types/pg
 
 ---
 
-
-
 ## Phase P3 — Next.js API client + email OTP UI
-
-
 
 ### Task 11: API client and auth context
 
@@ -618,22 +538,16 @@ pnpm add -D @types/pg
 
 - Produces: `apiFetch(path, opts)`, `useAuth()` with `accessToken`, `login()`, `logout()`, auto-refresh on 401.
 
-
-
 #### Sub-task 11.1: Environment
 
 - [ ] `.env.local`: optional `NEXT_PUBLIC_API_BASE=` empty (use relative `/api`).
 - [ ] Single terminal: `pnpm dev` on 3000 only.
 - [ ] No CORS spike required for same-origin (Sub-task 11.5 becomes cookie `httpOnly` + `secure` check only).
 
-
-
 #### Sub-task 11.2: `apiFetch` core
 
 - [ ] Create `lib/nakuru/api.ts` with base URL, JSON parse, error type `{ error: string }`.
 - [ ] Headers: `Content-Type`, `X-Requested-With: nakuruhub`, optional `Authorization`.
-
-
 
 #### Sub-task 11.3: Token refresh
 
@@ -641,15 +555,11 @@ pnpm add -D @types/pg
 - [ ] Update in-memory access token; retry original request.
 - [ ] On refresh fail: clear session, return unauthenticated.
 
-
-
 #### Sub-task 11.4: `AppAuthProvider`
 
 - [ ] `useAuth()`: `user`, `accessToken`, `setSessionFromOtp`, `logout()`.
 - [ ] `logout` → `POST /auth/logout` + clear state.
 - [ ] Wrap marketplace in `app/app/page.tsx` or `AppProvider`.
-
-
 
 #### Sub-task 11.5: CORS spike (checkpoint)
 
@@ -657,8 +567,6 @@ pnpm add -D @types/pg
 - [ ] Fix `SameSite` / proxy only if spike fails before Task 12.
 
 ---
-
-
 
 ### Task 12: Email OTP form + account entry
 
@@ -669,28 +577,20 @@ pnpm add -D @types/pg
 - Modify: `components/app/views/VendorView.tsx`
 - Modify: `components/app/SignInBar.tsx` if present
 
-
-
 #### Sub-task 12.1: Email step UI
 
 - [ ] Input type email, validation, submit → `POST /auth/otp/request`.
 - [ ] Loading + error toasts (reuse `Toast` pattern).
-
-
 
 #### Sub-task 12.2: Code step UI
 
 - [ ] Six-digit input, verify → `POST /auth/otp/verify` → `setSessionFromOtp`.
 - [ ] Resend cooldown aligned with server 60s rule.
 
-
-
 #### Sub-task 12.3: Account shell
 
 - [ ] `AccountView`: guest shows `EmailOtpForm`; signed-in shows email + sign out.
 - [ ] Remove copy “Phone (OTP verified)” from vendor registration (vendor apply is separate).
-
-
 
 #### Sub-task 12.4: Vendor deep link
 
@@ -699,54 +599,30 @@ pnpm add -D @types/pg
 
 ---
 
-
-
-### Task 13: Vendor apply + document upload UI
+### Task 13: Vendor apply UI (OTP-gated; no documents at launch)
 
 **Files:**
 
 - Create: `components/app/vendor/VendorApplyForm.tsx`
-- Create: `components/app/vendor/DocumentUpload.tsx`
 - Modify: `components/app/views/VendorView.tsx`
-
-
 
 #### Sub-task 13.1: Application form
 
+- [ ] Require signed-in session (email OTP completed) before apply.
 - [ ] Name + category chips (`shop`, `services` only; hide waitlist cats or show disabled).
 - [ ] `POST /vendors` on submit; handle `429 too_many_pending`.
+- [ ] Copy: identity attested by verified email; staff may request documents offline if needed.
 
-
-
-#### Sub-task 13.2: Document upload component
-
-- [ ] Reuse `ProfilePhotoUpload` patterns for ID front/back.
-- [ ] `FormData` POST to `/vendors/me/documents` per file.
-- [ ] Progress + 5MB client-side check.
-
-
-
-#### Sub-task 13.3: Apply flow order
-
-- [ ] Decide UX: documents before or after `POST /vendors` (recommend: create pending vendor first, then uploads tied to vendor id from `GET /vendors/mine`).
-- [ ] Enforce UI validation: cannot submit application without ID front.
-
-
-
-#### Sub-task 13.4: Status dashboard
+#### Sub-task 13.2: Status dashboard
 
 - [ ] Poll or load `GET /vendors/mine` for `status`, `verified`, `categories`.
 - [ ] Approved → show `VendorProductForm` placeholder area (Task 16).
 
-
-
-#### Sub-task 13.5: Remove demo vendor state
+#### Sub-task 13.3: Remove demo vendor state
 
 - [ ] When API mode on, ignore reducer `me` / `REG_VENDOR` for persistence; optional feature flag `useLiveApi`.
 
 ---
-
-
 
 ### Task 14: Staff vendor queue
 
@@ -757,34 +633,24 @@ pnpm add -D @types/pg
 - Create: `components/staff/StaffVendorQueue.tsx`
 - Modify: `components/app/views/AccountView.tsx` — hide demo admin row
 
-
-
 #### Sub-task 14.1: Staff route shell
 
 - [ ] `app/staff/page.tsx` client component; no link from public landing (bookmark only).
-
-
 
 #### Sub-task 14.2: Staff login (separate session)
 
 - [ ] `StaffLoginForm`: email, password, TOTP → `POST /auth/staff/login`.
 - [ ] Store staff access token in `sessionStorage` key `nakuruhub-staff-access` (not customer context).
 
-
-
 #### Sub-task 14.3: Pending queue table
 
 - [ ] Fetch `GET /admin/vendors?status=pending`.
 - [ ] Rows: name, categories, created_at, actions.
 
-
-
-#### Sub-task 14.4: Approve / reject / verify + docs
+#### Sub-task 14.4: Approve / reject / verify
 
 - [ ] Wire `POST /admin/vendors/:id/approve|reject|verify`.
-- [ ] “View documents” → admin doc list → open signed URL in new tab.
-
-
+- [ ] Queue row shows owner **email** (from user join) — no document viewer until Phase P1.
 
 #### Sub-task 14.5: Retire demo admin
 
@@ -792,11 +658,7 @@ pnpm add -D @types/pg
 
 ---
 
-
-
 ## Phase P4 — Catalog, listings, checkout
-
-
 
 ### Task 15: Live catalog
 
@@ -809,35 +671,25 @@ pnpm add -D @types/pg
 - Modify: `lib/nakuru/types.ts`
 - Modify: `lib/nakuru/data/items.ts` — fallback when `NEXT_PUBLIC_USE_LIVE_CATALOG !== 'true'`
 
-
-
 #### Sub-task 15.1: Types + fetch layer
 
 - [ ] Define `ApiListing` type matching `GET /listings` JSON.
 - [ ] `fetchListings({ category?, query? })` with 30s client cache or SWR-less simple state.
-
-
 
 #### Sub-task 15.2: Adapter to UI model
 
 - [ ] `toProductCardItem(api)` maps `id`, `title`, `price`, `emoji`, `vendor`, `verified`, `category`.
 - [ ] UUID `id` replaces numeric demo ids when live catalog on.
 
-
-
 #### Sub-task 15.3: HomeView integration
 
 - [ ] Load listings on mount when `USE_LIVE_CATALOG`.
 - [ ] Loading skeleton + empty state copy.
 
-
-
 #### Sub-task 15.4: CategoryView + search
 
 - [ ] Pass `category` query param to API.
 - [ ] Client filter search on title if API has no search v1.
-
-
 
 #### Sub-task 15.5: ProductCard CTA split
 
@@ -846,8 +698,6 @@ pnpm add -D @types/pg
 
 ---
 
-
-
 ### Task 16: Vendor product forms
 
 **Files:**
@@ -855,28 +705,20 @@ pnpm add -D @types/pg
 - Create: `components/app/vendor/VendorProductForm.tsx`
 - Modify: `components/app/views/VendorView.tsx`
 
-
-
 #### Sub-task 16.1: Create form
 
 - [ ] Mode toggle shop vs service (from approved categories only).
 - [ ] POST `/products` body per `productNew`.
 
-
-
 #### Sub-task 16.2: My listings list
 
 - [ ] GET `/vendor/products`; table with title, price, active, category.
-
-
 
 #### Sub-task 16.3: Edit / deactivate
 
 - [ ] POST `/products/:id/update` for price, stock, `active: false`.
 
 ---
-
-
 
 ### Task 17: Shop checkout against API
 
@@ -886,50 +728,36 @@ pnpm add -D @types/pg
 - Modify: `lib/nakuru/reducer.ts` — cart keys as string UUIDs
 - Create: `lib/nakuru/orders.ts`
 
-
-
 #### Sub-task 17.1: Cart identity migration
 
 - [ ] Cart state: `Record<string, number>` works for UUID strings; audit `itemById` usage.
 - [ ] When live catalog off, keep demo ids; when on, only API ids in cart.
-
-
 
 #### Sub-task 17.2: Checkout payload
 
 - [ ] Build `orderNew`: items `{ productId, qty }`, zone, address, `payment: 'cod'`.
 - [ ] Map reducer `pay` mpesa → only if API supports and cart verified.
 
-
-
 #### Sub-task 17.3: Delivery phone field
 
 - [ ] Checkout input `07xx` → `orderNew.phone` optional schema.
 - [ ] Copy explains SMS/rider contact (not OTP).
-
-
 
 #### Sub-task 17.4: Place order + errors
 
 - [ ] Handle `409 out_of_stock`, `400 mpesa_needs_verified_vendor`.
 - [ ] Clear cart on success; toast order id.
 
-
-
 #### Sub-task 17.5: Order history (customer)
 
 - [ ] Optional v1: `GET /orders/mine` if exists — else stub “orders in email”.
 - [ ] Or keep demo order list until server customer list wired — document gap.
-
-
 
 #### Sub-task 17.6: Regression demo mode
 
 - [ ] With `USE_LIVE_CATALOG=false`, cart still uses demo place order path.
 
 ---
-
-
 
 ### Task 18: Service inquiry UI
 
@@ -939,21 +767,15 @@ pnpm add -D @types/pg
 - Create: `components/app/vendor/VendorInquiriesList.tsx`
 - Modify: `components/app/ProductCard.tsx` or detail sheet
 
-
-
 #### Sub-task 18.1: Customer modal
 
 - [ ] Require login; optional message textarea.
 - [ ] `POST /service-inquiries` with `productId`.
 
-
-
 #### Sub-task 18.2: Vendor inquiries list
 
 - [ ] Approved vendor sees open inquiries on vendor tab.
 - [ ] `GET /vendor/inquiries`; mark closed when API supports.
-
-
 
 #### Sub-task 18.3: ProductCard hook-up
 
@@ -961,11 +783,7 @@ pnpm add -D @types/pg
 
 ---
 
-
-
 ## Phase P5 — Anchor seeding + launch gate
-
-
 
 ### Task 19: Anchor vendor seed script
 
@@ -974,29 +792,21 @@ pnpm add -D @types/pg
 - Create: `scripts/seed-anchor-vendor.ts`
 - Create: `docs/runbooks/anchor-vendors.md`
 
-
-
 #### Sub-task 19.1: Seed script
 
 - [ ] CLI: email, vendor name, categories array, path to products JSON.
 - [ ] Uses DB directly; does not bypass audit — log to stdout for manual audit entry.
-
-
 
 #### Sub-task 19.2: Runbook
 
 - [ ] Offline consent + doc collection steps.
 - [ ] Staff approve on `/staff`; vendor adds products via UI or script.
 
-
-
 #### Sub-task 19.3: Launch inventory gate
 
 - [ ] Checklist: ≥10 vendors, ≥1 listing each, `curl GET /listings` non-empty.
 
 ---
-
-
 
 ### Task 20: E2E and production env
 
@@ -1005,34 +815,24 @@ pnpm add -D @types/pg
 - Modify: `e2e/app-smoke.spec.mjs`
 - Modify: `README.md`, `.env.example`
 
-
-
 #### Sub-task 20.1: Playwright staging profile
 
 - [ ] Env flag to hit staging API or skip OTP tests with `@requires-mailgun` tag.
-
-
 
 #### Sub-task 20.2: Mailgun production domain
 
 - [ ] SPF, DKIM, DMARC for sending domain.
 - [ ] Suppression / bounce handling link in runbook.
 
-
-
 #### Sub-task 20.3: Supabase production
 
 - [ ] PITR or daily backups on; restrict service role to API IPs if possible.
-
-
 
 #### Sub-task 20.4: Secret rotation doc
 
 - [ ] Procedure for `JWT_ACCESS_SECRET`, `OTP_HMAC_SECRET`, `TOTP_ENC_KEY`.
 
 ---
-
-
 
 ## Verification matrix
 
@@ -1042,7 +842,7 @@ pnpm add -D @types/pg
 | API health    | `curl -s http://127.0.0.1:3000/api/me` → 401  |
 | Email OTP     | Request + verify flow in dev                  |
 | Listings gate | Pending vendor product not in `GET /listings` |
-| Documents     | 403 cross-user download                       |
+| Documents     | N/A at launch (P1 deferred)                   |
 | Next catalog  | `NEXT_PUBLIC_USE_LIVE_CATALOG=true pnpm dev`  |
 | Staff queue   | `/staff` approve pending vendor               |
 | Shop E2E      | OTP → browse → cart → COD order               |
@@ -1051,34 +851,30 @@ pnpm add -D @types/pg
 
 ---
 
-
-
 ## Spec coverage self-review
 
 
 | Spec section        | Task(s)                 |
 | ------------------- | ----------------------- |
-| §2 success criteria | Tasks 5, 8–9, 15–18, 19 |
+| §2 success criteria | Tasks 5, 9, 13–18, 19   |
 | §3 decisions        | Task 10, 14             |
-| §6.2 documents      | Tasks 7–8               |
+| §6.2 documents      | **Deferred** (P1 skip)  |
 | §6.3 inquiries      | Task 9, 18              |
 | §7 data model       | Task 2                  |
-| §8 API              | Tasks 5, 8–10           |
+| §8 API              | Tasks 5, 9–10           |
 | §9 frontend         | Tasks 11–18             |
 | §11 anchors         | Task 19                 |
 | Email OTP (infra)   | Tasks 3–5, 12           |
-| Supabase            | Tasks 1–2, 7            |
+| Supabase            | Tasks 1–2 (Storage: P1) |
 
 
 ---
-
-
 
 ## Suggested commit sequence
 
 1. `chore(api): supabase config and migrations`
 2. `feat(api): mailgun email otp auth`
-3. `feat(api): vendor documents and inquiries`
+3. `feat(api): service inquiries` (documents later if P1 reopens)
 4. `feat(web): api client and email sign-in`
 5. `feat(web): vendor apply and staff queue`
 6. `feat(web): live catalog and checkout`
@@ -1086,7 +882,7 @@ pnpm add -D @types/pg
 
 ---
 
-**Dispatch hint:** For subagent-driven work, assign **one sub-task** (e.g. `11.3`) per session, not whole Task 11. Short tasks (3, 4, 6, 7, 9, 10) keep step-only checklists.
+**Dispatch hint:** For subagent-driven work, assign **one sub-task** (e.g. `11.3`) per session, not whole Task 11. Short tasks (3, 4, 6, 9, 10) keep step-only checklists. **Do not assign Tasks 7–8** until P1 is reopened.
 
 **Execution options:**
 

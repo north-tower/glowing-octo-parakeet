@@ -12,7 +12,7 @@
 | Layer | Choice |
 |-------|--------|
 | Database | **Supabase** (managed PostgreSQL; migrations via SQL in repo) |
-| Vendor documents | **Supabase Storage** private bucket `vendor-documents` (signed URLs via service role) |
+| Vendor documents (launch) | **Deferred** — onboarding identity = **email OTP** only; Storage + `vendor_documents` APIs post-launch (Phase P1) |
 | Customer/vendor OTP | **Email** via **Mailgun** (replaces Africa's Talking SMS for auth) |
 | Staff auth | Email + password + TOTP (unchanged model; identifier migrates from phone to email) |
 | Delivery contact | Optional `users.phone` collected at checkout, not used for OTP |
@@ -21,7 +21,7 @@
 
 ## 1. Summary
 
-NakuruHub will **publicly launch** a multi-vendor marketplace for **Nakuru County** with a **strict trust model**: nothing from a vendor is visible to buyers until **staff approve** the vendor application after reviewing identity and category documents. **Verified** (ID/category checks complete for payments) remains a **separate admin step** that unlocks **M-Pesa upfront**; unverified approved vendors sell via **cash on delivery** only.
+NakuruHub will **publicly launch** a multi-vendor marketplace for **Nakuru County** with a **strict trust model**: nothing from a vendor is visible to buyers until **staff approve** the vendor application. **At launch**, applicant identity is **email OTP** (Mailgun); staff review application fields—not in-app ID uploads (document storage is **Phase P1 deferred**). **Verified** (stronger KYC for payments) remains a **separate admin step** that unlocks **M-Pesa upfront**; unverified approved vendors sell via **cash on delivery** only.
 
 **Launch categories:** **Shop** (cart + delivery checkout) and **Services** (catalog + quote requests). Property, cars, stays, and taxi remain waitlisted in UI and are not accepted in vendor applications at launch.
 
@@ -37,14 +37,15 @@ NakuruHub will **publicly launch** a multi-vendor marketplace for **Nakuru Count
 2. Customers browse a **live catalog** backed by PostgreSQL, not the static `ITEMS` demo array.
 3. Shop checkout uses the existing **order pipeline** (COD at launch for unverified vendors).
 4. Services use a dedicated **quote / inquiry** flow (not the shop cart).
-5. Admin can review applications with **private document access** and audited approve / reject / verify actions.
+5. Admin can review applications (queue + approve / reject / verify); **document URLs** come in Phase P1 if product requires in-app KYC.
 
 ### Success criteria (launch gate)
 
 | Criterion | Measure |
 |-----------|---------|
 | No public listings while `pending` | `GET /listings` returns only `approved` vendors’ active products |
-| Documents not public | ID and category files served only via short-lived signed URLs to vendor self or admin |
+| Applicant identity | Vendor apply requires completed **email OTP** session; admin sees verified email on queue |
+| Documents not public | **Launch:** N/A (no uploads). **Post P1:** ID/category files only via short-lived signed URLs |
 | Shop path E2E | OTP → apply → approve → add product → customer COD order → vendor sees order |
 | Services path E2E | OTP → apply (services) → approve → add service → customer submits inquiry → vendor notified |
 | Anchor inventory | ≥10 approved vendors with ≥1 live listing before marketing push |
@@ -66,7 +67,8 @@ NakuruHub will **publicly launch** a multi-vendor marketplace for **Nakuru Count
 |-------|----------|
 | Launch posture | Public launch, not pilot-only demo data |
 | Visibility gate | Listings public **only after admin approve** |
-| ID / documents | Collected at apply; reviewed as part of **approval** (not a separate gate for first listing) |
+| ID / documents (launch) | **Email OTP only** at apply; no Storage. Offline/anchor KYC optional; in-app docs = Phase P1 |
+| ID / documents (post P1) | Collected at apply; reviewed as part of **approval** (not a separate gate for first listing) |
 | Verified badge | Post-approval admin action; enables M-Pesa upfront when implemented |
 | Categories at launch | `shop`, `services` only |
 | Services checkout | **Inquiries / quote requests**, not `POST /orders` (orders are shop-only today) |
@@ -93,12 +95,12 @@ NakuruHub will **publicly launch** a multi-vendor marketplace for **Nakuru Count
 
 ### Gaps to build
 
-1. **Document upload & storage** (vendor apply, admin review).
+1. ~~**Document upload & storage**~~ → **deferred (P1)**; launch uses OTP + admin queue only.
 2. **Next.js ↔ API** integration (auth cookies/headers, `NEXT_PUBLIC_API_URL`).
 3. **Vendor listing management UI** (add/edit shop product, add/edit service listing).
 4. **Catalog reads** from `GET /listings` (+ category filters).
 5. **Service inquiries** API + customer UI + vendor notification.
-6. **Staff admin UI** in Next (or dedicated internal route) for vendor queue + documents.
+6. **Staff admin UI** in Next for vendor queue (documents UI when P1 lands).
 7. Production **SMS OTP**, secrets, TLS, and items from `security/SECURITY.md` checklist.
 
 ---
@@ -365,7 +367,7 @@ Schemas in `schemas.js`: `inquiryNew`, `uuid` paths.
 | Phase | Scope | Outcome |
 |-------|--------|---------|
 | **P0** | API deploy, DB migrate, SMS OTP staging | Authenticated clients |
-| **P1** | Document storage + apply with uploads + admin review URLs | Trust gate works |
+| **P1** | Document storage + apply with uploads + admin review URLs | **Deferred post-launch** (OTP-only trust gate for v1) |
 | **P2** | Next: OTP, vendor apply, staff queue | Self-serve pending apps |
 | **P3** | Next: add product/service + live catalog | Buyers see real data |
 | **P4** | Shop checkout wired to API orders | Revenue path COD |
