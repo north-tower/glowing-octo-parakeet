@@ -1,7 +1,12 @@
-export default function NakuruAppPlaceholder() {
+"use client";
+
+import { Suspense } from "react";
+import LegacyAppMount from "@/components/app/LegacyAppMount";
+
+export default function NakuruAppPage() {
   return (
-    <main>
-      <p>NakuruHub marketplace — coming in Phase 3.</p>
-    </main>
+    <Suspense fallback={null}>
+      <LegacyAppMount />
+    </Suspense>
   );
 }

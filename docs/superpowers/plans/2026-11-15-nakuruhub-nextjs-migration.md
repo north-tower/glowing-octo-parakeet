@@ -148,8 +148,8 @@ Port inline IIFEs from `landing.html`:
 - Create: `components/app/LegacyAppMount.tsx` — mounts DOM ids `#hd`, `#v`, `#nav`, `#sb`, `#fab`, `#pf`, `#toast`
 - Load logic via dynamic import of a copied `public/legacy/app.js` OR `lib/nakuru/legacy/app.js` (unchanged initially)
 
-- [ ] `/app` renders and `render()` runs
-- [ ] `?start=vendor` opens vendor flow (line 146 in `app.js`)
+- [x] `/app` renders and `render()` runs
+- [x] `?start=vendor` opens vendor flow (line 146 in `app.js`)
 
 **Risk:** `innerHTML` + Next hydration — use `useEffect` mount only, no SSR for app route.
 
