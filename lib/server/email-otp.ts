@@ -16,8 +16,10 @@ function normalizeEmail(raw: string): string {
   return raw.trim().toLowerCase();
 }
 
-/** @returns true if email was accepted for send (may no-op on rate cap). */
-export async function issue(rawEmail: string): Promise<void> {
+export type OtpIssueResult = { devCode?: string };
+
+/** @returns devCode in local dev when Mailgun is off or OTP_DEV_ON_SCREEN=true. */
+export async function issue(rawEmail: string): Promise<OtpIssueResult> {
   const email = normalizeEmail(rawEmail);
 
   const last = await db.q<{ last_sent: Date }>(
@@ -28,7 +30,7 @@ export async function issue(rawEmail: string): Promise<void> {
     last.rows[0] &&
     Date.now() - new Date(last.rows[0].last_sent).getTime() < 60_000
   ) {
-    return;
+    return {};
   }
 
   const daily = await db.q<{ n: number }>(
@@ -38,7 +40,7 @@ export async function issue(rawEmail: string): Promise<void> {
      returning n`,
     [email],
   );
-  if (daily.rows[0].n > DAILY_CAP) return;
+  if (daily.rows[0].n > DAILY_CAP) return {};
 
   const code = String(crypto.randomInt(0, 1_000_000)).padStart(6, "0");
   const hash = hmac(email, code);
@@ -59,6 +61,8 @@ export async function issue(rawEmail: string): Promise<void> {
     subject: "Your NakuruHub sign-in code",
     text: `Your code is ${code}. Valid for 5 minutes. Never share it.`,
   });
+
+  return config.otpDevOnScreen ? { devCode: code } : {};
 }
 
 export async function check(rawEmail: string, code: string): Promise<boolean> {

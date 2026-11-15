@@ -14,6 +14,12 @@ const mailgun = {
   from: process.env.MAILGUN_FROM || "",
 };
 
+const mailgunConfigured = !!(mailgun.key && mailgun.domain);
+/** Until Mailgun works: show OTP in the UI and log to the dev server console (never in production). */
+const otpDevOnScreen =
+  !prod &&
+  (process.env.OTP_DEV_ON_SCREEN === "true" || !mailgunConfigured);
+
 if (prod && (!mailgun.key || !mailgun.domain || !mailgun.from)) {
   throw new Error(
     "Production needs MAILGUN_API_KEY, MAILGUN_DOMAIN, MAILGUN_FROM",
@@ -40,6 +46,7 @@ export const config = {
   accessTtl: "10m" as const,
   refreshDays: 30,
   mailgun,
+  otpDevOnScreen,
   supabase: {
     url:
       process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || "",

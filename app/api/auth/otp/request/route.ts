@@ -12,7 +12,14 @@ export async function POST(req: Request) {
   }
 
   const b = otpReq.safeParse(body);
-  if (b.success) await issue(b.data.email);
+  let devCode: string | undefined;
+  if (b.success) {
+    const issued = await issue(b.data.email);
+    devCode = issued.devCode;
+  }
 
-  return NextResponse.json({ ok: true }, { status: 202 });
+  return NextResponse.json(
+    devCode ? { ok: true, devCode } : { ok: true },
+    { status: 202 },
+  );
 }

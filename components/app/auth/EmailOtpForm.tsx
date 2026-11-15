@@ -31,6 +31,7 @@ export function EmailOtpForm() {
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [resendIn, setResendIn] = useState(0);
+  const [devCode, setDevCode] = useState<string | null>(null);
 
   useEffect(() => {
     if (resendIn <= 0) return;
@@ -56,15 +57,23 @@ export function EmailOtpForm() {
     }
     setBusy(true);
     try {
-      await apiFetch<{ ok: boolean }>("/api/auth/otp/request", {
-        method: "POST",
-        body: JSON.stringify({ email: normalized }),
-        skipAuthRetry: true,
-      });
+      const res = await apiFetch<{ ok: boolean; devCode?: string }>(
+        "/api/auth/otp/request",
+        {
+          method: "POST",
+          body: JSON.stringify({ email: normalized }),
+          skipAuthRetry: true,
+        },
+      );
       setEmail(normalized);
+      setDevCode(res.devCode ?? null);
       setStep("code");
       setResendIn(RESEND_SECONDS);
-      toast("Check your email for a 6-digit code");
+      toast(
+        res.devCode
+          ? "Dev mode: use the code shown below"
+          : "Check your email for a 6-digit code",
+      );
     } catch (err) {
       const msg =
         err instanceof ApiError ? err.message : "Could not send sign-in code";
@@ -143,6 +152,24 @@ export function EmailOtpForm() {
       <div className="m">
         Code sent to <strong>{email}</strong>
       </div>
+      {devCode ? (
+        <div
+          className="card"
+          role="status"
+          style={{
+            marginBottom: 12,
+            padding: 12,
+            border: "1px dashed var(--border, #888)",
+          }}
+        >
+          <div className="m" style={{ marginBottom: 4 }}>
+            Dev only — Mailgun not in use yet
+          </div>
+          <strong style={{ fontSize: "1.5rem", letterSpacing: "0.25em" }}>
+            {devCode}
+          </strong>
+        </div>
+      ) : null}
       <label htmlFor="otp-code">6-digit code</label>
       <input
         id="otp-code"
@@ -169,6 +196,7 @@ export function EmailOtpForm() {
           onClick={() => {
             setStep("email");
             setCode("");
+            setDevCode(null);
           }}
         >
           Change email

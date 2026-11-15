@@ -4,6 +4,7 @@ vi.mock("./config", () => ({
   config: {
     env: "development",
     mailgun: { key: "", domain: "", from: "NakuruHub <test@example.com>" },
+    otpDevOnScreen: true,
   },
 }));
 

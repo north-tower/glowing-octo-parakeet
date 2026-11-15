@@ -8,7 +8,10 @@ const { q, sendMail, otpSecret } = vi.hoisted(() => ({
 }));
 
 vi.mock("./config", () => ({
-  config: { otpSecret: "test-otp-hmac-secret-32-chars!!" },
+  config: {
+    otpSecret: "test-otp-hmac-secret-32-chars!!",
+    otpDevOnScreen: false,
+  },
 }));
 
 vi.mock("./db", () => ({

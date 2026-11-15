@@ -14,7 +14,7 @@ export async function sendMail({
   html,
 }: SendMailParams): Promise<void> {
   const { key, domain, from } = config.mailgun;
-  if (!key || !domain) {
+  if (config.otpDevOnScreen || !key || !domain) {
     if (config.env === "production") {
       throw new Error("Mailgun not configured");
     }
