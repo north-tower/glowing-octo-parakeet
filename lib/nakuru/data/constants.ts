@@ -1,0 +1,110 @@
+import type { CategoryId } from "@/lib/nakuru/types";
+
+export const CATS: [CategoryId, string][] = [
+  ["all", "All"],
+  ["shop", "Shop"],
+  ["property", "Property"],
+  ["cars", "Cars"],
+  ["services", "Services"],
+  ["stays", "Stays"],
+  ["taxi", "Taxi"],
+];
+
+export const SOON: Partial<Record<CategoryId, 1>> = { stays: 1, taxi: 1 };
+
+export const ACT: Record<string, string> = {
+  shop: "Add to cart",
+  property: "Request viewing",
+  cars: "Request viewing",
+  services: "Request quote",
+};
+
+export const TOPC: [string, string, CategoryId, string][] = [
+  ["📱", "Smart phones", "shop", "phone"],
+  ["📺", "Televisions", "shop", "tv"],
+  ["🍳", "Kitchen supplies", "shop", "kitchen"],
+  ["👗", "Fashion", "shop", "dress"],
+  ["👟", "Shoes", "shop", "sneaker"],
+  ["🥬", "Groceries", "shop", "veg"],
+  ["⌚", "Watches", "shop", "watch"],
+  ["🏠", "Homes to rent", "property", "rent"],
+  ["🏡", "Homes for sale", "property", "sale"],
+  ["🌄", "Land", "property", "plot"],
+  ["🚗", "Toyota", "cars", "toyota"],
+  ["🚙", "Subaru", "cars", "subaru"],
+  ["🚘", "All cars", "cars", ""],
+  ["⚡", "Electricians", "services", "electric"],
+  ["🧼", "Cleaning", "services", "clean"],
+  ["🔧", "Plumbers", "services", "plumb"],
+];
+
+export const FEAT = [0, 1, 2, 7, 10, 13, 3, 9, 14];
+
+export const SIDE: [string, string, string][] = [
+  ["feat", "Featured", "👍"],
+  ["shop", "Shop", "🛍️"],
+  ["property", "Property", "🏠"],
+  ["cars", "Cars", "🚗"],
+  ["services", "Services", "🔧"],
+  ["stays", "Stays", "🛏️"],
+  ["taxi", "Taxi", "🚕"],
+];
+
+export const RANK: [number, string, string][] = [
+  [3, "Most popular", "14.6k+ heats"],
+  [2, "New this week", "280+ views"],
+  [8, "Trending", "63% up"],
+  [5, "Top rated", "4.8 stars"],
+];
+
+export const SLIDES: [string, string, string, string][] = [
+  [
+    "linear-gradient(135deg,#073b39,#0d6f69)",
+    "Free delivery on your first order",
+    "Pay on delivery · Nakuru only",
+    "🛵",
+  ],
+  [
+    "linear-gradient(135deg,#e8506d,#f59a6b)",
+    "List your home or car free",
+    "Free for your first 3 months",
+    "🏠",
+  ],
+  [
+    "linear-gradient(135deg,#6b4300,#c98a10)",
+    "Get Verified, get paid upfront",
+    "M-Pesa for trusted vendors",
+    "✅",
+  ],
+];
+
+export const MSGS: [string, string, string, string][] = [
+  ["🛍️", "Mama Fashions", "Your dress is ready for pickup", "2m"],
+  ["🏠", "Zawadi Agents", "Viewing confirmed for Saturday 10am", "1h"],
+  ["🛵", "Rider James", "I'm at the gate, code please", "Yesterday"],
+  ["🦩", "NakuruHub Support", "Welcome! Tap here if you need help", "Mon"],
+];
+
+export const STAT = [
+  "Placed",
+  "Accepted",
+  "Ready for pickup",
+  "Out for delivery",
+  "Delivered (cash collected)",
+];
+
+export const TOOLS: Record<string, string[]> = {
+  shop: ["Add product", "Stock", "Orders", "Earnings"],
+  property: ["Add listing", "Viewing requests", "Mark rented/sold"],
+  cars: ["Add vehicle", "Inquiries", "Upload logbook"],
+  services: ["Service profile", "Quote requests", "Job history"],
+};
+
+export const PHONE_REGEX = /^(?:\+?254|0)[17]\d{8}$/;
+export const MAX_CART_QTY = 99;
+export const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+
+export function categoryName(c: string): string {
+  const row = CATS.find((x) => x[0] === c);
+  return row ? row[1] : c;
+}

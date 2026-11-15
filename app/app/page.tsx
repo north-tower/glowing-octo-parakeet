@@ -1,12 +1,12 @@
 "use client";
 
 import { Suspense } from "react";
-import LegacyAppMount from "@/components/app/LegacyAppMount";
+import NakuruAppShell from "@/components/app/NakuruAppShell";
 
 export default function NakuruAppPage() {
   return (
     <Suspense fallback={null}>
-      <LegacyAppMount />
+      <NakuruAppShell />
     </Suspense>
   );
 }

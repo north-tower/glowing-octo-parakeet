@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { LandingLangProvider } from "@/components/landing/LandingLangContext";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { LandingHeader } from "@/components/landing/LandingHeader";
@@ -7,14 +8,16 @@ import { MobileCtaBar } from "@/components/landing/MobileCtaBar";
 import { useMobileCtaBar } from "@/components/landing/hooks/useMobileCtaBar";
 import { useRevealSections } from "@/components/landing/hooks/useRevealSections";
 import { Bi } from "@/components/landing/Bi";
-import { CategoriesSection } from "@/components/landing/sections/CategoriesSection";
-import { CtaBandSection } from "@/components/landing/sections/CtaBandSection";
-import { DashboardSection } from "@/components/landing/sections/DashboardSection";
-import { FaqSection } from "@/components/landing/sections/FaqSection";
 import { HeroSection } from "@/components/landing/sections/HeroSection";
-import { HowSection } from "@/components/landing/sections/HowSection";
 import { ProofBandSection } from "@/components/landing/sections/ProofBandSection";
-import { WhySection } from "@/components/landing/sections/WhySection";
+
+const LandingBelowFold = dynamic(
+  () =>
+    import("@/components/landing/LandingBelowFold").then(
+      (m) => m.LandingBelowFold,
+    ),
+  { loading: () => null },
+);
 
 function LandingEffects() {
   useRevealSections();
@@ -39,12 +42,7 @@ export function LandingPage() {
       <main className="landing-main" id="main-content">
         <HeroSection />
         <ProofBandSection />
-        <CategoriesSection />
-        <WhySection />
-        <DashboardSection />
-        <HowSection />
-        <FaqSection />
-        <CtaBandSection />
+        <LandingBelowFold />
       </main>
       <LandingFooter />
       <MobileCtaBar />

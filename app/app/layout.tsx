@@ -1,15 +1,16 @@
-"use client";
+import type { Metadata } from "next";
+import NakuruAppBody from "@/app/app/NakuruAppBody";
 
-import { useEffect, type ReactNode } from "react";
+export const metadata: Metadata = {
+  title: "NakuruHub",
+  description:
+    "Browse shops, homes, cars, and services in Nakuru County. Demo marketplace — data resets on reload.",
+};
 
-/** Marketplace shell uses `styles.css` app chrome, not landing body styles. */
-export default function NakuruAppLayout({ children }: { children: ReactNode }) {
-  useEffect(() => {
-    document.body.classList.remove("landing");
-    return () => {
-      document.body.classList.add("landing");
-    };
-  }, []);
-
-  return children;
+export default function NakuruAppLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <NakuruAppBody>{children}</NakuruAppBody>;
 }

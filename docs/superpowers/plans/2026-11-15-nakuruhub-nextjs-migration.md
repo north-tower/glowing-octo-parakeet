@@ -241,6 +241,8 @@ Port `#pf` change handler (canvas resize, 5MB limit) to `VendorView` / `AccountV
 **Files:**
 - Create: `.github/workflows/e2e.yml` — `pnpm build`, `pnpm start`, Playwright landing + app smoke
 
+*(Skipped per stakeholder — run Playwright locally per README.)*
+
 ### Task 4.4: Documentation
 
 - Update root `README.md`: `pnpm dev`, route map, link to prototype repo for history

@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NakuruHub (Next.js)
 
-## Getting Started
+Next.js App Router port of the NakuruHub static prototype (`C:\Users\mhki\nakuruhub\nakuruhub`). Marketing and demo UI use the original Flamingo Lake CSS (`app/nakuru-globals.css`), not a Tailwind rewrite.
 
-First, run the development server:
+## Requirements
+
+- [pnpm](https://pnpm.io/) 9+ (see `packageManager` in `package.json`)
+
+## Scripts
+
+| Command | Purpose |
+|---------|---------|
+| `pnpm dev` | Dev server at [http://localhost:3000](http://localhost:3000) |
+| `pnpm build` | Production build |
+| `pnpm start` | Run production server (after `build`) |
+| `pnpm test` | Vitest (`lib/nakuru/format.test.ts`, etc.) |
+| `pnpm lint` | ESLint |
+
+## Routes
+
+| URL | Page |
+|-----|------|
+| `/` | Marketing landing (EN/SW) |
+| `/app` | Interactive marketplace demo |
+| `/app?start=vendor` | Opens vendor signup in the demo |
+
+Legacy paths redirect via `next.config.ts`: `/landing.html` → `/`, `/index.html` → `/app`.
+
+## Fonts & PWA
+
+- Self-hosted **Bricolage Grotesque** and **Figtree** in `public/fonts/` (loaded via `@font-face` in CSS; preloaded in root `layout.tsx`).
+- Web app manifest: `public/manifest.webmanifest`. Favicon / app icon: `app/icon.svg` and `public/icon.svg`.
+
+For production canonical URLs, set `NEXT_PUBLIC_SITE_URL` (e.g. `https://nakuruhub.co.ke`) so Open Graph and sitemap metadata resolve correctly. Until then, placeholders use `https://nakuruhub.example`.
+
+## QA (local)
+
+Playwright specs live under `e2e/` (ported from the prototype’s visual QA). With the dev server running:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm exec playwright test e2e/landing.spec.mjs
+pnpm exec playwright test e2e/app-smoke.spec.mjs
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Migration notes
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Implementation plan: `docs/superpowers/plans/2026-11-15-nakuruhub-nextjs-migration.md`. Backend API integration (Express in `nakuruhub/server`) is **Phase 5**, not included here.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Deploy
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Standard Next.js deploy (e.g. [Vercel](https://vercel.com/docs/frameworks/nextjs)): `pnpm build`, set `NEXT_PUBLIC_SITE_URL`, and update `public/sitemap.xml` / `public/robots.txt` with your live domain.
