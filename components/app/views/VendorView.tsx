@@ -13,31 +13,12 @@ import { apiFetch, ApiError } from "@/lib/nakuru/api";
 import { useLiveApi } from "@/lib/nakuru/api-mode";
 import { CATS, SOON, TOOLS, categoryName } from "@/lib/nakuru/data/constants";
 import type { CategoryId } from "@/lib/nakuru/types";
+import {
+  pickPrimaryVendor,
+  vendorStatusLabel,
+  type ApiVendorRow,
+} from "@/lib/nakuru/vendor-profile";
 import { useCallback, useEffect, useState } from "react";
-
-export type ApiVendorRow = {
-  id: string;
-  name: string;
-  categories: string[];
-  status: string;
-  verified: boolean;
-  created_at: string;
-};
-
-function pickPrimaryVendor(rows: ApiVendorRow[]): ApiVendorRow | null {
-  if (!rows.length) return null;
-  const active = rows.find(
-    (r) => r.status === "pending" || r.status === "approved",
-  );
-  return active ?? rows[0]!;
-}
-
-function statusLabel(status: string): string {
-  if (status === "approved") return "Approved";
-  if (status === "rejected") return "Rejected";
-  if (status === "pending") return "Pending";
-  return status;
-}
 
 function LiveVendorPanel() {
   const { user: authUser, ready } = useAuth();
@@ -133,7 +114,7 @@ function LiveVendorPanel() {
         <div>
           <div className="t">{primary.name}</div>
           <div className="m">
-            Status: {statusLabel(primary.status)} ·{" "}
+            Status: {vendorStatusLabel(primary.status)} ·{" "}
             {primary.verified
               ? "✓ Verified (M-Pesa upfront enabled)"
               : "Basic (cash on delivery only)"}

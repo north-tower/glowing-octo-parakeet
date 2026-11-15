@@ -26,6 +26,9 @@ header select option{color:#000}
 .tb{border:0;background:none;color:#c9ece8;padding:8px 0 5px;border-bottom:3px solid transparent;cursor:pointer}
 .tb.on{color:#fff;font-weight:800;border-color:#fff}
 #hd:not(.t-home):not(.t-cat) .search,#hd:not(.t-home) .tabs{display:none}
+.acc-hd-banner{margin:8px 0 0;font-size:12px;line-height:1.35;padding:7px 10px;border-radius:10px;background:rgba(253,241,211,.96);color:#3d2e00}
+#hd.t-acc .acc-hd-banner{background:rgba(255,255,255,.18);color:#fff8e8}
+.acc-profile .badge{flex:none}
 main{padding:12px 14px}
 h2{font-size:17px;margin:16px 0 8px}
 .card{background:var(--card);border-radius:14px;padding:12px;margin-bottom:10px;border:1px solid var(--line)}

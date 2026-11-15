@@ -9,6 +9,8 @@ import { useAuth } from "@/components/app/AppAuthProvider";
 import { AdminView } from "@/components/app/views/AdminView";
 import { VendorView } from "@/components/app/views/VendorView";
 import { useNakuruApp } from "@/components/app/AppProvider";
+import { useMyVendorProfile } from "@/components/app/useMyVendorProfile";
+import { accountVendorSubtitle } from "@/lib/nakuru/vendor-profile";
 
 const ROWS: [string, string, string][] = [
   ["📦", "My orders", "tab:cart"],
@@ -26,6 +28,7 @@ const ACCOUNT_ROWS: [string, string, string][] = SHOW_DEMO_ADMIN
 export function AccountView() {
   const { state, dispatch, toast } = useNakuruApp();
   const { user, ready, logout } = useAuth();
+  const { profile: vendorProfile } = useMyVendorProfile();
 
   if (state.acc) {
     if (state.acc === "vendor" && ready && !user) {
@@ -96,11 +99,14 @@ export function AccountView() {
     );
   }
 
-  const displayEmail = user.email ?? "Signed in";
+  const displayTitle = vendorProfile?.name ?? user.email ?? "Signed in";
+  const subtitle = accountVendorSubtitle(vendorProfile, user.role);
+  const showUnverifiedBadge =
+    vendorProfile?.status === "approved" && !vendorProfile.verified;
 
   return (
     <>
-      <div className="card row">
+      <div className="card row acc-profile">
         <ProfilePhotoUpload
           className="av"
           role="button"
@@ -108,9 +114,23 @@ export function AccountView() {
         >
           <Avatar photo={state.photo} />
         </ProfilePhotoUpload>
-        <div style={{ flex: 1 }}>
-          <div className="t">{displayEmail}</div>
-          <div className="m">Signed in · {user.role}</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="row" style={{ gap: 6, flexWrap: "wrap" }}>
+            <div className="t" style={{ flex: "1 1 auto" }}>
+              {displayTitle}
+            </div>
+            {showUnverifiedBadge ? (
+              <span className="badge">Unverified</span>
+            ) : vendorProfile?.verified ? (
+              <span className="badge" style={{ background: "var(--ok)", color: "#fff" }}>
+                Verified
+              </span>
+            ) : null}
+          </div>
+          {vendorProfile && user.email ? (
+            <div className="m">{user.email}</div>
+          ) : null}
+          <div className="m">{subtitle}</div>
         </div>
       </div>
       <button
