@@ -247,7 +247,7 @@ export function nakuruReducer(
       const nm = state.vn.trim().slice(0, 60);
       const ph = state.vp.replace(/[\s-]/g, "");
       if (!nm) return { state, toast: "Enter your name or business name" };
-      if (!PHONE_REGEX.test(ph)) {
+      if (ph && !PHONE_REGEX.test(ph)) {
         return {
           state,
           toast: "Enter a valid Kenyan phone, e.g. 0712 345 678",

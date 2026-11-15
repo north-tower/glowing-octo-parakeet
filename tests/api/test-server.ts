@@ -23,9 +23,8 @@ async function handle(
   routes: RouteMap,
 ): Promise<void> {
   const path = (nodeReq.url ?? "/").split("?")[0] ?? "/";
-  const method = (nodeReq.method ?? "GET").toUpperCase() as keyof NonNullable<
-    RouteMap[string]
-  >;
+  const httpMethod = (nodeReq.method ?? "GET").toUpperCase();
+  const method = httpMethod as keyof NonNullable<RouteMap[string]>;
   const handler = routes[path]?.[method];
   if (!handler) {
     nodeRes.statusCode = 404;
@@ -50,7 +49,7 @@ async function handle(
     method,
     headers,
     body:
-      method === "GET" || method === "HEAD" || body.length === 0
+      httpMethod === "GET" || httpMethod === "HEAD" || body.length === 0
         ? undefined
         : body,
   });

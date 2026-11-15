@@ -1,10 +1,14 @@
 "use client";
 
+import { useAuth } from "@/components/app/AppAuthProvider";
 import { useNakuruApp } from "@/components/app/AppProvider";
 
 export function SignInBar() {
   const { state, dispatch } = useNakuruApp();
-  const hidden = !(state.tab === "home" && !state.me);
+  const { user, ready } = useAuth();
+
+  const signedIn = ready && Boolean(user);
+  const hidden = !(state.tab === "home" && !state.me && !signedIn);
 
   return (
     <div id="sb" hidden={hidden}>
@@ -12,7 +16,7 @@ export function SignInBar() {
       <button
         type="button"
         className="btn s"
-        onClick={() => dispatch({ type: "SIGNIN" })}
+        onClick={() => dispatch({ type: "SET_TAB", tab: "acc" })}
       >
         Sign in
       </button>

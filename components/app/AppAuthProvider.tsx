@@ -67,6 +67,7 @@ export function AppAuthProvider({ children }: Props) {
       return true;
     }
     syncToken(null);
+    return false;
   }, [syncToken]);
 
   const setSessionFromOtp = useCallback(

@@ -4,3 +4,9 @@ export function isExternalApiMode(): boolean {
   const base = process.env.NEXT_PUBLIC_API_BASE?.trim();
   return Boolean(url || base);
 }
+
+/** Use API-backed vendor/auth flows instead of demo reducer state. */
+export function useLiveApi(): boolean {
+  if (process.env.NEXT_PUBLIC_USE_LIVE_API === "true") return true;
+  return isExternalApiMode();
+}

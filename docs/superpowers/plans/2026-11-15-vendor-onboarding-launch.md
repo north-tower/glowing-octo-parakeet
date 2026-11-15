@@ -579,23 +579,23 @@ pnpm add -D @types/pg
 
 #### Sub-task 12.1: Email step UI
 
-- [ ] Input type email, validation, submit → `POST /auth/otp/request`.
-- [ ] Loading + error toasts (reuse `Toast` pattern).
+- [x] Input type email, validation, submit → `POST /auth/otp/request`.
+- [x] Loading + error toasts (reuse `Toast` pattern).
 
 #### Sub-task 12.2: Code step UI
 
-- [ ] Six-digit input, verify → `POST /auth/otp/verify` → `setSessionFromOtp`.
-- [ ] Resend cooldown aligned with server 60s rule.
+- [x] Six-digit input, verify → `POST /auth/otp/verify` → `setSessionFromOtp`.
+- [x] Resend cooldown aligned with server 60s rule.
 
 #### Sub-task 12.3: Account shell
 
-- [ ] `AccountView`: guest shows `EmailOtpForm`; signed-in shows email + sign out.
-- [ ] Remove copy “Phone (OTP verified)” from vendor registration (vendor apply is separate).
+- [x] `AccountView`: guest shows `EmailOtpForm`; signed-in shows email + sign out.
+- [x] Remove copy “Phone (OTP verified)” from vendor registration (vendor apply is separate).
 
 #### Sub-task 12.4: Vendor deep link
 
-- [ ] After OTP, if `?start=vendor`, set tab `acc` + vendor (keep reducer or URL state).
-- [ ] Do not dispatch demo `REG_VENDOR` when `NEXT_PUBLIC_API_URL` set.
+- [x] After OTP, if `?start=vendor`, set tab `acc` + vendor (keep reducer or URL state).
+- [x] Do not dispatch demo `REG_VENDOR` when `NEXT_PUBLIC_API_URL` set.
 
 ---
 
