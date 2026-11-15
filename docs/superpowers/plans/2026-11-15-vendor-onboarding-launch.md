@@ -335,7 +335,7 @@ create index if not exists service_inquiries_customer on service_inquiries(custo
 
 - Produces: `issue(email)`, `check(email, code)` — same contract as old `otp.js` but email-keyed.
 
-- [ ] **Step 1:** Implement `lib/server/email-otp.ts` (port reference `otp.js`; email key; call `mailgun.sendMail`):
+- [x] **Step 1:** Implement `lib/server/email-otp.ts` (port reference `otp.js`; email key; call `mailgun.sendMail`):
 
 ```javascript
 const code = String(crypto.randomInt(0, 1000000)).padStart(6, '0');
@@ -346,9 +346,9 @@ await sendMail({
 });
 ```
 
-- [ ] **Step 2:** Wire `email-otp` from `app/api/auth/otp/request/route.ts` and `verify/route.ts`.
+- [x] **Step 2:** Wire `email-otp` from `app/api/auth/otp/request/route.ts` and `verify/route.ts`.
 
-- [ ] **Step 3:** Do not port `sms.js` — hub uses Mailgun only.
+- [x] **Step 3:** Do not port `sms.js` — hub uses Mailgun only.
 
 ---
 
