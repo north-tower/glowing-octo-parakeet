@@ -14,7 +14,8 @@ export type AccView = "vendor" | "admin";
 export type PayMethod = "cod" | "mpesa";
 
 export type Listing = {
-  id: number;
+  /** Demo ids are numbers; live catalog uses product UUIDs. */
+  id: number | string;
   c: CategoryId;
   e: string;
   t: string;

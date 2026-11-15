@@ -1,5 +1,6 @@
 "use client";
 
+import { ProductCard } from "@/components/app/ProductCard";
 import { useNakuruApp } from "@/components/app/AppProvider";
 import {
   FEAT,
@@ -9,11 +10,28 @@ import {
   TOPC,
   categoryName,
 } from "@/lib/nakuru/data/constants";
+import { isLiveCatalogEnabled } from "@/lib/nakuru/catalog-live";
+import {
+  ListingsEmpty,
+  ListingsSkeleton,
+} from "@/components/app/catalog/ListingsStates";
+import { useCatalogListings } from "@/lib/nakuru/use-catalog-listings";
 import type { CategoryId } from "@/lib/nakuru/types";
+
+const BROWSE_SIDES = new Set(["shop", "property", "cars", "services"]);
 
 export function CategoryView() {
   const { state, dispatch, toast } = useNakuruApp();
   const s = state.side;
+  const liveCatalog = isLiveCatalogEnabled();
+  const apiCategory =
+    s === "feat" || !BROWSE_SIDES.has(s) ? ("all" as const) : (s as CategoryId);
+
+  const { items, loading, error } = useCatalogListings({
+    enabled: liveCatalog && BROWSE_SIDES.has(s),
+    category: apiCategory,
+    query: state.q,
+  });
 
   const ks: number[] = [];
   TOPC.forEach((t, k) => {
@@ -110,6 +128,35 @@ export function CategoryView() {
                 })}
               </div>
             </div>
+            {liveCatalog && BROWSE_SIDES.has(s) ? (
+              <div style={{ marginTop: 14 }}>
+                <b>Listings</b>
+                {error ? (
+                  <div className="err" style={{ marginTop: 8 }}>
+                    {error}
+                  </div>
+                ) : null}
+                {loading ? (
+                  <div style={{ marginTop: 8 }}>
+                    <ListingsSkeleton count={4} />
+                  </div>
+                ) : items.length ? (
+                  <div className="g2" style={{ marginTop: 8 }}>
+                    {items.map((i) => (
+                      <ProductCard
+                        key={String(i.id)}
+                        item={i}
+                        onAct={(id) => dispatch({ type: "ITEM_ACT", id })}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ marginTop: 8 }}>
+                    <ListingsEmpty />
+                  </div>
+                )}
+              </div>
+            ) : null}
           </>
         )}
       </div>

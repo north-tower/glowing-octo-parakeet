@@ -27,7 +27,7 @@ export default function StaffPage() {
   }
 
   return (
-  <>
+    <>
       <header>
         <div className="logo">NakuruHub staff</div>
       </header>

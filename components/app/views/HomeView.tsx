@@ -10,9 +10,16 @@ import {
   SOON,
   TOPC,
 } from "@/lib/nakuru/data/constants";
-import { ITEMS, itemById } from "@/lib/nakuru/data/items";
+import { demoItems, itemById, ITEMS } from "@/lib/nakuru/data/items";
+import { isLiveCatalogEnabled } from "@/lib/nakuru/catalog-live";
+import {
+  ListingsEmpty,
+  ListingsSkeleton,
+} from "@/components/app/catalog/ListingsStates";
+import { useCatalogListings } from "@/lib/nakuru/use-catalog-listings";
 import { isOutsideArea } from "@/lib/nakuru/area";
 import { kes } from "@/lib/nakuru/format";
+import type { CategoryId } from "@/lib/nakuru/types";
 
 function useHomeCarousel(active: boolean) {
   const carRef = useRef<HTMLDivElement>(null);
@@ -55,9 +62,29 @@ function useHomeCarousel(active: boolean) {
   return { carRef, ci };
 }
 
+function catalogCategoryForFilter(cat: CategoryId): CategoryId | "all" {
+  if (cat === "all" || cat === "stays" || cat === "taxi") return "all";
+  return cat;
+}
+
 export function HomeView() {
   const { state, dispatch, toast } = useNakuruApp();
   const { carRef, ci } = useHomeCarousel(state.tab === "home");
+  const liveCatalog = isLiveCatalogEnabled();
+
+  const browseCat = catalogCategoryForFilter(state.cat);
+  const catalogFetch =
+    liveCatalog &&
+    !isOutsideArea(state.area) &&
+    !SOON[state.cat] &&
+    state.cat !== "stays" &&
+    state.cat !== "taxi";
+
+  const { items: liveItems, loading, error } = useCatalogListings({
+    enabled: catalogFetch,
+    category: browseCat,
+    query: state.q,
+  });
 
   if (isOutsideArea(state.area)) {
     return (
@@ -101,38 +128,57 @@ export function HomeView() {
   }
 
   const q = state.q.toLowerCase();
-  const filtered = ITEMS.filter(
+  const demoFiltered = ITEMS.filter(
     (i) =>
       (state.cat === "all" || i.c === state.cat) &&
       (i.t + i.s).toLowerCase().includes(q),
   );
 
+  const filtered = liveCatalog ? liveItems : demoFiltered;
+
   if (state.cat !== "all" || q) {
     const warn =
-      state.cat === "property" || state.cat === "cars" ? (
+      !liveCatalog &&
+      (state.cat === "property" || state.cat === "cars") ? (
         <div className="warn">
           Safety: view first. Never pay before you inspect and verify ownership.
         </div>
       ) : null;
+
     return (
       <>
         {warn}
-        {filtered.length ? (
+        {error ? (
+          <div className="err" style={{ marginBottom: 8 }}>
+            {error}
+          </div>
+        ) : null}
+        {loading ? (
+          <ListingsSkeleton count={6} />
+        ) : filtered.length ? (
           <div className="g2">
             {filtered.map((i) => (
               <ProductCard
-                key={i.id}
+                key={String(i.id)}
                 item={i}
                 onAct={(id) => dispatch({ type: "ITEM_ACT", id })}
               />
             ))}
           </div>
         ) : (
-          <div className="m">No results. Try a different search.</div>
+          liveCatalog ? (
+            <ListingsEmpty />
+          ) : (
+            <div className="m">No results. Try a different search.</div>
+          )
         )}
       </>
     );
   }
+
+  const picked = liveCatalog
+    ? liveItems.slice(0, 8)
+    : ITEMS.slice(0, 8);
 
   return (
     <>
@@ -213,32 +259,34 @@ export function HomeView() {
           <i key={k} className={k === ci ? "on" : ""} />
         ))}
       </div>
-      <div className="rank">
-        <h3>Top rankings</h3>
-        <div className="m">Make shopping efficient</div>
-        <div className="hs">
-          {RANK.map((r) => {
-            const i = itemById(r[0]);
-            if (!i) return null;
-            return (
-              <div
-                key={r[0]}
-                className="rc"
-                role="button"
-                tabIndex={0}
-                onClick={() => dispatch({ type: "ITEM_ACT", id: i.id })}
-              >
-                <div className="rim">
-                  {i.e}
-                  <u>{r[1]}</u>
+      {!liveCatalog ? (
+        <div className="rank">
+          <h3>Top rankings</h3>
+          <div className="m">Make shopping efficient</div>
+          <div className="hs">
+            {RANK.map((r) => {
+              const i = itemById(r[0]);
+              if (!i) return null;
+              return (
+                <div
+                  key={r[0]}
+                  className="rc"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => dispatch({ type: "ITEM_ACT", id: i.id })}
+                >
+                  <div className="rim">
+                    {i.e}
+                    <u>{r[1]}</u>
+                  </div>
+                  <div className="pr">{kes(i.p)}</div>
+                  <div className="m">{r[2]}</div>
                 </div>
-                <div className="pr">{kes(i.p)}</div>
-                <div className="m">{r[2]}</div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
-      </div>
+      ) : null}
       <h2>Top categories</h2>
       <div className="card">
         <div className="g3">
@@ -260,15 +308,35 @@ export function HomeView() {
         </div>
       </div>
       <h2>Picked for you</h2>
-      <div className="g2">
-        {ITEMS.slice(0, 8).map((i) => (
-          <ProductCard
-            key={i.id}
-            item={i}
-            onAct={(id) => dispatch({ type: "ITEM_ACT", id })}
-          />
-        ))}
-      </div>
+      {loading && liveCatalog ? (
+        <ListingsSkeleton count={4} />
+      ) : error && liveCatalog ? (
+        <div className="err">{error}</div>
+      ) : picked.length ? (
+        <div className="g2">
+          {picked.map((i) => (
+            <ProductCard
+              key={String(i.id)}
+              item={i}
+              onAct={(id) => dispatch({ type: "ITEM_ACT", id })}
+            />
+          ))}
+        </div>
+      ) : liveCatalog ? (
+        <ListingsEmpty />
+      ) : (
+        <div className="g2">
+          {demoItems()
+            .slice(0, 8)
+            .map((i) => (
+              <ProductCard
+                key={i.id}
+                item={i}
+                onAct={(id) => dispatch({ type: "ITEM_ACT", id })}
+              />
+            ))}
+        </div>
+      )}
     </>
   );
 }

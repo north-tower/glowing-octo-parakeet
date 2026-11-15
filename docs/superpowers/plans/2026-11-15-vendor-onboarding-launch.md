@@ -673,28 +673,28 @@ pnpm add -D @types/pg
 
 #### Sub-task 15.1: Types + fetch layer
 
-- [ ] Define `ApiListing` type matching `GET /listings` JSON.
-- [ ] `fetchListings({ category?, query? })` with 30s client cache or SWR-less simple state.
+- [x] Define `ApiListing` type matching `GET /listings` JSON.
+- [x] `fetchListings({ category?, query? })` with 30s client cache or SWR-less simple state.
 
 #### Sub-task 15.2: Adapter to UI model
 
-- [ ] `toProductCardItem(api)` maps `id`, `title`, `price`, `emoji`, `vendor`, `verified`, `category`.
-- [ ] UUID `id` replaces numeric demo ids when live catalog on.
+- [x] `toProductCardItem(api)` maps `id`, `title`, `price`, `emoji`, `vendor`, `verified`, `category`.
+- [x] UUID `id` replaces numeric demo ids when live catalog on.
 
 #### Sub-task 15.3: HomeView integration
 
-- [ ] Load listings on mount when `USE_LIVE_CATALOG`.
-- [ ] Loading skeleton + empty state copy.
+- [x] Load listings on mount when `USE_LIVE_CATALOG`.
+- [x] Loading skeleton + empty state copy.
 
 #### Sub-task 15.4: CategoryView + search
 
-- [ ] Pass `category` query param to API.
-- [ ] Client filter search on title if API has no search v1.
+- [x] Pass `category` query param to API.
+- [x] Client filter search on title if API has no search v1.
 
 #### Sub-task 15.5: ProductCard CTA split
 
-- [ ] `shop` → add to cart dispatch with UUID id.
-- [ ] `services` → open inquiry modal (Task 18) or disabled until 18 lands.
+- [x] `shop` → add to cart dispatch with UUID id.
+- [x] `services` → open inquiry modal (Task 18) or disabled until 18 lands.
 
 ---
 

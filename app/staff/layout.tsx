@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import StaffBody from "@/app/staff/StaffBody";
 
 export const metadata: Metadata = {
   title: "Staff",
@@ -6,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function StaffLayout({ children }: LayoutProps<"/staff">) {
-  return children;
+  return <StaffBody>{children}</StaffBody>;
 }

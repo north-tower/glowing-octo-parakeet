@@ -58,7 +58,7 @@ export type NakuruAction =
   | { type: "SLIDE_VENDOR" }
   | { type: "SIGNIN" }
   | { type: "ACCOUNT_ROW"; id: string }
-  | { type: "ITEM_ACT"; id: number }
+  | { type: "ITEM_ACT"; id: number | string }
   | { type: "CART_INC"; id: string }
   | { type: "CART_DEC"; id: string }
   | { type: "PLACE_ORDER" }

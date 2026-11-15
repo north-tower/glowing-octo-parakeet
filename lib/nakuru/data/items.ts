@@ -1,3 +1,7 @@
+import {
+  getLiveListingById,
+  isLiveCatalogEnabled,
+} from "@/lib/nakuru/catalog-live";
 import type { Listing } from "@/lib/nakuru/types";
 
 export const ITEMS: Listing[] = [
@@ -139,6 +143,15 @@ export const ITEMS: Listing[] = [
 ];
 
 export function itemById(id: number | string): Listing | undefined {
+  if (isLiveCatalogEnabled()) {
+    return getLiveListingById(String(id));
+  }
   const n = typeof id === "string" ? Number(id) : id;
+  if (Number.isNaN(n)) return undefined;
   return ITEMS.find((x) => x.id === n);
+}
+
+export function demoItems(): Listing[] {
+  if (isLiveCatalogEnabled()) return [];
+  return ITEMS;
 }
