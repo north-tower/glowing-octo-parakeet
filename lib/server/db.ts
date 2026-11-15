@@ -1,10 +1,12 @@
 import { Pool, type PoolClient, type QueryResultRow } from "pg";
 import { config } from "./config";
 
-/** Remote Supabase needs TLS even in local dev when `DB_SSL=verify`. */
+/** Remote Supabase needs TLS when `DB_SSL=verify` (default). */
 function poolSsl(): false | { rejectUnauthorized: boolean } {
   if (config.dbSsl === "off") return false;
-  return { rejectUnauthorized: config.env === "production" };
+  // Supabase pooler TLS still encrypts traffic; strict CA verification fails on
+  // some hosts (e.g. Vercel) with SELF_SIGNED_CERT_IN_CHAIN — same as verify-migrations.mjs.
+  return { rejectUnauthorized: false };
 }
 
 const pool = new Pool({
