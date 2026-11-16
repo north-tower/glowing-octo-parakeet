@@ -55,7 +55,7 @@ export function AccountView() {
           >
             ‹ Back
           </button>
-          <EmailOtpForm />
+          <EmailOtpForm intent="seller" showIntentSwitch={false} />
         </>
       );
     }
@@ -88,7 +88,7 @@ export function AccountView() {
   if (!signedIn) {
     return (
       <>
-        <EmailOtpForm />
+        <EmailOtpForm intent="shop" />
         <InstallAccountRow />
         {accountMenuRows(null, false).map((r, i) => (
           <div

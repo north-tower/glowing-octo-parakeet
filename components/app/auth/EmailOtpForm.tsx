@@ -3,10 +3,16 @@
 import { useAuth } from "@/components/app/AppAuthProvider";
 import { useNakuruApp } from "@/components/app/AppProvider";
 import { apiFetch, ApiError } from "@/lib/nakuru/api";
+import {
+  intentFromStartParam,
+  signInCopy,
+  type SignInIntent,
+} from "@/lib/nakuru/sign-in-intent";
 import { useSearchParams } from "next/navigation";
 import {
   useCallback,
   useEffect,
+  useMemo,
   useState,
   type FormEvent,
 } from "react";
@@ -19,12 +25,29 @@ function isValidEmail(raw: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
 }
 
-export function EmailOtpForm() {
+type Props = {
+  /** When set, overrides URL `?start=vendor` for Shop vs Seller UI. */
+  intent?: SignInIntent;
+  showIntentSwitch?: boolean;
+};
+
+export function EmailOtpForm({
+  intent: intentProp,
+  showIntentSwitch = true,
+}: Props) {
   const { setSessionFromOtp } = useAuth();
   const { dispatch, toast } = useNakuruApp();
   const searchParams = useSearchParams();
-  const vendorEntry =
-    searchParams.get("start") === "vendor" || searchParams.has("vendor");
+
+  const intent = useMemo((): SignInIntent => {
+    if (intentProp) return intentProp;
+    return intentFromStartParam(
+      searchParams.get("start"),
+      searchParams.has("vendor"),
+    );
+  }, [intentProp, searchParams]);
+
+  const copy = signInCopy(intent);
 
   const [step, setStep] = useState<"email" | "code">("email");
   const [email, setEmail] = useState("");
@@ -43,10 +66,20 @@ export function EmailOtpForm() {
   }, [resendIn]);
 
   const afterSignIn = useCallback(() => {
-    if (vendorEntry) {
+    if (intent === "seller") {
+      dispatch({ type: "SLIDE_VENDOR" });
+    } else {
+      dispatch({ type: "SET_ACC", acc: null });
+    }
+  }, [dispatch, intent]);
+
+  const switchIntent = () => {
+    if (intent === "seller") {
+      dispatch({ type: "SET_ACC", acc: null });
+    } else {
       dispatch({ type: "SLIDE_VENDOR" });
     }
-  }, [dispatch, vendorEntry]);
+  };
 
   const sendCode = async (ev?: FormEvent) => {
     ev?.preventDefault();
@@ -103,7 +136,7 @@ export function EmailOtpForm() {
         skipAuthRetry: true,
       });
       setSessionFromOtp(data.access, email);
-      toast("Signed in");
+      toast(copy.successToast);
       afterSignIn();
     } catch (err) {
       let msg = "Verification failed";
@@ -121,13 +154,26 @@ export function EmailOtpForm() {
     }
   };
 
+  const intentSwitch = showIntentSwitch ? (
+    <button
+      type="button"
+      className="btn s o full"
+      style={{ marginTop: 12 }}
+      disabled={busy}
+      onClick={switchIntent}
+    >
+      {copy.switchLabel}
+    </button>
+  ) : null;
+
   if (step === "email") {
     return (
-      <form className="card" onSubmit={sendCode}>
-        <h2 style={{ marginTop: 0 }}>Sign in with email</h2>
-        <div className="m">
-          We&apos;ll send a one-time code. No password needed.
-        </div>
+      <form
+        className={`card sign-in-card sign-in-card--${intent}`}
+        onSubmit={sendCode}
+      >
+        <h2 style={{ marginTop: 0 }}>{copy.emailTitle}</h2>
+        <div className="m">{copy.emailLead}</div>
         <label htmlFor="otp-email">Email</label>
         <input
           id="otp-email"
@@ -140,15 +186,19 @@ export function EmailOtpForm() {
           onChange={(e) => setEmail(e.target.value)}
         />
         <button type="submit" className="btn full" disabled={busy}>
-          {busy ? "Sending…" : "Send code"}
+          {busy ? "Sending…" : copy.emailCta}
         </button>
+        {intentSwitch}
       </form>
     );
   }
 
   return (
-    <form className="card" onSubmit={verifyCode}>
-      <h2 style={{ marginTop: 0 }}>Enter your code</h2>
+    <form
+      className={`card sign-in-card sign-in-card--${intent}`}
+      onSubmit={verifyCode}
+    >
+      <h2 style={{ marginTop: 0 }}>{copy.codeTitle}</h2>
       <div className="m">
         Code sent to <strong>{email}</strong>
       </div>
@@ -186,7 +236,7 @@ export function EmailOtpForm() {
         }
       />
       <button type="submit" className="btn full" disabled={busy}>
-        {busy ? "Verifying…" : "Verify and sign in"}
+        {busy ? "Verifying…" : copy.codeVerifyCta}
       </button>
       <div className="row" style={{ marginTop: 12, gap: 8, flexWrap: "wrap" }}>
         <button
@@ -210,6 +260,7 @@ export function EmailOtpForm() {
           {resendIn > 0 ? `Resend in ${resendIn}s` : "Resend code"}
         </button>
       </div>
+      {intentSwitch}
     </form>
   );
 }

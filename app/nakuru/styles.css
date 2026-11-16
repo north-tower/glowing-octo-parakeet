@@ -621,6 +621,8 @@ body.app .app-shell #hd .logo{display:none}
 body.app .app-shell #hd .zone-pill{margin-left:auto}
 body.app .app-shell main#v{grid-column:2;grid-row:2;padding:16px clamp(16px,3vw,32px) 32px;max-width:960px;width:100%;justify-self:center;box-sizing:border-box}
 body.app .app-shell #v form.card{max-width:28rem}
+body.app .sign-in-card--seller{border-color:color-mix(in srgb,var(--pri) 28%,var(--line))}
+body.app .sign-in-card--seller h2{color:var(--pri)}
 body.app .g2{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
 body.app .g3{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
 body.app .cl{grid-template-columns:minmax(100px,140px) minmax(0,1fr);margin:0;gap:16px}

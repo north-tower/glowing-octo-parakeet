@@ -26,9 +26,13 @@ test.describe("NakuruHub /app smoke", () => {
     await expect(page.getByText(/Order #/)).toBeVisible();
   });
 
-  test("?start=vendor opens vendor signup", async ({ page }) => {
+  test("?start=vendor opens seller sign-in", async ({ page }) => {
     await page.goto(`${BASE}/app?start=vendor`);
-    await expect(page.getByRole("heading", { name: "Sell on NakuruHub" })).toBeVisible();
-    await expect(page.locator("#vn")).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Seller sign-in" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Just shopping? Shop sign-in" }),
+    ).toBeVisible();
   });
 });
