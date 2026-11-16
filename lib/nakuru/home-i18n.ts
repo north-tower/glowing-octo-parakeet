@@ -26,10 +26,31 @@ export type HomeCopyKey =
   | "topRankings"
   | "topRankingsSub"
   | "topCategories"
-  | "pickedForYou";
+  | "pickedForYou"
+  | "seeAll"
+  | "verifiedPill"
+  | "payOnDelivery"
+  | "addedToCart"
+  | "addToCart";
+
+export type TopCategorySlug =
+  | "phone"
+  | "tv"
+  | "kitchen"
+  | "dress"
+  | "sneaker"
+  | "veg"
+  | "watch"
+  | "rent"
+  | "sale"
+  | "plot"
+  | "toyota"
+  | "subaru"
+  | "electric"
+  | "clean";
 
 const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
-  deliverTo: { en: "Deliver to", sw: "Wasilisha kwa" },
+  deliverTo: { en: "Deliver to", sw: "Tuma kwa" },
   zoneSheetTitle: { en: "Delivery area", sw: "Eneo la usafirishaji" },
   zoneWaitlistHint: {
     en: "Outside Nakuru — join the waitlist",
@@ -81,6 +102,31 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   },
   topCategories: { en: "Top categories", sw: "Kategoria kuu" },
   pickedForYou: { en: "Picked for you", sw: "Imechaguliwa kwako" },
+  seeAll: { en: "See all", sw: "Angalia zote" },
+  verifiedPill: { en: "Verified", sw: "Thibitishwa" },
+  payOnDelivery: { en: "Pay on delivery", sw: "Lipa ukifika" },
+  addedToCart: { en: "Added", sw: "Imeongezwa" },
+  addToCart: { en: "Add to cart", sw: "Ongeza kwenye kikapu" },
+};
+
+const TOP_CATEGORY_LABELS: Record<
+  TopCategorySlug,
+  Record<LandingLang, string>
+> = {
+  phone: { en: "Smart phones", sw: "Simu mahiri" },
+  tv: { en: "Televisions", sw: "Televisheni" },
+  kitchen: { en: "Kitchen supplies", sw: "Vifaa vya jikoni" },
+  dress: { en: "Fashion", sw: "Mitindo" },
+  sneaker: { en: "Shoes", sw: "Viatu" },
+  veg: { en: "Groceries", sw: "Vyakula" },
+  watch: { en: "Watches", sw: "Saa" },
+  rent: { en: "Homes to rent", sw: "Nyumba za kukodisha" },
+  sale: { en: "Homes for sale", sw: "Nyumba za kuuza" },
+  plot: { en: "Land", sw: "Ardhi" },
+  toyota: { en: "Toyota", sw: "Toyota" },
+  subaru: { en: "Subaru", sw: "Subaru" },
+  electric: { en: "Electricians", sw: "Mafundi umeme" },
+  clean: { en: "Cleaning", sw: "Usafishaji" },
 };
 
 const CAT_LABELS: Record<CategoryId, Record<LandingLang, string>> = {
@@ -99,6 +145,14 @@ export function homeCopy(key: HomeCopyKey, lang: LandingLang): string {
 
 export function homeCategoryLabel(id: CategoryId, lang: LandingLang): string {
   return CAT_LABELS[id]?.[lang] ?? id;
+}
+
+export function homeTopCategoryLabel(
+  slug: string,
+  lang: LandingLang,
+): string {
+  const row = TOP_CATEGORY_LABELS[slug as TopCategorySlug];
+  return row?.[lang] ?? slug;
 }
 
 export const SLIDE_COPY_KEYS: [HomeCopyKey, HomeCopyKey][] = [

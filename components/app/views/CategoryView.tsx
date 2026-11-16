@@ -18,11 +18,15 @@ import {
 import { useCatalogListings } from "@/lib/nakuru/use-catalog-listings";
 import { useListingAct } from "@/lib/nakuru/use-listing-act";
 import type { CategoryId } from "@/lib/nakuru/types";
+import { CategoryTile } from "@/components/app/CategoryTile";
+import { homeTopCategoryLabel } from "@/lib/nakuru/home-i18n";
+import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
 
 const BROWSE_SIDES = new Set(["shop", "property", "cars", "services"]);
 
 export function CategoryView() {
   const { state, dispatch, toast } = useNakuruApp();
+  const { lang } = usePwaInstall();
   const { onAct, serviceInquiryEnabled, inquiryModal } = useListingAct();
   const s = state.side;
   const liveCatalog = isLiveCatalogEnabled();
@@ -111,22 +115,23 @@ export function CategoryView() {
                   All ›
                 </span>
               </div>
-              <div className="g3" style={{ marginTop: 10 }}>
+              <div className="home-cat-grid" style={{ marginTop: 10 }}>
                 {ks.map((k) => {
-                  const t = TOPC[k];
+                  const t = TOPC[k]!;
                   return (
-                    <div
+                    <CategoryTile
                       key={k}
-                      className="ct"
-                      role="button"
-                      tabIndex={0}
-                      onClick={() =>
+                      icon={t[0]}
+                      tint={t[4]}
+                      label={
+                        t[3]
+                          ? homeTopCategoryLabel(t[3], lang)
+                          : t[1]
+                      }
+                      onActivate={() =>
                         dispatch({ type: "SELECT_TOPC", index: k })
                       }
-                    >
-                      <div>{t[0]}</div>
-                      {t[1]}
-                    </div>
+                    />
                   );
                 })}
               </div>

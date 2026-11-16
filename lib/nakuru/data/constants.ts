@@ -1,3 +1,4 @@
+import type { CategoryIconKey } from "@/lib/nakuru/category-icons";
 import type { CategoryId } from "@/lib/nakuru/types";
 
 export const CATS: [CategoryId, string][] = [
@@ -19,23 +20,32 @@ export const ACT: Record<string, string> = {
   services: "Request quote",
 };
 
-export const TOPC: [string, string, CategoryId, string][] = [
-  ["📱", "Smart phones", "shop", "phone"],
-  ["📺", "Televisions", "shop", "tv"],
-  ["🍳", "Kitchen supplies", "shop", "kitchen"],
-  ["👗", "Fashion", "shop", "dress"],
-  ["👟", "Shoes", "shop", "sneaker"],
-  ["🥬", "Groceries", "shop", "veg"],
-  ["⌚", "Watches", "shop", "watch"],
-  ["🏠", "Homes to rent", "property", "rent"],
-  ["🏡", "Homes for sale", "property", "sale"],
-  ["🌄", "Land", "property", "plot"],
-  ["🚗", "Toyota", "cars", "toyota"],
-  ["🚙", "Subaru", "cars", "subaru"],
-  ["🚘", "All cars", "cars", ""],
-  ["⚡", "Electricians", "services", "electric"],
-  ["🧼", "Cleaning", "services", "clean"],
-  ["🔧", "Plumbers", "services", "plumb"],
+export type TopCategoryTint = "teal" | "green" | "sand" | "pink";
+
+/** [icon key, English label, category, search filter slug, tint group] */
+export const TOPC: [
+  CategoryIconKey,
+  string,
+  CategoryId,
+  string,
+  TopCategoryTint,
+][] = [
+  ["smartphone", "Smart phones", "shop", "phone", "teal"],
+  ["tv", "Televisions", "shop", "tv", "teal"],
+  ["cooking-pot", "Kitchen supplies", "shop", "kitchen", "teal"],
+  ["shirt", "Fashion", "shop", "dress", "teal"],
+  ["shoe", "Shoes", "shop", "sneaker", "teal"],
+  ["salad", "Groceries", "shop", "veg", "teal"],
+  ["watch", "Watches", "shop", "watch", "teal"],
+  ["home", "Homes to rent", "property", "rent", "green"],
+  ["home-sale", "Homes for sale", "property", "sale", "green"],
+  ["mountain", "Land", "property", "plot", "green"],
+  ["car", "Toyota", "cars", "toyota", "sand"],
+  ["car", "Subaru", "cars", "subaru", "sand"],
+  ["car", "All cars", "cars", "", "sand"],
+  ["bolt", "Electricians", "services", "electric", "pink"],
+  ["sparkles", "Cleaning", "services", "clean", "pink"],
+  ["wrench", "Plumbers", "services", "plumb", "pink"],
 ];
 
 export const FEAT = [0, 1, 2, 7, 10, 13, 3, 9, 14];
@@ -62,19 +72,19 @@ export const SLIDES: [string, string, string, string][] = [
     "linear-gradient(135deg,#073b39,#0d6f69)",
     "Free delivery on your first order",
     "Pay on delivery · Nakuru only",
-    "🛵",
+    "delivery",
   ],
   [
     "linear-gradient(135deg,#e8506d,#f59a6b)",
     "List your home or car free",
-    "Free for your first 3 months",
-    "🏠",
+    "Free to join and list",
+    "property",
   ],
   [
-    "linear-gradient(135deg,#6b4300,#c98a10)",
+    "linear-gradient(135deg,#073b39,#0a4a47)",
     "Get Verified, get paid upfront",
     "M-Pesa for trusted vendors",
-    "✅",
+    "verified",
   ],
 ];
 

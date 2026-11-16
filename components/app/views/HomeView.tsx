@@ -22,10 +22,35 @@ import { isOutsideArea } from "@/lib/nakuru/area";
 import { kes } from "@/lib/nakuru/format";
 import type { CategoryId } from "@/lib/nakuru/types";
 import { InstallHomeCard } from "@/components/app/pwa/InstallHomeCard";
+import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
+import {
+  homeCopy,
+  homeTopCategoryLabel,
+  SLIDE_COPY_KEYS,
+} from "@/lib/nakuru/home-i18n";
+import { CategoryTile } from "@/components/app/CategoryTile";
+import { HomeSectionHeader } from "@/components/app/HomeSectionHeader";
+import {
+  SlideArtDelivery,
+  SlideArtProperty,
+  SlideArtVerified,
+} from "@/components/app/HomeSlideArt";
+import {
+  IconGrid,
+  IconMessageQuote,
+  IconShieldCheck,
+  IconSparkle,
+  IconStore,
+  IconWallet,
+} from "@/components/app/icons/LineIcons";
+
+const SLIDE_CLASS = ["sl--teal", "sl--pink", "sl--deep"] as const;
+const SLIDE_ART = [SlideArtDelivery, SlideArtProperty, SlideArtVerified] as const;
 
 function useHomeCarousel(active: boolean) {
   const carRef = useRef<HTMLDivElement>(null);
   const [ci, setCi] = useState(0);
+  const pausedRef = useRef(false);
   const reduced =
     typeof window !== "undefined" &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -48,7 +73,7 @@ function useHomeCarousel(active: boolean) {
     if (!c) return;
 
     const id = setInterval(() => {
-      if (document.hidden) return;
+      if (document.hidden || pausedRef.current) return;
       setCi((prev) => {
         const next = (prev + 1) % SLIDES.length;
         c.scrollTo({
@@ -57,11 +82,15 @@ function useHomeCarousel(active: boolean) {
         });
         return next;
       });
-    }, 4500);
+    }, 5000);
     return () => clearInterval(id);
   }, [active, reduced]);
 
-  return { carRef, ci };
+  const setPaused = (v: boolean) => {
+    pausedRef.current = v;
+  };
+
+  return { carRef, ci, setPaused, reduced };
 }
 
 function catalogCategoryForFilter(cat: CategoryId): CategoryId | "all" {
@@ -71,8 +100,9 @@ function catalogCategoryForFilter(cat: CategoryId): CategoryId | "all" {
 
 export function HomeView() {
   const { state, dispatch, toast } = useNakuruApp();
+  const { lang } = usePwaInstall();
   const { onAct, serviceInquiryEnabled, inquiryModal } = useListingAct();
-  const { carRef, ci } = useHomeCarousel(state.tab === "home");
+  const { carRef, ci, setPaused } = useHomeCarousel(state.tab === "home");
   const liveCatalog = isLiveCatalogEnabled();
 
   const browseCat = catalogCategoryForFilter(state.cat);
@@ -170,106 +200,150 @@ export function HomeView() {
               />
             ))}
           </div>
+        ) : liveCatalog ? (
+          <ListingsEmpty />
         ) : (
-          liveCatalog ? (
-            <ListingsEmpty />
-          ) : (
-            <div className="m">No results. Try a different search.</div>
-          )
+          <div className="m">No results. Try a different search.</div>
         )}
       </>
     );
   }
 
-  const picked = liveCatalog
-    ? liveItems.slice(0, 8)
-    : ITEMS.slice(0, 8);
+  const picked = liveCatalog ? liveItems.slice(0, 8) : ITEMS.slice(0, 8);
+
+  const guideToast =
+    lang === "sw"
+      ? "1 Tafuta · 2 Agiza · 3 Lipa ukifika"
+      : "1 Browse · 2 Order · 3 Pay when it arrives";
 
   return (
     <>
       {inquiryModal}
       <InstallHomeCard />
-      <div className="trust">
-        <div>
-          🛡️<b>Verified vendors</b>ID and shop checked
+      <div className="trust" role="group" aria-label={homeCopy("trustVerifiedTitle", lang)}>
+        <div className="trust-item">
+          <IconShieldCheck size={20} />
+          <span className="trust-copy">
+            <b>{homeCopy("trustVerifiedTitle", lang)}</b>
+            <span className="m">{homeCopy("trustVerifiedSub", lang)}</span>
+          </span>
         </div>
-        <div>
-          💵<b>Pay on delivery</b>Pay when it arrives
-        </div>
-      </div>
-      <div className="hs">
-        <div
-          className="tile"
-          role="button"
-          tabIndex={0}
-          onClick={() => dispatch({ type: "SET_TAB", tab: "cat" })}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              dispatch({ type: "SET_TAB", tab: "cat" });
-            }
-          }}
-        >
-          🗂️ Categories
-        </div>
-        <div
-          className="tile"
-          role="button"
-          tabIndex={0}
-          onClick={() => dispatch({ type: "QUOTE_HOME" })}
-        >
-          🎯 Request a quote
-        </div>
-        <div
-          className="tile"
-          role="button"
-          tabIndex={0}
-          onClick={() => dispatch({ type: "SIGNIN" })}
-        >
-          🏪 Sell with us
-        </div>
-        <div
-          className="tile"
-          role="button"
-          tabIndex={0}
-          onClick={() =>
-            toast("1 Browse · 2 Order · 3 Pay when it arrives")
-          }
-        >
-          💡 New user guide
+        <div className="trust-sep" aria-hidden />
+        <div className="trust-item">
+          <IconWallet size={20} />
+          <span className="trust-copy">
+            <b>{homeCopy("trustPayTitle", lang)}</b>
+            <span className="m">{homeCopy("trustPaySub", lang)}</span>
+          </span>
         </div>
       </div>
-      <div className="car" id="car" ref={carRef}>
-        {SLIDES.map((s, k) => (
+      <div className="qa-scroll">
+        <div className="hs qa-chips">
           <div
-            key={k}
-            className="sl"
-            style={{ background: s[0] }}
+            className="tile qa-chip"
             role="button"
             tabIndex={0}
-            onClick={() =>
-              k === 0
-                ? dispatch({ type: "SLIDE_SHOP" })
-                : dispatch({ type: "SLIDE_VENDOR" })
-            }
+            onClick={() => dispatch({ type: "SET_TAB", tab: "cat" })}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                dispatch({ type: "SET_TAB", tab: "cat" });
+              }
+            }}
           >
-            <div>
-              <b>{s[1]}</b>
-              <span>{s[2]}</span>
-            </div>
-            <i>{s[3]}</i>
+            <IconGrid size={24} />
+            {homeCopy("qaCategories", lang)}
           </div>
-        ))}
+          <div
+            className="tile qa-chip"
+            role="button"
+            tabIndex={0}
+            onClick={() => dispatch({ type: "QUOTE_HOME" })}
+          >
+            <IconMessageQuote size={24} />
+            {homeCopy("qaQuote", lang)}
+          </div>
+          <div
+            className="tile qa-chip qa-chip--sell"
+            role="button"
+            tabIndex={0}
+            onClick={() => dispatch({ type: "SIGNIN" })}
+          >
+            <IconStore size={24} />
+            {homeCopy("qaSell", lang)}
+          </div>
+          <div
+            className="tile qa-chip"
+            role="button"
+            tabIndex={0}
+            onClick={() => toast(guideToast)}
+          >
+            <IconSparkle size={24} />
+            {homeCopy("qaGuide", lang)}
+          </div>
+        </div>
       </div>
-      <div className="dots">
+      <div
+        className="car"
+        id="car"
+        ref={carRef}
+        onPointerEnter={() => setPaused(true)}
+        onPointerLeave={() => setPaused(false)}
+        onTouchStart={() => setPaused(true)}
+        onTouchEnd={() => setPaused(false)}
+      >
+        {SLIDES.map((_, k) => {
+          const [titleKey, subKey] = SLIDE_COPY_KEYS[k]!;
+          const Art = SLIDE_ART[k]!;
+          return (
+            <div
+              key={k}
+              className={`sl ${SLIDE_CLASS[k] ?? ""}`}
+              role="button"
+              tabIndex={0}
+              onClick={() =>
+                k === 0
+                  ? dispatch({ type: "SLIDE_SHOP" })
+                  : dispatch({ type: "SLIDE_VENDOR" })
+              }
+            >
+              <div className="sl-grain" aria-hidden />
+              <div className="sl-text">
+                <b>{homeCopy(titleKey, lang)}</b>
+                <span>{homeCopy(subKey, lang)}</span>
+              </div>
+              <Art />
+            </div>
+          );
+        })}
+      </div>
+      <div
+        className="car-pill"
+        role="tablist"
+        aria-label={homeCopy("slide0Title", lang)}
+      >
         {SLIDES.map((_, k) => (
-          <i key={k} className={k === ci ? "on" : ""} />
+          <button
+            key={k}
+            type="button"
+            role="tab"
+            aria-selected={k === ci}
+            className={k === ci ? "on" : ""}
+            onClick={() => {
+              const c = carRef.current;
+              if (!c) return;
+              c.scrollTo({
+                left: k * c.clientWidth,
+                behavior: "smooth",
+              });
+            }}
+          />
         ))}
       </div>
       {!liveCatalog ? (
         <div className="rank">
-          <h3>Top rankings</h3>
-          <div className="m">Make shopping efficient</div>
+          <h3>{homeCopy("topRankings", lang)}</h3>
+          <div className="m">{homeCopy("topRankingsSub", lang)}</div>
           <div className="hs">
             {RANK.map((r) => {
               const i = itemById(r[0]);
@@ -294,27 +368,30 @@ export function HomeView() {
           </div>
         </div>
       ) : null}
-      <h2>Top categories</h2>
-      <div className="card">
-        <div className="g3">
-          {FEAT.map((k) => {
-            const t = TOPC[k];
-            return (
-              <div
-                key={k}
-                className="ct"
-                role="button"
-                tabIndex={0}
-                onClick={() => dispatch({ type: "SELECT_TOPC", index: k })}
-              >
-                <div>{t[0]}</div>
-                {t[1]}
-              </div>
-            );
-          })}
-        </div>
+      <HomeSectionHeader
+        titleKey="topCategories"
+        lang={lang}
+        seeAll={{
+          onClick: () => dispatch({ type: "SET_TAB", tab: "cat" }),
+        }}
+      />
+      <div className="home-cat-grid">
+        {FEAT.map((k) => {
+          const t = TOPC[k]!;
+          return (
+            <CategoryTile
+              key={k}
+              icon={t[0]}
+              tint={t[4]}
+              label={
+                t[3] ? homeTopCategoryLabel(t[3], lang) : t[1]
+              }
+              onActivate={() => dispatch({ type: "SELECT_TOPC", index: k })}
+            />
+          );
+        })}
       </div>
-      <h2>Picked for you</h2>
+      <HomeSectionHeader titleKey="pickedForYou" lang={lang} />
       {loading && liveCatalog ? (
         <ListingsSkeleton count={4} />
       ) : error && liveCatalog ? (
@@ -337,11 +414,7 @@ export function HomeView() {
           {demoItems()
             .slice(0, 8)
             .map((i) => (
-              <ProductCard
-                key={i.id}
-                item={i}
-                onAct={onAct}
-              />
+              <ProductCard key={i.id} item={i} onAct={onAct} />
             ))}
         </div>
       )}

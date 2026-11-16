@@ -1,57 +1,120 @@
 "use client";
 
+import { useState } from "react";
 import { ACT } from "@/lib/nakuru/data/constants";
 import { isLiveCatalogEnabled } from "@/lib/nakuru/catalog-live";
 import { kes } from "@/lib/nakuru/format";
 import type { Listing } from "@/lib/nakuru/types";
+import {
+  CategoryIcon,
+  isCategoryIconKey,
+  type CategoryIconKey,
+} from "@/lib/nakuru/category-icons";
+import { IconCheck, IconWallet } from "@/components/app/icons/LineIcons";
+import { homeCopy } from "@/lib/nakuru/home-i18n";
+import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
+
+const DEFAULT_ICON: Record<string, CategoryIconKey> = {
+  shop: "shirt",
+  property: "home",
+  cars: "car",
+  services: "bolt",
+};
 
 type Props = {
   item: Listing;
   onAct: (id: number | string) => void;
-  /** When true, service listings use the inquiry flow (Task 18). */
   serviceInquiryEnabled?: boolean;
 };
+
+function listingIconKey(item: Listing): CategoryIconKey {
+  if (isCategoryIconKey(item.e)) return item.e;
+  return DEFAULT_ICON[item.c] ?? "grid";
+}
 
 export function ProductCard({
   item,
   onAct,
   serviceInquiryEnabled = false,
 }: Props) {
+  const { lang } = usePwaInstall();
   const live = isLiveCatalogEnabled();
   const serviceHeld =
     live && item.c === "services" && !serviceInquiryEnabled;
-  const label = serviceHeld ? "Quote — coming soon" : ACT[item.c];
+  const shopAdd = item.c === "shop" && !serviceHeld;
+  const label = serviceHeld
+    ? "Quote — coming soon"
+    : shopAdd
+      ? homeCopy("addToCart", lang)
+      : ACT[item.c];
+  const [imgOk, setImgOk] = useState(true);
+  const [added, setAdded] = useState(false);
+  const icon = listingIconKey(item);
+  const showImg = Boolean(item.img) && imgOk;
+
+  const handleAct = () => {
+    if (serviceHeld) return;
+    onAct(item.id);
+    if (shopAdd) {
+      setAdded(true);
+      window.setTimeout(() => setAdded(false), 1200);
+    }
+  };
 
   return (
-    <div className="pc">
-      <div className="pim">
-        {item.img ? (
-          <img src={item.img} alt="" />
+    <article className="pc">
+      <div className={`pim pim--${item.c}`}>
+        {showImg ? (
+          <img
+            src={item.img}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            onError={() => setImgOk(false)}
+          />
         ) : (
-          <span aria-hidden>{item.e}</span>
+          <span className="pim-fallback" aria-hidden>
+            <CategoryIcon icon={icon} size={32} />
+          </span>
         )}
+        {item.v ? (
+          <span className="pc-verified-pill">
+            <IconCheck size={14} />
+            {homeCopy("verifiedPill", lang)}
+          </span>
+        ) : null}
       </div>
-      <div className="t">{item.t}</div>
-      <div className="m">{item.s}</div>
-      <div className="pr">{kes(item.p)}</div>
-      <div>
-        <span className={`badge ${item.v ? "" : "u"}`}>
-          {item.v ? "✓ Verified" : "Unverified"}
-        </span>
+      <div className="pc-body">
+        <h3 className="pc-title">{item.t}</h3>
+        <p className="pc-vendor">{item.s}</p>
+        {!item.v ? (
+          <span className="pc-cod">
+            <IconWallet size={14} />
+            {homeCopy("payOnDelivery", lang)}
+          </span>
+        ) : null}
+        <p className="pc-price">{kes(item.p)}</p>
       </div>
       <button
         type="button"
-        className="btn s"
+        className={`btn pc-add${added ? " pc-add--done" : ""}${shopAdd ? " o" : " s"}`}
         disabled={serviceHeld}
+        aria-live={shopAdd ? "polite" : undefined}
         title={
           serviceHeld
             ? "Service quote requests open in the next release"
             : undefined
         }
-        onClick={() => onAct(item.id)}
+        onClick={handleAct}
       >
-        {label}
+        {added ? (
+          <>
+            {homeCopy("addedToCart", lang)} ✓
+          </>
+        ) : (
+          label
+        )}
       </button>
-    </div>
+    </article>
   );
 }

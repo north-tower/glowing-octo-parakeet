@@ -23,12 +23,12 @@ export type InstallCopyKey =
 
 const COPY: Record<InstallCopyKey, Record<LandingLang, string>> = {
   installCardTitle: {
-    en: "Add NakuruHub to your home screen",
-    sw: "Ongeza NakuruHub kwenye skrini ya nyumbani",
+    en: "Install NakuruHub",
+    sw: "Sakinisha NakuruHub",
   },
   installCardBody: {
-    en: "Opens full-screen, one tap from your home screen.",
-    sw: "Hufunguka skrini nzima — tap moja kwenye skrini ya nyumbani.",
+    en: "Open it full-screen from your home screen.",
+    sw: "Ifungue skrini nzima kutoka skrini ya nyumbani.",
   },
   installBtn: {
     en: "Install",
