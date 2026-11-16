@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "staff:seed-dev": "tsx scripts/seed-dev-staff.ts"
   },
   "dependencies": {
     "argon2": "^0.45.2",

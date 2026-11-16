@@ -1,7 +1,10 @@
 "use client";
 
+import { staffDevLoginPrefill } from "@/lib/nakuru/staff-dev-defaults";
 import { setStaffAccessToken } from "@/lib/nakuru/staff-auth";
-import { useCallback, useState, type FormEvent } from "react";
+import { useCallback, useMemo, useState, type FormEvent } from "react";
+
+const devPrefill = staffDevLoginPrefill();
 
 type Props = {
   onLoggedIn: (access: string) => void;
@@ -28,8 +31,9 @@ const STAFF_TOTP_REQUIRED =
   process.env.NEXT_PUBLIC_STAFF_TOTP_REQUIRED === "true";
 
 export function StaffLoginForm({ onLoggedIn }: Props) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState(() => devPrefill?.email ?? "");
+  const [password, setPassword] = useState(() => devPrefill?.password ?? "");
+  const showDevHint = useMemo(() => !!devPrefill, []);
   const [totp, setTotp] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -103,6 +107,12 @@ export function StaffLoginForm({ onLoggedIn }: Props) {
           ? "Password and authenticator required. Customer OTP does not grant staff access."
           : "Password only for now. Customer OTP does not grant staff access."}
       </p>
+      {showDevHint ? (
+        <p className="m" style={{ marginBottom: 12, fontSize: 13, opacity: 0.85 }}>
+          Dev mode: form uses default staff credentials. Run{" "}
+          <code>pnpm staff:seed-dev</code> once if sign-in fails (user not in DB).
+        </p>
+      ) : null}
       {error ? <div className="err">{error}</div> : null}
       <label htmlFor="staff-email">Work email</label>
       <input

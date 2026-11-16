@@ -7,6 +7,7 @@ All schema changes live in `supabase/migrations/`. Apply them to your **Supabase
 1. **Database → Extensions:** enable `postgis` and `pgcrypto` (or let `003` create them if allowed).
 2. **Storage:** bucket `vendor-documents`, **private**, no public policies.
 3. **Local env:** copy `.env.example` → `.env.local` and set `DATABASE_URL` (pooler or direct session URI), `SUPABASE_*`, JWT secrets, Mailgun.
+4. **Staff (dev):** after migrations, `pnpm staff:seed-dev` then open `/staff` — default credentials are pre-filled (see `STAFF_DEV_*` in `.env.example`).
 
 ## Migration run order
 
