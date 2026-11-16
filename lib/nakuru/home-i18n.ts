@@ -203,6 +203,9 @@ export type HomeCopyKey =
   | "assistantEntrySearch"
   | "assistantEntryAccount"
   | "assistantEntryHelp"
+  | "assistantFabLabel"
+  | "assistantFabAria"
+  | "assistantCloseAria"
   | "accSignedOut"
   | "accUploadPhotoAria"
   | "accDefaultName";
@@ -601,6 +604,18 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   assistantEntryHelp: {
     en: "Ask the assistant",
     sw: "Uliza msaidizi",
+  },
+  assistantFabLabel: {
+    en: "Ask NakuruHub",
+    sw: "Uliza NakuruHub",
+  },
+  assistantFabAria: {
+    en: "Ask the NakuruHub assistant",
+    sw: "Uliza msaidizi wa NakuruHub",
+  },
+  assistantCloseAria: {
+    en: "Close assistant",
+    sw: "Funga msaidizi",
   },
 };
 

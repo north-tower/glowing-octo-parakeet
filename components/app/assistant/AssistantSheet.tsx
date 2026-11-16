@@ -9,9 +9,10 @@ import {
   type FormEvent,
 } from "react";
 import {
+  IconArrowUp,
+  IconEllipsis,
   IconFlamingo,
-  IconMessageCircle,
-  IconSparkle,
+  IconSquare,
   IconX,
 } from "@/components/app/icons/LineIcons";
 import { homeCopy } from "@/lib/nakuru/home-i18n";
@@ -19,6 +20,7 @@ import type { LandingLang } from "@/lib/nakuru/i18n";
 import type {
   AssistantAction,
   AssistantMessage,
+  AssistantPart,
   AssistantScreen,
 } from "@/lib/assistant/types";
 import { AssistantMessageParts } from "@/components/app/assistant/AssistantMessageParts";
@@ -46,8 +48,17 @@ type Props = {
   onConfirmPending: () => void;
   error?: string | null;
   onRetry?: () => void;
-  initialPrompt?: string;
 };
+
+function partitionParts(parts: AssistantPart[]) {
+  const main: AssistantPart[] = [];
+  const quick: AssistantPart[] = [];
+  for (const p of parts) {
+    if (p.type === "quickReplies") quick.push(p);
+    else main.push(p);
+  }
+  return { main, quick };
+}
 
 function trapFocus(container: HTMLElement, e: KeyboardEvent) {
   if (e.key !== "Tab") return;
@@ -83,7 +94,6 @@ export function AssistantSheet({
   onConfirmPending,
   error,
   onRetry,
-  initialPrompt,
 }: Props) {
   const titleId = useId();
   const sheetRef = useRef<HTMLDivElement>(null);
@@ -140,10 +150,6 @@ export function AssistantSheet({
     el.scrollTop = el.scrollHeight;
   }, [messages, streaming]);
 
-  useEffect(() => {
-    if (open && initialPrompt) setDraft(initialPrompt);
-  }, [open, initialPrompt]);
-
   const onTouchStart = (e: React.TouchEvent) => {
     startY.current = e.touches[0]?.clientY ?? 0;
   };
@@ -159,6 +165,17 @@ export function AssistantSheet({
       if (!text || streaming) return;
       onSend(text);
       setDraft("");
+      requestAnimationFrame(() => {
+        const ta = composerRef.current;
+        const log = logRef.current;
+        if (log) log.scrollTop = log.scrollHeight;
+        if (!ta) return;
+        const vv = window.visualViewport;
+        const keyboardInset = vv
+          ? Math.max(0, window.innerHeight - vv.height - vv.offsetTop)
+          : 0;
+        if (keyboardInset < 80) ta.focus();
+      });
     },
     [draft, onSend, streaming],
   );
@@ -202,29 +219,41 @@ export function AssistantSheet({
               {homeCopy("assistantDemoChip", lang)}
             </span>
           </div>
-          <div className="assistant-sheet-menu-wrap">
+          <div className="assistant-sheet-head-actions">
+            <div className="assistant-sheet-menu-wrap">
+              <button
+                type="button"
+                className="assistant-menu-btn"
+                aria-label={homeCopy("assistantMenuAria", lang)}
+                aria-expanded={menuOpen}
+                aria-haspopup="menu"
+                onClick={() => setMenuOpen((v) => !v)}
+              >
+                <IconEllipsis size={22} />
+              </button>
+              {menuOpen ? (
+                <div className="assistant-menu-pop" role="menu">
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      onClear();
+                    }}
+                  >
+                    {homeCopy("assistantClear", lang)}
+                  </button>
+                </div>
+              ) : null}
+            </div>
             <button
               type="button"
-              className="assistant-menu-btn"
-              aria-label={homeCopy("assistantMenuAria", lang)}
-              aria-expanded={menuOpen}
-              onClick={() => setMenuOpen((v) => !v)}
+              className="assistant-menu-btn assistant-close-btn"
+              aria-label={homeCopy("assistantCloseAria", lang)}
+              onClick={onClose}
             >
-              <IconMessageCircle size={22} />
+              <IconX size={22} />
             </button>
-            {menuOpen ? (
-              <div className="assistant-menu-pop">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMenuOpen(false);
-                    onClear();
-                  }}
-                >
-                  {homeCopy("assistantClear", lang)}
-                </button>
-              </div>
-            ) : null}
           </div>
         </header>
 
@@ -255,28 +284,56 @@ export function AssistantSheet({
             </div>
           ) : null}
 
-          {messages.map((msg) => (
-            <article
-              key={msg.id}
-              className={`assistant-bubble assistant-bubble--${msg.role}`}
-            >
-              {msg.role === "assistant" ? (
-                <span className="assistant-avatar" aria-hidden>
-                  <IconFlamingo size={18} />
-                </span>
-              ) : null}
-              <div className="assistant-bubble-inner">
-                <AssistantMessageParts
-                  parts={msg.parts}
-                  lang={lang}
-                  onQuickReply={onQuickReply}
-                  onRunAction={onRunAction}
-                  pendingConfirm={pendingConfirm}
-                  onConfirmPending={onConfirmPending}
-                />
-              </div>
-            </article>
-          ))}
+          {messages.map((msg) => {
+            const { main, quick } = partitionParts(msg.parts);
+            return (
+              <article
+                key={msg.id}
+                className={`assistant-bubble assistant-bubble--${msg.role}`}
+              >
+                {msg.role === "assistant" ? (
+                  <span className="assistant-avatar" aria-hidden>
+                    <IconFlamingo size={18} />
+                  </span>
+                ) : null}
+                {msg.role === "assistant" ? (
+                  <div className="assistant-bubble-stack">
+                    <div className="assistant-bubble-inner">
+                      <AssistantMessageParts
+                        parts={main}
+                        lang={lang}
+                        onQuickReply={onQuickReply}
+                        onRunAction={onRunAction}
+                        pendingConfirm={pendingConfirm}
+                        onConfirmPending={onConfirmPending}
+                      />
+                    </div>
+                    {quick.length ? (
+                      <AssistantMessageParts
+                        parts={quick}
+                        lang={lang}
+                        onQuickReply={onQuickReply}
+                        onRunAction={onRunAction}
+                        pendingConfirm={pendingConfirm}
+                        onConfirmPending={onConfirmPending}
+                      />
+                    ) : null}
+                  </div>
+                ) : (
+                  <div className="assistant-bubble-inner">
+                    <AssistantMessageParts
+                      parts={msg.parts}
+                      lang={lang}
+                      onQuickReply={onQuickReply}
+                      onRunAction={onRunAction}
+                      pendingConfirm={pendingConfirm}
+                      onConfirmPending={onConfirmPending}
+                    />
+                  </div>
+                )}
+              </article>
+            );
+          })}
 
           {streaming ? (
             <p className="assistant-typing m" aria-live="polite">
@@ -316,7 +373,10 @@ export function AssistantSheet({
             placeholder={homeCopy("assistantPlaceholder", lang)}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
+              const desktop = window.matchMedia(
+                "(pointer: fine) and (min-width: 768px)",
+              ).matches;
+              if (e.key === "Enter" && !e.shiftKey && desktop) {
                 e.preventDefault();
                 submit();
               }
@@ -330,7 +390,7 @@ export function AssistantSheet({
               onClick={onStop}
               aria-label={homeCopy("assistantStop", lang)}
             >
-              <IconX size={20} />
+              <IconSquare size={18} />
             </button>
           ) : (
             <button
@@ -339,7 +399,7 @@ export function AssistantSheet({
               disabled={!draft.trim()}
               aria-label={homeCopy("assistantSend", lang)}
             >
-              <IconSparkle size={20} />
+              <IconArrowUp size={20} />
             </button>
           )}
         </form>

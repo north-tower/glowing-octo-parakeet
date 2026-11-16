@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import { config } from "./config";
 import { db } from "./db";
+import { buildOtpSignInMail } from "./email-templates/otp-sign-in";
 import { sendMail } from "./mailgun";
 
 const DAILY_CAP = 5;
@@ -63,10 +64,12 @@ export async function issue(rawEmail: string): Promise<OtpIssueResult> {
     [email, hash],
   );
 
+  const mail = buildOtpSignInMail(email, code);
   await sendMail({
     to: email,
     subject: "Your NakuruHub sign-in code",
-    text: `Your code is ${code}. Valid for 5 minutes. Never share it.`,
+    text: mail.text,
+    html: mail.html,
   });
 
   if (config.otpDevOnScreen) {

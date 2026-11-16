@@ -41,6 +41,7 @@ import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
 import { useNakuruApp } from "@/components/app/AppProvider";
 import { AssistantEntryChip } from "@/components/app/assistant/AssistantEntryChip";
 import { useAssistantUi } from "@/components/app/assistant/AssistantUiProvider";
+import { useStickyBarHeight } from "@/components/app/assistant/useStickyBarHeight";
 import { isOutsideArea } from "@/lib/nakuru/area";
 import {
   IconCheck,
@@ -97,6 +98,8 @@ export function ProductDetailView({ productId }: Props) {
   const aboutRef = useRef<HTMLParagraphElement>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
   const sellerSectionRef = useRef<HTMLElement>(null);
+  const pdBarRef = useRef<HTMLDivElement>(null);
+  useStickyBarHeight(pdBarRef);
   const backHref = appHrefForDetailNavTab();
 
   const load = useCallback(async () => {
@@ -616,7 +619,12 @@ export function ProductDetailView({ productId }: Props) {
           ) : null}
         </div>
 
-        <div className="pd-bar" role="region" aria-label={primaryLabel}>
+        <div
+          ref={pdBarRef}
+          className="pd-bar"
+          role="region"
+          aria-label={primaryLabel}
+        >
           <div className="pd-bar-left">
             <span className="pd-bar-price">{kes(detail.p)}</span>
             {detail.c === "shop" ? (

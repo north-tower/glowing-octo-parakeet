@@ -41,7 +41,7 @@ import {
 import {
   IconMessageQuote,
   IconShieldCheck,
-  IconSparkle,
+  IconBookOpen,
   IconWallet,
 } from "@/components/app/icons/LineIcons";
 import {
@@ -283,7 +283,7 @@ export function HomeView() {
             tabIndex={0}
             onClick={() => toast(guideToast)}
           >
-            <IconSparkle size={24} />
+            <IconBookOpen size={24} />
             {homeCopy("qaGuide", lang)}
           </div>
         </div>

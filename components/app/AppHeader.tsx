@@ -7,20 +7,17 @@ import { homeCategoryLabel, homeCopy } from "@/lib/nakuru/home-i18n";
 import type { CategoryId } from "@/lib/nakuru/types";
 import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
 import { ZoneSheet } from "@/components/app/ZoneSheet";
-import { useAssistantUi } from "@/components/app/assistant/AssistantUiProvider";
 import {
   IconCamera,
   IconChevronDown,
   IconFlamingo,
   IconMapPin,
   IconSearch,
-  IconSparkle,
 } from "@/components/app/icons/LineIcons";
 
 export function AppHeader() {
   const { state, dispatch, toast } = useNakuruApp();
   const { lang } = usePwaInstall();
-  const { openAssistant } = useAssistantUi();
   const [qLocal, setQLocal] = useState(state.q);
   const [zoneOpen, setZoneOpen] = useState(false);
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -68,20 +65,6 @@ export function AppHeader() {
           </span>
           NakuruHub
         </span>
-        <button
-          type="button"
-          className="hd-assistant-btn"
-          aria-label={homeCopy("assistantEntryHeader", lang)}
-          onClick={() =>
-            openAssistant({
-              source: "header",
-              suggestedPrompt:
-                lang === "sw" ? "Verified ni nini?" : "What is Verified?",
-            })
-          }
-        >
-          <IconSparkle size={22} />
-        </button>
         <button
           type="button"
           id="area"
