@@ -41,7 +41,7 @@ import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
 import { useNakuruApp } from "@/components/app/AppProvider";
 import { AssistantEntryChip } from "@/components/app/assistant/AssistantEntryChip";
 import { useAssistantUi } from "@/components/app/assistant/AssistantUiProvider";
-import { useStickyBarHeight } from "@/components/app/assistant/useStickyBarHeight";
+import { useStickyBar } from "@/components/app/assistant/useStickyBar";
 import { isOutsideArea } from "@/lib/nakuru/area";
 import {
   IconCheck,
@@ -99,7 +99,7 @@ export function ProductDetailView({ productId }: Props) {
   const galleryRef = useRef<HTMLDivElement>(null);
   const sellerSectionRef = useRef<HTMLElement>(null);
   const pdBarRef = useRef<HTMLDivElement>(null);
-  useStickyBarHeight(pdBarRef);
+  const pdBarMeasureRef = useStickyBar(pdBarRef);
   const backHref = appHrefForDetailNavTab();
 
   const load = useCallback(async () => {
@@ -620,7 +620,7 @@ export function ProductDetailView({ productId }: Props) {
         </div>
 
         <div
-          ref={pdBarRef}
+          ref={pdBarMeasureRef}
           className="pd-bar"
           role="region"
           aria-label={primaryLabel}

@@ -16,6 +16,16 @@ export type HomeCopyKey =
   | "qaQuote"
   | "qaSell"
   | "qaGuide"
+  | "userGuideTitle"
+  | "userGuideDismiss"
+  | "userGuideStep1Title"
+  | "userGuideStep1Body"
+  | "userGuideStep2Title"
+  | "userGuideStep2Body"
+  | "userGuideStep3Title"
+  | "userGuideStep3Body"
+  | "userGuideStep4Title"
+  | "userGuideStep4Body"
   | "slide0Title"
   | "slide0Sub"
   | "slide1Title"
@@ -247,6 +257,37 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   qaQuote: { en: "Request a quote", sw: "Omba bei" },
   qaSell: { en: "Sell with us", sw: "Uza nasi" },
   qaGuide: { en: "New user guide", sw: "Mwongozo wa mtumiaji mpya" },
+  userGuideTitle: {
+    en: "How NakuruHub works",
+    sw: "Jinsi NakuruHub inavyofanya kazi",
+  },
+  userGuideDismiss: { en: "Close", sw: "Funga" },
+  userGuideStep1Title: {
+    en: "Set your delivery area",
+    sw: "Weka eneo la usafirishaji",
+  },
+  userGuideStep1Body: {
+    en: "Tap Deliver to at the top and pick your Nakuru zone.",
+    sw: "Gusa Tuma kwa juu na chagua eneo lako la Nakuru.",
+  },
+  userGuideStep2Title: { en: "Browse and add items", sw: "Vinjari na ongeza bidhaa" },
+  userGuideStep2Body: {
+    en: "Open a category, tap a listing, then add to cart or send a quote request.",
+    sw: "Fungua kategoria, gusa tangazo, kisha ongeza kwenye kikapu au omba bei.",
+  },
+  userGuideStep3Title: {
+    en: "Sign in to check out",
+    sw: "Ingia ili kumaliza agizo",
+  },
+  userGuideStep3Body: {
+    en: "We email a one-time code — no password. Your cart and orders stay saved.",
+    sw: "Tutakutumia kodi kwa barua pepe — hakuna nenosiri. Kikapu na agizo zinahifadhiwa.",
+  },
+  userGuideStep4Title: { en: "Pay when it arrives", sw: "Lipa ukifika" },
+  userGuideStep4Body: {
+    en: "Track your order in Messages. Pay cash or M-Pesa on delivery.",
+    sw: "Fuata agizo kwenye Ujumbe. Lipa taslimu au M-Pesa ukifika.",
+  },
   slide0Title: {
     en: "Free delivery on your first order",
     sw: "Usafirishaji bure kwa agizo lako la kwanza",

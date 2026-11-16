@@ -18,7 +18,7 @@ import { OrderPlacedSuccess } from "@/components/app/cart/OrderPlacedSuccess";
 import { OrderTrackView } from "@/components/app/cart/OrderTrackView";
 import { AssistantEntryChip } from "@/components/app/assistant/AssistantEntryChip";
 import { useAssistantUi } from "@/components/app/assistant/AssistantUiProvider";
-import { useStickyBarHeight } from "@/components/app/assistant/useStickyBarHeight";
+import { useStickyBar } from "@/components/app/assistant/useStickyBar";
 import { CartPaymentOptions } from "@/components/app/cart/CartPaymentOptions";
 import { CartPromoRow } from "@/components/app/cart/CartPromoRow";
 import { CartSummary, cartDisplayTotal } from "@/components/app/cart/CartSummary";
@@ -81,7 +81,7 @@ export function CartView() {
   const segCartRef = useRef<HTMLButtonElement>(null);
   const segOrdersRef = useRef<HTMLButtonElement>(null);
   const checkoutBarRef = useRef<HTMLDivElement>(null);
-  useStickyBarHeight(checkoutBarRef);
+  const checkoutBarMeasureRef = useStickyBar(checkoutBarRef);
 
   const ids = Object.keys(state.cart);
   const sub = cartSubtotal(state.cart);
@@ -532,7 +532,7 @@ export function CartView() {
           />
 
           <div
-            ref={checkoutBarRef}
+            ref={checkoutBarMeasureRef}
             className="cart-checkout-bar"
             role="region"
             aria-label={homeCopy("cartPlaceOrder", lang)}

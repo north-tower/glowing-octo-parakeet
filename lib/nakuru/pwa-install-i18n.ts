@@ -19,7 +19,10 @@ export type InstallCopyKey =
   | "copied"
   | "genericTitle"
   | "genericBody"
-  | "dismissSheet";
+  | "dismissSheet"
+  | "sheetHintIos"
+  | "sheetHintInApp"
+  | "sheetHintGeneric";
 
 const COPY: Record<InstallCopyKey, Record<LandingLang, string>> = {
   installCardTitle: {
@@ -97,6 +100,18 @@ const COPY: Record<InstallCopyKey, Record<LandingLang, string>> = {
   dismissSheet: {
     en: "Close",
     sw: "Funga",
+  },
+  sheetHintIos: {
+    en: "Safari: Share → Add to Home Screen.",
+    sw: "Safari: Shiriki → Add to Home Screen.",
+  },
+  sheetHintInApp: {
+    en: "Open in Chrome or Safari, then install from the browser menu.",
+    sw: "Fungua kwenye Chrome au Safari, kisha sakinisha kutoka menyu ya kivinjari.",
+  },
+  sheetHintGeneric: {
+    en: "Use your browser menu to add NakuruHub to your home screen.",
+    sw: "Tumia menyu ya kivinjari kuongeza NakuruHub kwenye skrini ya nyumbani.",
   },
 };
 

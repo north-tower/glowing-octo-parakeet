@@ -165,22 +165,6 @@ export function InstallProvider({ children }: { children: ReactNode }) {
     dispatchInstallEvent("nh:install-dismissed", { surface: "card" });
   }, []);
 
-  const openInstallSheet = useCallback(
-    (source: "card" | "account" | "retrigger") => {
-      if (standalone) return;
-      dispatchInstallEvent("nh:install-clicked", { source });
-      setSheetOpen(true);
-      if (source === "card" && homeCardVisible) clearRetriggerAfterShow();
-    },
-    [homeCardVisible, standalone],
-  );
-
-  useEffect(() => {
-    if (!homeCardVisible || standalone) return;
-    clearRetriggerAfterShow();
-    dispatchInstallEvent("nh:install-shown", { surface: "card" });
-  }, [homeCardVisible, standalone]);
-
   const runNativePrompt = useCallback(async () => {
     const ev = deferredRef.current;
     if (!ev) return false;
@@ -204,6 +188,26 @@ export function InstallProvider({ children }: { children: ReactNode }) {
       return false;
     }
   }, [refreshCard, toast]);
+
+  const openInstallSheet = useCallback(
+    async (source: "card" | "account" | "retrigger") => {
+      if (standalone) return;
+      dispatchInstallEvent("nh:install-clicked", { source });
+      if (source === "card" && homeCardVisible) clearRetriggerAfterShow();
+      if (platform === "android-chromium" && deferredRef.current) {
+        const accepted = await runNativePrompt();
+        if (accepted) return;
+      }
+      setSheetOpen(true);
+    },
+    [homeCardVisible, platform, runNativePrompt, standalone],
+  );
+
+  useEffect(() => {
+    if (!homeCardVisible || standalone) return;
+    clearRetriggerAfterShow();
+    dispatchInstallEvent("nh:install-shown", { surface: "card" });
+  }, [homeCardVisible, standalone]);
 
   const value = useMemo<InstallContextValue>(
     () => ({

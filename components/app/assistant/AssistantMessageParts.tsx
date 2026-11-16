@@ -21,6 +21,10 @@ type Props = {
   ) => void;
   pendingConfirm?: AssistantAction | null;
   onConfirmPending?: () => void;
+  /** When set, quick-reply parts are omitted (rendered outside the bubble). */
+  omitQuickReplies?: boolean;
+  /** Muted quick replies stay visible but non-interactive. */
+  quickRepliesMuted?: boolean;
 };
 
 function CompactProduct({
@@ -61,6 +65,8 @@ export function AssistantMessageParts({
   onRunAction,
   pendingConfirm,
   onConfirmPending,
+  omitQuickReplies = false,
+  quickRepliesMuted = false,
 }: Props) {
   const { state, dispatch, toast } = useNakuruApp();
 
@@ -75,13 +81,16 @@ export function AssistantMessageParts({
           );
         }
         if (part.type === "quickReplies") {
+          if (omitQuickReplies) return null;
           return (
             <div key={`qr-${i}`} className="assistant-quick-replies" role="group">
               {part.items.map((item) => (
                 <button
                   key={item.id}
                   type="button"
-                  className="assistant-quick-reply"
+                  className={`assistant-quick-reply${quickRepliesMuted ? " assistant-quick-reply--muted" : ""}`}
+                  disabled={quickRepliesMuted}
+                  aria-disabled={quickRepliesMuted || undefined}
                   onClick={() => onQuickReply(item.id)}
                 >
                   {item.label}

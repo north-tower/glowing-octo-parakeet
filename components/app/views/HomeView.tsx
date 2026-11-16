@@ -33,6 +33,7 @@ import { AssistantEntryChip } from "@/components/app/assistant/AssistantEntryChi
 import { useAssistantUi } from "@/components/app/assistant/AssistantUiProvider";
 import { VendorSellCard } from "@/components/app/VendorSellCard";
 import { HomeSectionHeader } from "@/components/app/HomeSectionHeader";
+import { HomeUserGuide } from "@/components/app/HomeUserGuide";
 import {
   SlideArtDelivery,
   SlideArtProperty,
@@ -110,6 +111,7 @@ export function HomeView() {
   const { lang } = usePwaInstall();
   const { onAct, serviceInquiryEnabled, inquiryModal } = useListingAct();
   const { carRef, ci, setPaused } = useHomeCarousel(state.tab === "home");
+  const [guideOpen, setGuideOpen] = useState(false);
   const liveCatalog = isLiveCatalogEnabled();
 
   const browseCat = catalogCategoryForFilter(state.cat);
@@ -240,11 +242,6 @@ export function HomeView() {
 
   const picked = liveCatalog ? liveItems.slice(0, 8) : ITEMS.slice(0, 8);
 
-  const guideToast =
-    lang === "sw"
-      ? "1 Tafuta · 2 Agiza · 3 Lipa ukifika"
-      : "1 Browse · 2 Order · 3 Pay when it arrives";
-
   return (
     <>
       {inquiryModal}
@@ -278,16 +275,28 @@ export function HomeView() {
             {homeCopy("qaQuote", lang)}
           </div>
           <div
-            className="tile qa-chip"
+            className={`tile qa-chip${guideOpen ? " on" : ""}`}
             role="button"
             tabIndex={0}
-            onClick={() => toast(guideToast)}
+            aria-expanded={guideOpen}
+            onClick={() => setGuideOpen((v) => !v)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setGuideOpen((v) => !v);
+              }
+            }}
           >
             <IconBookOpen size={24} />
             {homeCopy("qaGuide", lang)}
           </div>
         </div>
       </div>
+      <HomeUserGuide
+        open={guideOpen}
+        lang={lang}
+        onClose={() => setGuideOpen(false)}
+      />
       <div
         className="car"
         id="car"

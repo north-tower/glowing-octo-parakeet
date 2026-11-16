@@ -184,6 +184,9 @@ export function AssistantSheet({
 
   const prompts = suggestedPrompts(screen, lang);
   const remote = getAssistantMode() === "remote";
+  const latestAssistantId = [...messages]
+    .reverse()
+    .find((m) => m.role === "assistant")?.id;
 
   return (
     <div className="pwa-sheet-root assistant-sheet-root" aria-hidden={false}>
@@ -286,6 +289,10 @@ export function AssistantSheet({
 
           {messages.map((msg) => {
             const { main, quick } = partitionParts(msg.parts);
+            const showQuick =
+              msg.role === "assistant" &&
+              quick.length > 0 &&
+              msg.id === latestAssistantId;
             return (
               <article
                 key={msg.id}
@@ -306,9 +313,10 @@ export function AssistantSheet({
                         onRunAction={onRunAction}
                         pendingConfirm={pendingConfirm}
                         onConfirmPending={onConfirmPending}
+                        omitQuickReplies
                       />
                     </div>
-                    {quick.length ? (
+                    {showQuick ? (
                       <AssistantMessageParts
                         parts={quick}
                         lang={lang}
@@ -328,6 +336,7 @@ export function AssistantSheet({
                       onRunAction={onRunAction}
                       pendingConfirm={pendingConfirm}
                       onConfirmPending={onConfirmPending}
+                      omitQuickReplies
                     />
                   </div>
                 )}
@@ -369,6 +378,9 @@ export function AssistantSheet({
             className="assistant-composer-input"
             rows={1}
             maxLength={500}
+            spellCheck={false}
+            autoCorrect="off"
+            autoCapitalize="sentences"
             value={draft}
             placeholder={homeCopy("assistantPlaceholder", lang)}
             onChange={(e) => setDraft(e.target.value)}
