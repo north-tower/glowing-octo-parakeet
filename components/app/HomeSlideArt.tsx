@@ -6,6 +6,8 @@ const stroke = {
   strokeLinejoin: "round" as const,
 };
 
+const strokeBold = { ...stroke, strokeWidth: 2.25 };
+
 export function SlideArtDelivery() {
   return (
     <svg
@@ -15,12 +17,16 @@ export function SlideArtDelivery() {
       viewBox="0 0 120 88"
       aria-hidden
     >
-      <g opacity={0.92} {...stroke}>
-        <path d="M18 58h52l8-18h24v18H18z" fill="rgba(255,255,255,.12)" />
-        <circle cx="32" cy="62" r="7" />
-        <circle cx="78" cy="62" r="7" />
-        <path d="M8 44h28l6 14H18" />
-        <path d="M44 30h20l10 10" />
+      <g opacity={0.9} {...strokeBold}>
+        <ellipse cx="58" cy="68" rx="34" ry="6" fill="rgba(255,255,255,.08)" stroke="none" />
+        <path d="M26 62h46v-4H38l-4-10h-8v14z" fill="rgba(255,255,255,.12)" />
+        <circle cx="34" cy="66" r="6.5" />
+        <circle cx="62" cy="66" r="6.5" />
+        <path d="M52 30c0-2 2-4 5-4h8" />
+        <circle cx="56" cy="24" r="5" />
+        <path d="M44 48h20l6-14h14v14H44z" />
+        <rect x="48" y="36" width="12" height="10" rx="1.5" fill="rgba(255,255,255,.14)" />
+        <path d="M50 38h8v2M50 41h6" strokeWidth={1.75} />
       </g>
     </svg>
   );

@@ -37,11 +37,9 @@ import {
   SlideArtVerified,
 } from "@/components/app/HomeSlideArt";
 import {
-  IconGrid,
   IconMessageQuote,
   IconShieldCheck,
   IconSparkle,
-  IconStore,
   IconWallet,
 } from "@/components/app/icons/LineIcons";
 import {
@@ -249,34 +247,10 @@ export function HomeView() {
             className="tile qa-chip"
             role="button"
             tabIndex={0}
-            onClick={() => dispatch({ type: "SET_TAB", tab: "cat" })}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                dispatch({ type: "SET_TAB", tab: "cat" });
-              }
-            }}
-          >
-            <IconGrid size={24} />
-            {homeCopy("qaCategories", lang)}
-          </div>
-          <div
-            className="tile qa-chip"
-            role="button"
-            tabIndex={0}
             onClick={() => dispatch({ type: "QUOTE_HOME" })}
           >
             <IconMessageQuote size={24} />
             {homeCopy("qaQuote", lang)}
-          </div>
-          <div
-            className="tile qa-chip qa-chip--sell"
-            role="button"
-            tabIndex={0}
-            onClick={() => dispatch({ type: "SIGNIN" })}
-          >
-            <IconStore size={24} />
-            {homeCopy("qaSell", lang)}
           </div>
           <div
             className="tile qa-chip"

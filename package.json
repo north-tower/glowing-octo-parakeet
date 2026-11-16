@@ -10,6 +10,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "staff:seed-dev": "tsx scripts/seed-dev-staff.ts",
+    "seed:demo": "tsx scripts/seed-demo.ts",
     "icons:pwa": "node scripts/generate-pwa-icons.mjs"
   },
   "dependencies": {

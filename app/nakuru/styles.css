@@ -82,7 +82,7 @@ body.app .qa-chips .qa-chip svg{flex:none;color:var(--pri);width:24px;height:24p
 .sl--teal{background-color:#073b39;background-image:radial-gradient(ellipse 88% 72% at 10% 14%,rgba(79,195,187,.38),transparent 58%),radial-gradient(ellipse 100% 85% at 50% 105%,rgba(6,74,71,.95),transparent 65%)}
 .sl--pink{background:linear-gradient(135deg,#e8506d 0%,#f2c49a 100%)}
 .sl--deep{background-color:#073b39;background-image:radial-gradient(ellipse 75% 60% at 88% 20%,rgba(236,95,123,.45),transparent 55%),radial-gradient(ellipse 100% 80% at 20% 100%,rgba(13,111,105,.9),transparent 60%)}
-.sl-art{flex:none;margin-left:8px;opacity:.92;color:#fff;align-self:center}
+.sl-art{flex:none;margin-left:8px;opacity:.9;color:#fff;align-self:center}
 @media(max-width:360px){.sl-art{width:96px;height:auto;margin-left:4px}}
 .sl-grain{position:absolute;inset:0;opacity:.05;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:180px 180px}
 .sl-text{position:relative;z-index:1;max-width:72%}
@@ -161,12 +161,17 @@ nav.app-bottom-nav button.on .nav-tab-pill svg{color:var(--pri)}
 nav.app-bottom-nav button:not(.on) .nav-tab-pill svg{color:color-mix(in srgb,var(--ink) 70%,transparent)}
 nav.app-bottom-nav .nav-tab-label{font-family:var(--font-body),system-ui,sans-serif;font-size:11.5px;font-weight:600;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 nav.app-bottom-nav .nav-tab-badge{position:absolute;top:-2px;right:6px;min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:var(--fl);color:#fff;font-size:10px;font-weight:650;font-style:normal;line-height:17px;text-align:center;box-shadow:0 0 0 2px var(--card)}
-.vendor-sell-card{display:flex;align-items:flex-start;gap:10px;margin:12px 0;border-radius:12px;padding:12px;border:1px solid var(--line)}
+.vendor-sell-card{position:relative;margin:12px 0;border-radius:12px;padding:12px 12px 12px;border:1px solid var(--line)}
+.vendor-sell-row{display:flex;align-items:center;gap:10px;padding-right:40px}
 .vendor-sell-icon{flex:none;width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb,var(--pri) 10%,var(--card));color:var(--pri);border:1px solid var(--line)}
+.vendor-sell-main{flex:1;min-width:0;display:flex;align-items:center;gap:10px;flex-wrap:nowrap}
 .vendor-sell-copy{flex:1;min-width:0}
-.vendor-sell-copy .m{margin:4px 0 0}
-.vendor-sell-actions{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:none}
-.vendor-sell-close{min-width:44px;min-height:44px;border:1px solid color-mix(in srgb,var(--pri) 35%,var(--line));background:none;color:var(--mut);border-radius:12px;cursor:pointer;display:grid;place-items:center}
+.vendor-sell-title{font-family:var(--font-display),system-ui,sans-serif;font-weight:650;font-size:15px;line-height:1.25;color:var(--ink)}
+.vendor-sell-sub{margin:4px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vendor-sell-cta{flex:none;min-width:44px;min-height:44px;height:44px;padding:0 14px;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap}
+.vendor-sell-close{position:absolute;top:4px;right:4px;z-index:1;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;border:0;background:none;color:var(--mut);border-radius:12px;cursor:pointer;display:grid;place-items:center}
+.vendor-sell-close:hover,.vendor-sell-close:focus-visible{color:var(--ink);background:color-mix(in srgb,var(--pri) 8%,transparent)}
+@media(max-width:360px){.vendor-sell-main{flex-wrap:wrap;align-items:flex-start}.vendor-sell-cta{flex-basis:100%;margin:6px 0 0 0;align-self:flex-start}}
 .toast{position:fixed;left:50%;bottom:calc(72px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--dk);color:var(--ondk);padding:10px 16px;border-radius:12px;font-size:13px;max-width:90%;z-index:20}
 .stat{flex:1;text-align:center}.stat b{display:block;font-size:20px}
 label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px}

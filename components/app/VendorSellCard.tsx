@@ -41,31 +41,35 @@ export function VendorSellCard() {
       role="region"
       aria-labelledby="vendor-sell-title"
     >
-      <div className="vendor-sell-icon" aria-hidden>
-        <IconStore size={24} />
-      </div>
-      <div className="vendor-sell-copy">
-        <div className="t" id="vendor-sell-title">
-          {homeCopy("vendorCardTitle", lang)}
+      <button
+        type="button"
+        className="vendor-sell-close"
+        aria-label={homeCopy("vendorCardDismissAria", lang)}
+        onClick={dismiss}
+      >
+        <IconX size={16} />
+      </button>
+      <div className="vendor-sell-row">
+        <div className="vendor-sell-icon" aria-hidden>
+          <IconStore size={24} />
         </div>
-        <p className="m">{homeCopy("vendorCardSub", lang)}</p>
-      </div>
-      <div className="vendor-sell-actions">
-        <button
-          type="button"
-          className="btn s"
-          onClick={() => dispatch({ type: "SIGNIN" })}
-        >
-          {homeCopy("vendorCardCta", lang)}
-        </button>
-        <button
-          type="button"
-          className="vendor-sell-close"
-          aria-label={homeCopy("vendorCardDismissAria", lang)}
-          onClick={dismiss}
-        >
-          <IconX size={20} />
-        </button>
+        <div className="vendor-sell-main">
+          <div className="vendor-sell-copy">
+            <div className="vendor-sell-title" id="vendor-sell-title">
+              {homeCopy("vendorCardTitle", lang)}
+            </div>
+            <p className="m vendor-sell-sub">
+              {homeCopy("vendorCardSub", lang)}
+            </p>
+          </div>
+          <button
+            type="button"
+            className="btn s vendor-sell-cta"
+            onClick={() => dispatch({ type: "SIGNIN" })}
+          >
+            {homeCopy("vendorCardCta", lang)}
+          </button>
+        </div>
       </div>
     </div>
   );

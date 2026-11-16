@@ -29,7 +29,7 @@ export const ITEMS: Listing[] = [
     e: "salad",
     t: "Fresh veggies",
     s: "Gilani Fresh",
-    p: 320,
+    p: 120,
     v: 1,
   },
   {

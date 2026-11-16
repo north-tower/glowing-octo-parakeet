@@ -248,7 +248,7 @@ export function IconShoppingCart({ size = 24 }: { size?: number }) {
 export function IconMessageCircle({ size = 24 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden {...stroke}>
-      <path d="M7.5 19 4 20v-4.5A9 9 0 1 1 20 11.5V19l-3.5-1" />
+      <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22z" />
     </svg>
   );
 }
@@ -256,8 +256,9 @@ export function IconMessageCircle({ size = 24 }: { size?: number }) {
 export function IconUser({ size = 24 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden {...stroke}>
-      <circle cx="12" cy="8" r="3.5" />
-      <path d="M5.5 20a6.5 6.5 0 0 1 13 0" />
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="9.5" r="2.75" />
+      <path d="M7 18.5a5 5 0 0 1 10 0" />
     </svg>
   );
 }
