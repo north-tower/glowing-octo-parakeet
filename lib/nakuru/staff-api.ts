@@ -1,4 +1,5 @@
 import { ApiError, type ApiErrorBody, type ApiFetchOptions } from "@/lib/nakuru/api";
+import { refreshAccessFromCookie } from "@/lib/nakuru/session-refresh";
 import {
   clearStaffAccessToken,
   getStaffAccessToken,
@@ -38,22 +39,13 @@ function isErrorBody(v: unknown): v is ApiErrorBody {
 }
 
 async function refreshStaffAccessToken(): Promise<string | null> {
-  const res = await fetch(resolveUrl(REFRESH_PATH), {
-    method: "POST",
-    credentials: "include",
-    headers: { "X-Requested-With": "nakuruhub" },
-  });
-  if (!res.ok) {
+  const access = await refreshAccessFromCookie();
+  if (!access) {
     clearStaffAccessToken();
     return null;
   }
-  const data = (await parseJsonBody(res)) as { access?: string } | null;
-  if (!data?.access || typeof data.access !== "string") {
-    clearStaffAccessToken();
-    return null;
-  }
-  setStaffAccessToken(data.access);
-  return data.access;
+  setStaffAccessToken(access);
+  return access;
 }
 
 export async function staffFetch<T = unknown>(

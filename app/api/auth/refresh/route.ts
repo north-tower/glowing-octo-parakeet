@@ -16,9 +16,11 @@ export async function POST(req: Request) {
   }
 
   const r = await rotateRefresh(tok);
-  if (!r) {
+  if (!r.ok) {
     const res = NextResponse.json({ error: "unauthorized" }, { status: 401 });
-    res.cookies.set(REFRESH_COOKIE, "", { ...refreshCookieOptions, maxAge: 0 });
+    if (r.clearCookie) {
+      res.cookies.set(REFRESH_COOKIE, "", { ...refreshCookieOptions, maxAge: 0 });
+    }
     return res;
   }
 

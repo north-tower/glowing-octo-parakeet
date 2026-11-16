@@ -34,9 +34,11 @@ export async function newRefresh(
   return t;
 }
 
-export async function rotateRefresh(
-  tok: string,
-): Promise<{ user: SessionUser; refresh: string } | null> {
+export type RotateRefreshResult =
+  | { ok: true; user: SessionUser; refresh: string }
+  | { ok: false; clearCookie: boolean };
+
+export async function rotateRefresh(tok: string): Promise<RotateRefreshResult> {
   const row = (
     await db.q<{
       id: string;
@@ -46,22 +48,20 @@ export async function rotateRefresh(
       expires_at: Date;
     }>("select * from refresh_tokens where token_hash = $1", [sha(tok)])
   ).rows[0];
-  if (!row) return null;
+  if (!row) return { ok: false, clearCookie: true };
   if (row.revoked || new Date(row.expires_at) < new Date()) {
     await db.q("update refresh_tokens set revoked = true where family = $1", [
       row.family,
     ]);
-    return null;
+    return { ok: false, clearCookie: true };
   }
   const claim = await db.q(
     "update refresh_tokens set revoked = true where id = $1 and revoked = false returning id",
     [row.id],
   );
   if (claim.rowCount === 0) {
-    await db.q("update refresh_tokens set revoked = true where family = $1", [
-      row.family,
-    ]);
-    return null;
+    // Concurrent refresh with the same token — do not revoke the whole family.
+    return { ok: false, clearCookie: false };
   }
   const u = (
     await db.q<SessionUser & { disabled: boolean }>(
@@ -73,9 +73,10 @@ export async function rotateRefresh(
     await db.q("update refresh_tokens set revoked = true where family = $1", [
       row.family,
     ]);
-    return null;
+    return { ok: false, clearCookie: true };
   }
   return {
+    ok: true,
     user: { id: u.id, role: u.role },
     refresh: await newRefresh(u.id, row.family),
   };

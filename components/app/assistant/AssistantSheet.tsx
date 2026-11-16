@@ -8,10 +8,10 @@ import {
   useState,
   type FormEvent,
 } from "react";
+import { BrandLogoMark } from "@/components/app/BrandLogoMark";
 import {
   IconArrowUp,
   IconEllipsis,
-  IconFlamingo,
   IconSquare,
   IconX,
 } from "@/components/app/icons/LineIcons";
@@ -209,7 +209,7 @@ export function AssistantSheet({
         <div className="pwa-sheet-handle" aria-hidden />
         <header className="assistant-sheet-head">
           <span className="assistant-sheet-mark" aria-hidden>
-            <IconFlamingo size={22} />
+            <BrandLogoMark size={22} className="" />
           </span>
           <div className="assistant-sheet-titles">
             <h2 id={titleId} className="pwa-sheet-title assistant-sheet-title">
@@ -293,7 +293,7 @@ export function AssistantSheet({
               >
                 {msg.role === "assistant" ? (
                   <span className="assistant-avatar" aria-hidden>
-                    <IconFlamingo size={18} />
+                    <BrandLogoMark size={18} className="" />
                   </span>
                 ) : null}
                 {msg.role === "assistant" ? (

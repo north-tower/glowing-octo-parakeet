@@ -3,6 +3,7 @@ import {
   getAccessToken,
   setAccessToken,
 } from "@/lib/nakuru/auth";
+import { refreshAccessFromCookie } from "@/lib/nakuru/session-refresh";
 
 export type ApiErrorBody = { error: string };
 
@@ -51,24 +52,13 @@ function isErrorBody(v: unknown): v is ApiErrorBody {
 }
 
 export async function refreshAccessToken(): Promise<string | null> {
-  const res = await fetch(resolveUrl(REFRESH_PATH), {
-    method: "POST",
-    credentials: "include",
-    headers: {
-      "X-Requested-With": "nakuruhub",
-    },
-  });
-  if (!res.ok) {
+  const access = await refreshAccessFromCookie();
+  if (!access) {
     clearAccessToken();
     return null;
   }
-  const data = (await parseJsonBody(res)) as { access?: string } | null;
-  if (!data?.access || typeof data.access !== "string") {
-    clearAccessToken();
-    return null;
-  }
-  setAccessToken(data.access);
-  return data.access;
+  setAccessToken(access);
+  return access;
 }
 
 export type ApiFetchOptions = RequestInit & {

@@ -7,13 +7,14 @@ import { homeCategoryLabel, homeCopy } from "@/lib/nakuru/home-i18n";
 import type { CategoryId } from "@/lib/nakuru/types";
 import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
 import { ZoneSheet } from "@/components/app/ZoneSheet";
+import { BrandLogoMark } from "@/components/app/BrandLogoMark";
 import {
   IconCamera,
   IconChevronDown,
-  IconFlamingo,
   IconMapPin,
   IconSearch,
 } from "@/components/app/icons/LineIcons";
+import { BRAND_NAME } from "@/lib/nakuru/brand";
 
 export function AppHeader() {
   const { state, dispatch, toast } = useNakuruApp();
@@ -60,10 +61,8 @@ export function AppHeader() {
     <header id="hd" className={`t-${state.tab}`}>
       <div className="row sp hd-top">
         <span className="logo">
-          <span className="logo-mark" aria-hidden>
-            <IconFlamingo size={20} />
-          </span>
-          NakuruHub
+          <BrandLogoMark size={20} />
+          {BRAND_NAME}
         </span>
         <button
           type="button"

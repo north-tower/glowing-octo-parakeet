@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { BrandLogoMark } from "@/components/app/BrandLogoMark";
 import { Bi } from "@/components/landing/Bi";
+import { BRAND_NAME } from "@/lib/nakuru/brand";
 import { LangToggle } from "@/components/landing/LangToggle";
 import { useLandingNav } from "@/components/landing/hooks/useLandingNav";
 import { useLandingLang } from "@/components/landing/LandingLangContext";
@@ -21,10 +23,8 @@ export function LandingHeader() {
     <header className="top" id="site-header">
       <div className="wrap header-bar">
         <Link className="logo" href="/">
-          <span className="logo-mark" aria-hidden="true">
-            🦩
-          </span>
-          <span className="logo-text">NakuruHub</span>
+          <BrandLogoMark size={24} />
+          <span className="logo-text">{BRAND_NAME}</span>
         </Link>
         <nav className="top-nav" id="site-nav" aria-label="On this page">
           {navLinks.map((item) => (

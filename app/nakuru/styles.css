@@ -797,7 +797,7 @@ body.app .toast{bottom:32px}
 .pwa-install-slot{min-height:0;max-height:0;overflow:hidden;transition:max-height .25s ease,margin .25s ease,opacity .25s ease;margin-bottom:0;opacity:0}
 .pwa-install-slot.is-open{max-height:120px;margin-bottom:2px;opacity:1}
 .pwa-install-card{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:10px 12px;border-radius:12px}
-.pwa-install-card-img{flex:none;width:44px;height:44px;border-radius:12px;border:1px solid var(--line)}
+.pwa-install-card-img{flex:none;width:44px;height:44px;border-radius:12px;border:1px solid var(--line);display:grid;place-items:center;background:color-mix(in srgb,var(--fl) 10%,var(--card))}
 .pwa-install-card-copy{flex:1;min-width:0}
 .pwa-install-card-copy .m{margin:2px 0 0;font-size:13px}
 .pwa-install-card-actions{display:flex;align-items:center;gap:4px;flex:none}

@@ -4,14 +4,15 @@ import type { ComponentType } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useNakuruApp } from "@/components/app/AppProvider";
 import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
+import { BrandLogoMark } from "@/components/app/BrandLogoMark";
 import {
-  IconFlamingo,
   IconGrid,
   IconHome,
   IconMessageCircle,
   IconShoppingCart,
   IconUser,
 } from "@/components/app/icons/LineIcons";
+import { BRAND_NAME } from "@/lib/nakuru/brand";
 import { APP_TAB_IDS } from "@/lib/nakuru/app-tabs";
 import {
   appHrefForDetailNavTab,
@@ -64,10 +65,8 @@ export function BottomNav() {
     <nav id="nav" className="app-bottom-nav" aria-label="Primary">
       <div className="app-nav-brand">
         <span className="logo">
-          <span className="logo-mark" aria-hidden>
-            <IconFlamingo size={22} />
-          </span>
-          NakuruHub
+          <BrandLogoMark size={22} />
+          {BRAND_NAME}
         </span>
       </div>
       {APP_TAB_IDS.map((id) => {

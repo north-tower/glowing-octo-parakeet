@@ -1,6 +1,6 @@
 "use client";
 
-import { IconSparkle } from "@/components/app/icons/LineIcons";
+import { BrandLogoMark } from "@/components/app/BrandLogoMark";
 
 type Props = {
   label: string;
@@ -15,7 +15,7 @@ export function AssistantEntryChip({ label, onClick, className = "" }: Props) {
       className={`assistant-entry-chip${className ? ` ${className}` : ""}`}
       onClick={onClick}
     >
-      <IconSparkle size={20} aria-hidden />
+      <BrandLogoMark size={20} className="" />
       <span>{label}</span>
     </button>
   );

@@ -98,16 +98,6 @@ export function IconMessageQuote({ size = 24 }: { size?: number }) {
   );
 }
 
-export function IconFlamingo({ size = 24 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden {...stroke}>
-      <path d="M5 20c2-6 5-10 10-12 1 4-1 8-4 10" />
-      <path d="M15 8c3 1 5 4 4 7" />
-      <path d="M8 18h2M6 16h1" />
-    </svg>
-  );
-}
-
 export function IconStore({ size = 24 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden {...stroke}>

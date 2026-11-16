@@ -1,5 +1,6 @@
 "use client";
 
+import { BrandLogoMark } from "@/components/app/BrandLogoMark";
 import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
 import { useNakuruApp } from "@/components/app/AppProvider";
 
@@ -24,13 +25,9 @@ export function InstallHomeCard() {
     >
       {show ? (
       <div className="pwa-install-card card">
-        <img
-          src="/icons/icon-192.png"
-          alt=""
-          width={44}
-          height={44}
-          className="pwa-install-card-img"
-        />
+        <div className="pwa-install-card-img" aria-hidden>
+          <BrandLogoMark size={36} />
+        </div>
         <div className="pwa-install-card-copy">
           <div className="t">{t("installCardTitle")}</div>
           <p className="m">{t("installCardBody")}</p>

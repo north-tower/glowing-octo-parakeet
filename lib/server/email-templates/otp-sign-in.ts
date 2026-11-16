@@ -1,3 +1,5 @@
+import { BRAND_LOGO, BRAND_NAME } from "@/lib/nakuru/brand";
+
 function escHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")
@@ -29,10 +31,10 @@ export function buildOtpSignInMail(
   const text = [
     `Hello ${name},`,
     "",
-    `Your NakuruHub sign-in code is ${code}.`,
+    `Your ${BRAND_NAME} sign-in code is ${code}.`,
     "It is valid for 5 minutes.",
     "",
-    "Never share this code with anyone. NakuruHub will never ask for it by phone or message.",
+    `Never share this code with anyone. ${BRAND_NAME} will never ask for it by phone or message.`,
     "",
     "If you did not request this code, you can ignore this email.",
   ].join("\n");
@@ -43,7 +45,7 @@ export function buildOtpSignInMail(
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <title>Your NakuruHub sign-in code</title>
+  <title>Your ${BRAND_NAME} sign-in code</title>
 </head>
 <body style="margin:0;padding:0;background:#eef4f3;font-family:Segoe UI,Helvetica,Arial,sans-serif;color:#16292a;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef4f3;padding:24px 12px;">
@@ -54,7 +56,7 @@ export function buildOtpSignInMail(
             <td style="background:#0d5c58;padding:16px 24px;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
-                  <td style="font-size:20px;font-weight:700;letter-spacing:.02em;color:#ffffff;">NakuruHub</td>
+                  <td style="font-size:20px;font-weight:700;letter-spacing:.02em;color:#ffffff;"><span style="font-size:26px;line-height:1;vertical-align:middle;">${BRAND_LOGO}</span> ${escHtml(BRAND_NAME)}</td>
                 </tr>
               </table>
             </td>
@@ -74,7 +76,7 @@ export function buildOtpSignInMail(
           <tr>
             <td style="padding:28px 24px 8px;font-size:15px;line-height:1.55;color:#16292a;">
               <p style="margin:0 0 16px;">Hello <strong>${escHtml(name)}</strong>,</p>
-              <p style="margin:0 0 20px;color:#62777a;">Use this one-time code to sign in to your NakuruHub account. It expires in <strong style="color:#16292a;">5 minutes</strong>.</p>
+              <p style="margin:0 0 20px;color:#62777a;">Use this one-time code to sign in to your ${escHtml(BRAND_NAME)} account. It expires in <strong style="color:#16292a;">5 minutes</strong>.</p>
             </td>
           </tr>
           <tr>
@@ -91,13 +93,13 @@ export function buildOtpSignInMail(
           </tr>
           <tr>
             <td style="padding:0 24px 28px;font-size:14px;line-height:1.55;color:#62777a;">
-              <p style="margin:0 0 12px;">For your security, never share this code. NakuruHub staff will not ask you for it.</p>
+              <p style="margin:0 0 12px;">For your security, never share this code. ${escHtml(BRAND_NAME)} staff will not ask you for it.</p>
               <p style="margin:0;">If you did not request a sign-in code, you can ignore this email — your account stays secure.</p>
             </td>
           </tr>
           <tr>
             <td style="padding:16px 24px;background:#f1f6f5;border-top:1px solid #dde7e6;font-size:11px;line-height:1.45;color:#62777a;text-align:center;">
-              NakuruHub &middot; Nakuru County marketplace
+              ${BRAND_LOGO} ${escHtml(BRAND_NAME)} &middot; Nakuru County marketplace
             </td>
           </tr>
         </table>

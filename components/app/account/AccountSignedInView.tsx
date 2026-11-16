@@ -23,7 +23,6 @@ import {
   IconChevronRight,
   IconClock,
   IconClipboard,
-  IconFlamingo,
   IconGlobe,
   IconHeart,
   IconLifeBuoy,
@@ -32,6 +31,7 @@ import {
   IconStore,
   IconWallet,
 } from "@/components/app/icons/LineIcons";
+import { BRAND_LOGO } from "@/lib/nakuru/brand";
 import { installCopy } from "@/lib/nakuru/pwa-install-i18n";
 
 type DispatchRow = (id: string) => void;
@@ -60,7 +60,11 @@ function rowIcon(icon: AccountRowIcon | "globe" | "install", size = 22): ReactNo
     case "globe":
       return <IconGlobe size={size} />;
     case "install":
-      return <IconFlamingo size={size} />;
+      return (
+        <span aria-hidden style={{ fontSize: size, lineHeight: 1 }}>
+          {BRAND_LOGO}
+        </span>
+      );
     default:
       return null;
   }

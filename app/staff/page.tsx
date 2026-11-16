@@ -1,6 +1,8 @@
 "use client";
 
+import { BrandLogoMark } from "@/components/app/BrandLogoMark";
 import { StaffLoginForm } from "@/components/staff/StaffLoginForm";
+import { BRAND_NAME } from "@/lib/nakuru/brand";
 import { StaffVendorQueue } from "@/components/staff/StaffVendorQueue";
 import { getStaffAccessToken } from "@/lib/nakuru/staff-auth";
 import { useCallback, useEffect, useState } from "react";
@@ -29,7 +31,9 @@ export default function StaffPage() {
   return (
     <>
       <header>
-        <div className="logo">NakuruHub staff</div>
+        <div className="logo">
+          <BrandLogoMark size={22} /> {BRAND_NAME} staff
+        </div>
       </header>
       <main>
         {authed ? (
