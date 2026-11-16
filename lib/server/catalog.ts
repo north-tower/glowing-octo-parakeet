@@ -8,6 +8,7 @@ export type PublicListingRow = {
   title: string;
   description: string | null;
   emoji: string;
+  imageUrl: string | null;
   price: number;
   vendor: string;
   verified: boolean;
@@ -23,8 +24,8 @@ export async function listPublicListings(
       : null;
 
   const r = await q<PublicListingRow>(
-    `select p.id, p.category, p.title, p.description, p.emoji, p.price_kes::int price,
-            v.name vendor, v.verified
+    `select p.id, p.category, p.title, p.description, p.emoji, p.image_url as "imageUrl",
+            p.price_kes::int price, v.name vendor, v.verified
      from products p
      join vendors v on v.id = p.vendor_id
      where p.active

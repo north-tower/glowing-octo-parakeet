@@ -35,6 +35,7 @@ export async function POST(req: Request) {
         title: d.title,
         description: d.description,
         emoji: d.emoji,
+        imageDataUrl: d.imageDataUrl,
         price: d.price,
         stock: d.stock,
       },

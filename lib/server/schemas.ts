@@ -28,6 +28,16 @@ export const uuid = z
 const cat = z.enum(["shop", "property", "cars", "services"]);
 const money = z.number().int().min(0).max(100_000_000);
 
+const imageDataUrl = z
+  .string()
+  .max(7_500_000)
+  .refine(
+    (s) =>
+      /^data:image\/(?:jpeg|png|webp);base64,/i.test(s) &&
+      s.length > 32,
+    { message: "invalid_image" },
+  );
+
 export const productNew = z
   .object({
     vendorId: uuid.optional(),
@@ -35,6 +45,7 @@ export const productNew = z
     title: z.string().trim().min(2).max(80),
     description: z.string().trim().max(500).default(""),
     emoji: z.string().trim().min(1).max(8).default("🛍️"),
+    imageDataUrl: imageDataUrl.optional(),
     price: money,
     stock: z.number().int().min(0).max(100_000).nullable().optional(),
   })

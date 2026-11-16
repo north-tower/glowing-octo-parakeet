@@ -12,6 +12,7 @@
     "staff:seed-dev": "tsx scripts/seed-dev-staff.ts"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.119.0",
     "argon2": "^0.45.2",
     "jsonwebtoken": "^9.0.3",
     "next": "16.4.6",

@@ -1,5 +1,10 @@
 import { audit } from "./audit";
 import { db } from "./db";
+import {
+  parseImageDataUrl,
+  StorageError,
+  uploadProductImage,
+} from "./storage";
 
 export class ProductError extends Error {
   status: number;
@@ -37,6 +42,7 @@ export type ProductCreateInput = {
   title: string;
   description: string;
   emoji: string;
+  imageDataUrl?: string;
   price: number;
   stock?: number | null;
 };
@@ -87,6 +93,30 @@ export async function createProduct(
       ],
     )
   ).rows[0];
+
+  if (data.imageDataUrl) {
+    const parsed = parseImageDataUrl(data.imageDataUrl);
+    if (!parsed) {
+      throw new ProductError(400, "invalid_image");
+    }
+    try {
+      const imageUrl = await uploadProductImage(
+        v.id,
+        p.id,
+        parsed.bytes,
+        parsed.contentType,
+      );
+      await db.q(
+        "update products set image_url = $2 where id = $1",
+        [p.id, imageUrl],
+      );
+    } catch (err) {
+      if (err instanceof StorageError) {
+        throw new ProductError(503, "image_upload_failed");
+      }
+      throw err;
+    }
+  }
 
   await audit("product_add", ownerId, ip, { product: p.id });
   return p;

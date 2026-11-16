@@ -18,6 +18,8 @@ export type Listing = {
   id: number | string;
   c: CategoryId;
   e: string;
+  /** Public URL when the vendor uploaded a photo. */
+  img?: string;
   t: string;
   s: string;
   p: number;

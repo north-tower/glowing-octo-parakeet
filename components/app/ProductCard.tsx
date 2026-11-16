@@ -24,7 +24,13 @@ export function ProductCard({
 
   return (
     <div className="pc">
-      <div className="pim">{item.e}</div>
+      <div className="pim">
+        {item.img ? (
+          <img src={item.img} alt="" />
+        ) : (
+          <span aria-hidden>{item.e}</span>
+        )}
+      </div>
       <div className="t">{item.t}</div>
       <div className="m">{item.s}</div>
       <div className="pr">{kes(item.p)}</div>

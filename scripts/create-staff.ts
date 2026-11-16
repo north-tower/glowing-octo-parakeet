@@ -1,3 +1,4 @@
+import "./load-project-env";
 import { generateURI } from "otplib";
 import { config } from "../lib/server/config";
 import { db } from "../lib/server/db";

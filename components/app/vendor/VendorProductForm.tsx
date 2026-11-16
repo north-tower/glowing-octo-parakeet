@@ -1,9 +1,20 @@
 "use client";
 
 import { apiFetch, ApiError } from "@/lib/nakuru/api";
-import { categoryName } from "@/lib/nakuru/data/constants";
+import {
+  categoryName,
+  MAX_IMAGE_BYTES,
+} from "@/lib/nakuru/data/constants";
+import { resizeImageFile } from "@/lib/nakuru/resize-image";
 import type { CategoryId } from "@/lib/nakuru/types";
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FormEvent,
+} from "react";
 
 type VendorProductRow = {
   id: string;
@@ -43,6 +54,9 @@ export function VendorProductForm({ vendorId, approvedCategories, toast }: Props
   const [emoji, setEmoji] = useState("🛍️");
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
+  const [listingImage, setListingImage] = useState("");
+  const [imageBusy, setImageBusy] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
 
   const [rows, setRows] = useState<VendorProductRow[] | null>(null);
@@ -86,7 +100,28 @@ export function VendorProductForm({ vendorId, approvedCategories, toast }: Props
     setDescription("");
     setPrice("");
     setStock("");
+    setListingImage("");
     if (mode) setEmoji(mode === "shop" ? "🛍️" : "🔧");
+  };
+
+  const onListingImage = async (file: File | undefined) => {
+    if (!file || imageBusy) return;
+    setImageBusy(true);
+    try {
+      const dataUrl = await resizeImageFile(file, 960, MAX_IMAGE_BYTES);
+      setListingImage(dataUrl);
+    } catch (err) {
+      const code = err instanceof Error ? err.message : "";
+      if (code === "type") {
+        toast("Choose a JPG, PNG, or WebP image.");
+      } else if (code === "size") {
+        toast("Image is too large. Max 5 MB.");
+      } else {
+        toast("Couldn't read that image. Try another.");
+      }
+    } finally {
+      setImageBusy(false);
+    }
   };
 
   const publish = async (ev: FormEvent) => {
@@ -131,6 +166,9 @@ export function VendorProductForm({ vendorId, approvedCategories, toast }: Props
     if (mode === "shop" && stockVal !== undefined) {
       body.stock = stockVal;
     }
+    if (listingImage) {
+      body.imageDataUrl = listingImage;
+    }
 
     setBusy(true);
     try {
@@ -153,6 +191,14 @@ export function VendorProductForm({ vendorId, approvedCategories, toast }: Props
         }
         if (err.body.error === "no_approved_vendor") {
           toast("Your vendor profile must be approved before publishing.");
+          return;
+        }
+        if (err.body.error === "invalid_image") {
+          toast("That photo could not be used. Pick another image.");
+          return;
+        }
+        if (err.body.error === "image_upload_failed") {
+          toast("Photo upload failed. Try again in a moment.");
           return;
         }
       }
@@ -295,12 +341,53 @@ export function VendorProductForm({ vendorId, approvedCategories, toast }: Props
           onChange={(e) => setDescription(e.target.value)}
         />
 
-        <label htmlFor="vp-emoji">Emoji</label>
+        <label>Photo</label>
+        <input
+          ref={imageInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          hidden
+          disabled={busy || imageBusy}
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            e.target.value = "";
+            void onListingImage(f);
+          }}
+        />
+        <div className="listing-photo-row">
+          <button
+            type="button"
+            className="btn s"
+            disabled={busy || imageBusy}
+            onClick={() => imageInputRef.current?.click()}
+          >
+            {imageBusy ? "Processing…" : listingImage ? "Change photo" : "Add photo"}
+          </button>
+          {listingImage ? (
+            <button
+              type="button"
+              className="btn s"
+              disabled={busy || imageBusy}
+              onClick={() => setListingImage("")}
+            >
+              Remove
+            </button>
+          ) : null}
+        </div>
+        {listingImage ? (
+          <div className="listing-photo-preview">
+            <img src={listingImage} alt="Listing preview" />
+          </div>
+        ) : (
+          <div className="m">JPG, PNG, or WebP up to 5 MB. Shown on the catalog card.</div>
+        )}
+
+        <label htmlFor="vp-emoji">Emoji (when no photo)</label>
         <input
           id="vp-emoji"
           maxLength={8}
           value={emoji}
-          disabled={busy}
+          disabled={busy || !!listingImage}
           onChange={(e) => setEmoji(e.target.value)}
         />
 

@@ -1,7 +1,9 @@
+import "./load-project-env";
 import { generateURI } from "otplib";
 import {
   staffDevLoginPrefill,
   STAFF_DEV_EMAIL_DEFAULT,
+  STAFF_DEV_PASSWORD_DEFAULT,
 } from "../lib/nakuru/staff-dev-defaults";
 import { config } from "../lib/server/config";
 import { db } from "../lib/server/db";
@@ -19,8 +21,8 @@ const rawEmail = fromEnv || prefill?.email || STAFF_DEV_EMAIL_DEFAULT;
 const password =
   process.env.STAFF_DEV_PASSWORD?.trim() ||
   prefill?.password ||
-  process.env.STAFF_PASSWORD ||
-  "";
+  process.env.STAFF_PASSWORD?.trim() ||
+  STAFF_DEV_PASSWORD_DEFAULT;
 
 const parsed = emailSchema.safeParse(rawEmail);
 if (!parsed.success || password.length < 12) {

@@ -5,7 +5,8 @@ export const STAFF_DEV_PASSWORD_DEFAULT = "nakuruhub-staff-dev";
 export type StaffDevPrefill = { email: string; password: string };
 
 export function staffDevLoginPrefill(): StaffDevPrefill | null {
-  if (process.env.NODE_ENV !== "development") return null;
+  const prod = (process.env.NODE_ENV || "development") === "production";
+  if (prod) return null;
   const email = (
     process.env.NEXT_PUBLIC_STAFF_DEV_EMAIL ?? STAFF_DEV_EMAIL_DEFAULT
   ).trim();

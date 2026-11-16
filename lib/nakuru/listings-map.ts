@@ -7,6 +7,7 @@ export type ApiListing = {
   title: string;
   description?: string | null;
   emoji: string;
+  imageUrl?: string | null;
   price: number;
   vendor: string;
   verified: boolean;
@@ -21,6 +22,7 @@ export function toProductCardItem(api: ApiListing): Listing {
     id: api.id,
     c: api.category as CategoryId,
     e: api.emoji || "📦",
+    img: api.imageUrl || undefined,
     t: api.title,
     s: subtitle,
     p: api.price,

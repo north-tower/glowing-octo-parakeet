@@ -57,7 +57,11 @@ textarea{font:inherit}
 .ct{text-align:center;font-size:12px;cursor:pointer}.ct div{height:74px;border-radius:12px;background:var(--bg);display:grid;place-items:center;font-size:34px;margin-bottom:4px}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .pc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:3px}
-.pim{height:92px;border-radius:10px;background:var(--bg);display:grid;place-items:center;font-size:44px;margin-bottom:4px}
+.pim{height:92px;border-radius:10px;background:var(--bg);display:grid;place-items:center;font-size:44px;margin-bottom:4px;overflow:hidden}
+.pim img{width:100%;height:100%;object-fit:cover}
+.listing-photo-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+.listing-photo-preview{height:120px;border-radius:10px;overflow:hidden;background:var(--bg);margin-bottom:6px}
+.listing-photo-preview img{width:100%;height:100%;object-fit:cover}
 .pc .btn{margin-top:auto}
 .cl{display:grid;grid-template-columns:86px 1fr;gap:10px;margin:-12px -14px}
 .sd{background:var(--card);min-height:70vh}
