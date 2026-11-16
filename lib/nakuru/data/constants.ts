@@ -13,6 +13,8 @@ export const CATS: [CategoryId, string][] = [
 
 export const SOON: Partial<Record<CategoryId, 1>> = { stays: 1, taxi: 1 };
 
+export const BROWSE_SIDES = ["shop", "property", "cars", "services"] as const;
+
 export const ACT: Record<string, string> = {
   shop: "Add to cart",
   property: "Request viewing",
@@ -50,14 +52,38 @@ export const TOPC: [
 
 export const FEAT = [0, 1, 2, 7, 10, 13, 3, 9, 14];
 
-export const SIDE: [string, string, string][] = [
-  ["feat", "Featured", "👍"],
-  ["shop", "Shop", "🛍️"],
-  ["property", "Property", "🏠"],
-  ["cars", "Cars", "🚗"],
-  ["services", "Services", "🔧"],
-  ["stays", "Stays", "🛏️"],
-  ["taxi", "Taxi", "🚕"],
+/** Six popular picks on Category → Featured (mixed groups). */
+export const CAT_POPULAR = [0, 5, 7, 10, 13, 9] as const;
+
+export type SideRailIcon =
+  | "sparkle"
+  | "shopping-bag"
+  | "home"
+  | "car"
+  | "wrench"
+  | "bed"
+  | "taxi";
+
+export const SIDE: [string, string, SideRailIcon][] = [
+  ["feat", "Featured", "sparkle"],
+  ["shop", "Shop", "shopping-bag"],
+  ["property", "Property", "home"],
+  ["cars", "Cars", "car"],
+  ["services", "Services", "wrench"],
+  ["stays", "Stays", "bed"],
+  ["taxi", "Taxi", "taxi"],
+];
+
+/** Browse-by-type tiles on Featured (switch rail via SET_SIDE). */
+export const BROWSE_GROUPS: {
+  side: string;
+  icon: CategoryIconKey;
+  tint: TopCategoryTint;
+}[] = [
+  { side: "shop", icon: "shirt", tint: "teal" },
+  { side: "property", icon: "home", tint: "green" },
+  { side: "cars", icon: "car", tint: "sand" },
+  { side: "services", icon: "wrench", tint: "pink" },
 ];
 
 export const RANK: [number, string, string][] = [

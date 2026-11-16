@@ -235,6 +235,38 @@ export function IconWrench({ size = 24 }: { size?: number }) {
   );
 }
 
+export function IconShoppingBag({ size = 24 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden {...stroke}>
+      <path d="M8 6V5a4 4 0 0 1 8 0v1" />
+      <path d="M5 8h14l-1.2 12H6.2L5 8z" />
+      <path d="M10 11v5M14 11v5" />
+    </svg>
+  );
+}
+
+export function IconBed({ size = 24 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden {...stroke}>
+      <path d="M4 14h16v5H4z" />
+      <path d="M6 14V9h12v5" />
+      <path d="M7 9V7h10v2" />
+    </svg>
+  );
+}
+
+export function IconTaxi({ size = 24 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden {...stroke}>
+      <path d="M5 15h14v2H5z" />
+      <path d="M7 15l1.5-4h7L17 15" />
+      <circle cx="8" cy="17" r="1.25" />
+      <circle cx="16" cy="17" r="1.25" />
+      <path d="M11 7h2v4h-2z" />
+    </svg>
+  );
+}
+
 export function IconShoppingCart({ size = 24 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden {...stroke}>

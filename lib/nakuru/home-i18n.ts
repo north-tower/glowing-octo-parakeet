@@ -40,7 +40,21 @@ export type HomeCopyKey =
   | "vendorCardTitle"
   | "vendorCardSub"
   | "vendorCardCta"
-  | "vendorCardDismissAria";
+  | "vendorCardDismissAria"
+  | "popularRightNow"
+  | "browseByType"
+  | "moreComingSoon"
+  | "categoryRailAria"
+  | "catGroupShopDesc"
+  | "catGroupPropertyDesc"
+  | "catGroupCarsDesc"
+  | "catGroupServicesDesc"
+  | "allShop"
+  | "allProperty"
+  | "allCars"
+  | "allServices"
+  | "listings"
+  | "sideFeatured";
 
 export type TopCategorySlug =
   | "phone"
@@ -128,6 +142,32 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
     en: "Dismiss seller invite",
     sw: "Funga mwaliko wa kuuza",
   },
+  popularRightNow: { en: "Popular right now", sw: "Maarufu sasa hivi" },
+  browseByType: { en: "Browse by type", sw: "Vinjari kwa aina" },
+  moreComingSoon: { en: "More coming soon", sw: "Zaidi inakuja" },
+  categoryRailAria: { en: "Category groups", sw: "Makundi ya kategoria" },
+  catGroupShopDesc: {
+    en: "Phones, fashion, groceries and more",
+    sw: "Simu, mitindo, vyakula na zaidi",
+  },
+  catGroupPropertyDesc: {
+    en: "Rentals, sales and land in Nakuru",
+    sw: "Kukodisha, kuuza na ardhi Nakuru",
+  },
+  catGroupCarsDesc: {
+    en: "Browse verified car listings",
+    sw: "Vinjari magari yaliyothibitishwa",
+  },
+  catGroupServicesDesc: {
+    en: "Electricians, cleaners, plumbers and more",
+    sw: "Mafundi umeme, usafi, mabomba na zaidi",
+  },
+  allShop: { en: "All shop", sw: "Duka zote" },
+  allProperty: { en: "All property", sw: "Mali zote" },
+  allCars: { en: "All cars", sw: "Magari yote" },
+  allServices: { en: "All services", sw: "Huduma zote" },
+  listings: { en: "Listings", sw: "Orodha" },
+  sideFeatured: { en: "Featured", sw: "Maalum" },
 };
 
 const TOP_CATEGORY_LABELS: Record<
@@ -181,3 +221,33 @@ export const SLIDE_COPY_KEYS: [HomeCopyKey, HomeCopyKey][] = [
   ["slide1Title", "slide1Sub"],
   ["slide2Title", "slide2Sub"],
 ];
+
+const GROUP_DESC: Partial<Record<CategoryId, HomeCopyKey>> = {
+  shop: "catGroupShopDesc",
+  property: "catGroupPropertyDesc",
+  cars: "catGroupCarsDesc",
+  services: "catGroupServicesDesc",
+};
+
+const GROUP_ALL: Partial<Record<CategoryId, HomeCopyKey>> = {
+  shop: "allShop",
+  property: "allProperty",
+  cars: "allCars",
+  services: "allServices",
+};
+
+export function homeCategoryGroupDesc(
+  id: CategoryId,
+  lang: LandingLang,
+): string {
+  const key = GROUP_DESC[id];
+  return key ? homeCopy(key, lang) : "";
+}
+
+export function homeCategoryAllLabel(
+  id: CategoryId,
+  lang: LandingLang,
+): string {
+  const key = GROUP_ALL[id];
+  return key ? homeCopy(key, lang) : homeCategoryLabel(id, lang);
+}
