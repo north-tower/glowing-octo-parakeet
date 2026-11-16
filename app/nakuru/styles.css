@@ -501,3 +501,29 @@ body.landing .mobile-cta-bar{display:none}
   @media(prefers-color-scheme:dark){body.landing .mobile-cta-bar{background:var(--card);border-top-color:var(--line);box-shadow:0 -8px 24px rgba(0,0,0,.35)}}
 }
 @media(max-width:360px){body.landing .hero-visual{padding:.5rem 0}body.landing .top .wrap.header-bar,body.landing .wrap{width:min(var(--landing-max),100% - 2rem)}body.landing .zone-strip .wrap{width:min(var(--landing-max),100% - 2rem)}body.landing .top-nav a{font-size:.875rem;padding:.65rem .75rem}body.landing .btn-sell{padding:.65rem .55rem;font-size:.875rem}body.landing .hero-badge{font-size:.6875rem;padding:5px 10px;letter-spacing:.06em}body.landing .mobile-cta-bar .btn{font-size:.875rem;padding:.65rem .45rem;gap:.25rem}body.landing .zone-chip{font-size:.875rem;padding:.45rem .75rem}body.landing .bento-chips li{font-size:.6875rem;padding:.35rem .5rem}body.landing .how-cta .btn{font-size:.875rem;padding:.65rem .55rem}}
+
+/* —— Marketplace app: desktop shell (sidebar + main) —— */
+.app-nav-brand{display:none}
+@media(min-width:900px){
+body.app{margin:0;max-width:none;padding-bottom:0;min-height:100dvh}
+body.app .app-shell{display:grid;grid-template-columns:240px minmax(0,1fr);grid-template-rows:auto 1fr;align-items:start;min-height:100dvh;width:min(1280px,calc(100% - 48px));margin-inline:auto}
+body.app .app-shell #nav{grid-row:1/-1;grid-column:1;position:sticky;top:0;align-self:stretch;height:100dvh;max-height:100dvh;width:100%;max-width:none;left:auto;bottom:auto;transform:none;flex-direction:column;justify-content:flex-start;align-items:stretch;border-top:0;border-right:1px solid var(--line);padding:20px 12px 24px;gap:2px;overflow-y:auto;background:var(--card)}
+body.app .app-nav-brand{display:block;padding:4px 10px 20px;border-bottom:1px solid var(--line);margin-bottom:8px}
+body.app .app-nav-brand .logo{font-size:19px;color:var(--ink)}
+body.app .app-shell #nav button{display:flex;flex-direction:row;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;text-align:left;justify-content:flex-start;width:100%;font-size:14px}
+body.app .app-shell #nav button.on{background:var(--bg)}
+body.app .app-shell #nav button b{display:inline;font-size:20px;line-height:1;width:1.75rem;text-align:center;flex:none}
+body.app .app-shell #nav button em{position:static;margin-left:auto;flex:none}
+body.app .app-shell #hd{grid-column:2;grid-row:1;position:sticky;top:0;z-index:9;border-radius:0}
+body.app .app-shell #hd .logo{display:none}
+body.app .app-shell #hd .row.sp select{margin-left:auto}
+body.app .app-shell #v{grid-column:2;grid-row:2;padding:16px clamp(16px,3vw,32px) 32px;max-width:960px;width:100%;justify-self:center;box-sizing:border-box}
+body.app .app-shell #v form.card{max-width:28rem}
+body.app .app-shell #sb{grid-column:2;left:auto;right:max(24px,calc((100vw - min(1280px,100% - 48px))/2 + 16px));transform:none;width:auto;max-width:min(480px,calc(100vw - 320px));bottom:24px;border-radius:14px}
+body.app .app-shell .fab{grid-column:2;right:max(24px,calc((100vw - min(1280px,100% - 48px))/2 + 16px));bottom:88px}
+body.app .g2{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+body.app .g3{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
+body.app .cl{grid-template-columns:minmax(100px,140px) minmax(0,1fr);margin:0;gap:16px}
+body.app .sd{min-height:auto;border-radius:14px;border:1px solid var(--line)}
+body.app .toast{bottom:32px}
+}

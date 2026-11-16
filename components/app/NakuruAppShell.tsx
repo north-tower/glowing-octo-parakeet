@@ -10,11 +10,13 @@ import { SignInBar } from "@/components/app/SignInBar";
 export default function NakuruAppShell() {
   return (
     <AppProvider>
-      <AppHeader />
-      <MainView />
-      <SignInBar />
-      <Fab />
-      <BottomNav />
+      <div className="app-shell">
+        <AppHeader />
+        <MainView />
+        <SignInBar />
+        <Fab />
+        <BottomNav />
+      </div>
     </AppProvider>
   );
 }
