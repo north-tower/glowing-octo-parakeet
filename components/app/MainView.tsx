@@ -11,7 +11,7 @@ export function MainView() {
   const { state } = useNakuruApp();
 
   return (
-    <main id="v">
+    <main id="v" key={state.tab}>
       {state.tab === "home" ? <HomeView /> : null}
       {state.tab === "cat" ? <CategoryView /> : null}
       {state.tab === "msg" ? <MessagesView /> : null}

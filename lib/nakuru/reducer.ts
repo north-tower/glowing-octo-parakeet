@@ -149,8 +149,11 @@ export function nakuruReducer(
       };
     case "ACCOUNT_ROW": {
       const id = action.id;
-      if (id === "toast") {
-        return { state, toast: "Coming soon" };
+      if (id === "acc:saved") {
+        return { state, toast: "Saved items are coming soon" };
+      }
+      if (id === "acc:help" || id === "toast") {
+        return { state, toast: "Help is coming soon" };
       }
       const p = id.split(":");
       if (p[0] === "tab") {

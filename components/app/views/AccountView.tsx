@@ -6,24 +6,13 @@ import {
   ProfilePhotoUpload,
 } from "@/components/app/ProfilePhotoUpload";
 import { useAuth } from "@/components/app/AppAuthProvider";
-import { AdminView } from "@/components/app/views/AdminView";
 import { VendorView } from "@/components/app/views/VendorView";
 import { useNakuruApp } from "@/components/app/AppProvider";
 import { useMyVendorProfile } from "@/components/app/useMyVendorProfile";
-import { accountVendorSubtitle } from "@/lib/nakuru/vendor-profile";
-
-const ROWS: [string, string, string][] = [
-  ["📦", "My orders", "tab:cart"],
-  ["🏪", "Sell on NakuruHub", "acc:vendor"],
-  ["❤️", "Saved items", "toast"],
-  ["❓", "Help and support", "toast"],
-];
-
-const SHOW_DEMO_ADMIN = process.env.NODE_ENV === "development";
-
-const ACCOUNT_ROWS: [string, string, string][] = SHOW_DEMO_ADMIN
-  ? [...ROWS.slice(0, 2), ["🛠️", "Admin panel (demo)", "acc:admin"], ...ROWS.slice(2)]
-  : ROWS;
+import {
+  accountMenuRows,
+  accountVendorSubtitle,
+} from "@/lib/nakuru/vendor-profile";
 
 export function AccountView() {
   const { state, dispatch, toast } = useNakuruApp();
@@ -57,12 +46,9 @@ export function AccountView() {
         </button>
         {state.acc === "vendor" ? (
           <VendorView />
-        ) : SHOW_DEMO_ADMIN ? (
-          <AdminView />
         ) : (
           <p className="m">
-            Staff tools live at <code>/staff</code> (bookmark; not linked from the
-            public app).
+            Staff tools are at <code>/staff</code> — not in the shopper app.
           </p>
         )}
       </>
@@ -71,13 +57,16 @@ export function AccountView() {
 
   const signedIn = ready && user;
 
+  const menuRows = accountMenuRows(vendorProfile, true);
+  const isApprovedVendor = vendorProfile?.status === "approved";
+
   if (!signedIn) {
     return (
       <>
         <EmailOtpForm />
-        {ACCOUNT_ROWS.filter((r) => r[2] !== "acc:admin").map((r) => (
+        {accountMenuRows(null, false).map((r, i) => (
           <div
-            key={r[2]}
+            key={`${r[2]}-${i}`}
             className="card li"
             role="button"
             tabIndex={0}
@@ -106,7 +95,9 @@ export function AccountView() {
 
   return (
     <>
-      <div className="card row acc-profile">
+      <div
+        className={`card row acc-profile${isApprovedVendor ? " acc-profile--vendor" : ""}`}
+      >
         <ProfilePhotoUpload
           className="av"
           role="button"
@@ -119,6 +110,14 @@ export function AccountView() {
             <div className="t" style={{ flex: "1 1 auto" }}>
               {displayTitle}
             </div>
+            {isApprovedVendor ? (
+              <span
+                className="badge"
+                style={{ background: "var(--pri)", color: "var(--onpri)" }}
+              >
+                Vendor
+              </span>
+            ) : null}
             {showUnverifiedBadge ? (
               <span className="badge">Unverified</span>
             ) : vendorProfile?.verified ? (
@@ -127,9 +126,7 @@ export function AccountView() {
               </span>
             ) : null}
           </div>
-          {vendorProfile && user.email ? (
-            <div className="m">{user.email}</div>
-          ) : null}
+          {user.email ? <div className="m">{user.email}</div> : null}
           <div className="m">{subtitle}</div>
         </div>
       </div>
@@ -142,9 +139,9 @@ export function AccountView() {
       >
         Sign out
       </button>
-      {ACCOUNT_ROWS.map((r) => (
+      {menuRows.map((r, i) => (
         <div
-          key={r[2]}
+          key={`${r[2]}-${i}`}
           className="card li"
           role="button"
           tabIndex={0}

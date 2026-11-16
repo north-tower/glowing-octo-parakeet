@@ -46,6 +46,53 @@ export function accountVendorSubtitle(
   return `Vendor · ${st} · Unverified (cash on delivery only)`;
 }
 
+export type AccountMenuRow = [icon: string, label: string, actionId: string];
+
+function signedInAccountTail(): AccountMenuRow[] {
+  return [
+    ["❤️", "Saved items", "acc:saved"],
+    ["❓", "Help and support", "acc:help"],
+  ];
+}
+
+/** Account tab list items — differs for shoppers vs vendor lifecycle. */
+export function accountMenuRows(
+  profile: VendorAccountSummary | null,
+  signedIn = false,
+): AccountMenuRow[] {
+  const tail = signedIn ? signedInAccountTail() : [];
+
+  if (profile?.status === "approved") {
+    return [
+      ["🏪", "My shop", "acc:vendor"],
+      ["📦", "Orders as buyer", "tab:cart"],
+      ...tail,
+    ];
+  }
+
+  if (profile?.status === "pending") {
+    return [
+      ["📋", "Application status", "acc:vendor"],
+      ["📦", "My orders", "tab:cart"],
+      ...tail,
+    ];
+  }
+
+  if (profile?.status === "rejected") {
+    return [
+      ["🏪", "Apply again", "acc:vendor"],
+      ["📦", "My orders", "tab:cart"],
+      ...tail,
+    ];
+  }
+
+  return [
+    ["📦", "My orders", "tab:cart"],
+    ["🏪", "Sell on NakuruHub", "acc:vendor"],
+    ...tail,
+  ];
+}
+
 export function accountHeaderVendorLine(
   profile: VendorAccountSummary | null,
 ): string | null {
