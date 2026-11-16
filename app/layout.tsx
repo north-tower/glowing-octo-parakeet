@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "./nakuru-globals.css";
+import { nakuruFontClassName } from "@/lib/nakuru/fonts";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ??
@@ -57,23 +58,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en">
-      <head>
-        <link
-          rel="preload"
-          href="/fonts/bricolage-grotesque-latin.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="preload"
-          href="/fonts/figtree-latin.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-      </head>
+    <html lang="en" className={nakuruFontClassName}>
       {/* Phase 3: scope `landing` to `/` only via route layout */}
       <body className="landing">{children}</body>
     </html>

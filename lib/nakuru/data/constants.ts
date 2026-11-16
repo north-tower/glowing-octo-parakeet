@@ -39,12 +39,12 @@ export const TOPC: [
   ["watch", "Watches", "shop", "watch", "teal"],
   ["home", "Homes to rent", "property", "rent", "green"],
   ["home-sale", "Homes for sale", "property", "sale", "green"],
-  ["mountain", "Land", "property", "plot", "green"],
+  ["land-plot", "Land", "property", "plot", "green"],
   ["car", "Toyota", "cars", "toyota", "sand"],
   ["car", "Subaru", "cars", "subaru", "sand"],
   ["car", "All cars", "cars", "", "sand"],
   ["bolt", "Electricians", "services", "electric", "pink"],
-  ["sparkles", "Cleaning", "services", "clean", "pink"],
+  ["spray-bottle", "Cleaning", "services", "clean", "pink"],
   ["wrench", "Plumbers", "services", "plumb", "pink"],
 ];
 

@@ -35,6 +35,12 @@ Legacy paths redirect via `next.config.ts`: `/landing.html` → `/`, `/index.htm
 
 For production canonical URLs, set `NEXT_PUBLIC_SITE_URL` (e.g. `https://nakuruhub.co.ke`) so Open Graph and sitemap metadata resolve correctly. Until then, placeholders use `https://nakuruhub.example`.
 
+## Demo catalog (screenshots)
+
+The built-in demo listings in `lib/nakuru/data/items.ts` include **Mtumba jacket**, **Phone charger**, **Fresh veggies**, and a mix of verified (`v: 1`) and unverified (`v: 0`) sellers. They appear when live catalog is off (default): leave `NEXT_PUBLIC_USE_LIVE_CATALOG` unset or `false`, then restart `pnpm dev` and open `/app`.
+
+For Postgres-backed demos, add products through the vendor flow or SQL in the Supabase dashboard. **Do not delete** user-created listings in a shared database; reset only local/test projects or insert additional demo rows alongside existing data.
+
 ## QA (local)
 
 Playwright specs live under `e2e/` (ported from the prototype’s visual QA). With the dev server running:

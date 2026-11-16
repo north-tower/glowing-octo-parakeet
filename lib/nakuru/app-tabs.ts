@@ -1,9 +1,9 @@
 import type { TabId } from "@/lib/nakuru/types";
 
-export const APP_TABS: [TabId, string, string][] = [
-  ["home", "🏠", "Home"],
-  ["cat", "🗂️", "Category"],
-  ["msg", "💬", "Message"],
-  ["cart", "🛒", "Cart"],
-  ["acc", "👤", "Account"],
+export const APP_TAB_IDS: TabId[] = [
+  "home",
+  "cat",
+  "msg",
+  "cart",
+  "acc",
 ];

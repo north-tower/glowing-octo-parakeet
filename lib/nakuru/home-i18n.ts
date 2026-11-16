@@ -31,7 +31,16 @@ export type HomeCopyKey =
   | "verifiedPill"
   | "payOnDelivery"
   | "addedToCart"
-  | "addToCart";
+  | "addToCart"
+  | "navHome"
+  | "navCategory"
+  | "navMessage"
+  | "navCart"
+  | "navAccount"
+  | "vendorCardTitle"
+  | "vendorCardSub"
+  | "vendorCardCta"
+  | "vendorCardDismissAria";
 
 export type TopCategorySlug =
   | "phone"
@@ -107,6 +116,18 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   payOnDelivery: { en: "Pay on delivery", sw: "Lipa ukifika" },
   addedToCart: { en: "Added", sw: "Imeongezwa" },
   addToCart: { en: "Add to cart", sw: "Ongeza kwenye kikapu" },
+  navHome: { en: "Home", sw: "Nyumbani" },
+  navCategory: { en: "Category", sw: "Kategoria" },
+  navMessage: { en: "Message", sw: "Ujumbe" },
+  navCart: { en: "Cart", sw: "Kikapu" },
+  navAccount: { en: "Account", sw: "Akaunti" },
+  vendorCardTitle: { en: "Sell on NakuruHub", sw: "Uza kwenye NakuruHub" },
+  vendorCardSub: { en: "Free to join and list.", sw: "Bure kujiunga na kuorodhesha." },
+  vendorCardCta: { en: "Start selling", sw: "Anza kuuza" },
+  vendorCardDismissAria: {
+    en: "Dismiss seller invite",
+    sw: "Funga mwaliko wa kuuza",
+  },
 };
 
 const TOP_CATEGORY_LABELS: Record<

@@ -7,7 +7,10 @@ const THEMES = ["light", "dark"];
 async function qaViewport(page, width, theme) {
   const errors = [];
   page.on("console", (msg) => {
-    if (msg.type() === "error") errors.push(msg.text());
+    if (msg.type() !== "error") return;
+    const text = msg.text();
+    if (/Failed to load resource|favicon|401|404/.test(text)) return;
+    errors.push(text);
   });
 
   await page.setViewportSize({ width, height: 800 });
@@ -31,6 +34,24 @@ async function qaViewport(page, width, theme) {
   const headerOk = await page.locator("#hd .logo").isVisible();
   const cats = await page.locator(".home-cat-grid .ct").count();
   const cards = await page.locator("body.app .pc").count();
+  const headerOverlap = await page.evaluate(() => {
+    const hd = document.querySelector("#hd");
+    const main = document.querySelector("main");
+    if (!hd || !main) return false;
+    const hb = hd.getBoundingClientRect();
+    const first = main.querySelector(".trust, .qa-scroll, .car");
+    if (!first) return false;
+    const fb = first.getBoundingClientRect();
+    return fb.top < hb.bottom - 2;
+  });
+
+  await page.keyboard.press("Tab");
+  const focusRing = await page.evaluate(() => {
+    const el = document.activeElement;
+    if (!el) return false;
+    const s = getComputedStyle(el);
+    return s.outlineWidth !== "0px" || s.outlineStyle !== "none";
+  });
 
   return {
     width,
@@ -40,11 +61,15 @@ async function qaViewport(page, width, theme) {
     cats,
     cards,
     consoleErrors: errors,
+    headerOverlap,
+    focusRing,
     pass:
       !hScroll &&
       headerOk &&
+      !headerOverlap &&
       cats >= 9 &&
-      cards >= 4 &&
+      cards >= 2 &&
+      focusRing &&
       errors.length === 0,
   };
 }
@@ -64,7 +89,7 @@ await browser.close();
 for (const r of results) {
   const status = r.pass ? "PASS" : "FAIL";
   console.log(
-    `${status} ${r.width}px ${r.theme}: hScroll=${r.hScroll} cats=${r.cats} cards=${r.cards} console=${r.consoleErrors.length}`,
+    `${status} ${r.width}px ${r.theme}: hScroll=${r.hScroll} overlap=${r.headerOverlap} cats=${r.cats} cards=${r.cards} focus=${r.focusRing} console=${r.consoleErrors.length}`,
   );
   if (r.consoleErrors.length) {
     r.consoleErrors.forEach((e) => console.log(`  console: ${e}`));

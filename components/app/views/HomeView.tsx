@@ -29,6 +29,7 @@ import {
   SLIDE_COPY_KEYS,
 } from "@/lib/nakuru/home-i18n";
 import { CategoryTile } from "@/components/app/CategoryTile";
+import { VendorSellCard } from "@/components/app/VendorSellCard";
 import { HomeSectionHeader } from "@/components/app/HomeSectionHeader";
 import {
   SlideArtDelivery,
@@ -43,6 +44,11 @@ import {
   IconStore,
   IconWallet,
 } from "@/components/app/icons/LineIcons";
+import {
+  CategoryIcon,
+  isCategoryIconKey,
+  type CategoryIconKey,
+} from "@/lib/nakuru/category-icons";
 
 const SLIDE_CLASS = ["sl--teal", "sl--pink", "sl--deep"] as const;
 const SLIDE_ART = [SlideArtDelivery, SlideArtProperty, SlideArtVerified] as const;
@@ -357,7 +363,11 @@ export function HomeView() {
                   onClick={() => dispatch({ type: "ITEM_ACT", id: i.id })}
                 >
                   <div className="rim">
-                    {i.e}
+                    {isCategoryIconKey(i.e) ? (
+                      <CategoryIcon icon={i.e as CategoryIconKey} size={40} />
+                    ) : (
+                      i.e
+                    )}
                     <u>{r[1]}</u>
                   </div>
                   <div className="pr">{kes(i.p)}</div>
@@ -391,6 +401,7 @@ export function HomeView() {
           );
         })}
       </div>
+      <VendorSellCard />
       <HomeSectionHeader titleKey="pickedForYou" lang={lang} />
       {loading && liveCatalog ? (
         <ListingsSkeleton count={4} />

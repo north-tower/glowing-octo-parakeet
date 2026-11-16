@@ -5,11 +5,11 @@ import {
   IconCookingPot,
   IconGrid,
   IconHome,
-  IconMountain,
+  IconLandPlot,
   IconShirt,
   IconShoe,
   IconSmartphone,
-  IconSparkle,
+  IconSprayBottle,
   IconTv,
   IconWatch,
   IconWrench,
@@ -26,10 +26,10 @@ export type CategoryIconKey =
   | "watch"
   | "home"
   | "home-sale"
-  | "mountain"
+  | "land-plot"
   | "car"
   | "bolt"
-  | "sparkles"
+  | "spray-bottle"
   | "wrench"
   | "grid";
 
@@ -46,10 +46,10 @@ const ICONS: Record<
   watch: IconWatch,
   home: IconHome,
   "home-sale": IconHome,
-  mountain: IconMountain,
+  "land-plot": IconLandPlot,
   car: IconCar,
   bolt: IconBolt,
-  sparkles: IconSparkle,
+  "spray-bottle": IconSprayBottle,
   wrench: IconWrench,
   grid: IconGrid,
 };

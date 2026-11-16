@@ -234,3 +234,60 @@ export function IconWrench({ size = 24 }: { size?: number }) {
     </svg>
   );
 }
+
+export function IconShoppingCart({ size = 24 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden {...stroke}>
+      <circle cx="9" cy="20" r="1.25" />
+      <circle cx="17" cy="20" r="1.25" />
+      <path d="M3 4h2l2.2 11.2a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H7" />
+    </svg>
+  );
+}
+
+export function IconMessageCircle({ size = 24 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden {...stroke}>
+      <path d="M7.5 19 4 20v-4.5A9 9 0 1 1 20 11.5V19l-3.5-1" />
+    </svg>
+  );
+}
+
+export function IconUser({ size = 24 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden {...stroke}>
+      <circle cx="12" cy="8" r="3.5" />
+      <path d="M5.5 20a6.5 6.5 0 0 1 13 0" />
+    </svg>
+  );
+}
+
+export function IconSprayBottle({ size = 24 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden {...stroke}>
+      <path d="M9 4h3v3H9z" />
+      <path d="M10.5 7v2.5M12 7v2.5M13.5 7v2.5" />
+      <path d="M8 9.5h7l-1 11a2 2 0 0 1-2 1.8H11a2 2 0 0 1-2-1.8z" />
+      <path d="M15.5 5.5 18 4" />
+    </svg>
+  );
+}
+
+export function IconLandPlot({ size = 24 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden {...stroke}>
+      <path d="M4 18 12 6l8 12" />
+      <path d="M4 18h16" />
+      <path d="M12 6v4" />
+      <circle cx="12" cy="11" r="2.25" />
+    </svg>
+  );
+}
+
+export function IconX({ size = 24 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden {...stroke}>
+      <path d="m18 6-12 12M6 6l12 12" />
+    </svg>
+  );
+}
