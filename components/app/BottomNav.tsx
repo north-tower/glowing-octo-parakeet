@@ -1,6 +1,7 @@
 "use client";
 
 import type { ComponentType } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { useNakuruApp } from "@/components/app/AppProvider";
 import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
 import {
@@ -43,6 +44,9 @@ function formatBadge(n: number): string {
 export function BottomNav() {
   const { state, dispatch } = useNakuruApp();
   const { lang } = usePwaInstall();
+  const pathname = usePathname();
+  const router = useRouter();
+  const onDetailRoute = pathname?.startsWith("/app/p/");
   const cartN = cartCount(state.cart);
   const msgUnread =
     "msgUnread" in state &&
@@ -77,7 +81,13 @@ export function BottomNav() {
             type="button"
             className={active ? "on" : ""}
             aria-current={active ? "page" : undefined}
-            onClick={() => dispatch({ type: "SET_TAB", tab: id })}
+            onClick={() => {
+              if (onDetailRoute) {
+                const qs = id === "home" ? "" : `?tab=${id}`;
+                router.push(`/app${qs}`);
+              }
+              dispatch({ type: "SET_TAB", tab: id });
+            }}
           >
             <span className="nav-tab-inner">
               <span className="nav-tab-icon-wrap" data-badge={badgeText || undefined}>

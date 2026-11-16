@@ -25,6 +25,7 @@ export function toProductCardItem(api: ApiListing): Listing {
     img: api.imageUrl || undefined,
     t: api.title,
     s: subtitle,
+    desc: api.description ?? undefined,
     p: api.price,
     v: api.verified ? 1 : 0,
   };

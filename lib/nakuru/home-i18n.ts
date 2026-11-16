@@ -54,7 +54,12 @@ export type HomeCopyKey =
   | "allCars"
   | "allServices"
   | "listings"
-  | "sideFeatured";
+  | "sideFeatured"
+  | "productBack"
+  | "productAbout"
+  | "productNotFoundTitle"
+  | "productNotFoundBody"
+  | "productBrowse";
 
 export type TopCategorySlug =
   | "phone"
@@ -98,8 +103,8 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
     sw: "Usafirishaji bure kwa agizo lako la kwanza",
   },
   slide0Sub: {
-    en: "Pay on delivery · Nakuru only",
-    sw: "Lipa ukifika · Nakuru pekee",
+    en: "Pay on delivery · Nakuru",
+    sw: "Lipa ukifika · Nakuru",
   },
   slide1Title: {
     en: "List your home or car free",
@@ -168,6 +173,14 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   allServices: { en: "All services", sw: "Huduma zote" },
   listings: { en: "Listings", sw: "Orodha" },
   sideFeatured: { en: "Featured", sw: "Maalum" },
+  productBack: { en: "Back to browse", sw: "Rudi vinjarini" },
+  productAbout: { en: "About this listing", sw: "Kuhusu tangazo hili" },
+  productNotFoundTitle: { en: "Listing not found", sw: "Tangazo halipatikani" },
+  productNotFoundBody: {
+    en: "It may have sold out or the link is outdated.",
+    sw: "Labda limekwisha au kiungo ni cha zamani.",
+  },
+  productBrowse: { en: "Browse marketplace", sw: "Vinjari soko" },
 };
 
 const TOP_CATEGORY_LABELS: Record<

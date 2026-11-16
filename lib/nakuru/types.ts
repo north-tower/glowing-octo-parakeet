@@ -22,6 +22,8 @@ export type Listing = {
   img?: string;
   t: string;
   s: string;
+  /** Full listing copy for detail view (API description). */
+  desc?: string;
   p: number;
   v: number;
 };

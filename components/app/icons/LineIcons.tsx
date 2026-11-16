@@ -23,6 +23,14 @@ export function IconChevronDown({ size = 24 }: { size?: number }) {
   );
 }
 
+export function IconChevronLeft({ size = 24 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden {...stroke}>
+      <path d="m15 18-6-6 6-6" />
+    </svg>
+  );
+}
+
 export function IconSearch({ size = 24 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden {...stroke}>
@@ -113,7 +121,8 @@ export function IconStore({ size = 24 }: { size?: number }) {
 export function IconSparkle({ size = 24 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden {...stroke}>
-      <path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M5.6 18.4l2.8-2.8M15.6 8.4l2.8-2.8" />
+      <path d="m12 3 2.2 4.46 4.98.72-3.6 3.51.85 4.96L12 14.77l-4.45 2.18.85-4.96-3.6-3.51 4.98-.72z" />
+      <path d="M19 4h1M20.5 5.5V4.5" />
     </svg>
   );
 }
@@ -211,8 +220,9 @@ export function IconShoe({ size = 24 }: { size?: number }) {
 export function IconSalad({ size = 24 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden {...stroke}>
-      <path d="M4 11c2-4 6-6 8-6s6 2 8 6" />
-      <path d="M6 11h12v2a6 6 0 0 1-6 6H12a6 6 0 0 1-6-6z" />
+      <path d="M8 9V7.5a4 4 0 0 1 8 0V9" />
+      <path d="M6 9h12l-1.1 11H7.1L6 9z" />
+      <path d="M9 13h6" />
     </svg>
   );
 }
@@ -235,12 +245,20 @@ export function IconWrench({ size = 24 }: { size?: number }) {
   );
 }
 
+export function IconTools({ size = 24 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden {...stroke}>
+      <path d="M14.5 6.4a3.5 3.5 0 0 0-4.6 4.6L4 17v2h2l5.4-5.4a3.5 3.5 0 0 0 4.6-4.6z" />
+      <path d="m16 3 5 5M17.5 4.5 9 13" />
+    </svg>
+  );
+}
+
 export function IconShoppingBag({ size = 24 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden {...stroke}>
-      <path d="M8 6V5a4 4 0 0 1 8 0v1" />
-      <path d="M5 8h14l-1.2 12H6.2L5 8z" />
-      <path d="M10 11v5M14 11v5" />
+      <path d="M8 8V6.2a4 4 0 0 1 8 0V8" />
+      <path d="M6 8h12l-1.15 13H7.15L6 8z" />
     </svg>
   );
 }
@@ -248,9 +266,10 @@ export function IconShoppingBag({ size = 24 }: { size?: number }) {
 export function IconBed({ size = 24 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden {...stroke}>
-      <path d="M4 14h16v5H4z" />
-      <path d="M6 14V9h12v5" />
-      <path d="M7 9V7h10v2" />
+      <path d="M2 5v14" />
+      <path d="M2 10h20v6H2z" />
+      <path d="M2 16h20" />
+      <path d="M6 10v6" />
     </svg>
   );
 }

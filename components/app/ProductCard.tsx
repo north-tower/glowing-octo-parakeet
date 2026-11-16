@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { ACT } from "@/lib/nakuru/data/constants";
 import { isLiveCatalogEnabled } from "@/lib/nakuru/catalog-live";
@@ -12,6 +13,7 @@ import {
 } from "@/lib/nakuru/category-icons";
 import { IconCheck, IconWallet } from "@/components/app/icons/LineIcons";
 import { homeCopy } from "@/lib/nakuru/home-i18n";
+import { recordProductOpen } from "@/lib/nakuru/pwa-engage";
 import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
 
 const DEFAULT_ICON: Record<string, CategoryIconKey> = {
@@ -63,38 +65,47 @@ export function ProductCard({
 
   return (
     <article className="pc">
-      <div className={`pim pim--${item.c}`}>
-        {showImg ? (
-          <img
-            src={item.img}
-            alt=""
-            loading="lazy"
-            decoding="async"
-            onError={() => setImgOk(false)}
-          />
-        ) : (
-          <span className="pim-fallback" aria-hidden>
-            <CategoryIcon icon={icon} size={32} />
-          </span>
-        )}
-        {item.v ? (
-          <span className="pc-verified-pill">
-            <IconCheck size={14} />
-            {homeCopy("verifiedPill", lang)}
-          </span>
-        ) : null}
-      </div>
-      <div className="pc-body">
-        <h3 className="pc-title">{item.t}</h3>
-        <p className="pc-vendor">{item.s}</p>
-        {!item.v ? (
-          <span className="pc-cod">
-            <IconWallet size={14} />
-            {homeCopy("payOnDelivery", lang)}
-          </span>
-        ) : null}
-        <p className="pc-price">{kes(item.p)}</p>
-      </div>
+      <Link
+        href={`/app/p/${item.id}`}
+        className="pc-hit"
+        onClick={() => {
+          recordProductOpen(item.id);
+          window.dispatchEvent(new Event("nh:engage"));
+        }}
+      >
+        <div className={`pim pim--${item.c}`}>
+          {showImg ? (
+            <img
+              src={item.img}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              onError={() => setImgOk(false)}
+            />
+          ) : (
+            <span className="pim-fallback" aria-hidden>
+              <CategoryIcon icon={icon} size={32} />
+            </span>
+          )}
+          {item.v ? (
+            <span className="pc-verified-pill">
+              <IconCheck size={14} />
+              {homeCopy("verifiedPill", lang)}
+            </span>
+          ) : null}
+        </div>
+        <div className="pc-body">
+          <h3 className="pc-title">{item.t}</h3>
+          <p className="pc-vendor">{item.s}</p>
+          {!item.v ? (
+            <span className="pc-cod">
+              <IconWallet size={14} />
+              {homeCopy("payOnDelivery", lang)}
+            </span>
+          ) : null}
+          <p className="pc-price">{kes(item.p)}</p>
+        </div>
+      </Link>
       <button
         type="button"
         className={`btn pc-add${added ? " pc-add--done" : ""}${shopAdd ? " o" : " s"}`}

@@ -38,3 +38,21 @@ export async function listPublicListings(
   );
   return r.rows;
 }
+
+export async function getPublicListingById(
+  id: string,
+): Promise<PublicListingRow | null> {
+  const r = await q<PublicListingRow>(
+    `select p.id, p.category, p.title, p.description, p.emoji, p.image_url as "imageUrl",
+            p.price_kes::int price, v.name vendor, v.verified
+     from products p
+     join vendors v on v.id = p.vendor_id
+     where p.id = $1::uuid
+       and p.active
+       and v.status = 'approved'
+       and (p.stock is null or p.stock > 0)
+     limit 1`,
+    [id],
+  );
+  return r.rows[0] ?? null;
+}

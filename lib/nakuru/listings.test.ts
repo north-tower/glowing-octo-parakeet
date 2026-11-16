@@ -34,5 +34,20 @@ describe("toProductCardItem", () => {
     });
     expect(card.s).toBe("Leaks and fittings");
     expect(card.v).toBe(0);
+    expect(card.desc).toBe("Leaks and fittings");
+  });
+
+  it("maps description for detail view", () => {
+    const card = toProductCardItem({
+      id: "x",
+      category: "shop",
+      title: "Dress",
+      description: "Size M, cotton blend",
+      emoji: "👗",
+      price: 1200,
+      vendor: "Boutique",
+      verified: true,
+    });
+    expect(card.desc).toBe("Size M, cotton blend");
   });
 });

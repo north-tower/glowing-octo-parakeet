@@ -16,7 +16,7 @@ import {
   IconShoppingBag,
   IconSparkle,
   IconTaxi,
-  IconWrench,
+  IconTools,
 } from "@/components/app/icons/LineIcons";
 
 const RAIL_ICONS: Record<
@@ -27,7 +27,7 @@ const RAIL_ICONS: Record<
   "shopping-bag": IconShoppingBag,
   home: IconHome,
   car: IconCar,
-  wrench: IconWrench,
+  wrench: IconTools,
   bed: IconBed,
   taxi: IconTaxi,
 };
@@ -111,7 +111,7 @@ export function CategoryRail({ lang }: Props) {
             onKeyDown={(e) => onKeyDown(e, index)}
           >
             <span className="cat-rail-icon" aria-hidden>
-              {Icon ? <Icon size={40} /> : null}
+              {Icon ? <Icon size={24} /> : null}
             </span>
             <span className="cat-rail-label">{label}</span>
             {soon ? (
