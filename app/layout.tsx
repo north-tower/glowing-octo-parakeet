@@ -44,7 +44,7 @@ export const metadata: Metadata = {
       },
       { url: "/icon.svg", type: "image/svg+xml" },
     ],
-    apple: "/icon.svg",
+    apple: "/icons/apple-touch-icon.png",
   },
 };
 

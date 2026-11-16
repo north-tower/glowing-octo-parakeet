@@ -5,6 +5,7 @@ import { useNakuruApp } from "@/components/app/AppProvider";
 import { isLiveCatalogEnabled } from "@/lib/nakuru/catalog-live";
 import { itemById } from "@/lib/nakuru/data/items";
 import type { Listing } from "@/lib/nakuru/types";
+import { recordProductOpen } from "@/lib/nakuru/pwa-engage";
 import { useCallback, useState, type ReactNode } from "react";
 
 export function useListingAct(): {
@@ -20,6 +21,8 @@ export function useListingAct(): {
     (id: number | string) => {
       const item = itemById(id);
       if (!item) return;
+      recordProductOpen(id);
+      window.dispatchEvent(new Event("nh:engage"));
       if (live && item.c === "services") {
         setInquiryTarget(item);
         return;

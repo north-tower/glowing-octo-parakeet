@@ -13,6 +13,31 @@ import {
   accountMenuRows,
   accountVendorSubtitle,
 } from "@/lib/nakuru/vendor-profile";
+import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
+
+function InstallAccountRow() {
+  const { standalone, openInstallSheet, t } = usePwaInstall();
+  if (standalone) return null;
+  return (
+    <div
+      className="card li"
+      role="button"
+      tabIndex={0}
+      onClick={() => openInstallSheet("account")}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") openInstallSheet("account");
+      }}
+    >
+      <div className="av pwa-install-av" aria-hidden>
+        <img src="/icons/icon-192.png" alt="" width={28} height={28} />
+      </div>
+      <div className="t" style={{ flex: 1 }}>
+        {t("installRow")}
+      </div>
+      <span className="m">›</span>
+    </div>
+  );
+}
 
 export function AccountView() {
   const { state, dispatch, toast } = useNakuruApp();
@@ -64,6 +89,7 @@ export function AccountView() {
     return (
       <>
         <EmailOtpForm />
+        <InstallAccountRow />
         {accountMenuRows(null, false).map((r, i) => (
           <div
             key={`${r[2]}-${i}`}
@@ -139,6 +165,7 @@ export function AccountView() {
       >
         Sign out
       </button>
+      <InstallAccountRow />
       {menuRows.map((r, i) => (
         <div
           key={`${r[2]}-${i}`}

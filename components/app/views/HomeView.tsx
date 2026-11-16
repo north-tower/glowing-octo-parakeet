@@ -21,6 +21,7 @@ import { useListingAct } from "@/lib/nakuru/use-listing-act";
 import { isOutsideArea } from "@/lib/nakuru/area";
 import { kes } from "@/lib/nakuru/format";
 import type { CategoryId } from "@/lib/nakuru/types";
+import { InstallHomeCard } from "@/components/app/pwa/InstallHomeCard";
 
 function useHomeCarousel(active: boolean) {
   const carRef = useRef<HTMLDivElement>(null);
@@ -187,6 +188,7 @@ export function HomeView() {
   return (
     <>
       {inquiryModal}
+      <InstallHomeCard />
       <div className="trust">
         <div>
           🛡️<b>Verified vendors</b>ID and shop checked

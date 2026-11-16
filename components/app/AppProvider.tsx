@@ -15,8 +15,10 @@ import {
   nakuruReducer,
   type NakuruAction,
 } from "@/lib/nakuru/reducer";
-import type { NakuruState } from "@/lib/nakuru/types";
+import type { NakuruState, TabId } from "@/lib/nakuru/types";
 import { AppAuthProvider } from "@/components/app/AppAuthProvider";
+import { InstallProvider } from "@/components/app/pwa/InstallProvider";
+import { requestInstallRetrigger } from "@/lib/nakuru/pwa-engage";
 
 type NakuruContextValue = {
   state: NakuruState;
@@ -43,7 +45,16 @@ export function AppProvider({ children }: ProviderProps) {
   const vendorEntry =
     searchParams.get("start") === "vendor" || searchParams.has("vendor");
 
-  const [state, setState] = useState(() => createInitialState(vendorEntry));
+  const tabParam = searchParams.get("tab");
+  const validTabs: TabId[] = ["home", "cat", "msg", "cart", "acc"];
+
+  const [state, setState] = useState(() => {
+    const base = createInitialState(vendorEntry);
+    if (tabParam && validTabs.includes(tabParam as TabId)) {
+      return { ...base, tab: tabParam as TabId };
+    }
+    return base;
+  });
 
   const [toastText, setToastText] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
@@ -62,6 +73,13 @@ export function AppProvider({ children }: ProviderProps) {
         const result = nakuruReducer(prev, action);
         if (result.toast) {
           queueMicrotask(() => toast(result.toast!));
+          if (
+            result.toast === "Added to cart" ||
+            result.toast === "Order placed. Track it below."
+          ) {
+            requestInstallRetrigger();
+            queueMicrotask(() => window.dispatchEvent(new Event("nh:engage")));
+          }
         }
         return result.state;
       });
@@ -77,7 +95,7 @@ export function AppProvider({ children }: ProviderProps) {
   return (
     <AppAuthProvider>
       <NakuruContext.Provider value={value}>
-        {children}
+        <InstallProvider>{children}</InstallProvider>
         <div
           id="toast"
           className="toast"

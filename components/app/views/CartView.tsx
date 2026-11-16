@@ -20,6 +20,7 @@ import {
   effectivePay,
 } from "@/lib/nakuru/reducer";
 import { kes } from "@/lib/nakuru/format";
+import { requestInstallRetrigger } from "@/lib/nakuru/pwa-engage";
 
 export function CartView() {
   const { state, dispatch, toast } = useNakuruApp();
@@ -121,6 +122,8 @@ export function CartView() {
           ? `Order placed · #${created[0]!.id.slice(0, 8)}`
           : `${created.length} orders placed`;
       toast(label);
+      requestInstallRetrigger();
+      window.dispatchEvent(new Event("nh:engage"));
       setAddress("");
       setPhone("");
     } catch (err) {

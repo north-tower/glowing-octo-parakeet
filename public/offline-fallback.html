@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0d5c58" />
+    <title>NakuruHub — Offline</title>
+    <style>
+      :root {
+        --bg: #f1f6f5;
+        --ink: #16292a;
+        --mut: #62777a;
+        --hd: #0d5c58;
+        --pri: #0d6f69;
+        --card: #fff;
+        --line: #dde7e6;
+      }
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        font-family: system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--ink);
+        display: grid;
+        place-items: center;
+        padding: 1.25rem;
+        box-sizing: border-box;
+      }
+      main {
+        max-width: 22rem;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: 1.25rem;
+        text-align: center;
+      }
+      h1 {
+        font-size: 1.15rem;
+        margin: 0 0 0.5rem;
+        color: var(--hd);
+      }
+      p {
+        margin: 0 0 1rem;
+        color: var(--mut);
+        line-height: 1.45;
+      }
+      button {
+        min-height: 44px;
+        width: 100%;
+        border: 0;
+        border-radius: 12px;
+        background: var(--pri);
+        color: #fff;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>You’re offline</h1>
+      <p>Check your connection, then try again.</p>
+      <button type="button" onclick="location.reload()">Retry</button>
+    </main>
+  </body>
+</html>

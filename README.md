@@ -29,7 +29,9 @@ Legacy paths redirect via `next.config.ts`: `/landing.html` → `/`, `/index.htm
 ## Fonts & PWA
 
 - Self-hosted **Bricolage Grotesque** and **Figtree** in `public/fonts/` (loaded via `@font-face` in CSS; preloaded in root `layout.tsx`).
-- Web app manifest: `public/manifest.webmanifest`. Favicon / app icon: `app/icon.svg` and `public/icon.svg`.
+- Web app manifest: `public/manifest.webmanifest`. PNG icons in `public/icons/` (regenerate with `pnpm icons:pwa`). Favicon: `app/icon.svg` and `public/icon.svg`.
+- **PWA / install:** Service worker `public/sw.js` registers on `/app`. Install UI is in the marketplace shell only. Service workers and “Add to Home screen” work on **HTTPS** or **http://localhost** only — not on `file://`.
+- **Local PWA test:** `pnpm build && pnpm start` (or `npx serve out` if exporting static), open `/app` in Chrome, use DevTools → Application → Manifest / Service workers. For a quick static server: `npx serve public -p 3000` does **not** run the Next app; use `pnpm dev` or `pnpm start` instead.
 
 For production canonical URLs, set `NEXT_PUBLIC_SITE_URL` (e.g. `https://nakuruhub.co.ke`) so Open Graph and sitemap metadata resolve correctly. Until then, placeholders use `https://nakuruhub.example`.
 
