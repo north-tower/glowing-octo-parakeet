@@ -12,6 +12,7 @@ import type {
   CategoryId,
   NakuruState,
   Order,
+  OrderItemSnap,
   PayMethod,
   TabId,
 } from "@/lib/nakuru/types";
@@ -212,31 +213,8 @@ export function nakuruReducer(
         },
       };
     case "PLACE_ORDER": {
-      const ids = Object.keys(state.cart);
-      if (!ids.length || isOutsideArea(state.area)) return { state };
-      let subtotal = 0;
-      let allV = true;
-      ids.forEach((id) => {
-        const it = itemById(id);
-        if (!it) return;
-        subtotal += it.p * (state.cart[id] ?? 0);
-        if (!it.v) allV = false;
-      });
-      const fee = ZONES[state.area] ?? 0;
-      const total = subtotal + fee;
-      const pay =
-        state.pay === "mpesa" && allV ? "Paid by M-Pesa" : "Pay on delivery";
-      const code = String(
-        1000 +
-          (crypto.getRandomValues(new Uint32Array(1))[0] % 9000),
-      );
-      const order = {
-        id: 1001 + state.orders.length,
-        total,
-        pay,
-        s: 0,
-        code,
-      };
+      const order = buildDemoPlaceOrder(state);
+      if (!order) return { state };
       return {
         state: { ...state, orders: [...state.orders, order], cart: {} },
         toast: "Order placed. Track it below.",
@@ -313,6 +291,55 @@ export function nakuruReducer(
     default:
       return { state };
   }
+}
+
+/** Demo checkout snapshot (same shape as `PLACE_ORDER` creates). */
+export function buildDemoPlaceOrder(state: NakuruState): Order | null {
+  const ids = Object.keys(state.cart);
+  if (!ids.length || isOutsideArea(state.area)) return null;
+  let subtotal = 0;
+  let allV = true;
+  const items: OrderItemSnap[] = [];
+  let vendor: string | undefined;
+  let vendorVerified = true;
+  ids.forEach((id) => {
+    const it = itemById(id);
+    if (!it) return;
+    const qty = state.cart[id] ?? 0;
+    subtotal += it.p * qty;
+    if (!it.v) allV = false;
+    items.push({
+      productId: it.id,
+      title: it.t,
+      unit: it.p,
+      qty,
+    });
+    if (!vendor) {
+      vendor = it.vn ?? it.s;
+      vendorVerified = Boolean(it.v);
+    }
+  });
+  const fee = ZONES[state.area] ?? 0;
+  const total = subtotal + fee;
+  const pay =
+    state.pay === "mpesa" && allV ? "Paid by M-Pesa" : "Pay on delivery";
+  const code = String(
+    1000 + (crypto.getRandomValues(new Uint32Array(1))[0] % 9000),
+  );
+  return {
+    id: 1001 + state.orders.length,
+    total,
+    pay,
+    s: 0,
+    code,
+    items,
+    vendor,
+    vendorVerified,
+    zone: state.area,
+    fee,
+    promoFreeDelivery: state.orders.length === 0,
+    createdAt: new Date().toISOString(),
+  };
 }
 
 export function cartCount(cart: Record<string, number>): number {

@@ -223,6 +223,7 @@ export function CategoryPanel({
                 <ProductCard
                   key={String(i.id)}
                   item={i}
+                  navOriginTab="cat"
                   serviceInquiryEnabled={serviceInquiryEnabled}
                   onAct={onAct}
                 />

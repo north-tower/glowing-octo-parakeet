@@ -15,6 +15,10 @@ import { IconCheck, IconWallet } from "@/components/app/icons/LineIcons";
 import { homeCopy } from "@/lib/nakuru/home-i18n";
 import { recordProductOpen } from "@/lib/nakuru/pwa-engage";
 import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
+import {
+  persistDetailNavTab,
+  type DetailNavTab,
+} from "@/lib/nakuru/detail-nav-tab";
 
 const DEFAULT_ICON: Record<string, CategoryIconKey> = {
   shop: "shirt",
@@ -27,6 +31,8 @@ type Props = {
   item: Listing;
   onAct: (id: number | string) => void;
   serviceInquiryEnabled?: boolean;
+  /** When set, records Home vs Category before opening product detail. */
+  navOriginTab?: DetailNavTab;
 };
 
 function listingIconKey(item: Listing): CategoryIconKey {
@@ -38,6 +44,7 @@ export function ProductCard({
   item,
   onAct,
   serviceInquiryEnabled = false,
+  navOriginTab,
 }: Props) {
   const { lang } = usePwaInstall();
   const live = isLiveCatalogEnabled();
@@ -69,6 +76,7 @@ export function ProductCard({
         href={`/app/p/${item.id}`}
         className="pc-hit"
         onClick={() => {
+          if (navOriginTab) persistDetailNavTab(navOriginTab);
           recordProductOpen(item.id);
           window.dispatchEvent(new Event("nh:engage"));
         }}

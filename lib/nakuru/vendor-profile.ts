@@ -46,12 +46,42 @@ export function accountVendorSubtitle(
   return `Vendor · ${st} · Unverified (cash on delivery only)`;
 }
 
-export type AccountMenuRow = [icon: string, label: string, actionId: string];
+export type AccountRowIcon =
+  | "store"
+  | "receipt"
+  | "heart"
+  | "lifebuoy"
+  | "clipboard";
 
-function signedInAccountTail(): AccountMenuRow[] {
+export type AccountMenuRow = {
+  icon: AccountRowIcon;
+  actionId: string;
+  /** i18n key resolved in AccountView */
+  labelKey:
+    | "accMyShop"
+    | "accOrdersBuyer"
+    | "accSaved"
+    | "accHelp"
+    | "accApplicationStatus"
+    | "accApplyAgain"
+    | "accSell"
+    | "accMyOrders";
+  disabled?: boolean;
+  disabledReasonKey?: "accShopAfterApproval";
+  section: "selling" | "shopping";
+};
+
+/** Signed-out rows (labels still English; signed-out pass not redesigned). */
+export type AccountMenuRowLegacy = [icon: string, label: string, actionId: string];
+
+function signedInShoppingTail(): AccountMenuRow[] {
   return [
-    ["❤️", "Saved items", "acc:saved"],
-    ["❓", "Help and support", "acc:help"],
+    {
+      icon: "heart",
+      actionId: "acc:saved",
+      labelKey: "accSaved",
+      section: "shopping",
+    },
   ];
 }
 
@@ -60,36 +90,100 @@ export function accountMenuRows(
   profile: VendorAccountSummary | null,
   signedIn = false,
 ): AccountMenuRow[] {
-  const tail = signedIn ? signedInAccountTail() : [];
+  const tail = signedIn ? signedInShoppingTail() : [];
 
   if (profile?.status === "approved") {
     return [
-      ["🏪", "My shop", "acc:vendor"],
-      ["📦", "Orders as buyer", "tab:cart"],
+      {
+        icon: "store",
+        actionId: "acc:vendor",
+        labelKey: "accMyShop",
+        section: "selling",
+      },
+      {
+        icon: "receipt",
+        actionId: "tab:cart:orders",
+        labelKey: "accOrdersBuyer",
+        section: "shopping",
+      },
       ...tail,
     ];
   }
 
   if (profile?.status === "pending") {
     return [
-      ["📋", "Application status", "acc:vendor"],
-      ["📦", "My orders", "tab:cart"],
+      {
+        icon: "store",
+        actionId: "acc:vendor",
+        labelKey: "accMyShop",
+        section: "selling",
+        disabled: true,
+        disabledReasonKey: "accShopAfterApproval",
+      },
+      {
+        icon: "receipt",
+        actionId: "tab:cart:orders",
+        labelKey: "accOrdersBuyer",
+        section: "shopping",
+      },
       ...tail,
     ];
   }
 
   if (profile?.status === "rejected") {
     return [
-      ["🏪", "Apply again", "acc:vendor"],
-      ["📦", "My orders", "tab:cart"],
+      {
+        icon: "store",
+        actionId: "acc:vendor",
+        labelKey: "accApplyAgain",
+        section: "selling",
+      },
+      {
+        icon: "receipt",
+        actionId: "tab:cart:orders",
+        labelKey: "accOrdersBuyer",
+        section: "shopping",
+      },
+      ...tail,
+    ];
+  }
+
+  if (!profile && signedIn) {
+    return [
+      {
+        icon: "receipt",
+        actionId: "tab:cart:orders",
+        labelKey: "accOrdersBuyer",
+        section: "shopping",
+      },
       ...tail,
     ];
   }
 
   return [
+    {
+      icon: "receipt",
+      actionId: "tab:cart:orders",
+      labelKey: "accMyOrders",
+      section: "shopping",
+    },
+    {
+      icon: "store",
+      actionId: "acc:vendor",
+      labelKey: "accSell",
+      section: "selling",
+    },
+    ...tail,
+  ];
+}
+
+/** Legacy emoji rows for signed-out account list only. */
+export function accountMenuRowsSignedOut(): AccountMenuRowLegacy[] {
+  return [
     ["📦", "My orders", "tab:cart"],
     ["🏪", "Sell on NakuruHub", "acc:vendor"],
-    ...tail,
+    ["❤️", "Saved items", "acc:saved"],
+    ["❓", "Help and support", "acc:help"],
   ];
 }
 

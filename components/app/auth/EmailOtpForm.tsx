@@ -99,7 +99,7 @@ export function EmailOtpForm({
         },
       );
       setEmail(normalized);
-      setDevCode(res.devCode ?? null);
+      setDevCode((prev) => res.devCode ?? prev);
       setStep("code");
       setResendIn(RESEND_SECONDS);
       toast(
@@ -203,21 +203,11 @@ export function EmailOtpForm({
         Code sent to <strong>{email}</strong>
       </div>
       {devCode ? (
-        <div
-          className="card"
-          role="status"
-          style={{
-            marginBottom: 12,
-            padding: 12,
-            border: "1px dashed var(--border, #888)",
-          }}
-        >
-          <div className="m" style={{ marginBottom: 4 }}>
-            Dev only — Mailgun not in use yet
+        <div className="otp-dev-banner" role="status" aria-live="polite">
+          <div className="m otp-dev-banner-label">
+            Development — use this code to sign in
           </div>
-          <strong style={{ fontSize: "1.5rem", letterSpacing: "0.25em" }}>
-            {devCode}
-          </strong>
+          <strong className="otp-dev-code">{devCode}</strong>
         </div>
       ) : null}
       <label htmlFor="otp-code">6-digit code</label>

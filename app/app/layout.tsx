@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import NakuruAppBody from "@/app/app/NakuruAppBody";
+import { AppProvider } from "@/components/app/AppProvider";
 
 export const metadata: Metadata = {
   title: "NakuruHub",
@@ -12,5 +14,11 @@ export default function NakuruAppLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <NakuruAppBody>{children}</NakuruAppBody>;
+  return (
+    <NakuruAppBody>
+      <Suspense fallback={null}>
+        <AppProvider>{children}</AppProvider>
+      </Suspense>
+    </NakuruAppBody>
+  );
 }

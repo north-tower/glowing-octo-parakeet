@@ -26,6 +26,19 @@ export type Listing = {
   desc?: string;
   p: number;
   v: number;
+  /** Vendor display name when known (detail / live catalog). */
+  vn?: string;
+  /** Extra gallery URLs (demo or API). */
+  imgs?: string[];
+  /** Structured listing fields, e.g. bedrooms, mileage. */
+  attrs?: Record<string, string>;
+};
+
+export type OrderItemSnap = {
+  productId?: string | number;
+  title: string;
+  unit: number;
+  qty: number;
 };
 
 export type Order = {
@@ -38,6 +51,15 @@ export type Order = {
   /** True when synced from `POST /orders` or `GET /orders/mine`. */
   live?: boolean;
   status?: string;
+  items?: OrderItemSnap[];
+  vendor?: string;
+  vendorVerified?: boolean;
+  zone?: string;
+  address?: string;
+  fee?: number;
+  createdAt?: string;
+  /** Checkout-time UI flag: first-order delivery promo was shown as applied. */
+  promoFreeDelivery?: boolean;
 };
 
 export type VendorApplication = {

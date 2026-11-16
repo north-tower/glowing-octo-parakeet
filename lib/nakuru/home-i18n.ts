@@ -59,7 +59,137 @@ export type HomeCopyKey =
   | "productAbout"
   | "productNotFoundTitle"
   | "productNotFoundBody"
-  | "productBrowse";
+  | "productBrowse"
+  | "productShare"
+  | "productShareCopied"
+  | "productShareAria"
+  | "productBackAria"
+  | "productGalleryCount"
+  | "productPayCodDetail"
+  | "productPayMpesaDetail"
+  | "productDeliveringTo"
+  | "productDeliveryFeeHint"
+  | "productTrustUnverified"
+  | "productTrustUnverifiedTitle"
+  | "productTrustUnverifiedBody"
+  | "productMessageSeller"
+  | "productReadMore"
+  | "productReadLess"
+  | "productGoToCart"
+  | "productRequestViewing"
+  | "productRequestQuote"
+  | "productOutsideZone"
+  | "productMoreFromSeller"
+  | "productSimilar"
+  | "productViewingPrefill"
+  | "productAttrBedrooms"
+  | "productAttrMileage"
+  | "productAttrYear"
+  | "productAttrArea"
+  | "productDetails"
+  | "cartSegmentCart"
+  | "cartSegmentOrders"
+  | "cartEmptyTitle"
+  | "cartEmptyBody"
+  | "cartStartShopping"
+  | "cartOrdersEmptyTitle"
+  | "cartOrdersEmptyBody"
+  | "cartSectionItems"
+  | "cartSectionDelivery"
+  | "cartSectionPayment"
+  | "cartSectionSummary"
+  | "cartSignInPlace"
+  | "cartSignIn"
+  | "cartFirstOrderNote"
+  | "cartFirstOrderChip"
+  | "cartDeliveryFree"
+  | "cartSavedOnDevice"
+  | "cartClearSaved"
+  | "cartPlaceOrder"
+  | "cartPlacing"
+  | "cartUndo"
+  | "cartRemoved"
+  | "cartAddressError"
+  | "cartPhoneError"
+  | "cartPayMpesaTitle"
+  | "cartPayMpesaLocked"
+  | "cartPayMpesaSoon"
+  | "cartPayMpesaOk"
+  | "cartOutsideZone"
+  | "cartListingGone"
+  | "cartRemoveListing"
+  | "cartTrackOrder"
+  | "cartDeliveryCodeHint"
+  | "cartDemoNextStatus"
+  | "cartCompletedRate"
+  | "cartLiveTrackHint"
+  | "cartSubtotal"
+  | "cartDeliveryLine"
+  | "cartTotal"
+  | "cartAddressLabel"
+  | "cartAddressPlaceholder"
+  | "cartPhoneLabel"
+  | "cartPhonePlaceholder"
+  | "cartPhoneHelper"
+  | "orderGroupActive"
+  | "orderGroupPast"
+  | "orderStatusPlaced"
+  | "orderStatusAccepted"
+  | "orderStatusOut"
+  | "orderStatusDelivered"
+  | "orderStatusCancelled"
+  | "orderTrackStepPlaced"
+  | "orderTrackStepAccepted"
+  | "orderTrackStepOut"
+  | "orderTrackStepDelivered"
+  | "orderDeliveryCodeLabel"
+  | "orderDeliveryCodeRider"
+  | "orderCopyId"
+  | "orderCopyCode"
+  | "orderIdCopied"
+  | "orderCodeCopied"
+  | "orderDemoTracking"
+  | "orderMessageSeller"
+  | "orderPlacedTitle"
+  | "orderContinueShopping"
+  | "orderFirstFreeDelivery"
+  | "orderTrackBack"
+  | "orderItemsUnknown"
+  | "orderItemsMore"
+  | "accRoleBuyer"
+  | "accRoleVendor"
+  | "accStatusPending"
+  | "accStatusUnverified"
+  | "accSectionSelling"
+  | "accSectionShopping"
+  | "accSectionApp"
+  | "accMyShop"
+  | "accOrdersBuyer"
+  | "accSaved"
+  | "accHelp"
+  | "accApplicationStatus"
+  | "accApplyAgain"
+  | "accSell"
+  | "accMyOrders"
+  | "accShopAfterApproval"
+  | "accGetVerifiedTitle"
+  | "accGetVerifiedSub"
+  | "accVerifyStepId"
+  | "accVerifyStepShop"
+  | "accContactSupport"
+  | "accInstallSub"
+  | "accLanguage"
+  | "accLanguageEn"
+  | "accLanguageSw"
+  | "accLanguageSheetTitle"
+  | "accSignOut"
+  | "accSignOutConfirmTitle"
+  | "accSignOutConfirm"
+  | "accSignOutCancel"
+  | "accFooter"
+  | "accSignedOut"
+  | "accUploadPhotoAria"
+  | "accDefaultName";
 
 export type TopCategorySlug =
   | "phone"
@@ -181,6 +311,235 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
     sw: "Labda limekwisha au kiungo ni cha zamani.",
   },
   productBrowse: { en: "Browse marketplace", sw: "Vinjari soko" },
+  productShare: { en: "Share", sw: "Shiriki" },
+  productShareCopied: { en: "Link copied", sw: "Kiungo kimenakiliwa" },
+  productShareAria: { en: "Share this listing", sw: "Shiriki tangazo hili" },
+  productBackAria: { en: "Back to browse", sw: "Rudi vinjarini" },
+  productGalleryCount: { en: "Image", sw: "Picha" },
+  productPayCodDetail: {
+    en: "Pay on delivery — cash or M-Pesa to the rider",
+    sw: "Lipa ukifika — pesa taslimu au M-Pesa kwa dereva",
+  },
+  productPayMpesaDetail: {
+    en: "M-Pesa now — available at checkout when all items in your cart are from Verified vendors",
+    sw: "M-Pesa sasa — inapatikana malapo wakati bidhaa zote kwenye kikapu ni kutoka kwa wauzaji waliothibitishwa",
+  },
+  productDeliveringTo: { en: "Delivering to", sw: "Inatumwa kwa" },
+  productDeliveryFeeHint: {
+    en: "Delivery fee set by zone",
+    sw: "Ada ya usafirishaji inategemea eneo",
+  },
+  productTrustUnverified: {
+    en: "Pay on delivery only",
+    sw: "Lipa ukifika tu",
+  },
+  productTrustUnverifiedTitle: {
+    en: "Unverified seller",
+    sw: "Muuzaji asiyethibitishwa",
+  },
+  productTrustUnverifiedBody: {
+    en: "Pay on delivery — cash or M-Pesa to the rider.",
+    sw: "Lipa ukifika — pesa taslimu au M-Pesa kwa dereva.",
+  },
+  productMessageSeller: { en: "Message seller", sw: "Mtumie muuzaji" },
+  productReadMore: { en: "Read more", sw: "Soma zaidi" },
+  productReadLess: { en: "Read less", sw: "Soma kidogo" },
+  productGoToCart: { en: "Go to cart", sw: "Nenda kikapuni" },
+  productRequestViewing: { en: "Request viewing", sw: "Omba kutembelea" },
+  productRequestQuote: { en: "Request a quote", sw: "Omba bei" },
+  productOutsideZone: {
+    en: "Delivery is Nakuru only. Change your area at the top of Home.",
+    sw: "Tunapeleka Nakuru tu. Badilisha eneo lako juu ya Nyumbani.",
+  },
+  productMoreFromSeller: { en: "More from this seller", sw: "Zaidi kutoka kwa muuzaji huyu" },
+  productSimilar: { en: "Similar listings", sw: "Matangazo yanayofanana" },
+  productViewingPrefill: {
+    en: "Open Messages to follow up on your viewing request.",
+    sw: "Fungua Ujumbe kuendelea na ombi lako la kutembelea.",
+  },
+  productAttrBedrooms: { en: "Bedrooms", sw: "Vyumba" },
+  productAttrMileage: { en: "Mileage", sw: "Maili" },
+  productAttrYear: { en: "Year", sw: "Mwaka" },
+  productAttrArea: { en: "Size", sw: "Ukubwa" },
+  productDetails: { en: "Listing details", sw: "Maelezo ya tangazo" },
+  cartSegmentCart: { en: "Cart", sw: "Kikapu" },
+  cartSegmentOrders: { en: "Orders", sw: "Maagizo" },
+  cartEmptyTitle: { en: "Your cart is empty", sw: "Kikapu chako ni tupu" },
+  cartEmptyBody: {
+    en: "Add something from Shop.",
+    sw: "Ongeza kitu kutoka Duka.",
+  },
+  cartStartShopping: { en: "Start shopping", sw: "Anza ununuzi" },
+  cartOrdersEmptyTitle: { en: "No orders yet", sw: "Hakuna maagizo bado" },
+  cartOrdersEmptyBody: {
+    en: "After checkout you will see them here.",
+    sw: "Baada ya malipo utayaona hapa.",
+  },
+  cartSectionItems: { en: "Items", sw: "Bidhaa" },
+  cartSectionDelivery: { en: "Delivery details", sw: "Maelezo ya usafirishaji" },
+  cartSectionPayment: { en: "Payment", sw: "Malipo" },
+  cartSectionSummary: { en: "Summary", sw: "Muhtasari" },
+  cartSignInPlace: {
+    en: "Sign in to place your order",
+    sw: "Ingia ili kuweka agizo lako",
+  },
+  cartSignIn: { en: "Sign in", sw: "Ingia" },
+  cartFirstOrderNote: {
+    en: "Free delivery on your first order — sign in to apply",
+    sw: "Usafirishaji bure kwa agizo lako la kwanza — ingia ili utumie",
+  },
+  cartFirstOrderChip: { en: "First order offer", sw: "Ofa ya agizo la kwanza" },
+  cartDeliveryFree: { en: "Free", sw: "Bure" },
+  cartSavedOnDevice: {
+    en: "Saved on this device",
+    sw: "Imehifadhiwa kwenye kifaa hiki",
+  },
+  cartClearSaved: { en: "Clear saved details", sw: "Futa maelezo yaliyohifadhiwa" },
+  cartPlaceOrder: { en: "Place order", sw: "Weka agizo" },
+  cartPlacing: { en: "Placing order…", sw: "Inaweka agizo…" },
+  cartUndo: { en: "Undo", sw: "Tendua" },
+  cartRemoved: { en: "Removed from cart", sw: "Imeondolewa kwenye kikapu" },
+  cartAddressError: {
+    en: "Enter your delivery address (estate, street, landmark).",
+    sw: "Andika anwani yako ya usafirishaji (mtaa, barabara, alama).",
+  },
+  cartPhoneError: {
+    en: "Enter a valid Kenyan phone, e.g. 0712 345 678",
+    sw: "Andika nambari halali ya Kenya, mf. 0712 345 678",
+  },
+  cartPayMpesaTitle: { en: "M-Pesa now", sw: "M-Pesa sasa" },
+  cartPayMpesaLocked: {
+    en: "Available when all items are from Verified vendors",
+    sw: "Inapatikana wakati bidhaa zote ni kutoka kwa wauzaji waliothibitishwa",
+  },
+  cartPayMpesaSoon: { en: "Coming soon", sw: "Inakuja" },
+  cartPayMpesaOk: {
+    en: "Available: all vendors are verified",
+    sw: "Inapatikana: wauzaji wote wamethibitishwa",
+  },
+  cartOutsideZone: {
+    en: "We deliver within Nakuru only. Change your area at the top.",
+    sw: "Tunafikisha Nakuru tu. Badilisha eneo lako juu.",
+  },
+  cartListingGone: {
+    en: "This listing is no longer available.",
+    sw: "Tangazo hili halipatikani tena.",
+  },
+  cartRemoveListing: { en: "Remove", sw: "Ondoa" },
+  cartTrackOrder: { en: "Track order", sw: "Fuata agizo" },
+  cartDeliveryCodeHint: {
+    en: "Delivery code (give it to the rider)",
+    sw: "Msimbo wa usafirishaji (mpatie dereva)",
+  },
+  cartDemoNextStatus: { en: "Next status (demo)", sw: "Hatua inayofuata (majira)" },
+  cartCompletedRate: {
+    en: "Completed. Rate your vendor.",
+    sw: "Imekamilika. Kadiria muuzaji wako.",
+  },
+  cartLiveTrackHint: {
+    en: "Track updates here after the vendor accepts your order.",
+    sw: "Fuata taarifa hapa baada ya muuzaji kukubali agizo lako.",
+  },
+  cartSubtotal: { en: "Subtotal", sw: "Jumla ndogo" },
+  cartDeliveryLine: { en: "Delivery", sw: "Usafirishaji" },
+  cartTotal: { en: "Total", sw: "Jumla" },
+  cartAddressLabel: {
+    en: "Address (estate, street, landmark)",
+    sw: "Anwani (mtaa, barabara, alama)",
+  },
+  cartAddressPlaceholder: {
+    en: "e.g. Section 58, near Naivas",
+    sw: "mf. Section 58, karibu na Naivas",
+  },
+  cartPhoneLabel: {
+    en: "Phone for rider / SMS updates",
+    sw: "Simu kwa dereva / SMS",
+  },
+  cartPhonePlaceholder: { en: "0712 345 678", sw: "0712 345 678" },
+  orderGroupActive: { en: "Active", sw: "Hai" },
+  orderGroupPast: { en: "Past", sw: "Iliyopita" },
+  orderStatusPlaced: { en: "Placed", sw: "Imewekwa" },
+  orderStatusAccepted: { en: "Accepted", sw: "Imekubaliwa" },
+  orderStatusOut: { en: "Out for delivery", sw: "Njiani" },
+  orderStatusDelivered: { en: "Delivered", sw: "Imefika" },
+  orderStatusCancelled: { en: "Cancelled", sw: "Imefutwa" },
+  orderTrackStepPlaced: { en: "Placed", sw: "Imewekwa" },
+  orderTrackStepAccepted: { en: "Accepted", sw: "Imekubaliwa" },
+  orderTrackStepOut: { en: "Out for delivery", sw: "Njiani" },
+  orderTrackStepDelivered: { en: "Delivered", sw: "Imefika" },
+  orderDeliveryCodeLabel: { en: "Delivery code", sw: "Msimbo wa usafirishaji" },
+  orderDeliveryCodeRider: {
+    en: "Give this code to the rider on delivery.",
+    sw: "Mpe dereva msimbo huu wakati wa kufikisha.",
+  },
+  orderCopyId: { en: "Copy order ID", sw: "Nakili kitambulisho cha agizo" },
+  orderCopyCode: { en: "Copy delivery code", sw: "Nakili msimbo wa usafirishaji" },
+  orderIdCopied: { en: "Order ID copied", sw: "Kitambulisho cha agizo kimenakiliwa" },
+  orderCodeCopied: { en: "Delivery code copied", sw: "Msimbo wa usafirishaji umenakiliwa" },
+  orderDemoTracking: { en: "Demo tracking", sw: "Ufuatiliaji wa majira" },
+  orderMessageSeller: { en: "Message seller", sw: "Tuma ujumbe kwa muuzaji" },
+  orderPlacedTitle: { en: "Order placed", sw: "Agizo limewekwa" },
+  orderContinueShopping: { en: "Continue shopping", sw: "Endelea kununua" },
+  orderFirstFreeDelivery: {
+    en: "First order: free delivery",
+    sw: "Agizo la kwanza: usafirishaji bure",
+  },
+  orderTrackBack: { en: "Back to orders", sw: "Rudi kwa maagizo" },
+  orderItemsUnknown: { en: "Items in this order", sw: "Bidhaa katika agizo hili" },
+  orderItemsMore: { en: "{title} +{n} more", sw: "{title} +{n} zaidi" },
+  accRoleBuyer: { en: "Buyer", sw: "Mnunuzi" },
+  accRoleVendor: { en: "Vendor", sw: "Muuzaji" },
+  accStatusPending: { en: "Pending approval", sw: "Inasubiri idhini" },
+  accStatusUnverified: { en: "Unverified", sw: "Haijathibitishwa" },
+  accSectionSelling: { en: "Selling", sw: "Uuzaji" },
+  accSectionShopping: { en: "Shopping", sw: "Ununuzi" },
+  accSectionApp: { en: "App", sw: "Programu" },
+  accMyShop: { en: "My shop", sw: "Duka langu" },
+  accOrdersBuyer: { en: "Orders as buyer", sw: "Maagizo kama mnunuzi" },
+  accSaved: { en: "Saved items", sw: "Vilivyohifadhiwa" },
+  accHelp: { en: "Help and support", sw: "Msaada" },
+  accApplicationStatus: { en: "Application status", sw: "Hali ya ombi" },
+  accApplyAgain: { en: "Apply again", sw: "Omba tena" },
+  accSell: { en: "Sell on NakuruHub", sw: "Uza kwenye NakuruHub" },
+  accMyOrders: { en: "My orders", sw: "Maagizo yangu" },
+  accShopAfterApproval: {
+    en: "Available after approval",
+    sw: "Inapatikana baada ya idhini",
+  },
+  accGetVerifiedTitle: { en: "Get Verified", sw: "Pata Thibitisho" },
+  accGetVerifiedSub: {
+    en: "Unlock M-Pesa upfront on your orders.",
+    sw: "Fungua M-Pesa mapema kwa maagizo yako.",
+  },
+  accVerifyStepId: { en: "ID check", sw: "Ukaguzi wa kitambulisho" },
+  accVerifyStepShop: { en: "Shop check", sw: "Ukaguzi wa duka" },
+  accContactSupport: { en: "Contact support", sw: "Wasiliana na msaada" },
+  accInstallSub: {
+    en: "Open full-screen from your home screen.",
+    sw: "Fungua skrini nzima kutoka skrini ya nyumbani.",
+  },
+  accLanguage: { en: "Language", sw: "Lugha" },
+  accLanguageEn: { en: "English", sw: "Kiingereza" },
+  accLanguageSw: { en: "Kiswahili", sw: "Kiswahili" },
+  accLanguageSheetTitle: { en: "Language", sw: "Lugha" },
+  accSignOut: { en: "Sign out", sw: "Toka" },
+  accSignOutConfirmTitle: {
+    en: "Sign out of NakuruHub?",
+    sw: "Toka kwenye NakuruHub?",
+  },
+  accSignOutConfirm: { en: "Sign out", sw: "Toka" },
+  accSignOutCancel: { en: "Cancel", sw: "Ghairi" },
+  accFooter: { en: "NakuruHub · Nakuru, Kenya", sw: "NakuruHub · Nakuru, Kenya" },
+  accSignedOut: { en: "Signed out", sw: "Umetoka" },
+  accUploadPhotoAria: {
+    en: "Upload profile picture",
+    sw: "Pakia picha ya wasifu",
+  },
+  accDefaultName: { en: "Your account", sw: "Akaunti yako" },
+  cartPhoneHelper: {
+    en: "Used so the rider can call you — not for sign-in codes.",
+    sw: "Kwa dereva kuwapigia — si kwa kodi za kuingia.",
+  },
 };
 
 const TOP_CATEGORY_LABELS: Record<

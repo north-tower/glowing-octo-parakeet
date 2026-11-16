@@ -9,7 +9,8 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
+import { readDetailNavTab } from "@/lib/nakuru/detail-nav-tab";
 import {
   createInitialState,
   nakuruReducer,
@@ -42,6 +43,8 @@ type ProviderProps = {
 
 export function AppProvider({ children }: ProviderProps) {
   const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const onProductDetail = pathname?.startsWith("/app/p/") ?? false;
   const vendorEntry =
     searchParams.get("start") === "vendor" || searchParams.has("vendor");
 
@@ -50,6 +53,9 @@ export function AppProvider({ children }: ProviderProps) {
 
   const [state, setState] = useState(() => {
     const base = createInitialState(vendorEntry);
+    if (onProductDetail) {
+      return { ...base, tab: readDetailNavTab() };
+    }
     if (tabParam && validTabs.includes(tabParam as TabId)) {
       return { ...base, tab: tabParam as TabId };
     }

@@ -5,6 +5,9 @@ import { sendMail } from "./mailgun";
 
 const DAILY_CAP = 5;
 
+/** Dev-only: last plaintext OTP so the UI can re-show it during the 60s resend window. */
+const devPlaintextOtp = new Map<string, string>();
+
 function hmac(email: string, code: string): Buffer {
   return crypto
     .createHmac("sha256", config.otpSecret)
@@ -30,6 +33,10 @@ export async function issue(rawEmail: string): Promise<OtpIssueResult> {
     last.rows[0] &&
     Date.now() - new Date(last.rows[0].last_sent).getTime() < 60_000
   ) {
+    if (config.otpDevOnScreen) {
+      const cached = devPlaintextOtp.get(email);
+      if (cached) return { devCode: cached };
+    }
     return {};
   }
 
@@ -62,7 +69,11 @@ export async function issue(rawEmail: string): Promise<OtpIssueResult> {
     text: `Your code is ${code}. Valid for 5 minutes. Never share it.`,
   });
 
-  return config.otpDevOnScreen ? { devCode: code } : {};
+  if (config.otpDevOnScreen) {
+    devPlaintextOtp.set(email, code);
+    return { devCode: code };
+  }
+  return {};
 }
 
 export async function check(rawEmail: string, code: string): Promise<boolean> {

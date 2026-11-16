@@ -1,53 +1,116 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from "react";
 import { useAuth } from "@/components/app/AppAuthProvider";
 import { useNakuruApp } from "@/components/app/AppProvider";
-import { STAT } from "@/lib/nakuru/data/constants";
-import { PHONE_REGEX } from "@/lib/nakuru/data/constants";
+import { ZoneSheet } from "@/components/app/ZoneSheet";
+import { CartDeliveryForm, validateCheckoutFields } from "@/components/app/cart/CartDeliveryForm";
+import { CartItemMissing, CartItemRow } from "@/components/app/cart/CartItemRow";
+import { CartOrdersList } from "@/components/app/cart/CartOrdersList";
+import { OrderPlacedSuccess } from "@/components/app/cart/OrderPlacedSuccess";
+import { OrderTrackView } from "@/components/app/cart/OrderTrackView";
+import { CartPaymentOptions } from "@/components/app/cart/CartPaymentOptions";
+import { CartPromoRow } from "@/components/app/cart/CartPromoRow";
+import { CartSummary, cartDisplayTotal } from "@/components/app/cart/CartSummary";
+import { IconShoppingCart } from "@/components/app/icons/LineIcons";
+import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
+import { firstOrderPromoState } from "@/lib/nakuru/cart-first-order";
+import {
+  clearCheckoutFields,
+  hasCheckoutFieldsSaved,
+  readCheckoutAddress,
+  readCheckoutPhone,
+  writeCheckoutFields,
+} from "@/lib/nakuru/cart-checkout-storage";
+import { isLiveCatalogEnabled } from "@/lib/nakuru/catalog-live";
+import { isOutsideArea } from "@/lib/nakuru/area";
 import { itemById } from "@/lib/nakuru/data/items";
 import { ZONES } from "@/lib/nakuru/data/zones";
-import { isOutsideArea } from "@/lib/nakuru/area";
-import { isLiveCatalogEnabled } from "@/lib/nakuru/catalog-live";
+import { homeCopy } from "@/lib/nakuru/home-i18n";
+import { kes } from "@/lib/nakuru/format";
 import {
   apiOrderToUi,
   checkoutErrorMessage,
   fetchMyOrders,
   placeOrder,
 } from "@/lib/nakuru/orders";
+import { consumeOpenCartSegment } from "@/lib/nakuru/post-cart-segment";
+import { requestPostSignInTab } from "@/lib/nakuru/post-sign-in-tab";
+import { requestInstallRetrigger } from "@/lib/nakuru/pwa-engage";
 import {
+  buildDemoPlaceOrder,
   cartSubtotal,
   effectivePay,
 } from "@/lib/nakuru/reducer";
-import { kes } from "@/lib/nakuru/format";
-import { requestInstallRetrigger } from "@/lib/nakuru/pwa-engage";
+import type { Order } from "@/lib/nakuru/types";
+
+type CartSegment = "cart" | "orders";
+
+type UndoPayload = { id: string | number; qty: number } | null;
 
 export function CartView() {
   const { state, dispatch, toast } = useNakuruApp();
   const { user, ready: authReady } = useAuth();
+  const { lang } = usePwaInstall();
   const liveCatalog = isLiveCatalogEnabled();
 
-  const [address, setAddress] = useState("");
-  const [phone, setPhone] = useState("");
+  const [segment, setSegment] = useState<CartSegment>("cart");
+  const [zoneOpen, setZoneOpen] = useState(false);
+  const [address, setAddress] = useState(() => readCheckoutAddress());
+  const [phone, setPhone] = useState(() => readCheckoutPhone());
   const [placing, setPlacing] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<{
+    address?: string;
+    phone?: string;
+  }>({});
+  const [undo, setUndo] = useState<UndoPayload>(null);
+  const [trackingId, setTrackingId] = useState<string | number | null>(null);
+  const [placedSuccess, setPlacedSuccess] = useState<Order | null>(null);
+  const undoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const segCartRef = useRef<HTMLButtonElement>(null);
+  const segOrdersRef = useRef<HTMLButtonElement>(null);
 
   const ids = Object.keys(state.cart);
   const sub = cartSubtotal(state.cart);
   const fee = ZONES[state.area] ?? 0;
+  const outside = isOutsideArea(state.area);
 
-  let allV = true;
-  ids.forEach((id) => {
-    const item = itemById(id);
-    if (item && !item.v) allV = false;
-  });
+  const allV = useMemo(() => {
+    return ids.every((id) => {
+      const item = itemById(id);
+      return !item || item.v;
+    });
+  }, [ids]);
 
   const pay = effectivePay(state);
+  const promo = firstOrderPromoState(
+    Boolean(user),
+    state.orders.length,
+    state.area,
+  );
+  const displayTotal = cartDisplayTotal(sub, fee, promo);
+
+  const mpesaReason = !allV ? "unverified" : liveCatalog ? "soon" : null;
+  const mpesaDisabled = !allV || liveCatalog;
 
   useEffect(() => {
     if (!allV && state.pay === "mpesa") {
       dispatch({ type: "SET_PAY", pay: "cod" });
     }
   }, [allV, state.pay, dispatch]);
+
+  useEffect(() => {
+    if (state.tab !== "cart") return;
+    const openSeg = consumeOpenCartSegment();
+    if (openSeg === "orders") setSegment("orders");
+  }, [state.tab]);
 
   useEffect(() => {
     if (!liveCatalog || !authReady || !user) return;
@@ -68,28 +131,77 @@ export function CartView() {
     };
   }, [liveCatalog, authReady, user, dispatch]);
 
-  const mpesaOff = !allV || liveCatalog;
+  const savedHint = hasCheckoutFieldsSaved();
+
+  const persistCheckout = () => {
+    writeCheckoutFields(address, phone);
+  };
+
+  const clearSaved = () => {
+    clearCheckoutFields();
+    setAddress("");
+    setPhone("");
+    setFieldErrors({});
+  };
+
+  const onBlurAddress = () => {
+    persistCheckout();
+    const errs = validateCheckoutFields(address, phone, lang, liveCatalog);
+    setFieldErrors((prev) => ({
+      ...prev,
+      address: errs.address,
+    }));
+  };
+
+  const onBlurPhone = () => {
+    persistCheckout();
+    const errs = validateCheckoutFields(address, phone, lang, liveCatalog);
+    setFieldErrors((prev) => ({
+      ...prev,
+      phone: errs.phone,
+    }));
+  };
+
+  const onRemoved = (id: string | number, qty: number) => {
+    setUndo({ id, qty });
+    if (undoTimer.current) clearTimeout(undoTimer.current);
+    undoTimer.current = setTimeout(() => setUndo(null), 4000);
+  };
+
+  const undoRemove = () => {
+    if (!undo) return;
+    for (let i = 0; i < undo.qty; i += 1) {
+      dispatch({ type: "CART_INC", id: String(undo.id) });
+    }
+    setUndo(null);
+    if (undoTimer.current) clearTimeout(undoTimer.current);
+  };
+
+  const openPlacedSuccess = useCallback((created: Order[]) => {
+    if (created[0]) setPlacedSuccess(created[0]);
+    setTrackingId(null);
+    setSegment("orders");
+  }, []);
 
   const placeDemoOrder = useCallback(() => {
+    const preview = buildDemoPlaceOrder(state);
+    if (!preview) return;
     dispatch({ type: "PLACE_ORDER" });
-  }, [dispatch]);
+    const order =
+      promo === "eligible"
+        ? { ...preview, promoFreeDelivery: true }
+        : preview;
+    openPlacedSuccess([order]);
+  }, [dispatch, openPlacedSuccess, promo, state]);
 
   const placeLiveOrder = useCallback(async () => {
+    const errs = validateCheckoutFields(address, phone, lang, true);
+    setFieldErrors(errs);
+    if (Object.keys(errs).length) return;
+
     if (!user) {
-      toast("Sign in on the Account tab to check out.");
+      requestPostSignInTab("cart");
       dispatch({ type: "SET_TAB", tab: "acc" });
-      return;
-    }
-
-    const addr = address.trim();
-    if (addr.length < 3) {
-      toast("Enter your delivery address (estate, street, landmark).");
-      return;
-    }
-
-    const rawPhone = phone.replace(/[\s-]/g, "");
-    if (rawPhone && !PHONE_REGEX.test(rawPhone)) {
-      toast("Enter a valid Kenyan phone, e.g. 0712 345 678");
       return;
     }
 
@@ -104,6 +216,7 @@ export function CartView() {
     }
 
     const payment = pay === "mpesa" && allV && !liveCatalog ? "mpesa" : "cod";
+    const rawPhone = phone.replace(/[\s-]/g, "");
 
     setPlacing(true);
     try {
@@ -111,21 +224,24 @@ export function CartView() {
         items,
         zone: state.area,
         payment,
-        address: addr,
+        address: address.trim(),
         ...(rawPhone ? { phone: rawPhone } : {}),
       });
-      const ui = created.map(apiOrderToUi);
+      const wasPromo = promo === "eligible";
+      const ui = created.map((row) => {
+        const base = apiOrderToUi(row);
+        return {
+          ...base,
+          promoFreeDelivery: wasPromo,
+          address: address.trim(),
+        };
+      });
       dispatch({ type: "CLEAR_CART" });
       dispatch({ type: "APPEND_ORDERS", orders: ui });
-      const label =
-        created.length === 1
-          ? `Order placed · #${created[0]!.id.slice(0, 8)}`
-          : `${created.length} orders placed`;
-      toast(label);
+      toast(homeCopy("orderPlacedTitle", lang));
       requestInstallRetrigger();
       window.dispatchEvent(new Event("nh:engage"));
-      setAddress("");
-      setPhone("");
+      openPlacedSuccess(ui);
     } catch (err) {
       toast(checkoutErrorMessage(err));
     } finally {
@@ -135,6 +251,7 @@ export function CartView() {
     user,
     address,
     phone,
+    lang,
     ids,
     state.cart,
     state.area,
@@ -143,244 +260,299 @@ export function CartView() {
     liveCatalog,
     dispatch,
     toast,
+    promo,
+    openPlacedSuccess,
   ]);
 
   const onPlaceOrder = () => {
-    if (isOutsideArea(state.area) || !ids.length) return;
+    if (outside || !ids.length) return;
+
     if (liveCatalog) {
+      if (!user) return;
+      const errs = validateCheckoutFields(address, phone, lang, true);
+      setFieldErrors(errs);
+      if (Object.keys(errs).length) return;
       void placeLiveOrder();
     } else {
       placeDemoOrder();
     }
   };
 
+  const onSignIn = () => {
+    requestPostSignInTab("cart");
+    dispatch({ type: "SET_TAB", tab: "acc" });
+  };
+
+  const onMpesaDisabled = () => {
+    toast(
+      liveCatalog
+        ? homeCopy("cartPayMpesaSoon", lang)
+        : homeCopy("cartPayMpesaLocked", lang),
+    );
+  };
+
+  const formValid =
+    Object.keys(validateCheckoutFields(address, phone, lang, liveCatalog))
+      .length === 0;
+
+  const canPlace =
+    ids.length > 0 &&
+    !outside &&
+    !placing &&
+    (!liveCatalog || (Boolean(user) && formValid));
+
+  const ordersCount = state.orders.length;
+  const signedOutLive = liveCatalog && authReady && !user;
+
+  const trackingOrder = useMemo(() => {
+    if (trackingId == null) return null;
+    return state.orders.find((o) => o.id === trackingId) ?? null;
+  }, [trackingId, state.orders]);
+
+  const onSegKeyDown = (e: KeyboardEvent) => {
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+    e.preventDefault();
+    const next: CartSegment = segment === "cart" ? "orders" : "cart";
+    setSegment(next);
+    (next === "cart" ? segCartRef : segOrdersRef).current?.focus();
+  };
+
+  const checkoutFieldDescribe = useMemo(() => {
+    const ids: string[] = [];
+    if (fieldErrors.address) ids.push("checkout-address-err");
+    if (fieldErrors.phone) ids.push("checkout-phone-err");
+    return ids.length ? ids.join(" ") : undefined;
+  }, [fieldErrors.address, fieldErrors.phone]);
+
+  const primaryEnabled = signedOutLive || canPlace;
+  const primaryLabel = placing
+    ? homeCopy("cartPlacing", lang)
+    : signedOutLive
+      ? homeCopy("cartSignInPlace", lang)
+      : homeCopy("cartPlaceOrder", lang);
+
+  const onCheckoutPrimary = () => {
+    if (signedOutLive) {
+      onSignIn();
+      return;
+    }
+    if (liveCatalog && user && !formValid) {
+      const errs = validateCheckoutFields(address, phone, lang, true);
+      setFieldErrors(errs);
+      return;
+    }
+    onPlaceOrder();
+  };
+
   return (
-    <>
-      <h2 style={{ marginTop: 0 }}>Your cart</h2>
-      {!ids.length ? (
-        <div className="m">Your cart is empty. Add something from Shop.</div>
-      ) : (
-        <>
-          {ids.map((id) => {
-            const i = itemById(id);
-            if (!i) {
-              return (
-                <div key={id} className="card row sp">
-                  <div className="m">This listing is no longer available.</div>
-                  <button
-                    type="button"
-                    className="btn s o"
-                    onClick={() => dispatch({ type: "CART_DEC", id })}
-                  >
-                    Remove
-                  </button>
-                </div>
-              );
-            }
-            const n = state.cart[id] ?? 0;
-            return (
-              <div key={id} className="card row sp">
-                <div>
-                  <div className="t">
-                    {i.e} {i.t}
-                  </div>
-                  <div className="m">{i.s}</div>
-                  <div className="pr">{kes(i.p * n)}</div>
-                </div>
-                <div className="row">
-                  <button
-                    type="button"
-                    className="btn s o"
-                    onClick={() => dispatch({ type: "CART_DEC", id })}
-                  >
-                    −
-                  </button>
-                  <b>{n}</b>
-                  <button
-                    type="button"
-                    className="btn s o"
-                    onClick={() => dispatch({ type: "CART_INC", id })}
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-          <div className="card">
-            <div className="row sp">
-              <span>Subtotal</span>
-              <span>{kes(sub)}</span>
-            </div>
-            <div className="row sp">
-              <span>Delivery to {state.area}</span>
-              <span>{kes(fee)}</span>
-            </div>
-            <div className="row sp pr">
-              <span>Total</span>
-              <span>{kes(sub + fee)}</span>
-            </div>
-          </div>
-
-          {liveCatalog ? (
-            <>
-              <h2>Delivery details</h2>
-              <label className="m" htmlFor="checkout-address">
-                Address (estate, street, landmark)
-              </label>
-              <input
-                id="checkout-address"
-                className="inp full"
-                value={address}
-                maxLength={200}
-                autoComplete="street-address"
-                onChange={(e) => setAddress(e.target.value)}
-                placeholder="e.g. Section 58, near Naivas"
-              />
-              <label className="m" htmlFor="checkout-phone" style={{ marginTop: 12 }}>
-                Phone for rider / SMS updates
-              </label>
-              <input
-                id="checkout-phone"
-                className="inp full"
-                type="tel"
-                inputMode="tel"
-                value={phone}
-                maxLength={16}
-                autoComplete="tel"
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="0712 345 678"
-              />
-              <p className="m" style={{ marginTop: 8 }}>
-                Used so the rider can call you — not for sign-in codes.
-              </p>
-              {!user && authReady ? (
-                <div className="err" style={{ marginTop: 12 }}>
-                  Sign in on the Account tab to place a live order.
-                </div>
-              ) : null}
-            </>
+    <div className="cart-view">
+      <div
+        className="cart-seg"
+        role="tablist"
+        aria-label="Cart views"
+        onKeyDown={onSegKeyDown}
+      >
+        <button
+          ref={segCartRef}
+          type="button"
+          role="tab"
+          id="cart-seg-cart"
+          aria-controls="cart-seg-panel"
+          aria-selected={segment === "cart"}
+          tabIndex={segment === "cart" ? 0 : -1}
+          className="cart-seg__item"
+          onClick={() => setSegment("cart")}
+        >
+          {homeCopy("cartSegmentCart", lang)}
+        </button>
+        <button
+          ref={segOrdersRef}
+          type="button"
+          role="tab"
+          id="cart-seg-orders"
+          aria-controls="cart-seg-panel"
+          aria-selected={segment === "orders"}
+          tabIndex={segment === "orders" ? 0 : -1}
+          className="cart-seg__item"
+          onClick={() => setSegment("orders")}
+        >
+          {homeCopy("cartSegmentOrders", lang)}
+          {ordersCount > 0 ? (
+            <span className="cart-seg__count" aria-hidden>
+              {ordersCount}
+            </span>
           ) : null}
+          {ordersCount > 0 ? (
+            <span className="sr-only">{`${ordersCount} orders`}</span>
+          ) : null}
+        </button>
+      </div>
 
-          <h2>Payment</h2>
-          <div
-            className={`pay${pay === "cod" ? " on" : ""}`}
-            role="button"
-            tabIndex={0}
-            onClick={() => dispatch({ type: "SET_PAY", pay: "cod" })}
-          >
-            <div>
-              <div className="t">Pay on delivery</div>
-              <div className="m">Cash or M-Pesa to the rider</div>
-            </div>
-          </div>
-          <div
-            className={`pay${pay === "mpesa" ? " on" : ""}${mpesaOff ? " off" : ""}`}
-            role="button"
-            tabIndex={0}
-            onClick={() => {
-              if (mpesaOff) {
-                toast(
-                  liveCatalog
-                    ? "Live checkout uses pay on delivery for now"
-                    : "M-Pesa upfront needs verified vendors only",
-                );
-                return;
-              }
-              dispatch({ type: "SET_PAY", pay: "mpesa" });
+      <div
+        id="cart-seg-panel"
+        role="tabpanel"
+        aria-labelledby={segment === "cart" ? "cart-seg-cart" : "cart-seg-orders"}
+      >
+      {segment === "orders" ? (
+        trackingOrder ? (
+          <OrderTrackView
+            lang={lang}
+            order={trackingOrder}
+            onBack={() => setTrackingId(null)}
+            onToast={toast}
+            dispatch={dispatch}
+          />
+        ) : placedSuccess ? (
+          <OrderPlacedSuccess
+            lang={lang}
+            order={placedSuccess}
+            onToast={toast}
+            onTrack={() => {
+              setPlacedSuccess(null);
+              setTrackingId(placedSuccess.id);
             }}
-          >
-            <div>
-              <div className="t">M-Pesa now</div>
-              <div className="m">
-                {liveCatalog
-                  ? "Coming soon on live orders"
-                  : allV
-                    ? "Available: all vendors are verified"
-                    : "Only for verified vendors"}
-              </div>
-            </div>
-          </div>
-          {isOutsideArea(state.area) ? (
-            <div className="err">
-              We deliver within Nakuru only. Change your area at the top.
-            </div>
-          ) : null}
+            onContinue={() => {
+              setPlacedSuccess(null);
+              dispatch({ type: "SET_TAB", tab: "cat" });
+            }}
+          />
+        ) : (
+          <CartOrdersList
+            lang={lang}
+            orders={state.orders}
+            dispatch={dispatch}
+            onTrack={(id) => setTrackingId(id)}
+            onToast={toast}
+          />
+        )
+      ) : !ids.length ? (
+        <div className="cart-empty" role="status">
+          <span className="cart-empty-icon cart-empty-icon--cart" aria-hidden>
+            <IconShoppingCart size={28} />
+          </span>
+          <h2 className="cart-empty-title">{homeCopy("cartEmptyTitle", lang)}</h2>
+          <p className="m">{homeCopy("cartEmptyBody", lang)}</p>
           <button
             type="button"
-            className="btn a full"
-            disabled={isOutsideArea(state.area) || placing}
-            onClick={onPlaceOrder}
+            className="btn a cart-empty-cta"
+            onClick={() => dispatch({ type: "SET_TAB", tab: "cat" })}
           >
-            {placing
-              ? "Placing order…"
-              : `Place order · ${kes(sub + fee)}`}
+            {homeCopy("cartStartShopping", lang)}
           </button>
-        </>
-      )}
-      <h2>Your orders</h2>
-      {!state.orders.length ? (
-        <div className="m">
-          {liveCatalog
-            ? "No orders yet. After checkout you will see them here."
-            : "No orders yet."}
+          <CartPromoRow lang={lang} />
         </div>
       ) : (
-        [...state.orders].reverse().map((o) => (
-          <div key={String(o.id)} className="card">
-            <div className="row sp">
-              <span className="t">
-                Order #{typeof o.id === "string" ? o.id.slice(0, 8) : o.id}
-              </span>
-              <span className="pr">{kes(o.total)}</span>
+        <>
+          <section className="cart-section" aria-labelledby="cart-items-heading">
+            <h2 id="cart-items-heading" className="cart-section-title">
+              {homeCopy("cartSectionItems", lang)}
+            </h2>
+            {ids.map((id) => {
+              const item = itemById(id);
+              if (!item) {
+                return (
+                  <CartItemMissing
+                    key={id}
+                    id={id}
+                    lang={lang}
+                    dispatch={dispatch}
+                  />
+                );
+              }
+              return (
+                <CartItemRow
+                  key={id}
+                  item={item}
+                  qty={state.cart[id] ?? 0}
+                  lang={lang}
+                  dispatch={dispatch}
+                  onRemoved={onRemoved}
+                />
+              );
+            })}
+          </section>
+
+          <CartDeliveryForm
+            lang={lang}
+            address={address}
+            phone={phone}
+            errors={fieldErrors}
+            savedHint={savedHint}
+            onAddress={setAddress}
+            onPhone={setPhone}
+            onBlurAddress={onBlurAddress}
+            onBlurPhone={onBlurPhone}
+            onClearSaved={clearSaved}
+          />
+
+          <CartPaymentOptions
+            lang={lang}
+            pay={pay}
+            mpesaDisabled={mpesaDisabled}
+            mpesaReason={mpesaReason}
+            onSelect={(p) => dispatch({ type: "SET_PAY", pay: p })}
+            onDisabledMpesa={onMpesaDisabled}
+          />
+
+          {outside ? (
+            <p className="cart-outside err" role="alert">
+              {homeCopy("cartOutsideZone", lang)}
+            </p>
+          ) : null}
+
+          <CartSummary
+            lang={lang}
+            area={state.area}
+            subtotal={sub}
+            fee={fee}
+            promo={promo}
+            onZoneClick={() => setZoneOpen(true)}
+          />
+
+          <div
+            className="cart-checkout-bar"
+            role="region"
+            aria-label={homeCopy("cartPlaceOrder", lang)}
+          >
+            <div className="cart-checkout-total">
+              <span className="m">{homeCopy("cartTotal", lang)}</span>
+              <span className="cart-checkout-total-val">{kes(displayTotal)}</span>
             </div>
-            <div className="m">
-              {o.pay}
-              {o.live && o.status ? ` · ${o.status.replaceAll("_", " ")}` : null}
-              {!o.live ? ` · ${STAT[o.s]}` : null}
-            </div>
-            {!o.live ? (
-              <div className="steps">
-                {STAT.map((_, k) => (
-                  <i key={k} className={k <= o.s ? "d" : ""} />
-                ))}
-              </div>
-            ) : null}
-            {!o.live && o.s < 4 ? (
-              <>
-                <div className="m">
-                  Delivery code: <b>{o.code}</b> (give it to the rider)
-                </div>
-                <button
-                  type="button"
-                  className="btn s o"
-                  style={{ marginTop: 8 }}
-                  onClick={() =>
-                    dispatch({ type: "ADV_ORDER", id: o.id })
-                  }
-                >
-                  Next status (demo)
-                </button>
-              </>
-            ) : null}
-            {o.live && o.status !== "delivered" && o.status !== "cancelled" ? (
-              <>
-                {o.code && o.code !== "----" ? (
-                  <div className="m">
-                    Delivery code: <b>{o.code}</b> (give it to the rider)
-                  </div>
-                ) : null}
-                <div className="m" style={{ marginTop: 8 }}>
-                  Track updates here after the vendor accepts your order.
-                </div>
-              </>
-            ) : null}
-            {!o.live && o.s >= 4 ? (
-              <div className="m">Completed. Rate your vendor.</div>
-            ) : null}
+            <button
+              type="button"
+              className="btn cart-checkout-cta"
+              disabled={!primaryEnabled}
+              aria-busy={placing || undefined}
+              aria-describedby={
+                !primaryEnabled && checkoutFieldDescribe
+                  ? checkoutFieldDescribe
+                  : undefined
+              }
+              onClick={onCheckoutPrimary}
+            >
+              {primaryLabel}
+            </button>
           </div>
-        ))
+        </>
       )}
-    </>
+      </div>
+
+      <ZoneSheet
+        open={zoneOpen}
+        area={state.area}
+        lang={lang}
+        onClose={() => setZoneOpen(false)}
+        onSelect={(zone) => dispatch({ type: "SET_AREA", area: zone })}
+      />
+
+      {undo ? (
+        <div className="cart-undo toast cart-undo--visible" role="status">
+          <span>{homeCopy("cartRemoved", lang)}</span>
+          <button type="button" className="cart-undo-btn" onClick={undoRemove}>
+            {homeCopy("cartUndo", lang)}
+          </button>
+        </div>
+      ) : null}
+    </div>
   );
 }

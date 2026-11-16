@@ -32,6 +32,9 @@ type DemoProduct = {
   priceKes: number;
   description?: string;
   stock?: number | null;
+  imageUrl?: string | null;
+  galleryUrls?: string[];
+  attributes?: Record<string, string>;
 };
 
 const DEMO_CATALOG: DemoProduct[] = [
@@ -55,7 +58,15 @@ const DEMO_CATALOG: DemoProduct[] = [
     title: "Phone charger",
     emoji: "smartphone",
     priceKes: 450,
+    description:
+      "Dual USB wall adapter with 1.2 m braided cable, fits Type-C and Micro-USB phones. Tested in-shop before dispatch. Nakuru CBD same-day drop-off when you order before 4 p.m.",
     stock: 30,
+    imageUrl:
+      "https://images.unsplash.com/photo-1583863788434-e58a363049cf?w=900&auto=format&fit=crop&q=80",
+    galleryUrls: [
+      "https://images.unsplash.com/photo-1583863788434-e58a363049cf?w=900&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1591290618608-c70f23c9d94f?w=900&auto=format&fit=crop&q=80",
+    ],
   },
   {
     ownerKey: "gilani",
@@ -103,6 +114,26 @@ const DEMO_CATALOG: DemoProduct[] = [
     priceKes: 1250000,
     description: "68,000 km",
     stock: null,
+  },
+  {
+    ownerKey: "mama",
+    vendorName: "Mama Fashions",
+    verified: true,
+    categories: ["shop"],
+    category: "shop",
+    title: "Kitenge two-piece — QA showcase",
+    emoji: "shirt",
+    priceKes: 3000,
+    description:
+      "Bright cotton kitenge set sized M–L. Freshly steamed, Nakuru CBD pickup or delivery. Ideal for church, weddings, or office Fridays.",
+    stock: 8,
+    imageUrl:
+      "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=900&auto=format&fit=crop&q=80",
+    galleryUrls: [
+      "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=900&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1583496661161-f2a7ab7da53c?w=900&auto=format&fit=crop&q=80",
+    ],
+    attributes: { year: "2024", area: "M–L" },
   },
 ];
 
@@ -188,10 +219,18 @@ async function ensureProduct(
   );
   if (exists.rows[0]?.id) return "skipped";
 
+  const gallery = row.galleryUrls?.length
+    ? row.galleryUrls
+    : row.imageUrl
+      ? [row.imageUrl]
+      : [];
+  /** Leave null when no photo — app renders tinted category icon, not a fallback screenshot. */
+  const primary = row.imageUrl ?? null;
   await db.q(
     `insert into products (
-       vendor_id, category, title, description, emoji, price_kes, stock, active, image_url
-     ) values ($1, $2, $3, $4, $5, $6, $7, true, null)`,
+       vendor_id, category, title, description, emoji, price_kes, stock, active,
+       image_url, gallery_urls, attributes
+     ) values ($1, $2, $3, $4, $5, $6, $7, true, $8, $9::text[], $10::jsonb)`,
     [
       vendorId,
       row.category,
@@ -200,6 +239,9 @@ async function ensureProduct(
       row.emoji,
       row.priceKes,
       row.stock ?? null,
+      primary,
+      gallery,
+      JSON.stringify(row.attributes ?? {}),
     ],
   );
   return "inserted";

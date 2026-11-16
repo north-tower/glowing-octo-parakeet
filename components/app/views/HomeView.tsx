@@ -199,6 +199,7 @@ export function HomeView() {
               <ProductCard
                 key={String(i.id)}
                 item={i}
+                navOriginTab="home"
                 serviceInquiryEnabled={serviceInquiryEnabled}
                 onAct={onAct}
               />
@@ -387,6 +388,7 @@ export function HomeView() {
             <ProductCard
               key={String(i.id)}
               item={i}
+              navOriginTab="home"
               serviceInquiryEnabled={serviceInquiryEnabled}
               onAct={onAct}
             />
@@ -399,7 +401,12 @@ export function HomeView() {
           {demoItems()
             .slice(0, 8)
             .map((i) => (
-              <ProductCard key={i.id} item={i} onAct={onAct} />
+              <ProductCard
+                key={i.id}
+                item={i}
+                navOriginTab="home"
+                onAct={onAct}
+              />
             ))}
         </div>
       )}

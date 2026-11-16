@@ -13,6 +13,11 @@ import {
   IconUser,
 } from "@/components/app/icons/LineIcons";
 import { APP_TAB_IDS } from "@/lib/nakuru/app-tabs";
+import {
+  appHrefForDetailNavTab,
+  bottomNavHighlightTab,
+  persistDetailNavTab,
+} from "@/lib/nakuru/detail-nav-tab";
 import { homeCopy, type HomeCopyKey } from "@/lib/nakuru/home-i18n";
 import { cartCount } from "@/lib/nakuru/reducer";
 import type { TabId } from "@/lib/nakuru/types";
@@ -47,6 +52,7 @@ export function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
   const onDetailRoute = pathname?.startsWith("/app/p/");
+  const highlightTab = bottomNavHighlightTab(state.tab, onDetailRoute);
   const cartN = cartCount(state.cart);
   const msgUnread =
     "msgUnread" in state &&
@@ -65,7 +71,7 @@ export function BottomNav() {
         </span>
       </div>
       {APP_TAB_IDS.map((id) => {
-        const active = state.tab === id;
+        const active = highlightTab === id;
         const Icon = TAB_ICONS[id];
         const badge =
           id === "cart"
@@ -83,8 +89,14 @@ export function BottomNav() {
             aria-current={active ? "page" : undefined}
             onClick={() => {
               if (onDetailRoute) {
-                const qs = id === "home" ? "" : `?tab=${id}`;
-                router.push(`/app${qs}`);
+                persistDetailNavTab(id);
+                router.push(
+                  id === "home" || id === "cat"
+                    ? appHrefForDetailNavTab(
+                        id === "cat" ? "cat" : "home",
+                      )
+                    : `/app?tab=${id}`,
+                );
               }
               dispatch({ type: "SET_TAB", tab: id });
             }}

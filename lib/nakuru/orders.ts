@@ -52,6 +52,17 @@ export function apiOrderToUi(o: ApiOrder): Order {
     code: o.code ?? "----",
     live: true,
     status: o.status,
+    items: o.items.map((i) => ({
+      productId: i.productId,
+      title: i.title,
+      unit: i.unit,
+      qty: i.qty,
+    })),
+    vendor: o.vendor ?? undefined,
+    zone: o.zone,
+    address: o.address,
+    fee: o.fee,
+    createdAt: o.createdAt,
   };
 }
 

@@ -1,9 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useMyVendorProfile } from "@/components/app/useMyVendorProfile";
 import { useNakuruApp } from "@/components/app/AppProvider";
-import { accountHeaderVendorLine } from "@/lib/nakuru/vendor-profile";
 import { CATS, SOON } from "@/lib/nakuru/data/constants";
 import { homeCategoryLabel, homeCopy } from "@/lib/nakuru/home-i18n";
 import type { CategoryId } from "@/lib/nakuru/types";
@@ -20,9 +18,6 @@ import {
 export function AppHeader() {
   const { state, dispatch, toast } = useNakuruApp();
   const { lang } = usePwaInstall();
-  const { profile: vendorProfile } = useMyVendorProfile();
-  const vendorBanner =
-    state.tab === "acc" ? accountHeaderVendorLine(vendorProfile) : null;
   const [qLocal, setQLocal] = useState(state.q);
   const [zoneOpen, setZoneOpen] = useState(false);
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -87,11 +82,6 @@ export function AppHeader() {
           <IconChevronDown size={18} />
         </button>
       </div>
-      {vendorBanner ? (
-        <p className="acc-hd-banner" role="status">
-          {vendorBanner}
-        </p>
-      ) : null}
       <form
         className="search"
         onSubmit={(e) => {

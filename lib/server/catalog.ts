@@ -9,8 +9,11 @@ export type PublicListingRow = {
   description: string | null;
   emoji: string;
   imageUrl: string | null;
+  galleryUrls: string[];
+  attributes: Record<string, string>;
   price: number;
   vendor: string;
+  vendorId: string;
   verified: boolean;
 };
 
@@ -25,7 +28,9 @@ export async function listPublicListings(
 
   const r = await q<PublicListingRow>(
     `select p.id, p.category, p.title, p.description, p.emoji, p.image_url as "imageUrl",
-            p.price_kes::int price, v.name vendor, v.verified
+            coalesce(p.gallery_urls, '{}') as "galleryUrls",
+            coalesce(p.attributes, '{}')::jsonb as attributes,
+            p.price_kes::int price, v.name vendor, v.id as "vendorId", v.verified
      from products p
      join vendors v on v.id = p.vendor_id
      where p.active
@@ -44,7 +49,9 @@ export async function getPublicListingById(
 ): Promise<PublicListingRow | null> {
   const r = await q<PublicListingRow>(
     `select p.id, p.category, p.title, p.description, p.emoji, p.image_url as "imageUrl",
-            p.price_kes::int price, v.name vendor, v.verified
+            coalesce(p.gallery_urls, '{}') as "galleryUrls",
+            coalesce(p.attributes, '{}')::jsonb as attributes,
+            p.price_kes::int price, v.name vendor, v.id as "vendorId", v.verified
      from products p
      join vendors v on v.id = p.vendor_id
      where p.id = $1::uuid

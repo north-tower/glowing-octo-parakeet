@@ -13,7 +13,9 @@ import {
 import { useNakuruApp } from "@/components/app/AppProvider";
 import {
   LANDING_LANG_KEY,
+  applyLang,
   readStoredLang,
+  storeLang,
   type LandingLang,
 } from "@/lib/nakuru/i18n";
 import { installCopy } from "@/lib/nakuru/pwa-install-i18n";
@@ -40,6 +42,7 @@ type BeforeInstallPromptEvent = Event & {
 
 type InstallContextValue = {
   lang: LandingLang;
+  setLang: (lang: LandingLang) => void;
   t: (key: Parameters<typeof installCopy>[0]) => string;
   platform: InstallPlatform;
   standalone: boolean;
@@ -83,6 +86,12 @@ export function InstallProvider({ children }: { children: ReactNode }) {
       return;
     }
     setHomeCardVisible(canShowInstallCard());
+  }, []);
+
+  const setLangChoice = useCallback((next: LandingLang) => {
+    storeLang(next);
+    setLang(next);
+    applyLang(next);
   }, []);
 
   const t = useCallback(
@@ -199,6 +208,7 @@ export function InstallProvider({ children }: { children: ReactNode }) {
   const value = useMemo<InstallContextValue>(
     () => ({
       lang,
+      setLang: setLangChoice,
       t,
       platform,
       standalone,
@@ -209,6 +219,7 @@ export function InstallProvider({ children }: { children: ReactNode }) {
     }),
     [
       lang,
+      setLangChoice,
       t,
       platform,
       standalone,

@@ -8,8 +8,11 @@ export type ApiListing = {
   description?: string | null;
   emoji: string;
   imageUrl?: string | null;
+  galleryUrls?: string[];
+  attributes?: Record<string, string>;
   price: number;
   vendor: string;
+  vendorId?: string;
   verified: boolean;
 };
 
@@ -18,15 +21,20 @@ export function toProductCardItem(api: ApiListing): Listing {
     api.category === "services" && api.description
       ? api.description
       : api.vendor;
+  const gallery = (api.galleryUrls ?? []).filter(Boolean);
+  const img = api.imageUrl || gallery[0] || undefined;
   return {
     id: api.id,
     c: api.category as CategoryId,
     e: api.emoji || "📦",
-    img: api.imageUrl || undefined,
+    img,
+    imgs: gallery.length ? gallery : img ? [img] : undefined,
     t: api.title,
     s: subtitle,
     desc: api.description ?? undefined,
     p: api.price,
     v: api.verified ? 1 : 0,
+    vn: api.vendor,
+    attrs: api.attributes,
   };
 }
