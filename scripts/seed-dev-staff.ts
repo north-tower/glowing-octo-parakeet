@@ -32,8 +32,9 @@ if (!parsed.success || password.length < 12) {
   process.exit(1);
 }
 
+const staffEmail = parsed.data;
+
 async function main() {
-  const staffEmail = parsed.data;
   const { totpSecret } = await upsertStaffUser(staffEmail, "admin", password);
 
   console.log(`Dev staff ready: ${staffEmail} (admin). Sign in at /staff`);

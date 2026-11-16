@@ -291,7 +291,6 @@ export function AccountSignedInView({
         {shopping.map((row) => (
           <AccountMenuRowButton
             key={row.actionId}
-            lang={lang}
             row={{
               icon: row.icon,
               label: homeCopy(row.labelKey, lang),
