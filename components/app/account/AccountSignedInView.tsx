@@ -13,6 +13,7 @@ import {
   type AccountRowIcon,
   type VendorAccountSummary,
 } from "@/lib/nakuru/vendor-profile";
+import { useAssistantUi } from "@/components/app/assistant/AssistantUiProvider";
 import { homeCopy } from "@/lib/nakuru/home-i18n";
 import { APP_VERSION } from "@/lib/nakuru/app-meta";
 import { requestOpenCartSegment } from "@/lib/nakuru/post-cart-segment";
@@ -160,6 +161,7 @@ export function AccountSignedInView({
   onDispatchRow,
   onSignOut,
 }: Props) {
+  const { openAssistant } = useAssistantUi();
   const [langOpen, setLangOpen] = useState(false);
   const [signOutOpen, setSignOutOpen] = useState(false);
 
@@ -306,6 +308,19 @@ export function AccountSignedInView({
         {homeCopy("accSectionApp", lang)}
       </h3>
       <div className="acc-menu-group card">
+        <AccountMenuRowButton
+          row={{
+            icon: "lifebuoy",
+            label: homeCopy("assistantEntryHelp", lang),
+            sub:
+              lang === "sw"
+                ? "Maswali kuhusu malipo na usafirishaji"
+                : "Questions about payments and delivery",
+          }}
+          onActivate={() =>
+            openAssistant({ screen: "help", source: "account-help" })
+          }
+        />
         {!standalone ? (
           <AccountMenuRowButton
             row={{
@@ -329,7 +344,9 @@ export function AccountSignedInView({
             icon: "lifebuoy",
             label: homeCopy("accHelp", lang),
           }}
-          onActivate={() => onDispatchRow("acc:help")}
+          onActivate={() =>
+            openAssistant({ screen: "help", source: "account-help-row" })
+          }
         />
       </div>
     </section>

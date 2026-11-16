@@ -39,6 +39,8 @@ import { useListingAct } from "@/lib/nakuru/use-listing-act";
 import { recordProductOpen } from "@/lib/nakuru/pwa-engage";
 import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
 import { useNakuruApp } from "@/components/app/AppProvider";
+import { AssistantEntryChip } from "@/components/app/assistant/AssistantEntryChip";
+import { useAssistantUi } from "@/components/app/assistant/AssistantUiProvider";
 import { isOutsideArea } from "@/lib/nakuru/area";
 import {
   IconCheck,
@@ -73,6 +75,7 @@ export function ProductDetailView({ productId }: Props) {
   const router = useRouter();
   const { lang } = usePwaInstall();
   const { state, dispatch, toast } = useNakuruApp();
+  const { openAssistant } = useAssistantUi();
   const { onAct, serviceInquiryEnabled, inquiryModal } = useListingAct();
   const live = isLiveCatalogEnabled();
 
@@ -504,6 +507,23 @@ export function ProductDetailView({ productId }: Props) {
               </div>
             </div>
           </section>
+
+          <div className="assistant-entry-row">
+            <AssistantEntryChip
+              label={homeCopy("assistantEntryProduct", lang)}
+              onClick={() =>
+                openAssistant({
+                  screen: "product",
+                  productId: String(productId),
+                  source: "product",
+                  suggestedPrompt:
+                    lang === "sw"
+                      ? "Je, muuzaji ame Verified?"
+                      : "Is this seller Verified?",
+                })
+              }
+            />
+          </div>
 
           <section
             ref={sellerSectionRef}

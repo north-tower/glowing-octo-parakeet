@@ -18,6 +18,7 @@ import {
 } from "@/lib/nakuru/reducer";
 import type { NakuruState, TabId } from "@/lib/nakuru/types";
 import { AppAuthProvider } from "@/components/app/AppAuthProvider";
+import { AssistantUiProvider } from "@/components/app/assistant/AssistantUiProvider";
 import { InstallProvider } from "@/components/app/pwa/InstallProvider";
 import { requestInstallRetrigger } from "@/lib/nakuru/pwa-engage";
 
@@ -101,7 +102,9 @@ export function AppProvider({ children }: ProviderProps) {
   return (
     <AppAuthProvider>
       <NakuruContext.Provider value={value}>
-        <InstallProvider>{children}</InstallProvider>
+        <InstallProvider>
+          <AssistantUiProvider>{children}</AssistantUiProvider>
+        </InstallProvider>
         <div
           id="toast"
           className="toast"

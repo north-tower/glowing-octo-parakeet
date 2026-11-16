@@ -29,6 +29,8 @@ import {
   SLIDE_COPY_KEYS,
 } from "@/lib/nakuru/home-i18n";
 import { CategoryTile } from "@/components/app/CategoryTile";
+import { AssistantEntryChip } from "@/components/app/assistant/AssistantEntryChip";
+import { useAssistantUi } from "@/components/app/assistant/AssistantUiProvider";
 import { VendorSellCard } from "@/components/app/VendorSellCard";
 import { HomeSectionHeader } from "@/components/app/HomeSectionHeader";
 import {
@@ -104,6 +106,7 @@ function catalogCategoryForFilter(cat: CategoryId): CategoryId | "all" {
 
 export function HomeView() {
   const { state, dispatch, toast } = useNakuruApp();
+  const { openAssistant } = useAssistantUi();
   const { lang } = usePwaInstall();
   const { onAct, serviceInquiryEnabled, inquiryModal } = useListingAct();
   const { carRef, ci, setPaused } = useHomeCarousel(state.tab === "home");
@@ -208,7 +211,28 @@ export function HomeView() {
         ) : liveCatalog ? (
           <ListingsEmpty />
         ) : (
-          <div className="m">No results. Try a different search.</div>
+          <>
+            <div className="m">
+              {lang === "sw"
+                ? "Hakuna matokeo. Jaribu utafutaji mwingine."
+                : "No results. Try a different search."}
+            </div>
+            <div className="assistant-entry-row">
+              <AssistantEntryChip
+                label={homeCopy("assistantEntrySearch", lang)}
+                onClick={() =>
+                  openAssistant({
+                    screen: "search",
+                    source: "search-empty",
+                    suggestedPrompt:
+                      lang === "sw"
+                        ? `Tafuta ${state.q || "bidhaa"}`
+                        : `Find ${state.q || "products"}`,
+                  })
+                }
+              />
+            </div>
+          </>
         )}
       </>
     );

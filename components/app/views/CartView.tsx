@@ -16,6 +16,8 @@ import { CartItemMissing, CartItemRow } from "@/components/app/cart/CartItemRow"
 import { CartOrdersList } from "@/components/app/cart/CartOrdersList";
 import { OrderPlacedSuccess } from "@/components/app/cart/OrderPlacedSuccess";
 import { OrderTrackView } from "@/components/app/cart/OrderTrackView";
+import { AssistantEntryChip } from "@/components/app/assistant/AssistantEntryChip";
+import { useAssistantUi } from "@/components/app/assistant/AssistantUiProvider";
 import { CartPaymentOptions } from "@/components/app/cart/CartPaymentOptions";
 import { CartPromoRow } from "@/components/app/cart/CartPromoRow";
 import { CartSummary, cartDisplayTotal } from "@/components/app/cart/CartSummary";
@@ -57,6 +59,7 @@ type UndoPayload = { id: string | number; qty: number } | null;
 
 export function CartView() {
   const { state, dispatch, toast } = useNakuruApp();
+  const { openAssistant } = useAssistantUi();
   const { user, ready: authReady } = useAuth();
   const { lang } = usePwaInstall();
   const liveCatalog = isLiveCatalogEnabled();
@@ -484,6 +487,22 @@ export function CartView() {
             onBlurPhone={onBlurPhone}
             onClearSaved={clearSaved}
           />
+
+          <div className="assistant-entry-row">
+            <AssistantEntryChip
+              label={homeCopy("assistantEntryCartPay", lang)}
+              onClick={() =>
+                openAssistant({
+                  screen: "cart",
+                  source: "cart",
+                  suggestedPrompt:
+                    lang === "sw"
+                      ? "Kwa nini siwezi kulipa kwa M-Pesa?"
+                      : "Why can't I pay with M-Pesa?",
+                })
+              }
+            />
+          </div>
 
           <CartPaymentOptions
             lang={lang}

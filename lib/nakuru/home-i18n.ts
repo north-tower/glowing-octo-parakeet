@@ -187,6 +187,22 @@ export type HomeCopyKey =
   | "accSignOutConfirm"
   | "accSignOutCancel"
   | "accFooter"
+  | "assistantTitle"
+  | "assistantDemoChip"
+  | "assistantClear"
+  | "assistantMenuAria"
+  | "assistantEmptyGreeting"
+  | "assistantPlaceholder"
+  | "assistantSend"
+  | "assistantStop"
+  | "assistantRetry"
+  | "assistantOffline"
+  | "assistantEntryHeader"
+  | "assistantEntryProduct"
+  | "assistantEntryCartPay"
+  | "assistantEntrySearch"
+  | "assistantEntryAccount"
+  | "assistantEntryHelp"
   | "accSignedOut"
   | "accUploadPhotoAria"
   | "accDefaultName";
@@ -539,6 +555,52 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   cartPhoneHelper: {
     en: "Used so the rider can call you — not for sign-in codes.",
     sw: "Kwa dereva kuwapigia — si kwa kodi za kuingia.",
+  },
+  assistantTitle: {
+    en: "NakuruHub Assistant",
+    sw: "Msaidizi wa NakuruHub",
+  },
+  assistantDemoChip: { en: "Demo", sw: "Demo" },
+  assistantClear: { en: "Clear chat", sw: "Futa mazungumzo" },
+  assistantMenuAria: { en: "Assistant menu", sw: "Menyu ya msaidizi" },
+  assistantEmptyGreeting: {
+    en: "Demo assistant — ask about Verified, payments, delivery, or selling.",
+    sw: "Msaidizi wa demo — uliza kuhusu Verified, malipo, usafirishaji au kuuza.",
+  },
+  assistantPlaceholder: {
+    en: "Ask a question…",
+    sw: "Uliza swali…",
+  },
+  assistantSend: { en: "Send", sw: "Tuma" },
+  assistantStop: { en: "Stop", sw: "Simama" },
+  assistantRetry: { en: "Retry", sw: "Jaribu tena" },
+  assistantOffline: {
+    en: "You're offline. The assistant needs a connection in live mode.",
+    sw: "Huna mtandao. Msaidizi anahitaji muunganisho katika hali ya mtandaoni.",
+  },
+  assistantEntryHeader: {
+    en: "Ask the assistant",
+    sw: "Uliza msaidizi",
+  },
+  assistantEntryProduct: {
+    en: "Ask about this item",
+    sw: "Uliza kuhusu bidhaa hii",
+  },
+  assistantEntryCartPay: {
+    en: "Need help with payment?",
+    sw: "Unahitaji msaada wa malipo?",
+  },
+  assistantEntrySearch: {
+    en: "Ask the assistant",
+    sw: "Uliza msaidizi",
+  },
+  assistantEntryAccount: {
+    en: "Ask the assistant",
+    sw: "Uliza msaidizi",
+  },
+  assistantEntryHelp: {
+    en: "Ask the assistant",
+    sw: "Uliza msaidizi",
   },
 };
 
