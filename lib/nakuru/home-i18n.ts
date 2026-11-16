@@ -8,6 +8,8 @@ export type HomeCopyKey =
   | "searchPlaceholder"
   | "searchSubmit"
   | "searchPhoto"
+  | "skipToContent"
+  | "homePageTitle"
   | "trustVerifiedTitle"
   | "trustVerifiedSub"
   | "trustPayTitle"
@@ -249,6 +251,11 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   },
   searchSubmit: { en: "Search", sw: "Tafuta" },
   searchPhoto: { en: "Search by photo", sw: "Tafuta kwa picha" },
+  skipToContent: { en: "Skip to content", sw: "Ruka hadi maudhui" },
+  homePageTitle: {
+    en: "NakuruHub marketplace home",
+    sw: "Nyumbani — soko la NakuruHub",
+  },
   trustVerifiedTitle: { en: "Verified vendors", sw: "Wauzaji waliothibitishwa" },
   trustVerifiedSub: { en: "ID and shop checked", sw: "Kitambulisho na duka vimekaguliwa" },
   trustPayTitle: { en: "Pay on delivery", sw: "Lipa ukifika" },

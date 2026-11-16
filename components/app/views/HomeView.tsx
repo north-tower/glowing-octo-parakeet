@@ -40,9 +40,11 @@ import {
   SlideArtVerified,
 } from "@/components/app/HomeSlideArt";
 import {
+  IconBookOpen,
+  IconChevronLeft,
+  IconChevronRight,
   IconMessageQuote,
   IconShieldCheck,
-  IconBookOpen,
   IconWallet,
 } from "@/components/app/icons/LineIcons";
 import {
@@ -50,6 +52,7 @@ import {
   isCategoryIconKey,
   type CategoryIconKey,
 } from "@/lib/nakuru/category-icons";
+import { useAppDesktopUp } from "@/lib/nakuru/use-media-query";
 
 const SLIDE_CLASS = ["sl--teal", "sl--pink", "sl--deep"] as const;
 const SLIDE_ART = [SlideArtDelivery, SlideArtProperty, SlideArtVerified] as const;
@@ -109,8 +112,19 @@ export function HomeView() {
   const { state, dispatch, toast } = useNakuruApp();
   const { openAssistant } = useAssistantUi();
   const { lang } = usePwaInstall();
+  const desktopUp = useAppDesktopUp();
   const { onAct, serviceInquiryEnabled, inquiryModal } = useListingAct();
-  const { carRef, ci, setPaused } = useHomeCarousel(state.tab === "home");
+  const { carRef, ci, setPaused, reduced } = useHomeCarousel(state.tab === "home");
+
+  const scrollCarousel = (dir: -1 | 1) => {
+    const c = carRef.current;
+    if (!c) return;
+    const next = Math.max(0, Math.min(SLIDES.length - 1, ci + dir));
+    c.scrollTo({
+      left: next * c.clientWidth,
+      behavior: reduced ? "auto" : "smooth",
+    });
+  };
   const [guideOpen, setGuideOpen] = useState(false);
   const liveCatalog = isLiveCatalogEnabled();
 
@@ -242,12 +256,34 @@ export function HomeView() {
 
   const picked = liveCatalog ? liveItems.slice(0, 8) : ITEMS.slice(0, 8);
 
-  return (
+  const quickActions = (
     <>
+      <button
+        type="button"
+        className="home-inline-action"
+        onClick={() => dispatch({ type: "QUOTE_HOME" })}
+      >
+        <IconMessageQuote size={20} />
+        {homeCopy("qaQuote", lang)}
+      </button>
+      <button
+        type="button"
+        className={`home-inline-action${guideOpen ? " on" : ""}`}
+        aria-expanded={guideOpen}
+        onClick={() => setGuideOpen((v) => !v)}
+      >
+        <IconBookOpen size={20} />
+        {homeCopy("qaGuide", lang)}
+      </button>
+    </>
+  );
+
+  return (
+    <div className="home-flow">
       {inquiryModal}
       <InstallHomeCard />
-      <div className="trust" role="group" aria-label={homeCopy("trustVerifiedTitle", lang)}>
-        <div className="trust-item">
+      <div className="trust trust--home" role="group" aria-label={homeCopy("trustVerifiedTitle", lang)}>
+        <div className="trust-item trust-tile">
           <IconShieldCheck size={20} />
           <span className="trust-copy">
             <b>{homeCopy("trustVerifiedTitle", lang)}</b>
@@ -255,7 +291,7 @@ export function HomeView() {
           </span>
         </div>
         <div className="trust-sep" aria-hidden />
-        <div className="trust-item">
+        <div className="trust-item trust-tile">
           <IconWallet size={20} />
           <span className="trust-copy">
             <b>{homeCopy("trustPayTitle", lang)}</b>
@@ -298,61 +334,83 @@ export function HomeView() {
         onClose={() => setGuideOpen(false)}
       />
       <div
-        className="car"
-        id="car"
-        ref={carRef}
+        className="home-hero-wrap"
         onPointerEnter={() => setPaused(true)}
         onPointerLeave={() => setPaused(false)}
-        onTouchStart={() => setPaused(true)}
-        onTouchEnd={() => setPaused(false)}
+        onFocusCapture={() => setPaused(true)}
+        onBlurCapture={() => setPaused(false)}
       >
-        {SLIDES.map((_, k) => {
-          const [titleKey, subKey] = SLIDE_COPY_KEYS[k]!;
-          const Art = SLIDE_ART[k]!;
-          return (
-            <div
-              key={k}
-              className={`sl ${SLIDE_CLASS[k] ?? ""}`}
-              role="button"
-              tabIndex={0}
-              onClick={() =>
-                k === 0
-                  ? dispatch({ type: "SLIDE_SHOP" })
-                  : dispatch({ type: "SLIDE_VENDOR" })
-              }
-            >
-              <div className="sl-grain" aria-hidden />
-              <div className="sl-text">
-                <b>{homeCopy(titleKey, lang)}</b>
-                <span>{homeCopy(subKey, lang)}</span>
+        <div
+          className="car car--hero"
+          id="car"
+          ref={carRef}
+          onTouchStart={() => setPaused(true)}
+          onTouchEnd={() => setPaused(false)}
+        >
+          {SLIDES.map((_, k) => {
+            const [titleKey, subKey] = SLIDE_COPY_KEYS[k]!;
+            const Art = SLIDE_ART[k]!;
+            return (
+              <div
+                key={k}
+                className={`sl ${SLIDE_CLASS[k] ?? ""}`}
+                role="button"
+                tabIndex={0}
+                onClick={() =>
+                  k === 0
+                    ? dispatch({ type: "SLIDE_SHOP" })
+                    : dispatch({ type: "SLIDE_VENDOR" })
+                }
+              >
+                <div className="sl-grain" aria-hidden />
+                <div className="sl-text">
+                  <b>{homeCopy(titleKey, lang)}</b>
+                  <span>{homeCopy(subKey, lang)}</span>
+                </div>
+                <Art />
               </div>
-              <Art />
-            </div>
-          );
-        })}
-      </div>
-      <div
-        className="car-pill"
-        role="tablist"
-        aria-label={homeCopy("slide0Title", lang)}
-      >
-        {SLIDES.map((_, k) => (
-          <button
-            key={k}
-            type="button"
-            role="tab"
-            aria-selected={k === ci}
-            className={k === ci ? "on" : ""}
-            onClick={() => {
-              const c = carRef.current;
-              if (!c) return;
-              c.scrollTo({
-                left: k * c.clientWidth,
-                behavior: "smooth",
-              });
-            }}
-          />
-        ))}
+            );
+          })}
+        </div>
+        <button
+          type="button"
+          className="car-arrow car-arrow--prev"
+          aria-label={lang === "sw" ? "Tangazo lililopita" : "Previous slide"}
+          onClick={() => scrollCarousel(-1)}
+        >
+          <IconChevronLeft size={24} />
+        </button>
+        <button
+          type="button"
+          className="car-arrow car-arrow--next"
+          aria-label={lang === "sw" ? "Tangazo linalofuata" : "Next slide"}
+          onClick={() => scrollCarousel(1)}
+        >
+          <IconChevronRight size={24} />
+        </button>
+        <div
+          className="car-pill"
+          role="tablist"
+          aria-label={homeCopy("slide0Title", lang)}
+        >
+          {SLIDES.map((_, k) => (
+            <button
+              key={k}
+              type="button"
+              role="tab"
+              aria-selected={k === ci}
+              className={k === ci ? "on" : ""}
+              onClick={() => {
+                const c = carRef.current;
+                if (!c) return;
+                c.scrollTo({
+                  left: k * c.clientWidth,
+                  behavior: reduced ? "auto" : "smooth",
+                });
+              }}
+            />
+          ))}
+        </div>
       </div>
       {!liveCatalog ? (
         <div className="rank">
@@ -389,6 +447,7 @@ export function HomeView() {
       <HomeSectionHeader
         titleKey="topCategories"
         lang={lang}
+        actions={desktopUp ? quickActions : undefined}
         seeAll={{
           onClick: () => dispatch({ type: "SET_TAB", tab: "cat" }),
         }}
@@ -416,7 +475,7 @@ export function HomeView() {
       ) : error && liveCatalog ? (
         <div className="err">{error}</div>
       ) : picked.length ? (
-        <div className="g2">
+        <div className="g2 home-picked-grid">
           {picked.map((i) => (
             <ProductCard
               key={String(i.id)}
@@ -430,7 +489,7 @@ export function HomeView() {
       ) : liveCatalog ? (
         <ListingsEmpty />
       ) : (
-        <div className="g2">
+        <div className="g2 home-picked-grid">
           {demoItems()
             .slice(0, 8)
             .map((i) => (
@@ -443,6 +502,6 @@ export function HomeView() {
             ))}
         </div>
       )}
-    </>
+    </div>
   );
 }

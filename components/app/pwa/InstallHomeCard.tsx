@@ -19,12 +19,12 @@ export function InstallHomeCard() {
 
   return (
     <div
-      className={`pwa-install-slot${show ? " is-open" : ""}`}
+      className={`pwa-install-slot pwa-install-slot--home${show ? " is-open" : ""}`}
       aria-live="polite"
       aria-hidden={!show}
     >
       {show ? (
-      <div className="pwa-install-card card">
+      <div className="pwa-install-card pwa-install-card--home card">
         <div className="pwa-install-card-img" aria-hidden>
           <BrandLogoMark size={36} />
         </div>

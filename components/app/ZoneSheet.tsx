@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef } from "react";
+import type { RefObject } from "react";
 import { ZONES } from "@/lib/nakuru/data/zones";
 import { homeCopy } from "@/lib/nakuru/home-i18n";
 import type { LandingLang } from "@/lib/nakuru/i18n";
@@ -12,6 +13,8 @@ type Props = {
   lang: LandingLang;
   onClose: () => void;
   onSelect: (zone: string) => void;
+  variant?: "sheet" | "popover";
+  anchorRef?: RefObject<HTMLElement | null>;
 };
 
 function trapFocus(container: HTMLElement, e: KeyboardEvent) {
@@ -34,8 +37,93 @@ function trapFocus(container: HTMLElement, e: KeyboardEvent) {
 const IN_ZONE = Object.keys(ZONES).filter((z) => !z.startsWith("Outside"));
 const OUTSIDE = Object.keys(ZONES).find((z) => z.startsWith("Outside"));
 
-export function ZoneSheet({ open, area, lang, onClose, onSelect }: Props) {
+function ZoneOptions({
+  area,
+  lang,
+  onSelect,
+  onClose,
+}: {
+  area: string;
+  lang: LandingLang;
+  onSelect: (zone: string) => void;
+  onClose: () => void;
+}) {
   const titleId = useId();
+  return (
+    <>
+      <h2 id={titleId} className="pwa-sheet-title">
+        {homeCopy("zoneSheetTitle", lang)}
+      </h2>
+      <ul
+        className="zone-sheet-list"
+        role="listbox"
+        aria-label={homeCopy("zoneSheetTitle", lang)}
+      >
+        {IN_ZONE.map((z) => {
+          const selected = z === area;
+          return (
+            <li key={z} role="none">
+              <button
+                type="button"
+                role="option"
+                aria-selected={selected}
+                className={`zone-sheet-row${selected ? " is-selected" : ""}`}
+                onClick={() => {
+                  onSelect(z);
+                  onClose();
+                }}
+              >
+                <span className="zone-sheet-label">{z}</span>
+                {selected ? (
+                  <span className="zone-sheet-check" aria-hidden>
+                    <IconCheck size={20} />
+                  </span>
+                ) : null}
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+      {OUTSIDE ? (
+        <>
+          <div className="zone-sheet-divider" role="separator" />
+          <button
+            type="button"
+            className={`zone-sheet-row zone-sheet-row--waitlist${
+              area === OUTSIDE ? " is-selected" : ""
+            }`}
+            onClick={() => {
+              onSelect(OUTSIDE);
+              onClose();
+            }}
+          >
+            <span className="zone-sheet-label">
+              <span className="zone-sheet-wait-name">{OUTSIDE}</span>
+              <span className="zone-sheet-wait-hint m">
+                {homeCopy("zoneWaitlistHint", lang)}
+              </span>
+            </span>
+            {area === OUTSIDE ? (
+              <span className="zone-sheet-check" aria-hidden>
+                <IconCheck size={20} />
+              </span>
+            ) : null}
+          </button>
+        </>
+      ) : null}
+    </>
+  );
+}
+
+export function ZoneSheet({
+  open,
+  area,
+  lang,
+  onClose,
+  onSelect,
+  variant = "sheet",
+  anchorRef,
+}: Props) {
   const sheetRef = useRef<HTMLDivElement>(null);
   const startY = useRef(0);
   const dragging = useRef(false);
@@ -45,22 +133,45 @@ export function ZoneSheet({ open, area, lang, onClose, onSelect }: Props) {
 
   useEffect(() => {
     if (!open) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const sheet = sheetRef.current;
-    const firstBtn = sheet?.querySelector<HTMLElement>("button");
+    const prev = variant === "sheet" ? document.body.style.overflow : "";
+    if (variant === "sheet") document.body.style.overflow = "hidden";
+  const panel = sheetRef.current;
+    const firstBtn = panel?.querySelector<HTMLElement>("button");
     firstBtn?.focus();
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
-      if (sheet) trapFocus(sheet, e);
+      if (panel) trapFocus(panel, e);
     };
     document.addEventListener("keydown", onKey);
     return () => {
-      document.body.style.overflow = prev;
+      if (variant === "sheet") document.body.style.overflow = prev;
       document.removeEventListener("keydown", onKey);
     };
-  }, [open, onClose]);
+  }, [open, onClose, variant]);
+
+  useEffect(() => {
+    if (!open || variant !== "popover" || !anchorRef?.current || !sheetRef.current) {
+      return;
+    }
+    const anchor = anchorRef.current;
+    const panel = sheetRef.current;
+    const place = () => {
+      const r = anchor.getBoundingClientRect();
+      panel.style.top = `${r.bottom + 8 + window.scrollY}px`;
+      panel.style.left = `${Math.min(
+        r.left + window.scrollX,
+        window.innerWidth - 360 - 16,
+      )}px`;
+    };
+    place();
+    window.addEventListener("resize", place);
+    window.addEventListener("scroll", place, true);
+    return () => {
+      window.removeEventListener("resize", place);
+      window.removeEventListener("scroll", place, true);
+    };
+  }, [open, variant, anchorRef]);
 
   const onTouchStart = (e: React.TouchEvent) => {
     startY.current = e.touches[0]?.clientY ?? 0;
@@ -76,8 +187,33 @@ export function ZoneSheet({ open, area, lang, onClose, onSelect }: Props) {
 
   if (!open) return null;
 
-  const dismissLabel =
-    lang === "sw" ? "Funga" : "Close";
+  const dismissLabel = lang === "sw" ? "Funga" : "Close";
+
+  if (variant === "popover") {
+    return (
+      <div className="zone-popover-root" aria-hidden={false}>
+        <button
+          type="button"
+          className="zone-popover-backdrop"
+          aria-label={dismissLabel}
+          onClick={onClose}
+        />
+        <div
+          ref={sheetRef}
+          className="zone-popover"
+          role="dialog"
+          aria-modal="true"
+        >
+          <ZoneOptions
+            area={area}
+            lang={lang}
+            onSelect={onSelect}
+            onClose={onClose}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="pwa-sheet-root zone-sheet-root" aria-hidden={false}>
@@ -92,67 +228,16 @@ export function ZoneSheet({ open, area, lang, onClose, onSelect }: Props) {
         className={`pwa-sheet zone-sheet${reduced ? " pwa-sheet--reduced" : ""}`}
         role="dialog"
         aria-modal="true"
-        aria-labelledby={titleId}
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
         <div className="pwa-sheet-handle" aria-hidden />
-        <h2 id={titleId} className="pwa-sheet-title">
-          {homeCopy("zoneSheetTitle", lang)}
-        </h2>
-        <ul className="zone-sheet-list" role="listbox" aria-label={homeCopy("zoneSheetTitle", lang)}>
-          {IN_ZONE.map((z) => {
-            const selected = z === area;
-            return (
-              <li key={z} role="none">
-                <button
-                  type="button"
-                  role="option"
-                  aria-selected={selected}
-                  className={`zone-sheet-row${selected ? " is-selected" : ""}`}
-                  onClick={() => {
-                    onSelect(z);
-                    onClose();
-                  }}
-                >
-                  <span className="zone-sheet-label">{z}</span>
-                  {selected ? (
-                    <span className="zone-sheet-check" aria-hidden>
-                      <IconCheck size={20} />
-                    </span>
-                  ) : null}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-        {OUTSIDE ? (
-          <>
-            <div className="zone-sheet-divider" role="separator" />
-            <button
-              type="button"
-              className={`zone-sheet-row zone-sheet-row--waitlist${
-                area === OUTSIDE ? " is-selected" : ""
-              }`}
-              onClick={() => {
-                onSelect(OUTSIDE);
-                onClose();
-              }}
-            >
-              <span className="zone-sheet-label">
-                <span className="zone-sheet-wait-name">{OUTSIDE}</span>
-                <span className="zone-sheet-wait-hint m">
-                  {homeCopy("zoneWaitlistHint", lang)}
-                </span>
-              </span>
-              {area === OUTSIDE ? (
-                <span className="zone-sheet-check" aria-hidden>
-                  <IconCheck size={20} />
-                </span>
-              ) : null}
-            </button>
-          </>
-        ) : null}
+        <ZoneOptions
+          area={area}
+          lang={lang}
+          onSelect={onSelect}
+          onClose={onClose}
+        />
       </div>
     </div>
   );

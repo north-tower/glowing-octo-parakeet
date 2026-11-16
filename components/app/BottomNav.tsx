@@ -1,10 +1,8 @@
 "use client";
 
 import type { ComponentType } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import { useNakuruApp } from "@/components/app/AppProvider";
 import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
-import { BrandLogoMark } from "@/components/app/BrandLogoMark";
+import { usePrimaryNav } from "@/components/app/usePrimaryNav";
 import {
   IconGrid,
   IconHome,
@@ -12,15 +10,8 @@ import {
   IconShoppingCart,
   IconUser,
 } from "@/components/app/icons/LineIcons";
-import { BRAND_NAME } from "@/lib/nakuru/brand";
 import { APP_TAB_IDS } from "@/lib/nakuru/app-tabs";
-import {
-  appHrefForDetailNavTab,
-  bottomNavHighlightTab,
-  persistDetailNavTab,
-} from "@/lib/nakuru/detail-nav-tab";
 import { homeCopy, type HomeCopyKey } from "@/lib/nakuru/home-i18n";
-import { cartCount } from "@/lib/nakuru/reducer";
 import type { TabId } from "@/lib/nakuru/types";
 
 const TAB_ICONS: Record<
@@ -48,27 +39,11 @@ function formatBadge(n: number): string {
 }
 
 export function BottomNav() {
-  const { state, dispatch } = useNakuruApp();
   const { lang } = usePwaInstall();
-  const pathname = usePathname();
-  const router = useRouter();
-  const onDetailRoute = pathname?.startsWith("/app/p/");
-  const highlightTab = bottomNavHighlightTab(state.tab, onDetailRoute);
-  const cartN = cartCount(state.cart);
-  const msgUnread =
-    "msgUnread" in state &&
-    typeof (state as { msgUnread?: number }).msgUnread === "number"
-      ? (state as { msgUnread: number }).msgUnread
-      : 0;
+  const { highlightTab, cartN, msgUnread, goTab } = usePrimaryNav();
 
   return (
     <nav id="nav" className="app-bottom-nav" aria-label="Primary">
-      <div className="app-nav-brand">
-        <span className="logo">
-          <BrandLogoMark size={22} />
-          {BRAND_NAME}
-        </span>
-      </div>
       {APP_TAB_IDS.map((id) => {
         const active = highlightTab === id;
         const Icon = TAB_ICONS[id];
@@ -86,19 +61,7 @@ export function BottomNav() {
             type="button"
             className={active ? "on" : ""}
             aria-current={active ? "page" : undefined}
-            onClick={() => {
-              if (onDetailRoute) {
-                persistDetailNavTab(id);
-                router.push(
-                  id === "home" || id === "cat"
-                    ? appHrefForDetailNavTab(
-                        id === "cat" ? "cat" : "home",
-                      )
-                    : `/app?tab=${id}`,
-                );
-              }
-              dispatch({ type: "SET_TAB", tab: id });
-            }}
+            onClick={() => goTab(id)}
           >
             <span className="nav-tab-inner">
               <span className="nav-tab-icon-wrap" data-badge={badgeText || undefined}>
