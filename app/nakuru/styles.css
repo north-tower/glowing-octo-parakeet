@@ -802,7 +802,12 @@ body.app .app-hd-bar{display:flex;align-items:center;min-height:72px;gap:16px}
 body.app .app-hd-mobile-block{display:none}
 body.app .app-hd-wide-block{display:flex;align-items:center;gap:12px;flex:1;min-width:0;width:100%}
 body.app .app-hd-home-link{border:0;background:none;color:#fff;cursor:pointer;padding:0;min-height:44px}
-body.app .app-hd-zone-wrap{flex:none}
+body.app .app-hd-zone-wrap{flex:none;min-width:0;max-width:min(280px,26vw)}
+body.app .app-hd-zone-wrap .zone-pill{flex:none;max-width:100%;min-width:9rem;margin-left:0;height:auto;min-height:40px;padding-block:6px}
+body.app .app-hd-zone-wrap .zone-pill-text{flex-direction:row;align-items:center;gap:5px;flex:1 1 auto}
+body.app .app-hd-zone-wrap .zone-pill-prefix{font-size:12px;font-weight:520;opacity:.9}
+body.app .app-hd-zone-wrap .zone-pill-prefix::after{content:" ·";opacity:.75}
+body.app .app-hd-zone-wrap .zone-pill-name{font-size:12px;font-weight:650}
 body.app .app-hd-search-wrap{flex:1;min-width:0;display:flex;justify-content:center;max-width:640px;margin-inline:auto}
 body.app .app-hd-wide-block .search{margin:0;width:100%;max-width:640px}
 body.app .search-kbd{flex:none;font-size:12px;font-weight:600;color:var(--mut);padding:4px 8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);line-height:1;font-family:ui-monospace,monospace;margin-right:4px}
@@ -1071,7 +1076,7 @@ body.app .order-track__msg{display:inline-flex;align-items:center;justify-conten
 .pwa-sheet-body .m{margin-top:4px}
 
 /* In-app assistant */
-body.app #hd .zone-pill{margin-left:auto}
+@media(max-width:767px){body.app #hd .zone-pill{margin-left:auto}}
 @media(max-width:340px){body.app #hd .logo{font-size:0;max-width:42px;gap:0}body.app #hd .logo-mark{font-size:inherit}body.app .zone-pill{max-width:46%}}
 .assistant-fab{position:fixed;z-index:19;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(var(--nav-h) + var(--sticky-bar-h,0px) + env(safe-area-inset-bottom,0px) + 16px);display:inline-flex;align-items:center;justify-content:center;gap:8px;min-width:56px;height:56px;padding:0 16px;border:0;border-radius:999px;background:var(--pri);color:var(--onpri);box-shadow:0 6px 20px rgba(13,111,105,.35),0 2px 6px rgba(0,0,0,.12);cursor:pointer;transition:opacity .22s ease,transform .22s ease,max-width .35s ease,padding .35s ease,border-radius .35s ease;max-width:56px;overflow:hidden;box-sizing:border-box}
 .assistant-fab::before{content:"";position:absolute;inset:0;border-radius:inherit;border:1px solid rgba(255,255,255,.2);pointer-events:none}

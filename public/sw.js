@@ -1,5 +1,5 @@
 /* NakuruHub service worker — version bump invalidates caches */
-const CACHE_VERSION = "nakuruhub-shell-v2";
+const CACHE_VERSION = "nakuruhub-shell-v3";
 const PRECACHE_URLS = [
   "/offline-fallback.html",
   "/manifest.webmanifest",
@@ -7,10 +7,8 @@ const PRECACHE_URLS = [
   "/icons/icon-512.png",
   "/icons/icon-512-maskable.png",
   "/icons/apple-touch-icon.png",
-  "/icons/flamingo-mark.svg",
   "/fonts/bricolage-grotesque-latin.woff2",
   "/fonts/figtree-latin.woff2",
-  "/icon.svg",
 ];
 
 const NEVER_CACHE = ["/api/", "/auth/"];
