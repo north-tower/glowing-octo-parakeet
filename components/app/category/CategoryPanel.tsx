@@ -24,6 +24,7 @@ import {
 } from "@/components/app/catalog/ListingsStates";
 import type { CategoryId, Listing } from "@/lib/nakuru/types";
 import type { LandingLang } from "@/lib/nakuru/i18n";
+import { useCategories } from "@/lib/nakuru/use-categories";
 import { IconSparkle } from "@/components/app/icons/LineIcons";
 
 const BROWSE_SIDE_SET = new Set<string>(BROWSE_SIDES);
@@ -93,6 +94,8 @@ export function CategoryPanel({
   onAct,
 }: Props) {
   const { state, dispatch } = useNakuruApp();
+  const { rows: categoryRows } = useCategories();
+  const communityFeatured = categoryRows.filter((r) => r.kind === "community");
   const s = state.side;
   const isBrowseGroup = BROWSE_SIDE_SET.has(s);
 
@@ -131,6 +134,21 @@ export function CategoryPanel({
               );
             })}
           </div>
+          {communityFeatured.length ? (
+            <div className="home-cat-grid" style={{ marginTop: 8 }}>
+              {communityFeatured.map((row) => (
+                <CategoryTile
+                  key={row.slug}
+                  icon="shirt"
+                  tint="teal"
+                  label={row.label}
+                  onActivate={() =>
+                    dispatch({ type: "SET_CAT", cat: row.slug })
+                  }
+                />
+              ))}
+            </div>
+          ) : null}
           <HomeSectionHeader titleKey="browseByType" lang={lang} />
           <div className={browseGridClass}>
             {BROWSE_GROUPS.map((g) => (

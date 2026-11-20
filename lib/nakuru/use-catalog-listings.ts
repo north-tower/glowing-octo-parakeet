@@ -7,7 +7,7 @@ import {
   toProductCardItem,
   type ApiListing,
 } from "@/lib/nakuru/listings-map";
-import type { CategoryId, Listing } from "@/lib/nakuru/types";
+import type { Listing } from "@/lib/nakuru/types";
 
 const CACHE_TTL_MS = 30_000;
 
@@ -18,13 +18,13 @@ type CacheEntry = {
 
 const responseCache = new Map<string, CacheEntry>();
 
-function cacheKey(category: CategoryId | "all" | null | undefined): string {
+function cacheKey(category: string | "all" | null | undefined): string {
   if (!category || category === "all") return "all";
   return category;
 }
 
 async function fetchListingsCached(
-  category?: CategoryId | "all" | null,
+  category?: string | "all" | null,
 ): Promise<ApiListing[]> {
   const key = cacheKey(category);
   const hit = responseCache.get(key);
@@ -48,8 +48,14 @@ async function fetchListingsCached(
   return rows;
 }
 
+function listingsMatchQuery(items: Listing[], q: string): Listing[] {
+  return items.filter((i) =>
+    (i.t + i.s + i.c + (i.categoryLabel ?? "")).toLowerCase().includes(q),
+  );
+}
+
 export async function fetchListings(opts?: {
-  category?: CategoryId | "all" | null;
+  category?: string | "all" | null;
   query?: string;
 }): Promise<Listing[]> {
   const apiRows = await fetchListingsCached(opts?.category);
@@ -57,12 +63,12 @@ export async function fetchListings(opts?: {
   syncLiveListings(items);
   const q = opts?.query?.trim().toLowerCase();
   if (!q) return items;
-  return items.filter((i) => (i.t + i.s).toLowerCase().includes(q));
+  return listingsMatchQuery(items, q);
 }
 
 export type UseCatalogListingsOpts = {
   enabled: boolean;
-  category?: CategoryId | "all" | null;
+  category?: string | "all" | null;
   query?: string;
 };
 
@@ -112,7 +118,7 @@ export function useCatalogListings({
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return items;
-    return items.filter((i) => (i.t + i.s).toLowerCase().includes(q));
+    return listingsMatchQuery(items, q);
   }, [items, query]);
 
   return { items: filtered, loading, error };

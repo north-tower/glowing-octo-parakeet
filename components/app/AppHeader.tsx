@@ -4,9 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { useNakuruApp } from "@/components/app/AppProvider";
 import { AppTopNav } from "@/components/app/AppTopNav";
 import { BrandLogoMark } from "@/components/app/BrandLogoMark";
-import { CATS, SOON } from "@/lib/nakuru/data/constants";
 import { homeCategoryLabel, homeCopy } from "@/lib/nakuru/home-i18n";
+import type { DirectoryCategory } from "@/lib/nakuru/data/category-directory";
 import type { CategoryId } from "@/lib/nakuru/types";
+import { useCategories } from "@/lib/nakuru/use-categories";
 import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
 import { ZoneSheet } from "@/components/app/ZoneSheet";
 import { usePrimaryNav } from "@/components/app/usePrimaryNav";
@@ -18,9 +19,27 @@ import {
   IconSearch,
 } from "@/components/app/icons/LineIcons";
 import { BRAND_NAME } from "@/lib/nakuru/brand";
+import type { LandingLang } from "@/lib/nakuru/i18n";
+
+const OFFICIAL_TAB_IDS = new Set<CategoryId>([
+  "shop",
+  "property",
+  "cars",
+  "services",
+  "stays",
+  "taxi",
+]);
+
+function directoryTabLabel(row: DirectoryCategory, lang: LandingLang): string {
+  if (row.kind === "official" && OFFICIAL_TAB_IDS.has(row.slug as CategoryId)) {
+    return homeCategoryLabel(row.slug, lang);
+  }
+  return row.label;
+}
 
 export function AppHeader() {
   const { state, dispatch, toast } = useNakuruApp();
+  const { rows: categoryRows } = useCategories();
   const { lang } = usePwaInstall();
   const { goHome } = usePrimaryNav();
   const tabletUp = useAppTabletUp();
@@ -83,22 +102,35 @@ export function AppHeader() {
     dispatch({ type: "SET_TAB", tab: "home" });
   };
 
+  const officialOpen = categoryRows.filter(
+    (r) => r.kind === "official" && r.openForApply,
+  );
+  const officialSoon = categoryRows.filter(
+    (r) => r.kind === "official" && !r.openForApply,
+  );
+  const communityTabs = categoryRows.filter((r) => r.kind === "community");
+
   const tabsBlock = (
     <div className="tabs-scroll">
       <div className="tabs" id="tabs" ref={tabsRef}>
-        {CATS.map(([id]) => {
-          const soon = Boolean(SOON[id as CategoryId]);
-          const label = homeCategoryLabel(id as CategoryId, lang);
+        <button
+          type="button"
+          className={`tb${state.cat === "all" ? " on" : ""}`}
+          onClick={() => dispatch({ type: "SET_CAT", cat: "all" })}
+        >
+          {homeCategoryLabel("all", lang)}
+        </button>
+        {[...officialOpen, ...officialSoon, ...communityTabs].map((row) => {
+          const soon = row.kind === "official" && !row.openForApply;
+          const label = directoryTabLabel(row, lang);
           return (
             <button
-              key={id}
+              key={row.slug}
               type="button"
-              className={`tb${state.cat === id ? " on" : ""}${soon ? " soon" : ""}`}
+              className={`tb${state.cat === row.slug ? " on" : ""}${soon ? " soon" : ""}`}
               disabled={soon}
               aria-disabled={soon}
-              onClick={() =>
-                dispatch({ type: "SET_CAT", cat: id as CategoryId })
-              }
+              onClick={() => dispatch({ type: "SET_CAT", cat: row.slug })}
             >
               {label}
               {soon ? (

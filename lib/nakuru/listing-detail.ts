@@ -1,5 +1,6 @@
 import type { LandingLang } from "@/lib/nakuru/i18n";
 import { homeCopy, type HomeCopyKey } from "@/lib/nakuru/home-i18n";
+import { listingModeOf } from "@/lib/nakuru/listing-mode";
 import type { CategoryId, Listing } from "@/lib/nakuru/types";
 import type { ApiListing } from "@/lib/nakuru/listings-map";
 
@@ -22,8 +23,9 @@ export type ProductDetail = Listing & {
 
 export function demoVendorName(item: Listing): string {
   if (item.vn) return item.vn;
-  if (item.c === "shop") return item.s;
-  if (item.c === "services") {
+  const mode = listingModeOf(item);
+  if (mode === "shop") return item.s;
+  if (mode === "services") {
     return item.s.split(" · ")[1]?.trim() || item.t.split(",")[0]?.trim() || item.t;
   }
   const parts = item.s.split(" · ");

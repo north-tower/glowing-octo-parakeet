@@ -25,10 +25,11 @@ import {
   type DetailNavTab,
 } from "@/lib/nakuru/detail-nav-tab";
 import { VerifiedBadge } from "@/components/app/product/VerifiedBadge";
+import { listingModeOf } from "@/lib/nakuru/listing-mode";
 import {
   displayImageSrc,
   isOptimizablePhotoUrl,
-  listingAspect,
+  listingAspectForListing,
   listingGallery,
   productImageSizes,
 } from "@/lib/nakuru/listing-image";
@@ -77,28 +78,28 @@ export function ProductCard({
 }: Props) {
   const { lang } = usePwaInstall();
   const live = isLiveCatalogEnabled();
+  const mode = listingModeOf(item);
   const serviceHeld =
-    live && item.c === "services" && !serviceInquiryEnabled;
-  const shopAdd = item.c === "shop" && !serviceHeld;
-  const nonShop = item.c !== "shop";
-  const aspect = listingAspect(item.c);
+    live && mode === "services" && !serviceInquiryEnabled;
+  const shopAdd = mode === "shop" && !serviceHeld;
+  const nonShop = mode !== "shop";
+  const aspect = listingAspectForListing(item);
   const gallery = listingGallery(item);
   const [imgOk, setImgOk] = useState(true);
   const [added, setAdded] = useState(false);
   const icon = listingIconKey(item);
   const src = imgOk ? displayImageSrc(item) : null;
   const actionLabel =
-    item.c === "property" || item.c === "cars"
+    mode === "property" || mode === "cars"
       ? homeCopy("productRequestViewing", lang)
-      : item.c === "services"
+      : mode === "services"
         ? homeCopy("productRequestQuote", lang)
         : "";
   const propertyBadge =
-    item.c === "property" ? propertyListingBadge(item) : null;
-  const loc =
-    item.c === "property" ? propertyLocation(item) : null;
+    mode === "property" ? propertyListingBadge(item) : null;
+  const loc = mode === "property" ? propertyLocation(item) : null;
   const priceParts =
-    item.c === "property"
+    mode === "property"
       ? formatPropertyPrice(item.p, propertyTenure(item), lang)
       : null;
 

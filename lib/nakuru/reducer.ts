@@ -6,6 +6,7 @@ import {
   TOPC,
 } from "@/lib/nakuru/data/constants";
 import { itemById } from "@/lib/nakuru/data/items";
+import { listingModeOf } from "@/lib/nakuru/listing-mode";
 import { isOutsideArea } from "@/lib/nakuru/area";
 import type {
   AccView,
@@ -165,7 +166,8 @@ export function nakuruReducer(
     case "ITEM_ACT": {
       const item = itemById(action.id);
       if (!item) return { state };
-      if (item.c === "shop") {
+      const mode = listingModeOf(item);
+      if (mode === "shop") {
         const key = String(action.id);
         const n = Math.min(
           MAX_CART_QTY,
@@ -176,7 +178,7 @@ export function nakuruReducer(
           toast: "Added to cart",
         };
       }
-      if (item.c === "services") {
+      if (mode === "services") {
         return { state, toast: `Quote request sent to ${item.t}` };
       }
       return {

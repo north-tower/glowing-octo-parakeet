@@ -40,6 +40,7 @@ import {
   toProductDetail,
   type ProductDetail,
 } from "@/lib/nakuru/listing-detail";
+import { listingModeOf } from "@/lib/nakuru/listing-mode";
 import type { Listing } from "@/lib/nakuru/types";
 import { useListingAct } from "@/lib/nakuru/use-listing-act";
 import { recordProductOpen } from "@/lib/nakuru/pwa-engage";
@@ -289,11 +290,12 @@ export function ProductDetailView({ productId }: Props) {
       return;
     }
 
+    const detailMode = listingModeOf(detail);
     const serviceHeld =
-      live && detail.c === "services" && !serviceInquiryEnabled;
+      live && detailMode === "services" && !serviceInquiryEnabled;
     if (serviceHeld) return;
 
-    if (detail.c === "shop") {
+    if (detailMode === "shop") {
       if (isOutsideArea(state.area)) return;
       const need = shopQty - inCart;
       for (let i = 0; i < need; i++) {
@@ -305,12 +307,12 @@ export function ProductDetailView({ productId }: Props) {
       return;
     }
 
-    if (detail.c === "services") {
+    if (detailMode === "services") {
       onAct(detail.id);
       return;
     }
 
-    if (detail.c === "property" || detail.c === "cars") {
+    if (detailMode === "property" || detailMode === "cars") {
       requestViewing();
     }
   };
@@ -348,13 +350,13 @@ export function ProductDetailView({ productId }: Props) {
   }
 
   const verified = detail.v === 1;
+  const mode = listingModeOf(detail);
   const icon = listingIconKey(detail);
   const tint = categoryTint(detail.c);
   const bodyText = detail.desc?.trim() ?? "";
   const serviceHeld =
-    live && detail.c === "services" && !serviceInquiryEnabled;
-  const shopBlock =
-    detail.c === "shop" && isOutsideArea(state.area);
+    live && mode === "services" && !serviceInquiryEnabled;
+  const shopBlock = mode === "shop" && isOutsideArea(state.area);
   const gallery = detail.gallery.length ? detail.gallery : [];
   const openVendor = () => {
     sellerSectionRef.current?.scrollIntoView({
@@ -364,13 +366,13 @@ export function ProductDetailView({ productId }: Props) {
   };
 
   let primaryLabel = homeCopy("productMessageSeller", lang);
-  if (detail.c === "shop") {
+  if (mode === "shop") {
     if (addedPulse) primaryLabel = `${homeCopy("addedToCart", lang)} ✓`;
     else if (goCart || inCart > 0) primaryLabel = homeCopy("productGoToCart", lang);
     else primaryLabel = homeCopy("addToCart", lang);
-  } else if (detail.c === "property" || detail.c === "cars") {
+  } else if (mode === "property" || mode === "cars") {
     primaryLabel = homeCopy("productRequestViewing", lang);
-  } else if (detail.c === "services") {
+  } else if (mode === "services") {
     primaryLabel = serviceHeld
       ? "Quote — coming soon"
       : homeCopy("productRequestQuote", lang);
@@ -383,11 +385,10 @@ export function ProductDetailView({ productId }: Props) {
     .join("")
     .toUpperCase();
   const propertyBadge =
-    detail.c === "property" ? propertyListingBadge(detail) : null;
-  const propLoc =
-    detail.c === "property" ? propertyLocation(detail) : null;
+    mode === "property" ? propertyListingBadge(detail) : null;
+  const propLoc = mode === "property" ? propertyLocation(detail) : null;
   const propertyPrice =
-    detail.c === "property"
+    mode === "property"
       ? formatPropertyPrice(detail.p, propertyTenure(detail), lang)
       : null;
 
@@ -530,7 +531,7 @@ export function ProductDetailView({ productId }: Props) {
                 <li>{homeCopy("productPayMpesaDetail", lang)}</li>
               </ul>
             ) : null}
-            {detail.c === "shop" ? (
+            {mode === "shop" ? (
               <>
                 <div className="pd-delivery">
                   <IconMapPin size={20} />
@@ -550,7 +551,7 @@ export function ProductDetailView({ productId }: Props) {
                   </div>
                 </div>
               </>
-            ) : detail.c === "property" || detail.c === "cars" ? (
+            ) : mode === "property" || mode === "cars" ? (
               <div className="pd-delivery pd-delivery--viewing">
                 <IconMapPin size={20} />
                 <div>
@@ -679,7 +680,7 @@ export function ProductDetailView({ productId }: Props) {
         >
           <div className="pd-bar-left">
             <span className="pd-bar-price">{kes(detail.p)}</span>
-            {detail.c === "shop" ? (
+            {mode === "shop" ? (
               <div className="pd-qty" aria-label="Quantity">
                 <button
                   type="button"
@@ -708,8 +709,8 @@ export function ProductDetailView({ productId }: Props) {
           <button
             type="button"
             className={`btn pd-bar-cta${addedPulse ? " pc-add--done" : ""}`}
-            disabled={serviceHeld || (detail.c === "shop" && shopBlock)}
-            aria-live={detail.c === "shop" ? "polite" : undefined}
+            disabled={serviceHeld || (mode === "shop" && shopBlock)}
+            aria-live={mode === "shop" ? "polite" : undefined}
             title={shopBlock ? homeCopy("productOutsideZone", lang) : undefined}
             onClick={handlePrimary}
           >
