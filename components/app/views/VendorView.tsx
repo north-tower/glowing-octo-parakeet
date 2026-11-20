@@ -13,6 +13,7 @@ import { apiFetch, ApiError } from "@/lib/nakuru/api";
 import { useLiveApi } from "@/lib/nakuru/api-mode";
 import { CATS, SOON, TOOLS, categoryName } from "@/lib/nakuru/data/constants";
 import type { CategoryId } from "@/lib/nakuru/types";
+import { useCategories } from "@/lib/nakuru/use-categories";
 import {
   pickPrimaryVendor,
   vendorStatusLabel,
@@ -23,6 +24,7 @@ import { useCallback, useEffect, useState } from "react";
 function LiveVendorPanel() {
   const { user: authUser, ready } = useAuth();
   const { state, toast } = useNakuruApp();
+  const { rows: directoryRows } = useCategories();
   const [rows, setRows] = useState<ApiVendorRow[] | null>(null);
   const [loadError, setLoadError] = useState(false);
 
@@ -98,8 +100,13 @@ function LiveVendorPanel() {
   }
 
   const approved = primary.status === "approved";
-  const cats = primary.categories as CategoryId[];
+  const cats = primary.categories as string[];
   const vendorPhoto = primary.logo_url || state.photo;
+
+  const directoryLabel = (slug: string) => {
+    const row = directoryRows.find((r) => r.slug === slug);
+    return row?.label ?? categoryName(slug);
+  };
 
   return (
     <>
@@ -139,7 +146,7 @@ function LiveVendorPanel() {
           {cats.map((c) =>
             TOOLS[c] ? (
               <div key={c} className="card">
-                <div className="t">{categoryName(c)} dashboard</div>
+                <div className="t">{directoryLabel(c)} dashboard</div>
                 {TOOLS[c].map((x) => (
                   <span key={x} className="tool">
                     {x}
@@ -148,8 +155,7 @@ function LiveVendorPanel() {
               </div>
             ) : (
               <div key={c} className="card">
-                <div className="t">{categoryName(c)}</div>
-                <div className="m">On the waitlist. We&apos;ll open it soon.</div>
+                <div className="t">{directoryLabel(c)}</div>
               </div>
             ),
           )}
@@ -157,6 +163,7 @@ function LiveVendorPanel() {
             vendorId={primary.id}
             approvedCategories={cats}
             toast={toast}
+            onCategoriesChange={() => void loadMine()}
           />
           {cats.includes("services") ? <VendorInquiriesList /> : null}
         </>
