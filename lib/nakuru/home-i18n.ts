@@ -39,6 +39,22 @@ export type HomeCopyKey =
   | "topRankingsSub"
   | "topCategories"
   | "pickedForYou"
+  | "freshInZone"
+  | "verifiedSellers"
+  | "pickedFilterAll"
+  | "pickedFilterVerified"
+  | "pickedSortNewest"
+  | "pickedSortPriceLow"
+  | "pickedSortPriceHigh"
+  | "pickedResultCount"
+  | "pickedLoadMore"
+  | "pickedEmpty"
+  | "pickedFiltersAria"
+  | "photoCountPill"
+  | "addToCartAria"
+  | "slide0Cta"
+  | "slide1Cta"
+  | "slide2Cta"
   | "seeAll"
   | "verifiedPill"
   | "payOnDelivery"
@@ -330,6 +346,31 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   },
   topCategories: { en: "Top categories", sw: "Kategoria kuu" },
   pickedForYou: { en: "Picked for you", sw: "Imechaguliwa kwako" },
+  freshInZone: { en: "Fresh in {zone}", sw: "Mpya {zone}" },
+  verifiedSellers: { en: "Verified sellers", sw: "Wauzaji waliothibitishwa" },
+  pickedFilterAll: { en: "All", sw: "Zote" },
+  pickedFilterVerified: { en: "Verified only", sw: "Verified tu" },
+  pickedSortNewest: { en: "Newest", sw: "Mpya zaidi" },
+  pickedSortPriceLow: { en: "Price low to high", sw: "Bei chini hadi juu" },
+  pickedSortPriceHigh: { en: "Price high to low", sw: "Bei juu hadi chini" },
+  pickedResultCount: { en: "{n} results", sw: "Matokeo {n}" },
+  pickedLoadMore: { en: "Load more", sw: "Pakia zaidi" },
+  pickedEmpty: {
+    en: "No listings match these filters.",
+    sw: "Hakuna matangazo yanayolingana.",
+  },
+  pickedFiltersAria: {
+    en: "Filter and sort listings",
+    sw: "Chuja na panga orodha",
+  },
+  photoCountPill: { en: "{i}/{n}", sw: "{i}/{n}" },
+  addToCartAria: {
+    en: "Add {name} to cart",
+    sw: "Ongeza {name} kwenye kikapu",
+  },
+  slide0Cta: { en: "Shop now", sw: "Nunua sasa" },
+  slide1Cta: { en: "Start selling", sw: "Anza kuuza" },
+  slide2Cta: { en: "Learn more", sw: "Jifunze zaidi" },
   seeAll: { en: "See all", sw: "Angalia zote" },
   verifiedPill: { en: "Verified", sw: "Thibitishwa" },
   payOnDelivery: { en: "Pay on delivery", sw: "Lipa ukifika" },

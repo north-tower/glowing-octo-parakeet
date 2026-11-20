@@ -61,12 +61,8 @@ const DEMO_CATALOG: DemoProduct[] = [
     description:
       "Dual USB wall adapter with 1.2 m braided cable, fits Type-C and Micro-USB phones. Tested in-shop before dispatch. Nakuru CBD same-day drop-off when you order before 4 p.m.",
     stock: 30,
-    imageUrl:
-      "https://images.unsplash.com/photo-1583863788434-e58a363049cf?w=900&auto=format&fit=crop&q=80",
-    galleryUrls: [
-      "https://images.unsplash.com/photo-1583863788434-e58a363049cf?w=900&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1591290618608-c70f23c9d94f?w=900&auto=format&fit=crop&q=80",
-    ],
+    imageUrl: "/demo/charger-1x1.svg",
+    galleryUrls: ["/demo/charger-1x1.svg"],
   },
   {
     ownerKey: "gilani",
@@ -127,13 +123,21 @@ const DEMO_CATALOG: DemoProduct[] = [
     description:
       "Bright cotton kitenge set sized M–L. Freshly steamed, Nakuru CBD pickup or delivery. Ideal for church, weddings, or office Fridays.",
     stock: 8,
-    imageUrl:
-      "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=900&auto=format&fit=crop&q=80",
-    galleryUrls: [
-      "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=900&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1583496661161-f2a7ab7da53c?w=900&auto=format&fit=crop&q=80",
-    ],
+    imageUrl: "/demo/jacket-1x1.svg",
+    galleryUrls: ["/demo/jacket-1x1.svg", "/demo/sofa-1x1.svg"],
     attributes: { year: "2024", area: "M–L" },
+  },
+  {
+    ownerKey: "mama",
+    vendorName: "Mama Fashions",
+    verified: true,
+    categories: ["shop"],
+    category: "shop",
+    title: "Sofa set — Gilanis",
+    emoji: "sofa",
+    priceKes: 18500,
+    stock: 2,
+    imageUrl: "/demo/sofa-1x1.svg",
   },
 ];
 

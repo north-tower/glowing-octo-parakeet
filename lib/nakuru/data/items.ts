@@ -24,11 +24,8 @@ export const ITEMS: Listing[] = [
     vn: "Rift Electro",
     desc:
       "Dual USB wall adapter with 1.2 m braided cable, fits Type-C and Micro-USB phones. Tested in-shop before dispatch. Nakuru CBD same-day drop-off when you order before 4 p.m.",
-    imgs: [
-      "https://images.unsplash.com/photo-1583863788434-e58a363049cf?w=900&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1591290618608-c70f23c9d94f?w=900&auto=format&fit=crop&q=80",
-    ],
-    img: "https://images.unsplash.com/photo-1583863788434-e58a363049cf?w=900&auto=format&fit=crop&q=80",
+    imgs: ["/demo/charger-1x1.svg", "/demo/charger-1x1.svg"],
+    img: "/demo/charger-1x1.svg",
     p: 450,
     v: 0,
   },
@@ -168,11 +165,8 @@ export const ITEMS: Listing[] = [
     s: "Mama Fashions",
     vn: "Mama Fashions",
     desc: "Bright cotton kitenge set sized M–L. Freshly steamed, Nakuru CBD pickup or delivery. Ideal for church, weddings, or office Fridays.",
-    imgs: [
-      "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=900&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1583496661161-f2a7ab7da53c?w=900&auto=format&fit=crop&q=80",
-    ],
-    img: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=900&auto=format&fit=crop&q=80",
+    imgs: ["/demo/jacket-1x1.svg", "/demo/sofa-1x1.svg"],
+    img: "/demo/jacket-1x1.svg",
     attrs: { year: "2024", area: "M–L" },
     p: 3000,
     v: 1,

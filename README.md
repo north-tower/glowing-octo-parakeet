@@ -40,7 +40,7 @@ For production canonical URLs, set `NEXT_PUBLIC_SITE_URL` (e.g. `https://nakuruh
 
 The built-in demo listings in `lib/nakuru/data/items.ts` include **Mtumba jacket**, **Phone charger**, **Fresh veggies**, and a mix of verified (`v: 1`) and unverified (`v: 0`) sellers. They appear when live catalog is off (default): leave `NEXT_PUBLIC_USE_LIVE_CATALOG` unset or `false`, then restart `pnpm dev` and open `/app`.
 
-For Postgres-backed demos, run **`pnpm seed:demo`** (requires `DATABASE_URL` in `.env.local`). It inserts a realistic set — Mtumba jacket (KES 850), Phone charger (KES 450), Fresh veggies (KES 120), a plumber, a house for rent, a Toyota listing, and a mix of verified / unverified vendors. Products without photos use tinted placeholders with the category icon in the app (`image_url` left null).
+For Postgres-backed demos, run **`pnpm seed:demo`** (requires `DATABASE_URL` in `.env.local`). It inserts a realistic set — Mtumba jacket (KES 850), Phone charger (KES 450), Fresh veggies (KES 120), a plumber, a house for rent, a Toyota listing, sofa, and a mix of verified / unverified vendors. In-app placeholders use duotone SVGs in `public/demo/` when `image_url` is null; optional real JPG/WebP files can be dropped in `public/demo/photos/` and referenced by filename in the seed. See `docs/IMAGES.md`.
 
 The script **never deletes** customer or vendor data you created outside the demo. It only adds missing demo rows owned by `demo-seed-*@seed.nakuruhub.local`. To wipe and re-insert **only those demo rows**, run:
 

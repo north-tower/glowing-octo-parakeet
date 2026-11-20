@@ -7,11 +7,19 @@ import type { LandingLang } from "@/lib/nakuru/i18n";
 type Props = {
   titleKey: HomeCopyKey;
   lang: LandingLang;
+  /** Replaces default copy (e.g. zone interpolation). */
+  title?: string;
   seeAll?: { labelKey?: "seeAll"; onClick: () => void };
   actions?: ReactNode;
 };
 
-export function HomeSectionHeader({ titleKey, lang, seeAll, actions }: Props) {
+export function HomeSectionHeader({
+  titleKey,
+  lang,
+  title,
+  seeAll,
+  actions,
+}: Props) {
   const end = actions ? (
     <div className="home-section-hd-end">
       <div className="home-section-actions">{actions}</div>
@@ -33,7 +41,9 @@ export function HomeSectionHeader({ titleKey, lang, seeAll, actions }: Props) {
 
   return (
     <div className="home-section-hd">
-      <h2 className="home-section-title">{homeCopy(titleKey, lang)}</h2>
+      <h2 className="home-section-title">
+        {title ?? homeCopy(titleKey, lang)}
+      </h2>
       {end}
     </div>
   );

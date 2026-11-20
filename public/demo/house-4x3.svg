@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="House">
+  <rect width="400" height="300" fill="#06524E"/>
+  <path d="M80 170V110l120-70 120 70v60H80z" fill="#4FC3BB"/>
+  <rect x="130" y="170" width="140" height="90" fill="#F5E6D3"/>
+  <rect x="175" y="205" width="50" height="55" fill="#0D6F69"/>
+  <circle cx="290" cy="95" r="22" fill="#EC5F7B" opacity=".85"/>
+</svg>

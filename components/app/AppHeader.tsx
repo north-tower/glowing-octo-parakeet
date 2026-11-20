@@ -166,7 +166,7 @@ export function AppHeader() {
               <div className="app-hd-mobile-block">
                 <div className="row sp hd-top">
                   <span className="logo">
-                    <BrandLogoMark size={20} />
+                    <BrandLogoMark size={28} />
                     {BRAND_NAME}
                   </span>
                   <button
@@ -197,7 +197,7 @@ export function AppHeader() {
                   className="logo app-hd-home-link"
                   onClick={goHome}
                 >
-                  <BrandLogoMark size={22} />
+                  <BrandLogoMark size={28} />
                   {BRAND_NAME}
                 </button>
                 <div className="app-hd-zone-wrap">

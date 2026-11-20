@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-label="Fresh vegetables">
+  <rect width="400" height="400" fill="#0D6F69"/>
+  <ellipse cx="200" cy="260" rx="120" ry="40" fill="#06524E" opacity=".5"/>
+  <circle cx="150" cy="210" r="42" fill="#4FC3BB"/>
+  <circle cx="230" cy="200" r="36" fill="#EC5F7B"/>
+  <path d="M180 150c20-30 50-30 70 0" stroke="#F5E6D3" stroke-width="6" fill="none"/>
+</svg>

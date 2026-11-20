@@ -11,7 +11,7 @@ import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/components/app/AppAuthProvider";
 import { useNakuruApp } from "@/components/app/AppProvider";
-import { BrandLogoMark } from "@/components/app/BrandLogoMark";
+import { IconSparkle } from "@/components/app/icons/LineIcons";
 import { homeCopy } from "@/lib/nakuru/home-i18n";
 import type { LandingLang } from "@/lib/nakuru/i18n";
 
@@ -207,7 +207,7 @@ export function AssistantFloatingButton({ lang, sheetOpen, onOpen }: Props) {
       tabIndex={hidden ? -1 : 0}
       onClick={onClick}
     >
-      <BrandLogoMark size={24} className="" />
+      <IconSparkle size={24} aria-hidden />
       {expanded ? (
         <span id={labelId} className="assistant-fab-label">
           {fabLabel}

@@ -11,22 +11,31 @@ const strokeBold = { ...stroke, strokeWidth: 2.25 };
 export function SlideArtDelivery() {
   return (
     <svg
-      className="sl-art"
-      width={120}
-      height={88}
-      viewBox="0 0 120 88"
+      className="sl-art sl-art--hero"
+      width={168}
+      height={120}
+      viewBox="0 0 168 120"
       aria-hidden
     >
-      <g opacity={0.9} {...strokeBold}>
-        <ellipse cx="58" cy="68" rx="34" ry="6" fill="rgba(255,255,255,.08)" stroke="none" />
-        <path d="M26 62h46v-4H38l-4-10h-8v14z" fill="rgba(255,255,255,.12)" />
-        <circle cx="34" cy="66" r="6.5" />
-        <circle cx="62" cy="66" r="6.5" />
-        <path d="M52 30c0-2 2-4 5-4h8" />
-        <circle cx="56" cy="24" r="5" />
-        <path d="M44 48h20l6-14h14v14H44z" />
-        <rect x="48" y="36" width="12" height="10" rx="1.5" fill="rgba(255,255,255,.14)" />
-        <path d="M50 38h8v2M50 41h6" strokeWidth={1.75} />
+      <g opacity={0.95} {...strokeBold}>
+        <ellipse cx="84" cy="98" rx="52" ry="8" fill="rgba(245,230,211,.25)" stroke="none" />
+        <path
+          d="M30 88h72v-6H46l-8-16h-12v22z"
+          fill="rgba(79,195,187,.45)"
+          stroke="none"
+        />
+        <path
+          d="M52 46h44l10-22h26v22H52z"
+          fill="rgba(236,95,123,.55)"
+          stroke="none"
+        />
+        <rect x="64" y="52" width="22" height="16" rx="3" fill="#F5E6D3" stroke="none" />
+        <circle cx="48" cy="92" r="9" fill="rgba(255,255,255,.2)" />
+        <circle cx="94" cy="92" r="9" fill="rgba(255,255,255,.2)" />
+        <circle cx="48" cy="92" r="9" />
+        <circle cx="94" cy="92" r="9" />
+        <circle cx="118" cy="38" r="8" fill="var(--fl)" stroke="none" />
+        <path d="M118 30v16M110 38h16" stroke="#fff" strokeWidth={2} />
       </g>
     </svg>
   );
