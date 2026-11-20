@@ -800,8 +800,8 @@ export function homeCopy(key: HomeCopyKey, lang: LandingLang): string {
   return COPY[key][lang];
 }
 
-export function homeCategoryLabel(id: CategoryId, lang: LandingLang): string {
-  return CAT_LABELS[id]?.[lang] ?? id;
+export function homeCategoryLabel(id: string, lang: LandingLang): string {
+  return CAT_LABELS[id as CategoryId]?.[lang] ?? id;
 }
 
 export function homeTopCategoryLabel(
