@@ -63,6 +63,7 @@ export function VendorProductForm({ vendorId, approvedCategories, toast }: Props
   const [listError, setListError] = useState(false);
 
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [editCategory, setEditCategory] = useState<PublishCategory | null>(null);
   const [editPrice, setEditPrice] = useState("");
   const [editStock, setEditStock] = useState("");
   const [editBusy, setEditBusy] = useState(false);
@@ -210,12 +211,18 @@ export function VendorProductForm({ vendorId, approvedCategories, toast }: Props
 
   const startEdit = (row: VendorProductRow) => {
     setEditingId(row.id);
+    setEditCategory(
+      isPublishCategory(row.category) && modes.includes(row.category)
+        ? row.category
+        : modes[0] ?? null,
+    );
     setEditPrice(String(row.price));
     setEditStock(row.stock === null ? "" : String(row.stock));
   };
 
   const cancelEdit = () => {
     setEditingId(null);
+    setEditCategory(null);
     setEditPrice("");
     setEditStock("");
   };
@@ -229,7 +236,17 @@ export function VendorProductForm({ vendorId, approvedCategories, toast }: Props
     }
 
     const payload: Record<string, unknown> = { price: priceNum };
-    if (row.category === "shop") {
+    const effectiveCategory =
+      editCategory && modes.includes(editCategory) ? editCategory : row.category;
+    if (
+      isPublishCategory(row.category) &&
+      editCategory &&
+      editCategory !== row.category
+    ) {
+      payload.category = editCategory;
+    }
+
+    if (effectiveCategory === "shop") {
       const raw = editStock.trim();
       if (raw === "") {
         payload.stock = null;
@@ -253,9 +270,15 @@ export function VendorProductForm({ vendorId, approvedCategories, toast }: Props
       cancelEdit();
       await loadListings();
     } catch (err) {
-      if (err instanceof ApiError && err.body.error === "not_found") {
-        toast("Listing not found. Refresh the page.");
-        return;
+      if (err instanceof ApiError) {
+        if (err.body.error === "not_found") {
+          toast("Listing not found. Refresh the page.");
+          return;
+        }
+        if (err.body.error === "category_not_approved") {
+          toast("That listing type is not on your approved vendor profile.");
+          return;
+        }
       }
       toast("Could not save changes.");
     } finally {
@@ -488,7 +511,23 @@ export function VendorProductForm({ vendorId, approvedCategories, toast }: Props
                     <td style={{ padding: "8px 4px", verticalAlign: "top", whiteSpace: "nowrap" }}>
                       {editing ? (
                         <>
-                          {row.category === "shop" ? (
+                          {modes.length > 1 && isPublishCategory(row.category) ? (
+                            <span style={{ marginRight: 6 }}>
+                              {modes.map((c) => (
+                                <button
+                                  key={c}
+                                  type="button"
+                                  className={`chip${editCategory === c ? " on" : ""}`}
+                                  disabled={editBusy}
+                                  style={{ marginBottom: 4 }}
+                                  onClick={() => setEditCategory(c)}
+                                >
+                                  {categoryName(c)}
+                                </button>
+                              ))}
+                            </span>
+                          ) : null}
+                          {(editCategory ?? row.category) === "shop" ? (
                             <input
                               inputMode="numeric"
                               placeholder="Stock"

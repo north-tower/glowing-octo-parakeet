@@ -54,6 +54,7 @@ export const productNew = z
 export const productUpd = z
   .object({
     title: z.string().trim().min(2).max(80).optional(),
+    category: cat.optional(),
     price: money.optional(),
     stock: z.number().int().min(0).max(100_000).nullable().optional(),
     active: z.boolean().optional(),

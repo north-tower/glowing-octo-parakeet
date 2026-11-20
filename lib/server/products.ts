@@ -149,6 +149,7 @@ export async function listVendorProducts(
 
 export type ProductUpdateInput = {
   title?: string;
+  category?: string;
   price?: number;
   stock?: number | null;
   active?: boolean;
@@ -160,6 +161,18 @@ export async function updateProduct(
   data: ProductUpdateInput,
   ip: string | null,
 ): Promise<void> {
+  const cur = await db.q<{ category: string; vendor_id: string }>(
+    `select p.category, p.vendor_id
+     from products p
+     join vendors v on v.id = p.vendor_id
+     where p.id = $1 and v.owner_id = $2`,
+    [productId, ownerId],
+  );
+  const row = cur.rows[0];
+  if (!row) {
+    throw new ProductError(404, "not_found");
+  }
+
   const set: string[] = [];
   const vals: unknown[] = [productId, ownerId];
 
@@ -168,9 +181,30 @@ export async function updateProduct(
     set.push(`${col} = $${vals.length}`);
   };
 
+  if (data.category !== undefined && data.category !== row.category) {
+    const v = await db.q<{ categories: string[] }>(
+      "select categories from vendors where id = $1 and status = 'approved'",
+      [row.vendor_id],
+    );
+    const vendor = v.rows[0];
+    if (!vendor?.categories.includes(data.category)) {
+      throw new ProductError(403, "category_not_approved");
+    }
+    add("category", data.category);
+    if (data.category === "services") {
+      add("stock", null);
+    }
+  }
+
   if (data.title !== undefined) add("title", data.title);
   if (data.price !== undefined) add("price_kes", data.price);
-  if (data.stock !== undefined) add("stock", data.stock);
+  if (data.stock !== undefined) {
+    const effectiveCat =
+      data.category !== undefined ? data.category : row.category;
+    if (effectiveCat === "shop") {
+      add("stock", data.stock);
+    }
+  }
   if (data.active !== undefined) add("active", data.active);
 
   if (!set.length) {
