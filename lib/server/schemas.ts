@@ -130,6 +130,7 @@ export const vendorNew = z
   .object({
     name: z.string().trim().min(2).max(60),
     categories: z.array(vendorApplyCategory).min(1).max(4),
+    imageDataUrl: imageDataUrl.optional(),
   })
   .strict()
   .refine(

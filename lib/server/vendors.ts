@@ -1,6 +1,11 @@
 import { audit } from "./audit";
 import { config } from "./config";
 import { db } from "./db";
+import {
+  parseImageDataUrl,
+  StorageError,
+  uploadVendorLogo,
+} from "./storage";
 
 export class VendorError extends Error {
   status: number;
@@ -27,7 +32,8 @@ export async function applyVendor(
   name: string,
   categories: string[],
   ip: string | null,
-): Promise<{ id: string; status: string }> {
+  imageDataUrl?: string,
+): Promise<{ id: string; status: string; logo_url: string | null }> {
   if (!categoriesAllowedAtLaunch(categories)) {
     throw new VendorError(400, "bad_request");
   }
@@ -49,8 +55,25 @@ export async function applyVendor(
     )
   ).rows[0];
 
+  let logoUrl: string | null = null;
+  if (imageDataUrl) {
+    const parsed = parseImageDataUrl(imageDataUrl);
+    if (!parsed) {
+      throw new VendorError(400, "bad_request");
+    }
+    try {
+      logoUrl = await uploadVendorLogo(v.id, parsed.bytes, parsed.contentType);
+      await db.q("update vendors set logo_url = $2 where id = $1", [v.id, logoUrl]);
+    } catch (err) {
+      if (err instanceof StorageError) {
+        throw new VendorError(503, "image_upload_failed");
+      }
+      throw err;
+    }
+  }
+
   await audit("vendor_apply", ownerId, ip, { vendor: v.id });
-  return v;
+  return { ...v, logo_url: logoUrl };
 }
 
 export type VendorMineRow = {
@@ -59,6 +82,7 @@ export type VendorMineRow = {
   categories: string[];
   status: string;
   verified: boolean;
+  logo_url: string | null;
   created_at: Date;
 };
 
@@ -66,7 +90,7 @@ export async function listVendorsForOwner(
   ownerId: string,
 ): Promise<VendorMineRow[]> {
   const r = await db.q<VendorMineRow>(
-    `select id, name, categories, status, verified, created_at
+    `select id, name, categories, status, verified, logo_url, created_at
      from vendors
      where owner_id = $1
      order by created_at desc
@@ -82,6 +106,7 @@ export type AdminVendorRow = {
   categories: string[];
   status: string;
   verified: boolean;
+  logo_url: string | null;
   created_at: Date;
   owner_email: string | null;
 };
@@ -93,7 +118,7 @@ export async function listVendorsForAdmin(
 ): Promise<AdminVendorRow[]> {
   const st = adminStatuses.has(status) ? status : "pending";
   const r = await db.q<AdminVendorRow>(
-    `select v.id, v.name, v.categories, v.status, v.verified, v.created_at,
+    `select v.id, v.name, v.categories, v.status, v.verified, v.logo_url, v.created_at,
             u.email as owner_email
      from vendors v
      join users u on u.id = v.owner_id

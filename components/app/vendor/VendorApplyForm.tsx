@@ -1,5 +1,10 @@
 "use client";
 
+import { useNakuruApp } from "@/components/app/AppProvider";
+import {
+  Avatar,
+  ProfilePhotoUpload,
+} from "@/components/app/ProfilePhotoUpload";
 import { apiFetch, ApiError } from "@/lib/nakuru/api";
 import { CATS, SOON } from "@/lib/nakuru/data/constants";
 import type { CategoryId } from "@/lib/nakuru/types";
@@ -19,6 +24,7 @@ type Props = {
 };
 
 export function VendorApplyForm({ disabled, onApplied, toast }: Props) {
+  const { state } = useNakuruApp();
   const [name, setName] = useState("");
   const [categories, setCategories] = useState<CategoryId[]>(["shop"]);
   const [busy, setBusy] = useState(false);
@@ -67,9 +73,17 @@ export function VendorApplyForm({ disabled, onApplied, toast }: Props) {
 
     setBusy(true);
     try {
+      const body: {
+        name: string;
+        categories: CategoryId[];
+        imageDataUrl?: string;
+      } = { name: trimmed, categories };
+      if (state.photo) {
+        body.imageDataUrl = state.photo;
+      }
       await apiFetch("/api/vendors", {
         method: "POST",
-        body: JSON.stringify({ name: trimmed, categories }),
+        body: JSON.stringify(body),
       });
       toast("Application submitted. We'll review it soon.");
       setName("");
@@ -85,7 +99,11 @@ export function VendorApplyForm({ disabled, onApplied, toast }: Props) {
           return;
         }
         if (err.status === 400) {
-          toast("Check your name and categories and try again.");
+          toast("Check your name, photo, and categories and try again.");
+          return;
+        }
+        if (err.status === 503 && err.body.error === "image_upload_failed") {
+          toast("Photo could not be saved. Try again or apply without a photo.");
           return;
         }
       }
@@ -99,9 +117,23 @@ export function VendorApplyForm({ disabled, onApplied, toast }: Props) {
     <form onSubmit={submit}>
       <h2>Sell on NakuruHub</h2>
       <div className="m">
-        Free to join. Pick the categories you sell in—each is reviewed
-        separately. Your identity is tied to your verified email; staff may
-        ask for ID offline if needed.
+        Free to join. Add a profile picture or shop logo, then pick the
+        categories you sell in—each is reviewed separately. Your identity is
+        tied to your verified email; staff may ask for ID offline if needed.
+      </div>
+
+      <div className="row" style={{ marginTop: 12, marginBottom: 12 }}>
+        <ProfilePhotoUpload
+          className="pfp"
+          role="button"
+          aria-label="Upload profile picture or shop logo"
+        >
+          <Avatar photo={state.photo} />
+          <b>📷</b>
+        </ProfilePhotoUpload>
+        <div className="m" style={{ alignSelf: "center" }}>
+          Tap to add a profile picture or shop logo (optional)
+        </div>
       </div>
 
       <label htmlFor="vendor-apply-name">Your name or business</label>

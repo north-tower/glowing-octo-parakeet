@@ -99,6 +99,7 @@ function LiveVendorPanel() {
 
   const approved = primary.status === "approved";
   const cats = primary.categories as CategoryId[];
+  const vendorPhoto = primary.logo_url || state.photo;
 
   return (
     <>
@@ -108,7 +109,7 @@ function LiveVendorPanel() {
           role="button"
           aria-label="Upload profile picture"
         >
-          <Avatar photo={state.photo} />
+          <Avatar photo={vendorPhoto} />
           <b>📷</b>
         </ProfilePhotoUpload>
         <div>

@@ -64,3 +64,28 @@ export async function uploadProductImage(
   const { data } = supabase.storage.from(PRODUCT_BUCKET).getPublicUrl(path);
   return data.publicUrl;
 }
+
+export async function uploadVendorLogo(
+  vendorId: string,
+  bytes: Buffer,
+  contentType: "image/jpeg" | "image/png" | "image/webp",
+): Promise<string> {
+  const ext =
+    contentType === "image/png"
+      ? "png"
+      : contentType === "image/webp"
+        ? "webp"
+        : "jpg";
+  const path = `vendor-logos/${vendorId}.${ext}`;
+  const supabase = storageClient();
+  const { error } = await supabase.storage.from(PRODUCT_BUCKET).upload(path, bytes, {
+    contentType,
+    upsert: true,
+  });
+  if (error) {
+    console.error("[storage] vendor logo upload", error.message);
+    throw new StorageError("upload_failed");
+  }
+  const { data } = supabase.storage.from(PRODUCT_BUCKET).getPublicUrl(path);
+  return data.publicUrl;
+}

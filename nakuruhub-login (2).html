@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d5c58">
+<title>Log in – NakuruHub</title>
+<style>
+:root{--teal:#0d5c58;--teal-d:#093f3c;--pink:#e8577a;--bg:#f3f7f6;--card:#fff;--ink:#16302e;--mute:#5d7573;--line:#d3e0de;--err:#b3261e;--ok:#1b7a43}
+@media (prefers-color-scheme:dark){:root{--bg:#0c1e1d;--card:#13302e;--ink:#eaf4f2;--mute:#9bb5b2;--line:#27504c;--err:#ff8a80;--ok:#6fdc9a}}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);display:flex;align-items:center;justify-content:center;padding:20px;min-height:100vh}
+.wrap{width:100%;max-width:400px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.brand{font-weight:700;font-size:20px;color:var(--teal)}
+@media (prefers-color-scheme:dark){.brand{color:#7fd6cf}}
+.lang button{border:1px solid var(--line);background:transparent;color:var(--ink);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:13px}
+.lang button[aria-pressed=true]{background:var(--teal);color:#fff;border-color:var(--teal)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px}
+h1{font-size:22px;margin:0 0 4px}
+.sub{color:var(--mute);margin:0 0 18px;font-size:14px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--bg);border-radius:10px;padding:4px;margin-bottom:18px}
+.tabs button{border:0;background:transparent;padding:9px;border-radius:7px;font-weight:600;color:var(--mute);cursor:pointer;font-size:14px}
+.tabs button[aria-selected=true]{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+label{display:block;font-size:13px;font-weight:600;margin:14px 0 6px}
+.field{display:flex;border:1.5px solid var(--line);border-radius:10px;background:var(--card);overflow:hidden}
+.field:focus-within{border-color:var(--teal);box-shadow:0 0 0 3px rgba(13,92,88,.2)}
+.field.bad{border-color:var(--err)}
+.field span.pre{padding:12px 0 12px 12px;color:var(--mute);font-size:15px}
+.field input{flex:1;border:0;outline:0;background:transparent;color:var(--ink);padding:12px;font-size:16px;min-width:0}
+.field .eye{border:0;background:transparent;color:var(--teal);font-weight:600;padding:0 14px;cursor:pointer;font-size:13px}
+@media (prefers-color-scheme:dark){.field .eye{color:#7fd6cf}}
+.row{display:flex;justify-content:space-between;align-items:center;margin:14px 0;font-size:14px}
+.row label{display:flex;gap:8px;align-items:center;margin:0;font-weight:400}
+a{color:var(--teal);font-weight:600;text-decoration:none}
+@media (prefers-color-scheme:dark){a{color:#7fd6cf}}
+a:hover{text-decoration:underline}
+.go{width:100%;border:0;background:var(--teal);color:#fff;font-size:16px;font-weight:700;padding:13px;border-radius:10px;cursor:pointer}
+.go:hover:not(:disabled){background:var(--teal-d)}
+.go:disabled{opacity:.55;cursor:not-allowed}
+button:focus-visible,a:focus-visible{outline:3px solid var(--pink);outline-offset:2px}
+.msg{min-height:20px;font-size:14px;margin-top:12px}
+.msg.err{color:var(--err)}.msg.ok{color:var(--ok)}
+.foot{text-align:center;font-size:14px;color:var(--mute);margin-top:16px}
+.guest{display:block;width:100%;margin-top:14px;text-align:center;border:1.5px solid var(--teal);color:var(--teal);background:transparent;font-weight:700;font-size:15px;padding:11px;border-radius:10px;text-decoration:none}
+.guest:hover{background:var(--bg);text-decoration:none}
+@media (prefers-color-scheme:dark){.guest{color:#7fd6cf;border-color:#7fd6cf}}
+.note{font-size:12px;color:var(--mute);text-align:center;margin:6px 0 0}
+.proto{font-size:12px;color:var(--mute);text-align:center;margin-top:14px}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="top">
+    <div class="brand">🦩 NakuruHub</div>
+    <div class="lang" role="group" aria-label="Language">
+      <button id="en" aria-pressed="true">EN</button>
+      <button id="sw" aria-pressed="false">SW</button>
+    </div>
+  </div>
+
+  <section class="card">
+    <h1 id="t-title">Log in</h1>
+    <p class="sub" id="t-sub">Welcome back to Nakuru’s marketplace.</p>
+
+    <div class="tabs" role="tablist">
+      <button role="tab" id="tab-customer" aria-selected="true">Customer</button>
+      <button role="tab" id="tab-vendor" aria-selected="false">Vendor</button>
+    </div>
+
+    <form id="f" novalidate>
+      <label for="phone" id="t-phone">Phone number</label>
+      <div class="field" id="phoneBox">
+        <span class="pre">+254</span>
+        <input id="phone" type="tel" inputmode="numeric" autocomplete="username" placeholder="712 345 678" maxlength="12">
+      </div>
+
+      <label for="pw" id="t-pw">Password</label>
+      <div class="field" id="pwBox">
+        <input id="pw" type="password" autocomplete="current-password" placeholder="••••••••">
+        <button type="button" class="eye" id="eye" aria-label="Show password">Show</button>
+      </div>
+
+      <div class="row">
+        <label><input type="checkbox" id="remember"> <span id="t-rem">Keep me logged in</span></label>
+        <a href="#forgot" id="forgot">Forgot password?</a>
+      </div>
+
+      <button class="go" id="go" type="submit">Log in</button>
+      <div class="msg" id="msg" role="alert" aria-live="polite"></div>
+    </form>
+
+    <a class="guest" id="guest" target="_top" href="https://glowing-octo-parakeet-psi.vercel.app/app">Browse without logging in</a>
+    <p class="note" id="t-note">You only log in when you order, list or save.</p>
+    <p class="foot"><span id="t-new">New here?</span> <a href="https://glowing-octo-parakeet-psi.vercel.app/app?start=vendor" target="_top" id="signup">Create an account</a></p>
+  </section>
+  <p class="proto" id="t-proto">Prototype demo — try 0712345678 / Nakuru@2026</p>
+</main>
+
+<script>
+/* ---------- Settings (change these) ---------- */
+const SITE = "https://glowing-octo-parakeet-psi.vercel.app"; // where to go after login
+const MAX_FREE_TRIES = 5;     // wrong passwords allowed before a short wait
+const COOLDOWN_SECONDS = 30;  // first wait; doubles each time (30s, 60s, 120s... max 15 min)
+const DEMO = { phone: "712345678", password: "Nakuru@2026" }; // REMOVE when you connect a real backend
+
+/* ---------- Text (English / Kiswahili) ---------- */
+const T = {
+  en:{guest:"Browse without logging in",note:"You only log in when you order, list or save.",title:"Log in",sub:"Welcome back to Nakuru’s marketplace.",phone:"Phone number",pw:"Password",rem:"Keep me logged in",
+      forgot:"Forgot password?",go:"Log in",show:"Show",hide:"Hide",newh:"New here?",sign:"Create an account",
+      proto:"Prototype demo — try 0712345678 / Nakuru@2026",
+      badPhone:"Enter a valid Kenyan phone number, e.g. 712 345 678.",noPw:"Enter your password.",
+      wrong:n=>`Wrong phone or password. ${n} ${n===1?"try":"tries"} left before a short wait.`,
+      wait:s=>`Too many tries. Wait ${s}s, then try again.`,ok:"Logged in. Opening your dashboard…",
+      reset:"We will send a reset code by SMS (connect your SMS service here).",customer:"Customer",vendor:"Vendor"},
+  sw:{guest:"Vinjari bila kuingia",note:"Utaingia tu unapoagiza, kuorodhesha au kuhifadhi.",title:"Ingia",sub:"Karibu tena kwenye soko la Nakuru.",phone:"Nambari ya simu",pw:"Nenosiri",rem:"Nikumbuke",
+      forgot:"Umesahau nenosiri?",go:"Ingia",show:"Onyesha",hide:"Ficha",newh:"Mgeni?",sign:"Fungua akaunti",
+      proto:"Jaribio — tumia 0712345678 / Nakuru@2026",
+      badPhone:"Weka nambari sahihi ya simu, mfano 712 345 678.",noPw:"Weka nenosiri lako.",
+      wrong:n=>`Simu au nenosiri si sahihi. Umebakiwa na majaribio ${n} kabla ya kusubiri kidogo.`,
+      wait:s=>`Majaribio mengi. Subiri sekunde ${s}, kisha ujaribu tena.`,ok:"Umeingia. Inafungua dashibodi…",
+      reset:"Tutatuma msimbo wa kubadilisha nenosiri kwa SMS (unganisha huduma yako ya SMS hapa).",customer:"Mteja",vendor:"Muuzaji"}
+};
+let lang="en", role="customer", fails=0, lockLevel=0, lockUntil=0, timer=null;
+
+const $=id=>document.getElementById(id);
+const msg=(t,c)=>{$("msg").textContent=t;$("msg").className="msg "+(c||"")};
+
+function applyLang(){
+  const t=T[lang];
+  $("t-title").textContent=t.title;$("t-sub").textContent=t.sub;$("t-phone").textContent=t.phone;
+  $("t-pw").textContent=t.pw;$("t-rem").textContent=t.rem;$("forgot").textContent=t.forgot;
+  $("go").textContent=t.go;$("t-new").textContent=t.newh;$("signup").textContent=t.sign;$("t-proto").textContent=t.proto;$("guest").textContent=t.guest;$("t-note").textContent=t.note;
+  $("eye").textContent=$("pw").type==="password"?t.show:t.hide;
+  $("tab-customer").textContent=t.customer;$("tab-vendor").textContent=t.vendor;
+  document.documentElement.lang=lang;
+  $("en").setAttribute("aria-pressed",lang==="en");$("sw").setAttribute("aria-pressed",lang==="sw");
+}
+$("en").onclick=()=>{lang="en";applyLang()};
+$("sw").onclick=()=>{lang="sw";applyLang()};
+
+/* Customer / Vendor tabs (send `role` to your backend so it opens the right dashboard) */
+function setRole(r){role=r;
+  $("tab-customer").setAttribute("aria-selected",r==="customer");
+  $("tab-vendor").setAttribute("aria-selected",r==="vendor");}
+$("tab-customer").onclick=()=>setRole("customer");
+$("tab-vendor").onclick=()=>setRole("vendor");
+
+/* Show / hide password */
+$("eye").onclick=()=>{
+  const p=$("pw"),show=p.type==="password";
+  p.type=show?"text":"password";
+  $("eye").textContent=show?T[lang].hide:T[lang].show;
+  $("eye").setAttribute("aria-label",show?"Hide password":"Show password");
+  p.focus();
+};
+
+/* Normalise Kenyan numbers: 0712.., 712.., +254712.., 254712.. -> 712345678 */
+function normPhone(v){
+  let d=v.replace(/\D/g,"");
+  if(d.startsWith("254"))d=d.slice(3);
+  if(d.startsWith("0"))d=d.slice(1);
+  return /^[17]\d{8}$/.test(d)?d:null;
+}
+
+/* Cooldown after too many wrong tries — the user can keep trying, just not instantly */
+function startLock(){
+  const secs=Math.min(COOLDOWN_SECONDS*Math.pow(2,lockLevel),900);
+  lockLevel++;lockUntil=Date.now()+secs*1000;$("go").disabled=true;
+  clearInterval(timer);
+  timer=setInterval(()=>{
+    const left=Math.ceil((lockUntil-Date.now())/1000);
+    if(left<=0){clearInterval(timer);$("go").disabled=false;fails=0;msg("");return}
+    msg(T[lang].wait(left),"err");
+  },250);
+}
+
+/* ---------- Replace this with your real login call ---------- */
+async function login(phone,password,remember,role){
+  /* Example with Supabase (phone + password):
+     const {data,error}=await supabase.auth.signInWithPassword({phone:"+254"+phone,password});
+     return !error;
+     The server should ALSO rate-limit attempts; browser limits alone can be bypassed. */
+  await new Promise(r=>setTimeout(r,500));
+  return phone===DEMO.phone && password===DEMO.password;
+}
+
+$("f").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const t=T[lang];
+  $("phoneBox").classList.remove("bad");$("pwBox").classList.remove("bad");
+  const phone=normPhone($("phone").value);
+  if(!phone){$("phoneBox").classList.add("bad");msg(t.badPhone,"err");$("phone").focus();return}
+  const pw=$("pw").value;
+  if(!pw){$("pwBox").classList.add("bad");msg(t.noPw,"err");$("pw").focus();return}
+
+  $("go").disabled=true;msg("");
+  const ok=await login(phone,pw,$("remember").checked,role);
+  if(ok){
+    fails=0;lockLevel=0;msg(t.ok,"ok");
+    const store=$("remember").checked?localStorage:sessionStorage;   // remembered = stays after closing browser
+    store.setItem("nh_user",JSON.stringify({phone,role,at:Date.now()}));
+    const next=new URLSearchParams(location.search).get("next");     // send them back to what they were doing
+    const dest=next&&next.startsWith("/")?next:(role==="vendor"?"/app?start=vendor":"/app");
+    setTimeout(()=>{ window.top.location.href = SITE + dest; },900);
+    return;
+  }
+  fails++;
+  $("pwBox").classList.add("bad");
+  $("pw").value="";$("pw").focus();   // clear it so they can type again straight away
+  if(fails>=MAX_FREE_TRIES){startLock();return}
+  $("go").disabled=false;
+  msg(t.wrong(MAX_FREE_TRIES-fails),"err");
+});
+
+$("forgot").onclick=e=>{e.preventDefault();msg(T[lang].reset,"ok")};
+applyLang();
+</script>
+</body>
+</html>

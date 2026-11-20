@@ -165,6 +165,17 @@ function VendorQueueCard({
 }) {
   return (
     <div className="card">
+      <div className="row" style={{ gap: 12, alignItems: "flex-start" }}>
+        {v.logo_url ? (
+          <img
+            src={v.logo_url}
+            alt=""
+            width={48}
+            height={48}
+            style={{ borderRadius: 8, objectFit: "cover" }}
+          />
+        ) : null}
+        <div style={{ flex: 1, minWidth: 0 }}>
       <div className="t">{v.name}</div>
       <div className="m">
         {v.owner_email ?? "(no email)"} · {v.categories.join(", ")}
@@ -207,6 +218,8 @@ function VendorQueueCard({
         {v.status === "rejected" ? (
           <span className="m">Rejected — no actions</span>
         ) : null}
+      </div>
+        </div>
       </div>
     </div>
   );

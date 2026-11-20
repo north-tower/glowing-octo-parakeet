@@ -4,6 +4,7 @@ export type ApiVendorRow = {
   categories: string[];
   status: string;
   verified: boolean;
+  logo_url: string | null;
   created_at: string;
 };
 
