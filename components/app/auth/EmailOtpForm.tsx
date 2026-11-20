@@ -8,7 +8,10 @@ import {
   signInCopy,
   type SignInIntent,
 } from "@/lib/nakuru/sign-in-intent";
-import { useSearchParams } from "next/navigation";
+import { appHrefForDetailNavTab } from "@/lib/nakuru/detail-nav-tab";
+import { homeCopy } from "@/lib/nakuru/home-i18n";
+import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   useCallback,
   useEffect,
@@ -29,14 +32,19 @@ type Props = {
   /** When set, overrides URL `?start=vendor` for Shop vs Seller UI. */
   intent?: SignInIntent;
   showIntentSwitch?: boolean;
+  showGuestBrowse?: boolean;
 };
 
 export function EmailOtpForm({
   intent: intentProp,
   showIntentSwitch = true,
+  showGuestBrowse = true,
 }: Props) {
   const { setSessionFromOtp } = useAuth();
   const { dispatch, toast } = useNakuruApp();
+  const { lang } = usePwaInstall();
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const intent = useMemo((): SignInIntent => {
@@ -55,6 +63,7 @@ export function EmailOtpForm({
   const [busy, setBusy] = useState(false);
   const [resendIn, setResendIn] = useState(0);
   const [devCode, setDevCode] = useState<string | null>(null);
+  const [remember, setRemember] = useState(false);
 
   useEffect(() => {
     if (resendIn <= 0) return;
@@ -132,7 +141,7 @@ export function EmailOtpForm({
     try {
       const data = await apiFetch<{ access: string }>("/api/auth/otp/verify", {
         method: "POST",
-        body: JSON.stringify({ email, code: digits }),
+        body: JSON.stringify({ email, code: digits, remember }),
         skipAuthRetry: true,
       });
       setSessionFromOtp(data.access, email);
@@ -153,6 +162,29 @@ export function EmailOtpForm({
       setBusy(false);
     }
   };
+
+  const browseAsGuest = () => {
+    dispatch({ type: "SET_TAB", tab: "home" });
+    dispatch({ type: "SET_ACC", acc: null });
+    if (pathname?.startsWith("/app/p/")) {
+      router.push(appHrefForDetailNavTab());
+    }
+  };
+
+  const guestBlock =
+    showGuestBrowse && step === "email" ? (
+      <>
+        <button
+          type="button"
+          className="sign-in-guest"
+          disabled={busy}
+          onClick={browseAsGuest}
+        >
+          {homeCopy("signInGuestBrowse", lang)}
+        </button>
+        <p className="sign-in-guest-note">{homeCopy("signInGuestNote", lang)}</p>
+      </>
+    ) : null;
 
   const intentSwitch = showIntentSwitch ? (
     <button
@@ -185,10 +217,21 @@ export function EmailOtpForm({
           disabled={busy}
           onChange={(e) => setEmail(e.target.value)}
         />
+        <label className="sign-in-remember" htmlFor="otp-remember">
+          <input
+            id="otp-remember"
+            type="checkbox"
+            checked={remember}
+            disabled={busy}
+            onChange={(e) => setRemember(e.target.checked)}
+          />
+          <span>{homeCopy("signInRemember", lang)}</span>
+        </label>
         <button type="submit" className="btn full" disabled={busy}>
           {busy ? "Sending…" : copy.emailCta}
         </button>
         {intentSwitch}
+        {guestBlock}
       </form>
     );
   }

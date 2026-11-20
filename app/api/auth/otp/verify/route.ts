@@ -38,6 +38,10 @@ export async function POST(req: Request) {
   await audit("login", u.id, ip);
   const session = await startSession({ id: u.id, role: u.role });
   const res = NextResponse.json({ access: session.access });
-  res.cookies.set(REFRESH_COOKIE, session.refresh, refreshCookieOptions);
+  res.cookies.set(
+    REFRESH_COOKIE,
+    session.refresh,
+    refreshCookieOptions(b.data.remember),
+  );
   return res;
 }

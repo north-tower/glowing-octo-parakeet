@@ -6,6 +6,8 @@ import { apiFetch } from "@/lib/nakuru/api";
 import { inquiryErrorMessage } from "@/lib/nakuru/inquiries";
 import { kes } from "@/lib/nakuru/format";
 import type { Listing } from "@/lib/nakuru/types";
+import { requireAuth } from "@/lib/nakuru/require-auth";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useId, useState, type FormEvent } from "react";
 
 type Props = {
@@ -16,7 +18,8 @@ type Props = {
 export function ServiceInquiryModal({ listing, onClose }: Props) {
   const titleId = useId();
   const { user, ready } = useAuth();
-  const { dispatch, toast } = useNakuruApp();
+  const { state, dispatch, toast } = useNakuruApp();
+  const pathname = usePathname();
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -29,9 +32,11 @@ export function ServiceInquiryModal({ listing, onClose }: Props) {
   }, [onClose, busy]);
 
   const goSignIn = useCallback(() => {
-    onClose();
-    dispatch({ type: "SET_TAB", tab: "acc" });
-  }, [dispatch, onClose]);
+    requireAuth(user, { tab: state.tab, path: pathname ?? undefined }, () => {
+      onClose();
+      dispatch({ type: "SET_TAB", tab: "acc" });
+    });
+  }, [dispatch, onClose, pathname, state.tab, user]);
 
   const submit = async (ev: FormEvent) => {
     ev.preventDefault();

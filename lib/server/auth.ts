@@ -8,13 +8,18 @@ import { accessToken, newRefresh, type SessionUser } from "./tokens";
 
 export const REFRESH_COOKIE = "rt";
 
-export const refreshCookieOptions = {
+const refreshCookieBase = {
   httpOnly: true,
   secure: config.env === "production",
   sameSite: "strict" as const,
   path: "/api/auth",
-  maxAge: config.refreshDays * 86_400,
-};
+} as const;
+
+/** Persistent refresh when `remember` is true; session cookie when false. */
+export function refreshCookieOptions(remember = true) {
+  if (!remember) return { ...refreshCookieBase };
+  return { ...refreshCookieBase, maxAge: config.refreshDays * 86_400 };
+}
 
 let dummyHash: string | undefined;
 void argon2

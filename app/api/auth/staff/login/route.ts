@@ -41,6 +41,6 @@ export async function POST(req: Request) {
   await audit("staff_login", u.id, ip);
   const session = await startSession({ id: u.id, role: u.role });
   const res = NextResponse.json({ access: session.access });
-  res.cookies.set(REFRESH_COOKIE, session.refresh, refreshCookieOptions);
+  res.cookies.set(REFRESH_COOKIE, session.refresh, refreshCookieOptions(true));
   return res;
 }

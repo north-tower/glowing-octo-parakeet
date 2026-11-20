@@ -219,6 +219,9 @@ export type HomeCopyKey =
   | "assistantFabAria"
   | "assistantCloseAria"
   | "accSignedOut"
+  | "signInGuestBrowse"
+  | "signInGuestNote"
+  | "signInRemember"
   | "accUploadPhotoAria"
   | "accDefaultName";
 
@@ -598,6 +601,18 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   accSignOutCancel: { en: "Cancel", sw: "Ghairi" },
   accFooter: { en: "NakuruHub · Nakuru, Kenya", sw: "NakuruHub · Nakuru, Kenya" },
   accSignedOut: { en: "Signed out", sw: "Umetoka" },
+  signInGuestBrowse: {
+    en: "Browse without signing in",
+    sw: "Vinjari bila kuingia",
+  },
+  signInGuestNote: {
+    en: "You only sign in when you order, list, or save.",
+    sw: "Utaingia tu unapoagiza, kuorodhesha au kuhifadhi.",
+  },
+  signInRemember: {
+    en: "Keep me signed in",
+    sw: "Nikumbuke",
+  },
   accUploadPhotoAria: {
     en: "Upload profile picture",
     sw: "Pakia picha ya wasifu",

@@ -45,7 +45,7 @@ import {
   placeOrder,
 } from "@/lib/nakuru/orders";
 import { consumeOpenCartSegment } from "@/lib/nakuru/post-cart-segment";
-import { requestPostSignInTab } from "@/lib/nakuru/post-sign-in-tab";
+import { requireAuth } from "@/lib/nakuru/require-auth";
 import { requestInstallRetrigger } from "@/lib/nakuru/pwa-engage";
 import {
   buildDemoPlaceOrder,
@@ -205,9 +205,11 @@ export function CartView() {
     setFieldErrors(errs);
     if (Object.keys(errs).length) return;
 
-    if (!user) {
-      requestPostSignInTab("cart");
-      dispatch({ type: "SET_TAB", tab: "acc" });
+    if (
+      !requireAuth(user, { tab: "cart" }, () =>
+        dispatch({ type: "SET_TAB", tab: "acc" }),
+      )
+    ) {
       return;
     }
 
@@ -285,8 +287,9 @@ export function CartView() {
   };
 
   const onSignIn = () => {
-    requestPostSignInTab("cart");
-    dispatch({ type: "SET_TAB", tab: "acc" });
+    requireAuth(user, { tab: "cart" }, () =>
+      dispatch({ type: "SET_TAB", tab: "acc" }),
+    );
   };
 
   const onMpesaDisabled = () => {

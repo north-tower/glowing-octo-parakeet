@@ -104,6 +104,7 @@ export const otpVerify = z
   .object({
     email,
     code: z.string().regex(/^\d{6}$/),
+    remember: z.boolean().optional().default(true),
   })
   .strict();
 

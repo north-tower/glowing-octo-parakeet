@@ -8,10 +8,11 @@ import { useNakuruApp } from "@/components/app/AppProvider";
 import { useMyVendorProfile } from "@/components/app/useMyVendorProfile";
 import { accountMenuRowsSignedOut } from "@/lib/nakuru/vendor-profile";
 import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
-import { consumePostSignInTab } from "@/lib/nakuru/post-sign-in-tab";
+import { consumePostSignInReturn } from "@/lib/nakuru/post-sign-in-tab";
 import { useAssistantUi } from "@/components/app/assistant/AssistantUiProvider";
 import { homeCopy } from "@/lib/nakuru/home-i18n";
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 function InstallAccountRowSignedOut() {
   const { standalone, openInstallSheet, t } = usePwaInstall();
@@ -43,12 +44,18 @@ export function AccountView() {
   const { user, ready, logout } = useAuth();
   const { profile: vendorProfile } = useMyVendorProfile();
   const { lang, setLang, standalone, openInstallSheet } = usePwaInstall();
+  const router = useRouter();
 
   useEffect(() => {
     if (!user) return;
-    const tab = consumePostSignInTab();
+    const { tab, path } = consumePostSignInReturn();
+    if (path?.startsWith("/app/p/")) {
+      router.push(path);
+      return;
+    }
     if (tab) dispatch({ type: "SET_TAB", tab });
-  }, [user, dispatch]);
+    else if (path) router.push(path);
+  }, [user, dispatch, router]);
 
   if (state.acc) {
     if (state.acc === "vendor" && ready && !user) {
@@ -61,7 +68,11 @@ export function AccountView() {
           >
             ‹ Back
           </button>
-          <EmailOtpForm intent="seller" showIntentSwitch={false} />
+          <EmailOtpForm
+            intent="seller"
+            showIntentSwitch={false}
+            showGuestBrowse={false}
+          />
         </>
       );
     }

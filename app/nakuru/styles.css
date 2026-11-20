@@ -837,6 +837,11 @@ body.app .otp-dev-banner-label{margin:0 0 6px;font-size:12px;line-height:1.35}
 body.app .otp-dev-code{display:block;font-family:var(--font-display);font-size:1.5rem;font-weight:650;letter-spacing:.25em;font-variant-numeric:tabular-nums;color:var(--ink)}
 body.app .sign-in-card--seller{border-color:color-mix(in srgb,var(--pri) 28%,var(--line))}
 body.app .sign-in-card--seller h2{color:var(--pri)}
+body.app .sign-in-remember{display:flex;align-items:center;gap:8px;margin:12px 0 4px;font-size:14px;font-weight:400;cursor:pointer}
+body.app .sign-in-remember input{width:16px;height:16px;margin:0;accent-color:var(--pri)}
+body.app .sign-in-guest{display:block;width:100%;margin-top:14px;text-align:center;border:1.5px solid var(--pri);color:var(--pri);background:transparent;font-weight:650;font-size:15px;padding:11px;border-radius:10px;cursor:pointer}
+body.app .sign-in-guest:hover{background:var(--bg)}
+body.app .sign-in-guest-note{font-size:12px;color:var(--mute);text-align:center;margin:6px 0 0}
 body.app .g2{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
 body.app .g3{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
 body.app .cl{grid-template-columns:minmax(100px,140px) minmax(0,1fr);margin:0;gap:16px}

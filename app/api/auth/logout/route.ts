@@ -16,6 +16,9 @@ export async function POST(req: Request) {
   }
 
   const res = NextResponse.json({ ok: true });
-  res.cookies.set(REFRESH_COOKIE, "", { ...refreshCookieOptions, maxAge: 0 });
+  res.cookies.set(REFRESH_COOKIE, "", {
+    ...refreshCookieOptions(true),
+    maxAge: 0,
+  });
   return res;
 }

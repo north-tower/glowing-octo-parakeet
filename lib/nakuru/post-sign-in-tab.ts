@@ -1,24 +1,60 @@
 import type { TabId } from "@/lib/nakuru/types";
 
-const KEY = "nh:postSignInTab";
+const TAB_KEY = "nh:postSignInTab";
+const PATH_KEY = "nh:postSignInPath";
 
-export function requestPostSignInTab(tab: TabId): void {
+const TABS: TabId[] = ["home", "cat", "msg", "cart", "acc"];
+
+export type PostSignInReturn = {
+  tab: TabId | null;
+  path: string | null;
+};
+
+function safeReturnPath(path: string): string | null {
+  if (!path.startsWith("/") || path.startsWith("//")) return null;
+  if (!path.startsWith("/app")) return null;
+  return path;
+}
+
+/** Remember where to send the shopper after in-app sign-in. */
+export function requestPostSignInReturn(opts: {
+  tab?: TabId;
+  path?: string;
+}): void {
   try {
-    sessionStorage.setItem(KEY, tab);
+    if (opts.tab) sessionStorage.setItem(TAB_KEY, opts.tab);
+    if (opts.path) {
+      const safe = safeReturnPath(opts.path);
+      if (safe) sessionStorage.setItem(PATH_KEY, safe);
+    }
   } catch {
     /* unavailable */
   }
 }
 
-export function consumePostSignInTab(): TabId | null {
+export function requestPostSignInTab(tab: TabId): void {
+  requestPostSignInReturn({ tab });
+}
+
+export function consumePostSignInReturn(): PostSignInReturn {
+  let tab: TabId | null = null;
+  let path: string | null = null;
   try {
-    const raw = sessionStorage.getItem(KEY);
-    sessionStorage.removeItem(KEY);
-    if (raw === "home" || raw === "cat" || raw === "msg" || raw === "cart" || raw === "acc") {
-      return raw;
+    const rawTab = sessionStorage.getItem(TAB_KEY);
+    sessionStorage.removeItem(TAB_KEY);
+    if (rawTab && TABS.includes(rawTab as TabId)) {
+      tab = rawTab as TabId;
     }
+
+    const rawPath = sessionStorage.getItem(PATH_KEY);
+    sessionStorage.removeItem(PATH_KEY);
+    if (rawPath) path = safeReturnPath(rawPath);
   } catch {
     /* unavailable */
   }
-  return null;
+  return { tab, path };
+}
+
+export function consumePostSignInTab(): TabId | null {
+  return consumePostSignInReturn().tab;
 }

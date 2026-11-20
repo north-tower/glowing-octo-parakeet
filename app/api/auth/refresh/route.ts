@@ -19,12 +19,15 @@ export async function POST(req: Request) {
   if (!r.ok) {
     const res = NextResponse.json({ error: "unauthorized" }, { status: 401 });
     if (r.clearCookie) {
-      res.cookies.set(REFRESH_COOKIE, "", { ...refreshCookieOptions, maxAge: 0 });
+      res.cookies.set(REFRESH_COOKIE, "", {
+        ...refreshCookieOptions(true),
+        maxAge: 0,
+      });
     }
     return res;
   }
 
   const res = NextResponse.json({ access: accessToken(r.user) });
-  res.cookies.set(REFRESH_COOKIE, r.refresh, refreshCookieOptions);
+  res.cookies.set(REFRESH_COOKIE, r.refresh, refreshCookieOptions(true));
   return res;
 }

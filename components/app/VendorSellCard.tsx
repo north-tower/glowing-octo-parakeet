@@ -10,6 +10,7 @@ import {
   canShowVendorSellCard,
   markVendorSellCardDismissed,
 } from "@/lib/nakuru/vendor-sell-card";
+import { requireAuth } from "@/lib/nakuru/require-auth";
 
 export function VendorSellCard() {
   const { dispatch, state } = useNakuruApp();
@@ -65,7 +66,13 @@ export function VendorSellCard() {
           <button
             type="button"
             className="btn s vendor-sell-cta"
-            onClick={() => dispatch({ type: "SIGNIN" })}
+            onClick={() => {
+              requireAuth(
+                user,
+                { tab: "acc", saveReturn: false },
+                () => dispatch({ type: "SIGNIN" }),
+              );
+            }}
           >
             {homeCopy("vendorCardCta", lang)}
           </button>
