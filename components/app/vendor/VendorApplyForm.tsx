@@ -7,7 +7,10 @@ import {
 } from "@/components/app/ProfilePhotoUpload";
 import { apiFetch, ApiError } from "@/lib/nakuru/api";
 import { SOON } from "@/lib/nakuru/data/constants";
-import { useCategories } from "@/lib/nakuru/use-categories";
+import {
+  useCategories,
+  type CategoryPublicApiRow,
+} from "@/lib/nakuru/use-categories";
 import type { CategoryId } from "@/lib/nakuru/types";
 import {
   useCallback,
@@ -36,7 +39,7 @@ type Props = {
 
 export function VendorApplyForm({ disabled, onApplied, toast }: Props) {
   const { state } = useNakuruApp();
-  const { rows, loading } = useCategories();
+  const { rows, loading, upsertRow } = useCategories();
   const [name, setName] = useState("");
   const [categories, setCategories] = useState<string[] | null>(null);
   const [catDraft, setCatDraft] = useState("");
@@ -77,10 +80,11 @@ export function VendorApplyForm({ disabled, onApplied, toast }: Props) {
 
     setBusy(true);
     try {
-      const row = await apiFetch<{ slug: string }>("/api/categories", {
+      const row = await apiFetch<CategoryPublicApiRow>("/api/categories", {
         method: "POST",
         body: JSON.stringify({ label }),
       });
+      upsertRow(row);
       setCatDraft("");
       setCategories((prev) => {
         const current = prev ?? defaultCategories;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { apiFetch } from "@/lib/nakuru/api";
 import {
   OFFICIAL_DIRECTORY_FALLBACK,
@@ -8,7 +8,7 @@ import {
 } from "@/lib/nakuru/data/category-directory";
 import type { ListingMode } from "@/lib/nakuru/types";
 
-type ApiCategoryRow = {
+export type CategoryPublicApiRow = {
   slug: string;
   label: string;
   kind: "official" | "community";
@@ -17,7 +17,7 @@ type ApiCategoryRow = {
   sortOrder: number;
 };
 
-function mapApiRow(row: ApiCategoryRow): DirectoryCategory {
+function mapApiRow(row: CategoryPublicApiRow): DirectoryCategory {
   return {
     slug: row.slug,
     label: row.label,
@@ -29,15 +29,31 @@ function mapApiRow(row: ApiCategoryRow): DirectoryCategory {
   };
 }
 
-export function useCategories(): { rows: DirectoryCategory[]; loading: boolean } {
+export function useCategories(): {
+  rows: DirectoryCategory[];
+  loading: boolean;
+  upsertRow: (row: CategoryPublicApiRow) => void;
+} {
   const [rows, setRows] = useState<DirectoryCategory[]>(OFFICIAL_DIRECTORY_FALLBACK);
   const [loading, setLoading] = useState(true);
+
+  const upsertRow = useCallback((row: CategoryPublicApiRow) => {
+    const mapped = mapApiRow(row);
+    setRows((prev) => {
+      const idx = prev.findIndex((r) => r.slug === mapped.slug);
+      const next =
+        idx >= 0
+          ? [...prev.slice(0, idx), mapped, ...prev.slice(idx + 1)]
+          : [...prev, mapped];
+      return [...next].sort((a, b) => a.sortOrder - b.sortOrder);
+    });
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const data = await apiFetch<ApiCategoryRow[]>("/api/categories", {
+        const data = await apiFetch<CategoryPublicApiRow[]>("/api/categories", {
           skipAuthRetry: true,
         });
         if (!cancelled && Array.isArray(data)) {
@@ -58,5 +74,5 @@ export function useCategories(): { rows: DirectoryCategory[]; loading: boolean }
     };
   }, []);
 
-  return { rows, loading };
+  return { rows, loading, upsertRow };
 }
