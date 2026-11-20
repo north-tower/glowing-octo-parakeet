@@ -15,6 +15,7 @@ All schema changes live in `supabase/migrations/`. Apply them to your **Supabase
 |------|---------|
 | `supabase/migrations/003_supabase_launch.sql` | Core schema (users, auth, vendors, catalog, orders, …) |
 | `supabase/migrations/004_email_otp_and_launch_tables.sql` | `vendor_documents`, `service_inquiries` |
+| supabase/migrations/008_category_directory.sql | Category directory + product FK |
 
 Run **003** first, then **004**, on an **empty** `public` schema (new project or fresh database).
 
