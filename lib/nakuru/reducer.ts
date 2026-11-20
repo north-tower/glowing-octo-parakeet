@@ -48,7 +48,7 @@ export function createInitialState(
 
 export type NakuruAction =
   | { type: "SET_TAB"; tab: TabId }
-  | { type: "SET_CAT"; cat: CategoryId }
+  | { type: "SET_CAT"; cat: string }
   | { type: "SET_SIDE"; side: string }
   | { type: "SET_Q"; q: string }
   | { type: "SET_AREA"; area: string }
@@ -110,7 +110,7 @@ export function nakuruReducer(
     case "SET_Q": {
       const q = action.q.slice(0, 80);
       let cat = state.cat;
-      if (SOON[cat]) cat = "all";
+      if (SOON[cat as CategoryId]) cat = "all";
       return { state: { ...state, q, cat, tab: "home" } };
     }
     case "SET_AREA":
