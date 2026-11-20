@@ -6,16 +6,27 @@ import {
   ProfilePhotoUpload,
 } from "@/components/app/ProfilePhotoUpload";
 import { apiFetch, ApiError } from "@/lib/nakuru/api";
-import { CATS, SOON } from "@/lib/nakuru/data/constants";
+import { SOON } from "@/lib/nakuru/data/constants";
+import { useCategories } from "@/lib/nakuru/use-categories";
 import type { CategoryId } from "@/lib/nakuru/types";
-import { useCallback, useMemo, useState, type FormEvent } from "react";
+import {
+  useCallback,
+  useMemo,
+  useState,
+  type FormEvent,
+} from "react";
+import type { DirectoryCategory } from "@/lib/nakuru/data/category-directory";
 
-const LAUNCH_CATEGORIES = new Set(
-  (process.env.NEXT_PUBLIC_LAUNCH_CATEGORIES || "shop,services")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean),
-);
+function defaultCategorySelection(
+  rows: DirectoryCategory[],
+  loading: boolean,
+): string[] {
+  if (loading || rows.length === 0) return ["shop"];
+  const shopOpen = rows.some((r) => r.slug === "shop" && r.openForApply);
+  if (shopOpen) return ["shop"];
+  const firstOpen = rows.find((r) => r.openForApply)?.slug;
+  return firstOpen ? [firstOpen] : ["shop"];
+}
 
 type Props = {
   disabled?: boolean;
@@ -25,37 +36,78 @@ type Props = {
 
 export function VendorApplyForm({ disabled, onApplied, toast }: Props) {
   const { state } = useNakuruApp();
+  const { rows, loading } = useCategories();
   const [name, setName] = useState("");
-  const [categories, setCategories] = useState<CategoryId[]>(["shop"]);
+  const [categories, setCategories] = useState<string[] | null>(null);
+  const [catDraft, setCatDraft] = useState("");
+  const [catError, setCatError] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const launchCats = useMemo(
-    () =>
-      CATS.filter(
-        ([id]) => id !== "all" && LAUNCH_CATEGORIES.has(id),
-      ) as [CategoryId, string][],
-    [],
+  const defaultCategories = useMemo(
+    () => defaultCategorySelection(rows, loading),
+    [rows, loading],
+  );
+  const activeCategories = categories ?? defaultCategories;
+
+  const toggleCategory = useCallback(
+    (slug: string) => {
+      setCategories((prev) => {
+        const current = prev ?? defaultCategories;
+        const on = current.includes(slug);
+        if (on) {
+          const next = current.filter((c) => c !== slug);
+          return next.length ? next : current;
+        }
+        if (current.length >= 4) return current;
+        return [...current, slug];
+      });
+    },
+    [defaultCategories],
   );
 
-  const waitlistCats = useMemo(
-    () =>
-      CATS.filter(
-        ([id]) => id !== "all" && !LAUNCH_CATEGORIES.has(id),
-      ) as [CategoryId, string][],
-    [],
-  );
+  const onAddCustom = async () => {
+    if (disabled || busy) return;
+    setCatError("");
 
-  const toggleCategory = useCallback((cat: CategoryId) => {
-    setCategories((prev) => {
-      const on = prev.includes(cat);
-      if (on) {
-        const next = prev.filter((c) => c !== cat);
-        return next.length ? next : prev;
+    const label = catDraft.trim();
+    if (!label) {
+      setCatError("Use 2–40 letters or numbers.");
+      return;
+    }
+
+    setBusy(true);
+    try {
+      const row = await apiFetch<{ slug: string }>("/api/categories", {
+        method: "POST",
+        body: JSON.stringify({ label }),
+      });
+      setCatDraft("");
+      setCategories((prev) => {
+        const current = prev ?? defaultCategories;
+        if (current.includes(row.slug)) return current;
+        if (current.length >= 4) return current;
+        return [...current, row.slug];
+      });
+    } catch (err) {
+      if (err instanceof ApiError) {
+        if (err.status === 409 && err.body.error === "category_hidden") {
+          setCatError("That category is closed. Pick another.");
+          return;
+        }
+        if (err.status === 401) {
+          setCatError("Sign in with your email code first.");
+          return;
+        }
+        if (err.status === 400) {
+          setCatError("Use 2–40 letters or numbers.");
+          return;
+        }
       }
-      if (prev.length >= 4) return prev;
-      return [...prev, cat];
-    });
-  }, []);
+      setCatError("Could not add. Try again.");
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const submit = async (ev: FormEvent) => {
     ev.preventDefault();
@@ -66,7 +118,7 @@ export function VendorApplyForm({ disabled, onApplied, toast }: Props) {
       toast("Enter your business name (at least 2 characters).");
       return;
     }
-    if (!categories.length) {
+    if (!activeCategories.length) {
       toast("Choose at least one category.");
       return;
     }
@@ -75,9 +127,9 @@ export function VendorApplyForm({ disabled, onApplied, toast }: Props) {
     try {
       const body: {
         name: string;
-        categories: CategoryId[];
+        categories: string[];
         imageDataUrl?: string;
-      } = { name: trimmed, categories };
+      } = { name: trimmed, categories: activeCategories };
       if (state.photo) {
         body.imageDataUrl = state.photo;
       }
@@ -149,33 +201,66 @@ export function VendorApplyForm({ disabled, onApplied, toast }: Props) {
 
       <label>Categories (tap to add or remove)</label>
       <div>
-        {launchCats.map(([id, label]) => {
-          const on = categories.includes(id);
-          return (
-            <button
-              key={id}
-              type="button"
-              className={`chip${on ? " on" : ""}`}
-              disabled={disabled || busy}
-              onClick={() => toggleCategory(id)}
-            >
-              {label}
-            </button>
-          );
+        {rows.map((row) => {
+          if (row.openForApply) {
+            const on = activeCategories.includes(row.slug);
+            return (
+              <button
+                key={row.slug}
+                type="button"
+                className={`chip${on ? " on" : ""}`}
+                disabled={disabled || busy || loading}
+                onClick={() => toggleCategory(row.slug)}
+              >
+                {row.label}
+              </button>
+            );
+          }
+          if (row.kind === "official") {
+            const soonSlug = row.slug as CategoryId;
+            const suffix = SOON[soonSlug]
+              ? " (waitlist)"
+              : " (soon)";
+            return (
+              <button
+                key={row.slug}
+                type="button"
+                className="chip"
+                disabled
+                title="Opens after launch"
+              >
+                {row.label}
+                {suffix}
+              </button>
+            );
+          }
+          return null;
         })}
-        {waitlistCats.map(([id, label]) => (
-          <button
-            key={id}
-            type="button"
-            className="chip"
-            disabled
-            title="Opens after launch"
-          >
-            {label}
-            {SOON[id] ? " (waitlist)" : " (soon)"}
-          </button>
-        ))}
       </div>
+
+      <label htmlFor="vendor-apply-cat">Add a category</label>
+      <div className="row">
+        <input
+          id="vendor-apply-cat"
+          maxLength={40}
+          value={catDraft}
+          disabled={disabled || busy}
+          placeholder="e.g. Fashion"
+          onChange={(e) => {
+            setCatDraft(e.target.value);
+            if (catError) setCatError("");
+          }}
+        />
+        <button
+          type="button"
+          className="btn s"
+          disabled={disabled || busy}
+          onClick={() => void onAddCustom()}
+        >
+          Add
+        </button>
+      </div>
+      {catError ? <div className="err">{catError}</div> : null}
 
       <div className="warn" style={{ marginTop: 12 }}>
         No document upload in the app yet. Unverified vendors can use cash on
