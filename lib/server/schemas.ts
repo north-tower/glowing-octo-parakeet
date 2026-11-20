@@ -133,3 +133,20 @@ export const inquiryNew = z
     message: z.string().trim().max(500).default(""),
   })
   .strict();
+
+export const staffCategoryNew = z
+  .object({
+    label: z.string().trim().min(2).max(40),
+    listingMode: z.enum(["shop", "services", "property", "cars"]),
+    openForApply: z.boolean(),
+  })
+  .strict();
+
+export const staffCategoryPatch = z
+  .object({
+    visible: z.boolean().optional(),
+    listingMode: z.enum(["shop", "services", "property", "cars"]).optional(),
+    openForApply: z.boolean().optional(),
+    label: z.string().trim().min(2).max(40).optional(),
+  })
+  .strict();
