@@ -1,5 +1,10 @@
 import { audit } from "./audit";
-import { slugsAllowedForApply } from "./categories";
+import {
+  type CategoryPublicRow,
+  getCategoryBySlug,
+  slugsAllowedForApply,
+  upsertCommunityCategory,
+} from "./categories";
 import { db } from "./db";
 import {
   parseImageDataUrl,
@@ -159,4 +164,70 @@ export async function adminVendorAction(
   await audit(event, staffId, ip, { vendor: vendorId });
 
   return { owner_id: ownerId };
+}
+
+type ApprovedVendorRow = { id: string; categories: string[] };
+
+async function approvedVendorForOwner(
+  ownerId: string,
+): Promise<ApprovedVendorRow | null> {
+  const r = await db.q<ApprovedVendorRow>(
+    `select id, categories
+     from vendors
+     where owner_id = $1
+       and status = 'approved'
+     order by created_at
+     limit 1`,
+    [ownerId],
+  );
+  return r.rows[0] ?? null;
+}
+
+export async function appendVendorCategory(
+  ownerId: string,
+  input: { label?: string; slug?: string },
+): Promise<{ categories: string[]; category: CategoryPublicRow }> {
+  const vendor = await approvedVendorForOwner(ownerId);
+  if (!vendor) {
+    throw new VendorError(403, "no_approved_vendor");
+  }
+
+  let category: CategoryPublicRow;
+  if (input.label !== undefined) {
+    category = await upsertCommunityCategory(ownerId, input.label);
+  } else if (input.slug !== undefined) {
+    const row = await getCategoryBySlug(input.slug);
+    if (!row || !row.visible || !row.open_for_apply) {
+      throw new VendorError(400, "bad_request");
+    }
+    category = {
+      slug: row.slug,
+      label: row.label,
+      kind: row.kind,
+      listingMode: row.listing_mode,
+      openForApply: row.open_for_apply,
+      sortOrder: row.sort_order,
+    };
+  } else {
+    throw new VendorError(400, "bad_request");
+  }
+
+  if (vendor.categories.includes(category.slug)) {
+    return { categories: vendor.categories, category };
+  }
+
+  if (vendor.categories.length >= 4) {
+    throw new VendorError(400, "category_limit");
+  }
+
+  const updated = (
+    await db.q<{ categories: string[] }>(
+      `update vendors set categories = array_append(categories, $2::text)
+       where id = $1
+       returning categories`,
+      [vendor.id, category.slug],
+    )
+  ).rows[0];
+
+  return { categories: updated.categories, category };
 }
