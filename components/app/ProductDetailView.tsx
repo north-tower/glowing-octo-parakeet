@@ -22,6 +22,12 @@ import { MAX_CART_QTY } from "@/lib/nakuru/data/constants";
 import { apiFetch } from "@/lib/nakuru/api";
 import { syncLiveListings, isLiveCatalogEnabled } from "@/lib/nakuru/catalog-live";
 import { kes } from "@/lib/nakuru/format";
+import {
+  formatPropertyPrice,
+  propertyLocation,
+  propertyListingBadge,
+  propertyTenure,
+} from "@/lib/nakuru/property-display";
 import { homeCopy, homeCategoryLabel } from "@/lib/nakuru/home-i18n";
 import {
   toProductCardItem,
@@ -265,6 +271,10 @@ export function ProductDetailView({ productId }: Props) {
 
   const requestViewing = () => {
     if (!detail) return;
+    if (live) {
+      onAct(detail.id);
+      return;
+    }
     dispatch({ type: "ITEM_ACT", id: detail.id });
     dispatch({ type: "SET_TAB", tab: "msg" });
     toast(homeCopy("productViewingPrefill", lang));
@@ -372,6 +382,14 @@ export function ProductDetailView({ productId }: Props) {
     .map((w) => w[0])
     .join("")
     .toUpperCase();
+  const propertyBadge =
+    detail.c === "property" ? propertyListingBadge(detail) : null;
+  const propLoc =
+    detail.c === "property" ? propertyLocation(detail) : null;
+  const propertyPrice =
+    detail.c === "property"
+      ? formatPropertyPrice(detail.p, propertyTenure(detail), lang)
+      : null;
 
   return (
     <>
@@ -442,10 +460,30 @@ export function ProductDetailView({ productId }: Props) {
         <div className="pd-inner">
           <div className="pd-head">
             <span className={`pd-chip pd-chip--${tint}`}>
-              {homeCategoryLabel(detail.c, lang)}
+              {propertyBadge ?? homeCategoryLabel(detail.c, lang)}
             </span>
             <h1 className="pd-title">{detail.t}</h1>
-            <p className="pd-price">{kes(detail.p)}</p>
+            {propLoc ? (
+              <p className="pd-property-loc">
+                <IconMapPin size={18} aria-hidden />
+                {propLoc}
+              </p>
+            ) : null}
+            <p className="pd-price">
+              {propertyPrice ? (
+                <>
+                  <span>{propertyPrice.amount}</span>
+                  {propertyPrice.suffix ? (
+                    <span className="pd-price-suffix">
+                      {" "}
+                      {propertyPrice.suffix}
+                    </span>
+                  ) : null}
+                </>
+              ) : (
+                kes(detail.p)
+              )}
+            </p>
             <button
               type="button"
               className="pd-vendor-link"
@@ -492,23 +530,37 @@ export function ProductDetailView({ productId }: Props) {
                 <li>{homeCopy("productPayMpesaDetail", lang)}</li>
               </ul>
             ) : null}
-            <div className="pd-delivery">
-              <IconMapPin size={20} />
-              <div>
-                <p className="pd-delivery-line">
-                  {homeCopy("productDeliveringTo", lang)}{" "}
-                  <strong>{state.area}</strong>
-                </p>
-                <p className="m">{homeCopy("productDeliveryFeeHint", lang)}</p>
+            {detail.c === "shop" ? (
+              <>
+                <div className="pd-delivery">
+                  <IconMapPin size={20} />
+                  <div>
+                    <p className="pd-delivery-line">
+                      {homeCopy("productDeliveringTo", lang)}{" "}
+                      <strong>{state.area}</strong>
+                    </p>
+                    <p className="m">{homeCopy("productDeliveryFeeHint", lang)}</p>
+                  </div>
+                </div>
+                <div className="pd-promo-row" role="note">
+                  <IconPromoDelivery size={22} aria-hidden />
+                  <div className="pd-promo-copy">
+                    <b>{homeCopy("slide0Title", lang)}</b>
+                    <span>{homeCopy("slide0Sub", lang)}</span>
+                  </div>
+                </div>
+              </>
+            ) : detail.c === "property" || detail.c === "cars" ? (
+              <div className="pd-delivery pd-delivery--viewing">
+                <IconMapPin size={20} />
+                <div>
+                  <p className="pd-delivery-line">
+                    <strong>{homeCopy("productRequestViewing", lang)}</strong>
+                  </p>
+                  <p className="m">{homeCopy("productViewingOnSiteHint", lang)}</p>
+                </div>
               </div>
-            </div>
-            <div className="pd-promo-row" role="note">
-              <IconPromoDelivery size={22} aria-hidden />
-              <div className="pd-promo-copy">
-                <b>{homeCopy("slide0Title", lang)}</b>
-                <span>{homeCopy("slide0Sub", lang)}</span>
-              </div>
-            </div>
+            ) : null}
           </section>
 
           <div className="assistant-entry-row">

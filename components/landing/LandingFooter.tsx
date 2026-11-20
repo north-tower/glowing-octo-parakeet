@@ -1,15 +1,20 @@
 "use client";
 
 import Link from "next/link";
+import { BrandLogoMark } from "@/components/app/BrandLogoMark";
 import { Bi } from "@/components/landing/Bi";
 import { LangToggle } from "@/components/landing/LangToggle";
+import { BRAND_NAME } from "@/lib/nakuru/brand";
 
 export function LandingFooter() {
   return (
     <footer className="foot">
       <div className="wrap foot-grid">
         <div className="foot-brand">
-          <strong>🦩 NakuruHub</strong>
+          <strong className="foot-brand-lockup">
+            <BrandLogoMark size={28} />
+            {BRAND_NAME}
+          </strong>
           <p className="mut">
             <Bi
               en="Nakuru’s marketplace — shop, property, cars, services."

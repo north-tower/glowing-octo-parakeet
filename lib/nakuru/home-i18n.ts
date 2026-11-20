@@ -110,10 +110,24 @@ export type HomeCopyKey =
   | "productMoreFromSeller"
   | "productSimilar"
   | "productViewingPrefill"
+  | "productViewingOnSiteHint"
   | "productAttrBedrooms"
   | "productAttrMileage"
   | "productAttrYear"
   | "productAttrArea"
+  | "productAttrLocation"
+  | "productAttrTenure"
+  | "productAttrPlotSize"
+  | "productPricePerMonth"
+  | "productPriceForSale"
+  | "inquiryViewingTitle"
+  | "inquiryQuoteTitle"
+  | "inquiryViewingSent"
+  | "inquiryQuoteSent"
+  | "inquiryViewingPlaceholder"
+  | "inquiryQuotePlaceholder"
+  | "inquiryViewingSubmit"
+  | "inquiryQuoteSubmit"
   | "productDetails"
   | "cartSegmentCart"
   | "cartSegmentOrders"
@@ -468,10 +482,39 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
     en: "Open Messages to follow up on your viewing request.",
     sw: "Fungua Ujumbe kuendelea na ombi lako la kutembelea.",
   },
+  productViewingOnSiteHint: {
+    en: "Inspect on site before you pay or sign. We follow up by message.",
+    sw: "Tembelea kwanza kabla ya kulipa. Tutawasiliana kwa ujumbe.",
+  },
   productAttrBedrooms: { en: "Bedrooms", sw: "Vyumba" },
   productAttrMileage: { en: "Mileage", sw: "Maili" },
   productAttrYear: { en: "Year", sw: "Mwaka" },
   productAttrArea: { en: "Size", sw: "Ukubwa" },
+  productAttrLocation: { en: "Location", sw: "Mahali" },
+  productAttrTenure: { en: "Listing type", sw: "Aina ya tangazo" },
+  productAttrPlotSize: { en: "Plot size", sw: "Ukubwa wa kiwanja" },
+  productPricePerMonth: { en: "/ month", sw: "/ mwezi" },
+  productPriceForSale: { en: "for sale", sw: "kwa kuuza" },
+  inquiryViewingTitle: { en: "Request a viewing", sw: "Omba kutembelea" },
+  inquiryQuoteTitle: { en: "Request a quote", sw: "Omba bei" },
+  inquiryViewingSent: {
+    en: "Viewing request sent. The agent will follow up by message.",
+    sw: "Ombi la kutembelea limetumwa. Wakala atawasiliana nawe.",
+  },
+  inquiryQuoteSent: {
+    en: "Quote request sent to the vendor.",
+    sw: "Ombi la bei limetumwa kwa muuzaji.",
+  },
+  inquiryViewingPlaceholder: {
+    en: "Preferred viewing day, questions about the property…",
+    sw: "Siku unayopendelea kutembelea, maswali kuhusu mali…",
+  },
+  inquiryQuotePlaceholder: {
+    en: "Describe the job, location, or timing…",
+    sw: "Eleza kazi, eneo, au muda…",
+  },
+  inquiryViewingSubmit: { en: "Send viewing request", sw: "Tuma ombi la kutembelea" },
+  inquiryQuoteSubmit: { en: "Send quote request", sw: "Tuma ombi la bei" },
   productDetails: { en: "Listing details", sw: "Maelezo ya tangazo" },
   cartSegmentCart: { en: "Cart", sw: "Kikapu" },
   cartSegmentOrders: { en: "Orders", sw: "Maagizo" },

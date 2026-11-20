@@ -18,7 +18,7 @@ const DEMO_ART: { match: RegExp; slug: string }[] = [
   { match: /charger|phone/i, slug: "charger" },
   { match: /vegg|salad|fresh/i, slug: "veggies" },
   { match: /sofa|couch/i, slug: "sofa" },
-  { match: /house|bedroom|rent|milimani|property/i, slug: "house" },
+  { match: /house|bedroom|rent|milimani|property|plot|acre/i, slug: "house" },
   { match: /toyota|car|axio|subaru|motors/i, slug: "car" },
   { match: /plumb|wrench|electric|service|clean/i, slug: "tools" },
 ];

@@ -1,6 +1,6 @@
 /**
  * pnpm icons:pwa
- * Master: lib/nakuru/flamingo-mark-source.png (512×512 app icon artwork)
+ * Master: lib/nakuru/flamingo-mark-source.png (512×512; crop from public/images/flamingo-banner-photo.jpg)
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -29,10 +29,12 @@ async function main() {
   const pngBuf = fs.readFileSync(srcPng);
 
   const sizes = [
+    { name: "logo-mark.png", size: 96, maskable: false },
     { name: "icon-192.png", size: 192, maskable: false },
     { name: "icon-512.png", size: 512, maskable: false },
     { name: "icon-512-maskable.png", size: 512, maskable: true },
     { name: "apple-touch-icon.png", size: 180, maskable: false },
+    { name: "favicon-32.png", size: 32, maskable: false },
   ];
 
   for (const { name, size, maskable } of sizes) {

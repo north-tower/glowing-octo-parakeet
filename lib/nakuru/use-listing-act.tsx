@@ -23,7 +23,12 @@ export function useListingAct(): {
       if (!item) return;
       recordProductOpen(id);
       window.dispatchEvent(new Event("nh:engage"));
-      if (live && item.c === "services") {
+      if (
+        live &&
+        (item.c === "services" ||
+          item.c === "property" ||
+          item.c === "cars")
+      ) {
         setInquiryTarget(item);
         return;
       }

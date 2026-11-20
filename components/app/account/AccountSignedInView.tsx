@@ -31,7 +31,7 @@ import {
   IconStore,
   IconWallet,
 } from "@/components/app/icons/LineIcons";
-import { BRAND_LOGO } from "@/lib/nakuru/brand";
+import { BrandLogoMark } from "@/components/app/BrandLogoMark";
 import { installCopy } from "@/lib/nakuru/pwa-install-i18n";
 
 type DispatchRow = (id: string) => void;
@@ -60,11 +60,7 @@ function rowIcon(icon: AccountRowIcon | "globe" | "install", size = 22): ReactNo
     case "globe":
       return <IconGlobe size={size} />;
     case "install":
-      return (
-        <span aria-hidden style={{ fontSize: size, lineHeight: 1 }}>
-          {BRAND_LOGO}
-        </span>
-      );
+      return <BrandLogoMark size={size} className="" />;
     default:
       return null;
   }

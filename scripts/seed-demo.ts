@@ -19,6 +19,9 @@ const DEMO_OWNERS = {
   zawadi: `demo-seed-zawadi${DEMO_EMAIL_SUFFIX}`,
   motors: `demo-seed-motors${DEMO_EMAIL_SUFFIX}`,
   peter: `demo-seed-peter${DEMO_EMAIL_SUFFIX}`,
+  prime: `demo-seed-prime${DEMO_EMAIL_SUFFIX}`,
+  landmark: `demo-seed-landmark${DEMO_EMAIL_SUFFIX}`,
+  riftland: `demo-seed-riftland${DEMO_EMAIL_SUFFIX}`,
 } as const;
 
 type DemoProduct = {
@@ -96,8 +99,86 @@ const DEMO_CATALOG: DemoProduct[] = [
     title: "2BR house for rent, Milimani",
     emoji: "home",
     priceKes: 35000,
-    description: "Rent per month",
+    description:
+      "Ground-floor unit with parking, water backup, and 24h guard. Viewing on Saturdays.",
     stock: null,
+    imageUrl:
+      "https://images.unsplash.com/photo-1560448204-e02f11c0d0e2?auto=format&fit=crop&w=900&q=85",
+    galleryUrls: [
+      "https://images.unsplash.com/photo-1560448204-e02f11c0d0e2?auto=format&fit=crop&w=900&q=85",
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=85",
+    ],
+    attributes: {
+      tenure: "rent",
+      bedrooms: "2",
+      location: "Milimani, Nakuru",
+    },
+  },
+  {
+    ownerKey: "prime",
+    vendorName: "Nakuru Prime Homes",
+    verified: true,
+    categories: ["property"],
+    category: "property",
+    title: "Modern 3-bedroom home in Milimani",
+    emoji: "home-sale",
+    priceKes: 18500000,
+    description:
+      "Spacious family home with a landscaped garden, secure parking and a modern kitchen.",
+    stock: null,
+    imageUrl:
+      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=85",
+    galleryUrls: [
+      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=85",
+      "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=900&q=85",
+    ],
+    attributes: {
+      tenure: "sale",
+      bedrooms: "3",
+      location: "Milimani, Nakuru",
+      badge: "Featured",
+    },
+  },
+  {
+    ownerKey: "landmark",
+    vendorName: "Landmark Properties",
+    verified: true,
+    categories: ["property"],
+    category: "property",
+    title: "50 × 100 residential plot near tarmac",
+    emoji: "land-plot",
+    priceKes: 1650000,
+    description:
+      "Well-positioned plot with access road and nearby utilities. Clean title.",
+    stock: null,
+    imageUrl:
+      "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=900&q=85",
+    attributes: {
+      tenure: "sale",
+      plotSize: "50 × 100",
+      location: "Ngata, Nakuru",
+      badge: "New",
+    },
+  },
+  {
+    ownerKey: "riftland",
+    vendorName: "Rift Land Ltd",
+    verified: true,
+    categories: ["property"],
+    category: "property",
+    title: "¼ acre plot, Lanet",
+    emoji: "land-plot",
+    priceKes: 2800000,
+    description: "Serviced plot with murram road access and beacons in place.",
+    stock: null,
+    imageUrl:
+      "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=900&q=85",
+    attributes: {
+      tenure: "sale",
+      plotSize: "¼ acre",
+      location: "Lanet, Nakuru",
+      badge: "Hot deal",
+    },
   },
   {
     ownerKey: "motors",

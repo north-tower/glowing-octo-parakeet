@@ -13,6 +13,7 @@ import {
 import {
   IconCheck,
   IconChevronRight,
+  IconMapPin,
   IconPlus,
   IconWallet,
 } from "@/components/app/icons/LineIcons";
@@ -31,6 +32,12 @@ import {
   listingGallery,
   productImageSizes,
 } from "@/lib/nakuru/listing-image";
+import {
+  formatPropertyPrice,
+  propertyListingBadge,
+  propertyLocation,
+  propertyTenure,
+} from "@/lib/nakuru/property-display";
 
 const DEFAULT_ICON: Record<string, CategoryIconKey> = {
   shop: "shirt",
@@ -86,6 +93,14 @@ export function ProductCard({
       : item.c === "services"
         ? homeCopy("productRequestQuote", lang)
         : "";
+  const propertyBadge =
+    item.c === "property" ? propertyListingBadge(item) : null;
+  const loc =
+    item.c === "property" ? propertyLocation(item) : null;
+  const priceParts =
+    item.c === "property"
+      ? formatPropertyPrice(item.p, propertyTenure(item), lang)
+      : null;
 
   const handleAct = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -127,6 +142,9 @@ export function ProductCard({
             </span>
           )}
           <span className="pim-shade" aria-hidden />
+          {propertyBadge ? (
+            <span className="pc-listing-badge">{propertyBadge}</span>
+          ) : null}
           {item.v ? (
             <span className="pc-verified-on-img">
               <VerifiedBadge lang={lang} />
@@ -159,11 +177,28 @@ export function ProductCard({
         </div>
         <div className="pc-body">
           <h3 className="pc-title">{item.t}</h3>
+          {loc ? (
+            <p className="pc-location">
+              <IconMapPin size={14} aria-hidden />
+              {loc}
+            </p>
+          ) : null}
           <p className="pc-price">
-            <span className="pc-price-kes">KES</span>
-            <span className="pc-price-num">
-              {item.p.toLocaleString("en-KE")}
-            </span>
+            {priceParts ? (
+              <>
+                <span className="pc-price-amount">{priceParts.amount}</span>
+                {priceParts.suffix ? (
+                  <span className="pc-price-suffix">{priceParts.suffix}</span>
+                ) : null}
+              </>
+            ) : (
+              <>
+                <span className="pc-price-kes">KES</span>
+                <span className="pc-price-num">
+                  {item.p.toLocaleString("en-KE")}
+                </span>
+              </>
+            )}
           </p>
           {nonShop && actionLabel ? (
             <p className="pc-action-hint">{actionLabel}</p>

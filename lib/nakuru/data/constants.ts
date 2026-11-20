@@ -50,6 +50,7 @@ export const TOPC: [
   ["wrench", "Plumbers", "services", "plumb", "pink"],
 ];
 
+/** Indices into `TOPC` (not `ITEMS`). */
 export const FEAT = [0, 1, 2, 7, 10, 13, 3, 9, 14];
 
 /** Six popular picks on Category → Featured (mixed groups). */

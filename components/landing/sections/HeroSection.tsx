@@ -9,10 +9,6 @@ export function HeroSection() {
   return (
     <>
       <section className="hero">
-          <div className="hero-bg" aria-hidden="true">
-            <div className="hero-bg-layers"></div>
-            <div className="hero-bg-grain"></div>
-          </div>
           <div className="wrap hero-grid">
             <div className="hero-copy">
               <span className="badge hero-badge" data-en="Nakuru only · Free to list" data-sw="Nakuru pekee · Bila malipo">Nakuru only · Free to list</span>

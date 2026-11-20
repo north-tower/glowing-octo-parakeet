@@ -4,6 +4,12 @@ import { useAuth } from "@/components/app/AppAuthProvider";
 import { useNakuruApp } from "@/components/app/AppProvider";
 import { apiFetch } from "@/lib/nakuru/api";
 import { inquiryErrorMessage } from "@/lib/nakuru/inquiries";
+import { homeCopy } from "@/lib/nakuru/home-i18n";
+import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
+import {
+  formatPropertyPrice,
+  propertyTenure,
+} from "@/lib/nakuru/property-display";
 import { kes } from "@/lib/nakuru/format";
 import type { Listing } from "@/lib/nakuru/types";
 import { requireAuth } from "@/lib/nakuru/require-auth";
@@ -17,11 +23,31 @@ type Props = {
 
 export function ServiceInquiryModal({ listing, onClose }: Props) {
   const titleId = useId();
+  const { lang } = usePwaInstall();
   const { user, ready } = useAuth();
   const { state, dispatch, toast } = useNakuruApp();
   const pathname = usePathname();
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const viewing =
+    listing.c === "property" || listing.c === "cars";
+  const titleKey = viewing ? "inquiryViewingTitle" : "inquiryQuoteTitle";
+  const sentKey = viewing ? "inquiryViewingSent" : "inquiryQuoteSent";
+  const submitKey = viewing ? "inquiryViewingSubmit" : "inquiryQuoteSubmit";
+  const placeholderKey = viewing
+    ? "inquiryViewingPlaceholder"
+    : "inquiryQuotePlaceholder";
+  const priceLine =
+    listing.c === "property"
+      ? (() => {
+          const { amount, suffix } = formatPropertyPrice(
+            listing.p,
+            propertyTenure(listing),
+            lang,
+          );
+          return suffix ? `${amount} ${suffix}` : amount;
+        })()
+      : kes(listing.p);
 
   useEffect(() => {
     const onKey = (ev: KeyboardEvent) => {
@@ -51,7 +77,7 @@ export function ServiceInquiryModal({ listing, onClose }: Props) {
           message: message.trim(),
         }),
       });
-      toast(`Quote request sent to ${listing.t}`);
+      toast(homeCopy(sentKey, lang));
       onClose();
     } catch (err) {
       toast(inquiryErrorMessage(err));
@@ -77,7 +103,7 @@ export function ServiceInquiryModal({ listing, onClose }: Props) {
       >
         <div className="row sp" style={{ marginBottom: 8 }}>
           <div className="t" id={titleId}>
-            Request a quote
+            {homeCopy(titleKey, lang)}
           </div>
           <button
             type="button"
@@ -98,7 +124,7 @@ export function ServiceInquiryModal({ listing, onClose }: Props) {
             <div className="t">{listing.t}</div>
             <div className="m">{listing.s}</div>
             <div className="pr" style={{ marginTop: 4 }}>
-              {kes(listing.p)}
+              {priceLine}
             </div>
           </div>
         </div>
@@ -108,8 +134,9 @@ export function ServiceInquiryModal({ listing, onClose }: Props) {
         ) : !user ? (
           <>
             <div className="warn">
-              Sign in with your email code before requesting a quote. Vendors
-              reply to the email on your account.
+              {viewing
+                ? "Sign in with your email code before requesting a viewing. Agents reply to the email on your account."
+                : "Sign in with your email code before requesting a quote. Vendors reply to the email on your account."}
             </div>
             <button type="button" className="btn full" onClick={goSignIn}>
               Go to Account to sign in
@@ -123,7 +150,7 @@ export function ServiceInquiryModal({ listing, onClose }: Props) {
               className="inquiry-msg"
               maxLength={500}
               rows={4}
-              placeholder="Describe the job, location, or timing…"
+              placeholder={homeCopy(placeholderKey, lang)}
               value={message}
               disabled={busy}
               onChange={(e) => setMessage(e.target.value)}
@@ -141,7 +168,7 @@ export function ServiceInquiryModal({ listing, onClose }: Props) {
                 Cancel
               </button>
               <button type="submit" className="btn full" disabled={busy}>
-                {busy ? "Sending…" : "Send quote request"}
+                {busy ? "Sending…" : homeCopy(submitKey, lang)}
               </button>
             </div>
           </form>

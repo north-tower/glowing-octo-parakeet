@@ -8,6 +8,9 @@ const ATTR_LABEL_KEYS: Record<string, HomeCopyKey> = {
   mileage: "productAttrMileage",
   year: "productAttrYear",
   area: "productAttrArea",
+  location: "productAttrLocation",
+  tenure: "productAttrTenure",
+  plotSize: "productAttrPlotSize",
 };
 
 export type ProductDetail = Listing & {
@@ -39,8 +42,9 @@ export function attributeRowsFromRecord(
   lang: LandingLang,
 ): { label: string; value: string }[] {
   if (!attrs) return [];
+  const skipKeys = new Set(["badge"]);
   return Object.entries(attrs)
-    .filter(([, v]) => String(v).trim())
+    .filter(([key, v]) => !skipKeys.has(key) && String(v).trim())
     .map(([key, value]) => {
       const copyKey = ATTR_LABEL_KEYS[key];
       const label = copyKey ? homeCopy(copyKey, lang) : key;
