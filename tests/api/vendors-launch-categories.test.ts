@@ -19,6 +19,7 @@ describe("POST /api/vendors launch category guard", () => {
   let applicantId = "";
   let applicantAccess = "";
   const tag = `vitest-vendor-cat-${Date.now()}`;
+  const communitySlug = `vitest-cat-${tag}`;
 
   beforeAll(async () => {
     if (hasDbEnv) {
@@ -52,10 +53,21 @@ describe("POST /api/vendors launch category guard", () => {
   });
 
   afterAll(async () => {
-    if (dbReachable && applicantId) {
+    if (dbReachable) {
       const { db } = await import("@/lib/server/db");
-      await db.q("delete from vendors where owner_id = $1", [applicantId]);
-      await db.q("delete from users where id = $1", [applicantId]);
+      const refs = (
+        await db.q<{ n: number }>(
+          "select count(*)::int n from products where category = $1",
+          [communitySlug],
+        )
+      ).rows[0].n;
+      if (refs === 0) {
+        await db.q("delete from categories where slug = $1", [communitySlug]);
+      }
+      if (applicantId) {
+        await db.q("delete from vendors where owner_id = $1", [applicantId]);
+        await db.q("delete from users where id = $1", [applicantId]);
+      }
     }
     await new Promise<void>((resolve, reject) => {
       server.close((err) => (err ? reject(err) : resolve()));
@@ -92,4 +104,20 @@ describe("POST /api/vendors launch category guard", () => {
       );
     },
   );
+
+  it("accepts a visible community slug with shop", async ({ skip }) => {
+    if (!dbReachable) skip();
+    const { db } = await import("@/lib/server/db");
+    await db.q(
+      `insert into categories (slug, label, kind, listing_mode, visible, open_for_apply, sort_order)
+       values ($1, 'Vitest Cat', 'community', 'shop', true, true, 500)
+       on conflict (slug) do nothing`,
+      [communitySlug],
+    );
+    await request(server)
+      .post("/api/vendors")
+      .set("Authorization", `Bearer ${applicantAccess}`)
+      .send({ name: "Community Vendor", categories: ["shop", communitySlug] })
+      .expect(201);
+  });
 });

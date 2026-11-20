@@ -1,5 +1,5 @@
 import { audit } from "./audit";
-import { config } from "./config";
+import { slugsAllowedForApply } from "./categories";
 import { db } from "./db";
 import {
   parseImageDataUrl,
@@ -18,15 +18,6 @@ export class VendorError extends Error {
   }
 }
 
-const launchCategorySet = new Set<string>(config.launchCategories);
-
-/** Launch guard: only categories listed in `config.launchCategories` may be applied for. */
-export function categoriesAllowedAtLaunch(categories: readonly string[]): boolean {
-  return (
-    categories.length > 0 && categories.every((c) => launchCategorySet.has(c))
-  );
-}
-
 export async function applyVendor(
   ownerId: string,
   name: string,
@@ -34,7 +25,7 @@ export async function applyVendor(
   ip: string | null,
   imageDataUrl?: string,
 ): Promise<{ id: string; status: string; logo_url: string | null }> {
-  if (!categoriesAllowedAtLaunch(categories)) {
+  if (!(await slugsAllowedForApply(categories))) {
     throw new VendorError(400, "bad_request");
   }
 

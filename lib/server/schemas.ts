@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ZONES } from "@/lib/nakuru/data/zones";
-import { config } from "@/lib/server/config";
+import { CATEGORY_SLUG_RE } from "@/lib/nakuru/category-slug";
 
 const zoneKeys = Object.keys(ZONES) as [string, ...string[]];
 
@@ -117,28 +117,15 @@ export const staff = z
   })
   .strict();
 
-const vendorApplyCategory = z.enum([
-  "shop",
-  "property",
-  "cars",
-  "services",
-  "stays",
-  "taxi",
-]);
-
-const launchCategorySet = new Set<string>(config.launchCategories);
+const vendorApplySlug = z.string().regex(CATEGORY_SLUG_RE);
 
 export const vendorNew = z
   .object({
     name: z.string().trim().min(2).max(60),
-    categories: z.array(vendorApplyCategory).min(1).max(4),
+    categories: z.array(vendorApplySlug).min(1).max(4),
     imageDataUrl: imageDataUrl.optional(),
   })
-  .strict()
-  .refine(
-    (data) => data.categories.every((c) => launchCategorySet.has(c)),
-    { path: ["categories"] },
-  );
+  .strict();
 
 export const inquiryNew = z
   .object({
