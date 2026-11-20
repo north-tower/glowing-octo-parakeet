@@ -25,7 +25,7 @@ export const uuid = z
     /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
   );
 
-const cat = z.enum(["shop", "property", "cars", "services"]);
+const cat = z.string().regex(CATEGORY_SLUG_RE);
 const money = z.number().int().min(0).max(100_000_000);
 
 const imageDataUrl = z

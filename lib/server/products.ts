@@ -1,4 +1,5 @@
 import { audit } from "./audit";
+import { getCategoryBySlug } from "./categories";
 import { db } from "./db";
 import {
   parseImageDataUrl,
@@ -60,6 +61,11 @@ export async function createProduct(
     throw new ProductError(403, "category_not_approved");
   }
 
+  const dir = await getCategoryBySlug(data.category);
+  if (!dir) {
+    throw new ProductError(400, "bad_request");
+  }
+
   const n = (
     await db.q<{ n: number }>(
       "select count(*)::int n from products where vendor_id = $1",
@@ -71,7 +77,7 @@ export async function createProduct(
   }
 
   const stock =
-    data.category === "shop"
+    dir.listing_mode === "shop"
       ? data.stock === undefined
         ? null
         : data.stock
@@ -181,6 +187,8 @@ export async function updateProduct(
     set.push(`${col} = $${vals.length}`);
   };
 
+  let effectiveListingMode: string | null = null;
+
   if (data.category !== undefined && data.category !== row.category) {
     const v = await db.q<{ categories: string[] }>(
       "select categories from vendors where id = $1 and status = 'approved'",
@@ -190,8 +198,13 @@ export async function updateProduct(
     if (!vendor?.categories.includes(data.category)) {
       throw new ProductError(403, "category_not_approved");
     }
+    const dir = await getCategoryBySlug(data.category);
+    if (!dir) {
+      throw new ProductError(400, "bad_request");
+    }
+    effectiveListingMode = dir.listing_mode;
     add("category", data.category);
-    if (data.category === "services") {
+    if (dir.listing_mode === "services") {
       add("stock", null);
     }
   }
@@ -199,9 +212,17 @@ export async function updateProduct(
   if (data.title !== undefined) add("title", data.title);
   if (data.price !== undefined) add("price_kes", data.price);
   if (data.stock !== undefined) {
-    const effectiveCat =
-      data.category !== undefined ? data.category : row.category;
-    if (effectiveCat === "shop") {
+    let mode = effectiveListingMode;
+    if (mode === null) {
+      const effectiveCat =
+        data.category !== undefined ? data.category : row.category;
+      const dir = await getCategoryBySlug(effectiveCat);
+      if (!dir) {
+        throw new ProductError(400, "bad_request");
+      }
+      mode = dir.listing_mode;
+    }
+    if (mode === "shop") {
       add("stock", data.stock);
     }
   }
