@@ -5,7 +5,8 @@ export type CategoryId =
   | "cars"
   | "services"
   | "stays"
-  | "taxi";
+  | "taxi"
+  | "rider";
 
 export type TabId = "home" | "cat" | "msg" | "cart" | "acc";
 

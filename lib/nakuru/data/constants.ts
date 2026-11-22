@@ -9,15 +9,8 @@ export const CATS: [CategoryId, string][] = [
   ["services", "Services"],
   ["stays", "Stays"],
   ["taxi", "Taxi"],
+  ["rider", "Rider"],
 ];
-
-/** Official categories on vendor waitlist (copy only; browse is open for shoppers). */
-export const VENDOR_WAITLIST: Partial<Record<CategoryId, 1>> = {
-  property: 1,
-  cars: 1,
-  stays: 1,
-  taxi: 1,
-};
 
 export const BROWSE_SIDES = [
   "shop",
@@ -26,6 +19,7 @@ export const BROWSE_SIDES = [
   "services",
   "stays",
   "taxi",
+  "rider",
 ] as const;
 
 export const ACT: Record<string, string> = {
@@ -33,6 +27,9 @@ export const ACT: Record<string, string> = {
   property: "Request viewing",
   cars: "Request viewing",
   services: "Request quote",
+  rider: "Request quote",
+  taxi: "Request quote",
+  stays: "Add to cart",
 };
 
 export type TopCategoryTint = "teal" | "green" | "sand" | "pink";
@@ -69,6 +66,10 @@ export const TOPC: [
   ["taxi", "Town rides", "taxi", "town", "sand"],
   ["car", "Boda", "taxi", "boda", "pink"],
   ["grid", "All taxi", "taxi", "", "sand"],
+  ["taxi", "Delivery rider", "rider", "delivery", "sand"],
+  ["taxi", "Courier", "rider", "courier", "teal"],
+  ["car", "Boda rider", "rider", "boda", "pink"],
+  ["grid", "All riders", "rider", "", "sand"],
 ];
 
 /** Indices into `TOPC` (not `ITEMS`). */
@@ -94,6 +95,7 @@ export const SIDE: [string, string, SideRailIcon][] = [
   ["services", "Services", "wrench"],
   ["stays", "Stays", "bed"],
   ["taxi", "Taxi", "taxi"],
+  ["rider", "Rider", "taxi"],
 ];
 
 /** Browse-by-type tiles on Featured (switch rail via SET_SIDE). */
@@ -108,6 +110,7 @@ export const BROWSE_GROUPS: {
   { side: "services", icon: "wrench", tint: "pink" },
   { side: "stays", icon: "bed", tint: "green" },
   { side: "taxi", icon: "taxi", tint: "sand" },
+  { side: "rider", icon: "taxi", tint: "pink" },
 ];
 
 export const RANK: [number, string, string][] = [
@@ -160,6 +163,12 @@ export const TOOLS: Record<string, string[]> = {
   services: ["Service profile", "Quote requests", "Job history"],
   stays: ["Add stay", "Bookings", "Calendar", "Earnings"],
   taxi: ["Driver profile", "Trip requests", "Earnings", "Safety tools"],
+  rider: [
+    "Rider profile",
+    "Delivery jobs",
+    "Trip history",
+    "Earnings",
+  ],
 };
 
 export const PHONE_REGEX = /^(?:\+?254|0)[17]\d{8}$/;

@@ -84,8 +84,14 @@ describe("/api/categories", () => {
       expect.objectContaining({ openForApply: true, kind: "official" }),
     );
     expect(property).toEqual(
-      expect.objectContaining({ openForApply: false, kind: "official" }),
+      expect.objectContaining({ openForApply: true, kind: "official" }),
     );
+    const rider = res.body.find((c: { slug: string }) => c.slug === "rider");
+    if (rider) {
+      expect(rider).toEqual(
+        expect.objectContaining({ kind: "official", listingMode: "services" }),
+      );
+    }
     for (const row of res.body) {
       expect(row).toEqual(
         expect.objectContaining({

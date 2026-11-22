@@ -10,7 +10,7 @@ const hasDbEnv =
   !!process.env.OTP_HMAC_SECRET &&
   !!process.env.TOTP_ENC_KEY;
 
-const waitlistedCategories = ["property", "cars", "stays", "taxi"] as const;
+const closedOfficialSlug = `vitest-closed-${Date.now()}`;
 
 describe("POST /api/vendors launch category guard", () => {
   let server: ReturnType<typeof createTestServer>;
@@ -61,9 +61,9 @@ describe("POST /api/vendors launch category guard", () => {
           [communitySlug],
         )
       ).rows[0].n;
-      if (refs === 0) {
-        await db.q("delete from categories where slug = $1", [communitySlug]);
-      }
+      await db.q("delete from categories where slug = any($1::text[])", [
+        [communitySlug, closedOfficialSlug],
+      ]);
       if (applicantId) {
         await db.q("delete from vendors where owner_id = $1", [applicantId]);
         await db.q("delete from users where id = $1", [applicantId]);
@@ -74,15 +74,22 @@ describe("POST /api/vendors launch category guard", () => {
     });
   });
 
-  it.each(waitlistedCategories)(
-    "rejects waitlisted category %s with 400",
-    async (category) => {
-      if (!hasDbEnv || !dbReachable) return;
+  it.skipIf(!hasDbEnv)(
+    "rejects official category that is not open for apply",
+    async ({ skip }) => {
+      if (!dbReachable) skip();
+      const { db } = await import("@/lib/server/db");
+      await db.q(
+        `insert into categories (slug, label, kind, listing_mode, visible, open_for_apply, sort_order)
+         values ($1, 'Closed', 'official', 'shop', true, false, 900)
+         on conflict (slug) do update set open_for_apply = false`,
+        [closedOfficialSlug],
+      );
 
       await request(server)
         .post("/api/vendors")
         .set("Authorization", `Bearer ${applicantAccess}`)
-        .send({ name: "Test Vendor", categories: [category] })
+        .send({ name: "Test Vendor", categories: [closedOfficialSlug] })
         .expect(400)
         .expect({ error: "bad_request" });
     },

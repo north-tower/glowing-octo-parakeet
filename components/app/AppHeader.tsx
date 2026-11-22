@@ -29,6 +29,7 @@ const OFFICIAL_TAB_IDS = new Set<CategoryId>([
   "services",
   "stays",
   "taxi",
+  "rider",
 ]);
 
 function directoryTabLabel(row: DirectoryCategory, lang: LandingLang): string {
