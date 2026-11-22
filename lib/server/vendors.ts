@@ -97,6 +97,31 @@ export async function listVendorsForOwner(
   return r.rows;
 }
 
+export type PublicVendorRow = {
+  id: string;
+  name: string;
+  verified: boolean;
+  logo_url: string | null;
+  area: string | null;
+};
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export async function getPublicVendor(
+  id: string,
+): Promise<PublicVendorRow | null> {
+  if (!UUID_RE.test(id)) return null;
+  const r = await db.q<PublicVendorRow>(
+    `select id, name, verified, logo_url, area
+     from vendors
+     where id = $1::uuid and status = 'approved'
+     limit 1`,
+    [id],
+  );
+  return r.rows[0] ?? null;
+}
+
 export async function setVendorArea(
   ownerId: string,
   area: string,

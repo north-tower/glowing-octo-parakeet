@@ -21,6 +21,9 @@ export function LandingFooter() {
           </p>
         </div>
         <nav className="foot-links" aria-label="Footer">
+          <Link href="/nakuru">
+            <Bi en="Browse Nakuru" sw="Vinjari Nakuru" />
+          </Link>
           <Link href="/app?start=vendor">
             <Bi en="Vendor sign-up" sw="Usajili wa muuzaji" />
           </Link>

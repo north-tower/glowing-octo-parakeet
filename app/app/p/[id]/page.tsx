@@ -19,9 +19,11 @@ type SeoListing = {
   title: string;
   description: string;
   price: number;
+  categorySlug: string;
   categoryLabel: string;
   mode: ListingMode | undefined;
   vendor: string | undefined;
+  vendorId: string | undefined;
   area: string | undefined;
   images: string[];
 };
@@ -34,9 +36,11 @@ const loadListing = cache(async (id: string): Promise<SeoListing | null> => {
       title: demo.t,
       description: (demo.desc ?? demo.s).trim(),
       price: demo.p,
+      categorySlug: demo.c,
       categoryLabel: demo.categoryLabel ?? categoryName(demo.c),
       mode: demo.listingMode,
       vendor: demo.vn,
+      vendorId: undefined,
       area: demo.attrs?.location,
       images: [demo.img, ...(demo.imgs ?? [])].filter((u): u is string => !!u),
     };
@@ -48,9 +52,11 @@ const loadListing = cache(async (id: string): Promise<SeoListing | null> => {
       title: row.title,
       description: row.description?.trim() || `${row.title} on NakuruHub`,
       price: row.price,
+      categorySlug: row.category,
       categoryLabel: row.categoryLabel,
       mode: row.listingMode,
       vendor: row.vendor,
+      vendorId: row.vendorId,
       area: row.attributes.location,
       images: [row.imageUrl, ...row.galleryUrls].filter(
         (u): u is string => !!u,
@@ -80,7 +86,11 @@ function seoDescription(l: SeoListing): string {
 function listingJsonLd(id: string, l: SeoListing) {
   const url = absoluteUrl(`/app/p/${encodeURIComponent(id)}`);
   const seller = l.vendor
-    ? { "@type": "Organization", name: l.vendor }
+    ? {
+        "@type": "Organization",
+        name: l.vendor,
+        ...(l.vendorId ? { url: absoluteUrl(`/v/${l.vendorId}`) } : {}),
+      }
     : { "@id": ORGANIZATION_ID };
 
   return {
@@ -115,8 +125,14 @@ function listingJsonLd(id: string, l: SeoListing) {
         "@type": "BreadcrumbList",
         itemListElement: [
           { "@type": "ListItem", position: 1, name: SITE_NAME, item: absoluteUrl("/") },
-          { "@type": "ListItem", position: 2, name: "Marketplace", item: absoluteUrl("/app") },
-          { "@type": "ListItem", position: 3, name: l.title, item: url },
+          { "@type": "ListItem", position: 2, name: "Nakuru", item: absoluteUrl("/nakuru") },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: l.categoryLabel,
+            item: absoluteUrl(`/nakuru/${l.categorySlug}`),
+          },
+          { "@type": "ListItem", position: 4, name: l.title, item: url },
         ],
       },
     ],
