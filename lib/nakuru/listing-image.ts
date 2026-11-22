@@ -65,9 +65,14 @@ export function displayImageSrc(item: Listing): string {
   return resolveListingImageSrc(item) ?? demoPlaceholderSrc(item);
 }
 
-export function productImageSizes(variant: "rail" | "grid" = "grid"): string {
+export function productImageSizes(
+  variant: "rail" | "grid" | "classified" = "grid",
+): string {
   if (variant === "rail") {
     return "(max-width: 480px) 42vw, (max-width: 768px) 36vw, 320px";
+  }
+  if (variant === "classified") {
+    return "(min-width: 1024px) 42vw, 90vw";
   }
   return "(max-width: 480px) 44vw, (max-width: 1024px) 33vw, 320px";
 }

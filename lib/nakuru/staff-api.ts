@@ -1,4 +1,5 @@
 import { ApiError, type ApiErrorBody, type ApiFetchOptions } from "@/lib/nakuru/api";
+import type { ListingMode } from "@/lib/nakuru/types";
 import { refreshAccessFromCookie } from "@/lib/nakuru/session-refresh";
 import {
   clearStaffAccessToken,
@@ -101,6 +102,18 @@ export async function staffFetch<T = unknown>(
 
   return run(true);
 }
+
+export type StaffCategoryRow = {
+  slug: string;
+  label: string;
+  kind: "official" | "community";
+  listingMode: ListingMode;
+  openForApply: boolean;
+  sortOrder: number;
+  visible: boolean;
+  createdAt: string;
+  createdBy: string | null;
+};
 
 export type StaffVendorRow = {
   id: string;

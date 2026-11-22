@@ -70,6 +70,25 @@ export function VendorProductForm({
     [approvedCategories, directoryRows],
   );
 
+  const directoryOptions = directoryRows;
+
+  const addableRows = useMemo(
+    () =>
+      directoryOptions.filter(
+        (row) => row.openForApply && !approvedCategories.includes(row.slug),
+      ),
+    [directoryOptions, approvedCategories],
+  );
+
+  const listingOptions = useMemo(() => {
+    const have = new Set(publishSlugs);
+    const extra = directoryOptions.filter(
+      (row) => row.openForApply && !have.has(row.slug),
+    );
+    const owned = directoryOptions.filter((row) => have.has(row.slug));
+    return [...owned, ...extra];
+  }, [directoryOptions, publishSlugs]);
+
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
   const selectedListingMode = selectedSlug
     ? listingModeForSlug(selectedSlug, directoryRows)
@@ -85,7 +104,7 @@ export function VendorProductForm({
   const imageInputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
 
-  const [catDraft, setCatDraft] = useState("");
+  const [catPick, setCatPick] = useState("");
   const [catBusy, setCatBusy] = useState(false);
 
   const [listings, setListings] = useState<VendorProductRow[] | null>(null);
@@ -98,14 +117,15 @@ export function VendorProductForm({
   const [editBusy, setEditBusy] = useState(false);
 
   useEffect(() => {
-    if (!publishSlugs.length) {
+    const allowed = listingOptions.map((row) => row.slug);
+    if (!allowed.length) {
       setSelectedSlug(null);
       return;
     }
     setSelectedSlug((prev) =>
-      prev && publishSlugs.includes(prev) ? prev : publishSlugs[0]!,
+      prev && allowed.includes(prev) ? prev : allowed[0]!,
     );
-  }, [publishSlugs]);
+  }, [listingOptions]);
 
   useEffect(() => {
     if (!selectedListingMode) return;
@@ -158,11 +178,16 @@ export function VendorProductForm({
     }
   };
 
+  useEffect(() => {
+    setCatPick((prev) =>
+      addableRows.some((row) => row.slug === prev) ? prev : "",
+    );
+  }, [addableRows]);
+
   const onAddCategory = async () => {
     if (catBusy) return;
-    const label = catDraft.trim();
-    if (!label) {
-      toast("Use 2–40 letters or numbers.");
+    if (!catPick) {
+      toast("Choose a category from the list.");
       return;
     }
 
@@ -173,10 +198,9 @@ export function VendorProductForm({
         category: CategoryPublicApiRow;
       }>("/api/vendors/mine/categories", {
         method: "POST",
-        body: JSON.stringify({ label }),
+        body: JSON.stringify({ slug: catPick }),
       });
       upsertRow(result.category);
-      setCatDraft("");
       onCategoriesChange?.();
       toast("Category added to your profile.");
     } catch (err) {
@@ -190,7 +214,7 @@ export function VendorProductForm({
           return;
         }
         if (err.status === 400) {
-          toast("Use 2–40 letters or numbers.");
+          toast("That category is not available. Pick another.");
           return;
         }
       }
@@ -249,6 +273,17 @@ export function VendorProductForm({
 
     setBusy(true);
     try {
+      if (!approvedCategories.includes(selectedSlug)) {
+        const result = await apiFetch<{
+          categories: string[];
+          category: CategoryPublicApiRow;
+        }>("/api/vendors/mine/categories", {
+          method: "POST",
+          body: JSON.stringify({ slug: selectedSlug }),
+        });
+        upsertRow(result.category);
+        onCategoriesChange?.();
+      }
       await apiFetch("/api/products", {
         method: "POST",
         body: JSON.stringify(body),
@@ -260,6 +295,10 @@ export function VendorProductForm({
       if (err instanceof ApiError) {
         if (err.body.error === "category_not_approved") {
           toast("That category is not on your approved vendor profile.");
+          return;
+        }
+        if (err.body.error === "category_limit") {
+          toast("You already have 4 categories. Remove one before adding.");
           return;
         }
         if (err.body.error === "too_many_products") {
@@ -384,27 +423,43 @@ export function VendorProductForm({
     }
   };
 
+  const atCategoryCap = approvedCategories.length >= 4;
   const addCategoryCard = (
     <div className="card">
       <div className="t">Add a category</div>
       <div className="m">
-        Create a new name for what you sell (e.g. Fashion). It is added to your
-        approved profile, up to four categories total.
+        {atCategoryCap
+          ? "Your profile already has four categories, the maximum."
+          : "Choose from existing categories on NakuruHub, up to four on your profile."}
       </div>
-      <label htmlFor="vp-add-cat">Category name</label>
+      <label htmlFor="vp-add-cat">Category</label>
       <div className="row">
-        <input
+        <select
           id="vp-add-cat"
-          maxLength={40}
-          value={catDraft}
-          disabled={catBusy || busy}
-          placeholder="e.g. Fashion"
-          onChange={(e) => setCatDraft(e.target.value)}
-        />
+          value={catPick}
+          disabled={catBusy || busy || atCategoryCap}
+          onChange={(e) => setCatPick(e.target.value)}
+        >
+          <option value="">Select a category</option>
+          {directoryOptions.map((row) => {
+            const added = approvedCategories.includes(row.slug);
+            const closed = !row.openForApply;
+            return (
+              <option
+                key={row.slug}
+                value={row.slug}
+                disabled={added || closed}
+              >
+                {row.label}
+                {added ? " (already added)" : closed ? " (soon)" : ""}
+              </option>
+            );
+          })}
+        </select>
         <button
           type="button"
           className="btn s"
-          disabled={catBusy || busy}
+          disabled={catBusy || busy || atCategoryCap || !catPick}
           onClick={() => void onAddCategory()}
         >
           {catBusy ? "Adding…" : "Add"}
@@ -485,20 +540,24 @@ export function VendorProductForm({
                     {editing ? (
                       <>
                         {publishSlugs.length > 1 && rowInPicker ? (
-                          <span style={{ marginRight: 6 }}>
+                          <select
+                            aria-label="Listing category"
+                            value={effectiveEditSlug}
+                            disabled={editBusy}
+                            style={{
+                              width: "auto",
+                              minWidth: "8rem",
+                              marginRight: 6,
+                              marginBottom: 4,
+                            }}
+                            onChange={(e) => setEditCategory(e.target.value)}
+                          >
                             {publishSlugs.map((slug) => (
-                              <button
-                                key={slug}
-                                type="button"
-                                className={`chip${editCategory === slug ? " on" : ""}`}
-                                disabled={editBusy}
-                                style={{ marginBottom: 4 }}
-                                onClick={() => setEditCategory(slug)}
-                              >
+                              <option key={slug} value={slug}>
                                 {directoryLabel(slug, directoryRows)}
-                              </button>
+                              </option>
                             ))}
-                          </span>
+                          </select>
                         ) : null}
                         {showStockOnEdit ? (
                           <input
@@ -560,16 +619,16 @@ export function VendorProductForm({
     </div>
   );
 
-  if (!publishSlugs.length) {
+  if (!listingOptions.length) {
     return (
       <>
         {addCategoryCard}
         <div className="card">
           <div className="t">Publish listings</div>
           <div className="m">
-            Shop- and services-style categories open here once they are on your
-            vendor profile. Add a category above or wait for staff-approved
-            types.
+            Shop- and services-style categories open here once they are in the
+            directory. Choose a category from the list above or wait for
+            staff-approved types.
           </div>
         </div>
         {listingsCard}
@@ -589,20 +648,25 @@ export function VendorProductForm({
             : "Services show in the catalog; buyers request a quote (no instant checkout)."}
         </div>
 
-        <label>Listing type</label>
-        <div>
-          {publishSlugs.map((slug) => (
-            <button
-              key={slug}
-              type="button"
-              className={`chip${selectedSlug === slug ? " on" : ""}`}
-              disabled={busy}
-              onClick={() => setSelectedSlug(slug)}
-            >
-              {directoryLabel(slug, directoryRows)}
-            </button>
+        <label htmlFor="vp-listing-cat">Category</label>
+        <select
+          id="vp-listing-cat"
+          value={selectedSlug ?? ""}
+          disabled={busy || listingOptions.length === 0}
+          onChange={(e) => {
+            const next = e.target.value;
+            setSelectedSlug(next || null);
+          }}
+        >
+          {listingOptions.length === 0 ? (
+            <option value="">No categories yet</option>
+          ) : null}
+          {listingOptions.map((row) => (
+            <option key={row.slug} value={row.slug}>
+              {row.label}
+            </option>
           ))}
-        </div>
+        </select>
 
         <label htmlFor="vp-title">Title</label>
         <input

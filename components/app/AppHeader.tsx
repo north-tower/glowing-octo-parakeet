@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNakuruApp } from "@/components/app/AppProvider";
 import { AppTopNav } from "@/components/app/AppTopNav";
+import { PublicAppNav } from "@/components/app/PublicAppNav";
 import { BrandLogoMark } from "@/components/app/BrandLogoMark";
 import { homeCategoryLabel, homeCopy } from "@/lib/nakuru/home-i18n";
 import type { DirectoryCategory } from "@/lib/nakuru/data/category-directory";
@@ -11,14 +12,14 @@ import { useCategories } from "@/lib/nakuru/use-categories";
 import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
 import { ZoneSheet } from "@/components/app/ZoneSheet";
 import { usePrimaryNav } from "@/components/app/usePrimaryNav";
-import { useAppTabletUp } from "@/lib/nakuru/use-media-query";
+import { useAppDesktopUp, useAppTabletUp } from "@/lib/nakuru/use-media-query";
 import {
   IconCamera,
   IconChevronDown,
   IconMapPin,
   IconSearch,
 } from "@/components/app/icons/LineIcons";
-import { BRAND_NAME } from "@/lib/nakuru/brand";
+import { BRAND_NAME, BRAND_TAGLINE } from "@/lib/nakuru/brand";
 import type { LandingLang } from "@/lib/nakuru/i18n";
 
 const OFFICIAL_TAB_IDS = new Set<CategoryId>([
@@ -43,6 +44,7 @@ export function AppHeader() {
   const { lang } = usePwaInstall();
   const { goHome } = usePrimaryNav();
   const tabletUp = useAppTabletUp();
+  const desktopUp = useAppDesktopUp();
   const [qLocal, setQLocal] = useState(state.q);
   const [zoneOpen, setZoneOpen] = useState(false);
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -198,8 +200,10 @@ export function AppHeader() {
               <div className="app-hd-mobile-block">
                 <div className="row sp hd-top">
                   <span className="logo">
-                    <BrandLogoMark size={28} />
-                    {BRAND_NAME}
+                    <BrandLogoMark size={36} />
+                    <span className="logo-stack">
+                      <span className="logo-text">{BRAND_NAME}</span>
+                    </span>
                   </span>
                   <button
                     type="button"
@@ -229,8 +233,13 @@ export function AppHeader() {
                   className="logo app-hd-home-link"
                   onClick={goHome}
                 >
-                  <BrandLogoMark size={28} />
-                  {BRAND_NAME}
+                  <BrandLogoMark size={40} />
+                  <span className="logo-stack">
+                    <span className="logo-text">{BRAND_NAME}</span>
+                    {desktopUp ? (
+                      <span className="logo-tagline">{BRAND_TAGLINE}</span>
+                    ) : null}
+                  </span>
                 </button>
                 <div className="app-hd-zone-wrap">
                   <button
@@ -253,7 +262,7 @@ export function AppHeader() {
                   </button>
                 </div>
                 <div className="app-hd-search-wrap">{searchForm}</div>
-                <AppTopNav />
+                {desktopUp ? <PublicAppNav /> : <AppTopNav />}
               </div>
             )}
           </div>

@@ -32,7 +32,7 @@ export default function StaffPage() {
     <>
       <header>
         <div className="logo">
-          <BrandLogoMark size={22} /> {BRAND_NAME} staff
+          <BrandLogoMark size={28} /> {BRAND_NAME} staff
         </div>
       </header>
       <main>

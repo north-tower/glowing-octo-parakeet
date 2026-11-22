@@ -29,6 +29,7 @@ import { HomeUserGuide } from "@/components/app/HomeUserGuide";
 import { HomeCategoryStrip } from "@/components/app/home/HomeCategoryStrip";
 import { ProductSnapRail } from "@/components/app/home/ProductSnapRail";
 import { HomePickedForYou } from "@/components/app/home/HomePickedForYou";
+import { DesktopDiscoverHome } from "@/components/app/home/DesktopDiscoverHome";
 import {
   SlideArtDelivery,
   SlideArtProperty,
@@ -113,13 +114,14 @@ export function HomeView() {
   const [guideOpen, setGuideOpen] = useState(false);
   const liveCatalog = isLiveCatalogEnabled();
 
-  const browseCat = catalogCategoryForFilter(state.cat);
+  const activeCat = state.cat as CategoryId;
+  const browseCat = catalogCategoryForFilter(activeCat);
   const catalogFetch =
     liveCatalog &&
     !isOutsideArea(state.area) &&
-    !SOON[state.cat] &&
-    state.cat !== "stays" &&
-    state.cat !== "taxi";
+    !SOON[activeCat] &&
+    activeCat !== "stays" &&
+    activeCat !== "taxi";
 
   const { items: liveItems, loading, error } = useCatalogListings({
     enabled: catalogFetch,
@@ -172,7 +174,7 @@ export function HomeView() {
     );
   }
 
-  if (SOON[state.cat]) {
+  if (SOON[activeCat]) {
     return (
       <div className="card">
         <div className="t">
@@ -195,6 +197,37 @@ export function HomeView() {
   );
 
   const filtered = liveCatalog ? liveItems : demoFiltered;
+
+  if (desktopUp) {
+    const listingSet =
+      state.cat !== "all" || q
+        ? filtered
+        : catalogItems.length
+          ? catalogItems
+          : filtered;
+    return (
+      <>
+        {inquiryModal}
+        <DesktopDiscoverHome
+          lang={lang}
+          items={listingSet}
+          loading={loading}
+          error={error}
+          liveCatalog={liveCatalog}
+          cat={state.cat}
+          query={state.q}
+          zoneLabel={state.area}
+          serviceInquiryEnabled={serviceInquiryEnabled}
+          onAct={onAct}
+          onClear={() => {
+            dispatch({ type: "SET_CAT", cat: "all" });
+            dispatch({ type: "SET_Q", q: "" });
+          }}
+          onCat={(c) => dispatch({ type: "SET_CAT", cat: c })}
+        />
+      </>
+    );
+  }
 
   if (state.cat !== "all" || q) {
     const warn =

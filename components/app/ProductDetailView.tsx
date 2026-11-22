@@ -41,12 +41,16 @@ import {
   type ProductDetail,
 } from "@/lib/nakuru/listing-detail";
 import { listingModeOf } from "@/lib/nakuru/listing-mode";
-import type { Listing } from "@/lib/nakuru/types";
+import type { CategoryId, Listing } from "@/lib/nakuru/types";
 import { useListingAct } from "@/lib/nakuru/use-listing-act";
 import { recordProductOpen } from "@/lib/nakuru/pwa-engage";
 import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
 import { useNakuruApp } from "@/components/app/AppProvider";
 import { AssistantEntryChip } from "@/components/app/assistant/AssistantEntryChip";
+import {
+  ListingCommentsShell,
+  ListingWhatsApp,
+} from "@/components/app/product/ListingContactBlocks";
 import { useAssistantUi } from "@/components/app/assistant/AssistantUiProvider";
 import { useStickyBar } from "@/components/app/assistant/useStickyBar";
 import { isOutsideArea } from "@/lib/nakuru/area";
@@ -352,7 +356,7 @@ export function ProductDetailView({ productId }: Props) {
   const verified = detail.v === 1;
   const mode = listingModeOf(detail);
   const icon = listingIconKey(detail);
-  const tint = categoryTint(detail.c);
+  const tint = categoryTint(detail.c as CategoryId);
   const bodyText = detail.desc?.trim() ?? "";
   const serviceHeld =
     live && mode === "services" && !serviceInquiryEnabled;
@@ -581,32 +585,6 @@ export function ProductDetailView({ productId }: Props) {
             />
           </div>
 
-          <section
-            ref={sellerSectionRef}
-            className="card pd-card pd-seller"
-            aria-labelledby="pd-seller-h"
-          >
-            <h2 id="pd-seller-h" className="sr-only">
-              {detail.vendorName}
-            </h2>
-            <div className="pd-seller-row">
-              <span className="pd-seller-av" aria-hidden>
-                {vendorInitials || "?"}
-              </span>
-              <div className="pd-seller-meta">
-                <p className="pd-seller-name">{detail.vendorName}</p>
-                {verified ? <VerifiedBadge lang={lang} /> : null}
-              </div>
-            </div>
-            <button
-              type="button"
-              className="btn o full pd-seller-msg"
-              onClick={messageSeller}
-            >
-              {homeCopy("productMessageSeller", lang)}
-            </button>
-          </section>
-
           {bodyText ? (
             <section className="card pd-card pd-about" aria-labelledby="pd-about-h">
               <h2 id="pd-about-h" className="pd-about-title">
@@ -647,6 +625,43 @@ export function ProductDetailView({ productId }: Props) {
               </dl>
             </section>
           ) : null}
+
+          <ListingWhatsApp
+            lang={lang}
+            title={detail.t}
+            phone={
+              detail.attrs?.whatsapp ||
+              detail.attrs?.phone ||
+              detail.attrs?.mobile
+            }
+          />
+          <ListingCommentsShell lang={lang} />
+          <section
+            ref={sellerSectionRef}
+            className="card pd-card pd-seller"
+            aria-labelledby="pd-msg-h"
+          >
+            <h2 id="pd-msg-h" className="pd-about-title">
+              {homeCopy("messagesTitle", lang)}
+            </h2>
+            <p className="m">{homeCopy("messagesHint", lang)}</p>
+            <div className="pd-seller-row">
+              <span className="pd-seller-av" aria-hidden>
+                {vendorInitials || "?"}
+              </span>
+              <div className="pd-seller-meta">
+                <p className="pd-seller-name">{detail.vendorName}</p>
+                {verified ? <VerifiedBadge lang={lang} /> : null}
+              </div>
+            </div>
+            <button
+              type="button"
+              className="btn o full pd-seller-msg"
+              onClick={messageSeller}
+            >
+              {homeCopy("productMessageSeller", lang)}
+            </button>
+          </section>
 
           {related.length ? (
             <section className="pd-related" aria-labelledby="pd-related-h">

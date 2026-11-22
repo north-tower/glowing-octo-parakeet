@@ -253,7 +253,27 @@ export type HomeCopyKey =
   | "signInGuestNote"
   | "signInRemember"
   | "accUploadPhotoAria"
-  | "accDefaultName";
+  | "accDefaultName"
+  | "discoverEyebrow"
+  | "discoverTitle"
+  | "discoverSub"
+  | "clearFilters"
+  | "featuredFirst"
+  | "viewDetails"
+  | "saveListingAria"
+  | "waSeller"
+  | "waSellerMissing"
+  | "commentsTitle"
+  | "commentsEmpty"
+  | "commentsPlaceholder"
+  | "commentsSubmit"
+  | "commentsSoon"
+  | "messagesTitle"
+  | "messagesHint"
+  | "navExplore"
+  | "navHow"
+  | "navSaved"
+  | "postListing";
 
 export type TopCategorySlug =
   | "phone"
@@ -764,6 +784,41 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
     en: "Close assistant",
     sw: "Funga msaidizi",
   },
+  discoverEyebrow: { en: "The local marketplace", sw: "Soko la nyumbani" },
+  discoverTitle: { en: "Discover around you", sw: "Gundua karibu nawe" },
+  discoverSub: {
+    en: "Hand-picked local listings and opportunities.",
+    sw: "Matangazo ya nyumbani yaliyochaguliwa.",
+  },
+  clearFilters: { en: "Clear filters", sw: "Futa vichujio" },
+  featuredFirst: { en: "Featured first", sw: "Maarufu kwanza" },
+  viewDetails: { en: "View details", sw: "Tazama maelezo" },
+  saveListingAria: { en: "Save listing", sw: "Hifadhi tangazo" },
+  waSeller: { en: "WhatsApp seller", sw: "WhatsApp muuzaji" },
+  waSellerMissing: {
+    en: "Seller has not added WhatsApp yet.",
+    sw: "Muuzaji hajahifadhi WhatsApp bado.",
+  },
+  commentsTitle: { en: "Comments", sw: "Maoni" },
+  commentsEmpty: {
+    en: "Be the first to comment.",
+    sw: "Kuwa wa kwanza kutoa maoni.",
+  },
+  commentsPlaceholder: { en: "Write a comment", sw: "Andika maoni" },
+  commentsSubmit: { en: "Post comment", sw: "Tuma maoni" },
+  commentsSoon: {
+    en: "Comments are coming soon.",
+    sw: "Maoni yanakuja hivi karibuni.",
+  },
+  messagesTitle: { en: "In-app messages", sw: "Ujumbe katika programu" },
+  messagesHint: {
+    en: "Chat with the seller in NakuruHub.",
+    sw: "Ongea na muuzaji ndani ya NakuruHub.",
+  },
+  navExplore: { en: "Explore", sw: "Gundua" },
+  navHow: { en: "How it works", sw: "Jinsi inavyofanya" },
+  navSaved: { en: "Saved", sw: "Vilivyohifadhiwa" },
+  postListing: { en: "Post a listing", sw: "Weka tangazo" },
 };
 
 const TOP_CATEGORY_LABELS: Record<

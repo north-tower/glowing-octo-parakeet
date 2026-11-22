@@ -7,10 +7,7 @@ import {
 } from "@/components/app/ProfilePhotoUpload";
 import { apiFetch, ApiError } from "@/lib/nakuru/api";
 import { SOON } from "@/lib/nakuru/data/constants";
-import {
-  useCategories,
-  type CategoryPublicApiRow,
-} from "@/lib/nakuru/use-categories";
+import { useCategories } from "@/lib/nakuru/use-categories";
 import type { CategoryId } from "@/lib/nakuru/types";
 import {
   useCallback,
@@ -39,10 +36,10 @@ type Props = {
 
 export function VendorApplyForm({ disabled, onApplied, toast }: Props) {
   const { state } = useNakuruApp();
-  const { rows, loading, upsertRow } = useCategories();
+  const { rows, loading } = useCategories();
   const [name, setName] = useState("");
   const [categories, setCategories] = useState<string[] | null>(null);
-  const [catDraft, setCatDraft] = useState("");
+  const [catPick, setCatPick] = useState("");
   const [catError, setCatError] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -68,49 +65,24 @@ export function VendorApplyForm({ disabled, onApplied, toast }: Props) {
     [defaultCategories],
   );
 
-  const onAddCustom = async () => {
+  const onAddExisting = () => {
     if (disabled || busy) return;
     setCatError("");
-
-    const label = catDraft.trim();
-    if (!label) {
-      setCatError("Use 2–40 letters or numbers.");
+    if (!catPick) {
+      setCatError("Choose a category from the list.");
       return;
     }
-
-    setBusy(true);
-    try {
-      const row = await apiFetch<CategoryPublicApiRow>("/api/categories", {
-        method: "POST",
-        body: JSON.stringify({ label }),
-      });
-      upsertRow(row);
-      setCatDraft("");
-      setCategories((prev) => {
-        const current = prev ?? defaultCategories;
-        if (current.includes(row.slug)) return current;
-        if (current.length >= 4) return current;
-        return [...current, row.slug];
-      });
-    } catch (err) {
-      if (err instanceof ApiError) {
-        if (err.status === 409 && err.body.error === "category_hidden") {
-          setCatError("That category is closed. Pick another.");
-          return;
-        }
-        if (err.status === 401) {
-          setCatError("Sign in with your email code first.");
-          return;
-        }
-        if (err.status === 400) {
-          setCatError("Use 2–40 letters or numbers.");
-          return;
-        }
-      }
-      setCatError("Could not add. Try again.");
-    } finally {
-      setBusy(false);
+    const current = categories ?? defaultCategories;
+    if (current.includes(catPick)) {
+      setCatError("That category is already selected.");
+      return;
     }
+    if (current.length >= 4) {
+      setCatError("You can pick up to four categories.");
+      return;
+    }
+    toggleCategory(catPick);
+    setCatPick("");
   };
 
   const submit = async (ev: FormEvent) => {
@@ -244,22 +216,36 @@ export function VendorApplyForm({ disabled, onApplied, toast }: Props) {
 
       <label htmlFor="vendor-apply-cat">Add a category</label>
       <div className="row">
-        <input
+        <select
           id="vendor-apply-cat"
-          maxLength={40}
-          value={catDraft}
-          disabled={disabled || busy}
-          placeholder="e.g. Fashion"
+          value={catPick}
+          disabled={disabled || busy || loading}
           onChange={(e) => {
-            setCatDraft(e.target.value);
+            setCatPick(e.target.value);
             if (catError) setCatError("");
           }}
-        />
+        >
+          <option value="">Select a category</option>
+          {rows.map((row) => {
+            const selected = activeCategories.includes(row.slug);
+            const closed = !row.openForApply;
+            return (
+              <option
+                key={row.slug}
+                value={row.slug}
+                disabled={selected || closed}
+              >
+                {row.label}
+                {selected ? " (selected)" : closed ? " (soon)" : ""}
+              </option>
+            );
+          })}
+        </select>
         <button
           type="button"
           className="btn s"
-          disabled={disabled || busy}
-          onClick={() => void onAddCustom()}
+          disabled={disabled || busy || !catPick}
+          onClick={onAddExisting}
         >
           Add
         </button>
