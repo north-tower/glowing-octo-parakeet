@@ -2,35 +2,57 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "./nakuru-globals.css";
 import { nakuruFontClassName } from "@/lib/nakuru/fonts";
+import {
+  jsonLdString,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_URL,
+  siteJsonLd,
+} from "@/lib/seo/site";
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ??
-  (process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : "https://nakuruhub.example");
+const DEFAULT_TITLE = "NakuruHub — Buy, Sell & Rent in Nakuru, Kenya";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "NakuruHub — Sell to Nakuru from one place",
+    default: DEFAULT_TITLE,
     template: "%s | NakuruHub",
   },
-  description:
-    "NakuruHub — Nakuru’s marketplace for shop, property, cars, and services. Free to join and list. Soko la Nakuru — jiunga na uorodheshaje bure.",
-  applicationName: "NakuruHub",
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  keywords: [
+    "Nakuru",
+    "Nakuru marketplace",
+    "houses for rent in Nakuru",
+    "land for sale in Nakuru",
+    "cars for sale in Nakuru",
+    "Nakuru services",
+    "Nakuru shops",
+    "Nakuru County",
+    "Kenya marketplace",
+  ],
+  alternates: { canonical: "/" },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { "max-image-preview": "large", "max-snippet": -1 },
+  },
+  ...(process.env.GOOGLE_SITE_VERIFICATION
+    ? { verification: { google: process.env.GOOGLE_SITE_VERIFICATION } }
+    : {}),
   openGraph: {
-    title: "NakuruHub — Sell to Nakuru from one place",
+    title: DEFAULT_TITLE,
     description:
-      "List shop, homes, cars, or services in Nakuru County. Free to join and list on NakuruHub.",
+      "Shops, homes, land, cars, and services in Nakuru County. Free to join and list on NakuruHub.",
     type: "website",
-    siteName: "NakuruHub",
+    siteName: SITE_NAME,
     locale: "en_KE",
   },
   twitter: {
     card: "summary_large_image",
-    title: "NakuruHub — Sell to Nakuru from one place",
+    title: DEFAULT_TITLE,
     description:
-      "List shop, homes, cars, or services in Nakuru County. Free to join and list on NakuruHub.",
+      "Shops, homes, land, cars, and services in Nakuru County. Free to join and list on NakuruHub.",
   },
   appleWebApp: {
     capable: true,
@@ -58,9 +80,15 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={nakuruFontClassName}>
+    <html lang="en-KE" className={nakuruFontClassName}>
       {/* Phase 3: scope `landing` to `/` only via route layout */}
-      <body className="landing">{children}</body>
+      <body className="landing">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLdString(siteJsonLd()) }}
+        />
+        {children}
+      </body>
     </html>
   );
 }

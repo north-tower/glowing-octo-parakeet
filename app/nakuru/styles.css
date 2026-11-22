@@ -265,6 +265,7 @@ body.app .pim--ratio-43{aspect-ratio:4/3}
 body.app .pim-photo{object-fit:cover}
 body.app .pim-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.04),transparent 42%,rgba(0,0,0,.06));pointer-events:none}
 body.app .pc-verified-on-img{position:absolute;top:8px;left:8px;z-index:2}
+body.app .pc-verified-on-img .verified-badge.app-verified-badge{min-height:0;padding:2px 7px;font-size:9px;letter-spacing:.06em}
 body.app .pc-photo-count{position:absolute;left:8px;bottom:8px;z-index:2;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:650;background:color-mix(in srgb,var(--dk) 75%,transparent);color:var(--ondk)}
 body.app .pc-fab-add,body.app .pc-fab-chevron{position:absolute;right:8px;bottom:8px;z-index:3;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:#fff;color:var(--pri);display:grid;place-items:center;box-shadow:0 2px 8px rgba(0,0,0,.12);cursor:pointer}
 body.app .pc-fab-add--done{background:color-mix(in srgb,var(--pri) 14%,#fff);color:var(--pri)}
