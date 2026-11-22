@@ -61,6 +61,10 @@ body.app .acc-identity-name{font-family:var(--font-display);font-size:20px;font-
 body.app .acc-identity-chip{flex:none}
 body.app .acc-identity-role{margin-top:2px;font-size:12px;line-height:1.3}
 body.app .acc-identity-email{margin-top:2px;font-size:13px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body.app .acc-mode-seg{display:flex;flex-direction:row;align-items:stretch;gap:2px;height:44px;max-height:44px;padding:3px;margin-top:12px;border-radius:999px;border:1px solid var(--line);background:color-mix(in srgb,var(--line) 40%,var(--bg))}
+body.app .acc-mode-seg__item{flex:1;display:inline-flex;align-items:center;justify-content:center;min-width:0;min-height:38px;border:0;border-radius:999px;background:transparent;font:inherit;font-size:14px;font-weight:520;color:var(--mut);cursor:pointer}
+body.app .acc-mode-seg__item[aria-selected="true"]{background:color-mix(in srgb,var(--pri) 14%,var(--card));color:var(--pri);font-weight:650}
+body.app .acc-mode-seg__item:focus-visible{outline:3px solid var(--fl);outline-offset:1px}
 body.app .acc-status-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:20px;font-size:11px;font-weight:650;line-height:1.2;white-space:nowrap}
 body.app .acc-status-chip svg{flex:none}
 body.app .acc-status-chip--muted{background:color-mix(in srgb,var(--mut) 12%,var(--card));color:var(--mut);border:1px solid var(--line)}

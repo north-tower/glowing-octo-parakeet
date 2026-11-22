@@ -5,13 +5,12 @@ describe("accountMenuRows", () => {
   it("includes Become a seller when signed in with no shop", () => {
     const rows = accountMenuRows(null, true);
     const selling = rows.filter((r) => r.section === "selling");
-    expect(selling).toEqual([
-      expect.objectContaining({
-        actionId: "acc:vendor",
-        labelKey: "accSell",
-        disabled: undefined,
-      }),
-    ]);
+    expect(selling).toHaveLength(1);
+    expect(selling[0]).toMatchObject({
+      actionId: "acc:vendor",
+      labelKey: "accSell",
+    });
+    expect(selling[0]?.disabled).toBeFalsy();
   });
 
   it("lets pending sellers open status, not a disabled shop", () => {

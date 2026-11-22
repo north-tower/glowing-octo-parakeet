@@ -173,13 +173,6 @@ export async function adminVendorAction(
 
   const ownerId = r.rows[0].owner_id;
 
-  if (action === "approve") {
-    await db.q(
-      "update users set role='vendor' where id=$1 and role='customer'",
-      [ownerId],
-    );
-  }
-
   const event =
     action === "approve"
       ? "vendor_approved"

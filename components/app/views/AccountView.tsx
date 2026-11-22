@@ -69,8 +69,7 @@ export function AccountView() {
             ‹ Back
           </button>
           <EmailOtpForm
-            intent="seller"
-            showIntentSwitch={false}
+            openSellingAfterSignIn
             showGuestBrowse={false}
           />
         </>
@@ -102,7 +101,7 @@ export function AccountView() {
   if (!signedIn) {
     return (
       <>
-        <EmailOtpForm intent="shop" />
+        <EmailOtpForm />
         <div
           className="card li"
           role="button"
@@ -155,6 +154,11 @@ export function AccountView() {
       standalone={standalone}
       onInstallRow={() => openInstallSheet("account")}
       onDispatchRow={(id) => dispatch({ type: "ACCOUNT_ROW", id })}
+      onSelectMode={(mode) => {
+        if (mode === "selling") {
+          dispatch({ type: "SLIDE_VENDOR" });
+        }
+      }}
       onSignOut={() => {
         void logout().then(() => toast(homeCopy("accSignedOut", lang)));
       }}

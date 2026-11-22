@@ -200,6 +200,9 @@ export type HomeCopyKey =
   | "orderItemsMore"
   | "accRoleBuyer"
   | "accRoleVendor"
+  | "accModeShopping"
+  | "accModeSelling"
+  | "accModeAria"
   | "accStatusPending"
   | "accStatusUnverified"
   | "accSectionSelling"
@@ -252,6 +255,13 @@ export type HomeCopyKey =
   | "signInGuestBrowse"
   | "signInGuestNote"
   | "signInRemember"
+  | "signInTitle"
+  | "signInLead"
+  | "signInCta"
+  | "signInCodeTitle"
+  | "signInVerifyCta"
+  | "signInSuccess"
+  | "vendorApplySameAccount"
   | "accUploadPhotoAria"
   | "accDefaultName"
   | "discoverEyebrow"
@@ -670,6 +680,12 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   orderItemsMore: { en: "{title} +{n} more", sw: "{title} +{n} zaidi" },
   accRoleBuyer: { en: "Buyer", sw: "Mnunuzi" },
   accRoleVendor: { en: "Vendor", sw: "Muuzaji" },
+  accModeShopping: { en: "Shopping", sw: "Ununuzi" },
+  accModeSelling: { en: "Selling", sw: "Uuzaji" },
+  accModeAria: {
+    en: "Shopping or selling",
+    sw: "Ununuzi au uuzaji",
+  },
   accStatusPending: { en: "Pending approval", sw: "Inasubiri idhini" },
   accStatusUnverified: { en: "Unverified", sw: "Haijathibitishwa" },
   accSectionSelling: { en: "Selling", sw: "Uuzaji" },
@@ -723,6 +739,19 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   signInRemember: {
     en: "Keep me signed in",
     sw: "Nikumbuke",
+  },
+  signInTitle: { en: "Sign in", sw: "Ingia" },
+  signInLead: {
+    en: "Save orders, cart, and quote requests. We email a one-time code — no password.",
+    sw: "Hifadhi maagizo, kikapu, na maombi ya bei. Tunatuma kodi ya mara moja kwa barua pepe — bila nenosiri.",
+  },
+  signInCta: { en: "Send code", sw: "Tuma kodi" },
+  signInCodeTitle: { en: "Confirm sign-in", sw: "Thibitisha kuingia" },
+  signInVerifyCta: { en: "Verify and sign in", sw: "Thibitisha na uingie" },
+  signInSuccess: { en: "Signed in", sw: "Umeingia" },
+  vendorApplySameAccount: {
+    en: "This uses the same account as shopping — not a second login.",
+    sw: "Hii inatumia akaunti ile ile ya ununuzi — si kuingia kwa pili.",
   },
   accUploadPhotoAria: {
     en: "Upload profile picture",

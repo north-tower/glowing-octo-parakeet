@@ -4,6 +4,7 @@ import {
   apiFetch,
   refreshAccessToken,
 } from "@/lib/nakuru/api";
+import { clearAppMode } from "@/lib/nakuru/app-mode";
 import {
   clearAccessToken,
   getAccessToken,
@@ -90,6 +91,7 @@ export function AppAuthProvider({ children }: Props) {
       setEmail(undefined);
       clearAccessToken();
       setToken(null);
+      clearAppMode();
     }
   }, []);
 

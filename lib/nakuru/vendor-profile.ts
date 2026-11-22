@@ -117,10 +117,8 @@ export function accountMenuRows(
       {
         icon: "store",
         actionId: "acc:vendor",
-        labelKey: "accMyShop",
+        labelKey: "accApplicationStatus",
         section: "selling",
-        disabled: true,
-        disabledReasonKey: "accShopAfterApproval",
       },
       {
         icon: "receipt",
@@ -152,6 +150,12 @@ export function accountMenuRows(
 
   if (!profile && signedIn) {
     return [
+      {
+        icon: "store",
+        actionId: "acc:vendor",
+        labelKey: "accSell",
+        section: "selling",
+      },
       {
         icon: "receipt",
         actionId: "tab:cart:orders",

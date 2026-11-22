@@ -1,6 +1,8 @@
 "use client";
 
 import { useNakuruApp } from "@/components/app/AppProvider";
+import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
+import { homeCopy } from "@/lib/nakuru/home-i18n";
 import {
   Avatar,
   ProfilePhotoUpload,
@@ -36,6 +38,7 @@ type Props = {
 
 export function VendorApplyForm({ disabled, onApplied, toast }: Props) {
   const { state } = useNakuruApp();
+  const { lang } = usePwaInstall();
   const { rows, loading } = useCategories();
   const [name, setName] = useState("");
   const [categories, setCategories] = useState<string[] | null>(null);
@@ -144,6 +147,7 @@ export function VendorApplyForm({ disabled, onApplied, toast }: Props) {
   return (
     <form onSubmit={submit}>
       <h2>Sell on NakuruHub</h2>
+      <div className="m">{homeCopy("vendorApplySameAccount", lang)}</div>
       <div className="m">
         Free to join. Add a profile picture or shop logo, then pick the
         categories you sell in—each is reviewed separately. Your identity is
