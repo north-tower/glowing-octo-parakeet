@@ -267,7 +267,14 @@ export type HomeCopyKey =
   | "commentsEmpty"
   | "commentsPlaceholder"
   | "commentsSubmit"
-  | "commentsSoon"
+  | "commentsSignIn"
+  | "commentsDelete"
+  | "commentsLoading"
+  | "commentsPostError"
+  | "commentsLoadError"
+  | "commentsForbidden"
+  | "commentsRateLimited"
+  | "commentsNotFound"
   | "messagesTitle"
   | "messagesHint"
   | "navExplore"
@@ -806,9 +813,28 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   },
   commentsPlaceholder: { en: "Write a comment", sw: "Andika maoni" },
   commentsSubmit: { en: "Post comment", sw: "Tuma maoni" },
-  commentsSoon: {
-    en: "Comments are coming soon.",
-    sw: "Maoni yanakuja hivi karibuni.",
+  commentsSignIn: { en: "Sign in to comment", sw: "Ingia ili utoe maoni" },
+  commentsDelete: { en: "Delete", sw: "Futa" },
+  commentsLoading: { en: "Loading comments…", sw: "Inapakia maoni…" },
+  commentsPostError: {
+    en: "Couldn’t post comment.",
+    sw: "Imeshindwa kutuma maoni.",
+  },
+  commentsLoadError: {
+    en: "Couldn’t load comments.",
+    sw: "Imeshindwa kupakia maoni.",
+  },
+  commentsForbidden: {
+    en: "You can’t do that.",
+    sw: "Huwezi kufanya hivyo.",
+  },
+  commentsRateLimited: {
+    en: "Too many comments. Try again later.",
+    sw: "Maoni mengi mno. Jaribu tena baadaye.",
+  },
+  commentsNotFound: {
+    en: "This listing isn’t available.",
+    sw: "Tangazo hili halipatikani.",
   },
   messagesTitle: { en: "In-app messages", sw: "Ujumbe katika programu" },
   messagesHint: {

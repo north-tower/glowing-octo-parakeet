@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type PointerEvent,
+} from "react";
 import { ProductCard } from "@/components/app/ProductCard";
 import { useNakuruApp } from "@/components/app/AppProvider";
 import { FEAT, SLIDES, SOON, TOPC } from "@/lib/nakuru/data/constants";
@@ -52,49 +58,165 @@ const SLIDE_CTAS: ("slide0Cta" | "slide1Cta" | "slide2Cta")[] = [
   "slide1Cta",
   "slide2Cta",
 ];
+const CAR_AUTO_MS = 5000;
+
+let carouselTween = 0;
+
+function carouselSlides(c: HTMLDivElement) {
+  return Array.from(c.querySelectorAll<HTMLElement>(":scope > .sl"));
+}
+
+function cancelCarouselTween() {
+  if (carouselTween) cancelAnimationFrame(carouselTween);
+  carouselTween = 0;
+}
+
+function scrollCarouselTo(
+  c: HTMLDivElement,
+  index: number,
+  reduced: boolean,
+) {
+  const slide = carouselSlides(c)[index];
+  if (!slide) return;
+  const target = slide.offsetLeft;
+  cancelCarouselTween();
+  if (reduced) {
+    c.scrollLeft = target;
+    syncCarouselParallax(c);
+    return;
+  }
+  const start = c.scrollLeft;
+  const dist = target - start;
+  if (Math.abs(dist) < 0.5) return;
+  const duration = Math.min(820, 460 + Math.abs(dist) * 0.42);
+  const t0 = performance.now();
+  const ease = (t: number) => {
+    const p = t - 1;
+    const c1 = 1.28;
+    const c3 = c1 + 1;
+    return 1 + c3 * p * p * p + c1 * p * p;
+  };
+  const step = (now: number) => {
+    const t = Math.min(1, (now - t0) / duration);
+    c.scrollLeft = start + dist * ease(t);
+    syncCarouselParallax(c);
+    if (t < 1) carouselTween = requestAnimationFrame(step);
+    else carouselTween = 0;
+  };
+  carouselTween = requestAnimationFrame(step);
+}
+
+function nearestCarouselIndex(c: HTMLDivElement) {
+  let best = 0;
+  let dist = Number.POSITIVE_INFINITY;
+  carouselSlides(c).forEach((slide, i) => {
+    const d = Math.abs(slide.offsetLeft - c.scrollLeft);
+    if (d < dist) {
+      dist = d;
+      best = i;
+    }
+  });
+  return best;
+}
+
+function syncCarouselParallax(c: HTMLDivElement) {
+  const w = c.clientWidth || 1;
+  carouselSlides(c).forEach((slide) => {
+    const raw = (slide.offsetLeft - c.scrollLeft) / w;
+    const p = Math.abs(raw) < 0.08 ? 0 : raw;
+    slide.style.setProperty("--p", p.toFixed(3));
+    slide.style.setProperty("--ap", Math.abs(p).toFixed(3));
+  });
+}
 
 function useHomeCarousel(active: boolean) {
   const carRef = useRef<HTMLDivElement>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
   const [ci, setCi] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [reduced, setReduced] = useState(false);
   const pausedRef = useRef(false);
-  const reduced =
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  pausedRef.current = paused;
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setReduced(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
 
   useEffect(() => {
     const c = carRef.current;
     if (!active || !c) return;
+    let raf = 0;
     const onScroll = () => {
-      if (!c.clientWidth) return;
-      setCi(Math.round(c.scrollLeft / c.clientWidth));
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        if (!c.clientWidth) return;
+        if (!reduced) syncCarouselParallax(c);
+        setCi((prev) => {
+          const next = nearestCarouselIndex(c);
+          return next === prev ? prev : next;
+        });
+      });
     };
+    onScroll();
     c.addEventListener("scroll", onScroll, { passive: true });
-    return () => c.removeEventListener("scroll", onScroll);
-  }, [active]);
+    return () => {
+      cancelAnimationFrame(raf);
+      c.removeEventListener("scroll", onScroll);
+    };
+  }, [active, reduced]);
 
   useEffect(() => {
     if (!active || reduced) return;
     const c = carRef.current;
     if (!c) return;
-    const id = setInterval(() => {
-      if (document.hidden || pausedRef.current) return;
+    let onscreen = true;
+    let remaining = CAR_AUTO_MS;
+    let last = performance.now();
+    let raf = 0;
+    const advance = () => {
       setCi((prev) => {
         const next = (prev + 1) % SLIDES.length;
-        c.scrollTo({
-          left: next * c.clientWidth,
-          behavior: "smooth",
-        });
+        scrollCarouselTo(c, next, false);
         return next;
       });
-    }, 5000);
-    return () => clearInterval(id);
-  }, [active, reduced]);
+    };
+    const tick = (now: number) => {
+      const dt = now - last;
+      last = now;
+      if (!pausedRef.current && !document.hidden && onscreen) {
+        remaining -= dt;
+        if (remaining <= 0) {
+          remaining = CAR_AUTO_MS;
+          advance();
+        }
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    const onVisibility = () => {
+      last = performance.now();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        onscreen = Boolean(entry?.isIntersecting);
+        last = performance.now();
+      },
+      { threshold: 0.35 },
+    );
+    io.observe(c);
+    raf = requestAnimationFrame(tick);
+    return () => {
+      cancelAnimationFrame(raf);
+      document.removeEventListener("visibilitychange", onVisibility);
+      io?.disconnect();
+    };
+  }, [active, reduced, ci]);
 
-  const setPaused = (v: boolean) => {
-    pausedRef.current = v;
-  };
-
-  return { carRef, ci, setPaused, reduced };
+  return { carRef, wrapRef, ci, paused, setPaused, reduced };
 }
 
 function catalogCategoryForFilter(cat: CategoryId): CategoryId | "all" {
@@ -108,7 +230,7 @@ export function HomeView() {
   const { lang } = usePwaInstall();
   const desktopUp = useAppDesktopUp();
   const { onAct, serviceInquiryEnabled, inquiryModal } = useListingAct();
-  const { carRef, ci, setPaused, reduced } = useHomeCarousel(
+  const { carRef, wrapRef, ci, paused, setPaused, reduced } = useHomeCarousel(
     state.tab === "home",
   );
   const [guideOpen, setGuideOpen] = useState(false);
@@ -150,10 +272,22 @@ export function HomeView() {
     const c = carRef.current;
     if (!c) return;
     const next = Math.max(0, Math.min(SLIDES.length - 1, ci + dir));
-    c.scrollTo({
-      left: next * c.clientWidth,
-      behavior: reduced ? "auto" : "smooth",
-    });
+    scrollCarouselTo(c, next, reduced);
+  };
+
+  const tiltSlide = (e: PointerEvent<HTMLDivElement>) => {
+    if (reduced || e.pointerType !== "mouse") return;
+    const el = e.currentTarget;
+    const r = el.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width - 0.5;
+    const py = (e.clientY - r.top) / r.height - 0.5;
+    el.style.setProperty("--rx", `${(-py * 6).toFixed(2)}deg`);
+    el.style.setProperty("--ry", `${(px * 8).toFixed(2)}deg`);
+  };
+
+  const untiltSlide = (e: PointerEvent<HTMLDivElement>) => {
+    e.currentTarget.style.setProperty("--rx", "0deg");
+    e.currentTarget.style.setProperty("--ry", "0deg");
   };
 
   if (isOutsideArea(state.area)) {
@@ -317,9 +451,9 @@ export function HomeView() {
         </div>
       </div>
       <div
-        className="home-hero-wrap"
-        onPointerEnter={() => setPaused(true)}
-        onPointerLeave={() => setPaused(false)}
+        ref={wrapRef}
+        className={`home-hero-wrap${paused ? " is-paused" : ""}`}
+        style={{ ["--car-auto" as string]: `${CAR_AUTO_MS}ms` }}
         onFocusCapture={() => setPaused(true)}
         onBlurCapture={() => setPaused(false)}
       >
@@ -327,6 +461,14 @@ export function HomeView() {
           className="car car--hero"
           id="car"
           ref={carRef}
+          aria-roledescription="carousel"
+          aria-label={lang === "sw" ? "Matangazo" : "Promotions"}
+          onPointerEnter={() => setPaused(true)}
+          onPointerLeave={() => setPaused(false)}
+          onPointerDown={() => {
+            cancelCarouselTween();
+            setPaused(true);
+          }}
           onTouchStart={() => setPaused(true)}
           onTouchEnd={() => setPaused(false)}
         >
@@ -334,21 +476,39 @@ export function HomeView() {
             const [titleKey, subKey] = SLIDE_COPY_KEYS[k]!;
             const Art = SLIDE_ART[k]!;
             const ctaKey = SLIDE_CTAS[k]!;
+            const active = k === ci;
             return (
-              <div key={k} className={`sl ${SLIDE_CLASS[k] ?? ""}`}>
-                <div className="sl-grain" aria-hidden />
-                <div className="sl-text">
-                  <b>{homeCopy(titleKey, lang)}</b>
-                  <span>{homeCopy(subKey, lang)}</span>
-                  <button
-                    type="button"
-                    className={`btn ${k === 1 ? "s" : "o"} sl-cta`}
-                    onClick={() => onSlideCta(k)}
-                  >
-                    {homeCopy(ctaKey, lang)}
-                  </button>
+              <div
+                key={k}
+                className={`sl ${SLIDE_CLASS[k] ?? ""}${active ? " is-active" : ""}`}
+                aria-hidden={!active}
+                onPointerMove={tiltSlide}
+                onPointerLeave={untiltSlide}
+              >
+                <div className="sl-scene" aria-hidden>
+                  <span className="sl-orb sl-orb-a" />
+                  <span className="sl-orb sl-orb-b" />
                 </div>
-                <Art />
+                <div className="sl-grain" aria-hidden />
+                <div className="sl-stage">
+                  <div className="sl-text">
+                    <div className="sl-copy">
+                      <b>{homeCopy(titleKey, lang)}</b>
+                      <span>{homeCopy(subKey, lang)}</span>
+                      <button
+                        type="button"
+                        className={`btn ${k === 1 ? "s" : "o"} sl-cta`}
+                        tabIndex={active ? 0 : -1}
+                        onClick={() => onSlideCta(k)}
+                      >
+                        {homeCopy(ctaKey, lang)}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="sl-art-wrap">
+                    <Art />
+                  </div>
+                </div>
               </div>
             );
           })}
@@ -392,6 +552,8 @@ export function HomeView() {
           className="car-pill"
           role="tablist"
           aria-label={homeCopy("slide0Title", lang)}
+          onPointerEnter={() => setPaused(true)}
+          onPointerLeave={() => setPaused(false)}
         >
           {SLIDES.map((_, k) => (
             <button
@@ -399,16 +561,16 @@ export function HomeView() {
               type="button"
               role="tab"
               aria-selected={k === ci}
+              aria-label={homeCopy(SLIDE_COPY_KEYS[k]![0], lang)}
               className={k === ci ? "on" : ""}
               onClick={() => {
                 const c = carRef.current;
                 if (!c) return;
-                c.scrollTo({
-                  left: k * c.clientWidth,
-                  behavior: reduced ? "auto" : "smooth",
-                });
+                scrollCarouselTo(c, k, reduced);
               }}
-            />
+            >
+              <span className="car-pill-fill" aria-hidden />
+            </button>
           ))}
         </div>
       </div>

@@ -47,10 +47,8 @@ import { recordProductOpen } from "@/lib/nakuru/pwa-engage";
 import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
 import { useNakuruApp } from "@/components/app/AppProvider";
 import { AssistantEntryChip } from "@/components/app/assistant/AssistantEntryChip";
-import {
-  ListingCommentsShell,
-  ListingWhatsApp,
-} from "@/components/app/product/ListingContactBlocks";
+import { ListingComments } from "@/components/app/product/ListingComments";
+import { ListingWhatsApp } from "@/components/app/product/ListingContactBlocks";
 import { useAssistantUi } from "@/components/app/assistant/AssistantUiProvider";
 import { useStickyBar } from "@/components/app/assistant/useStickyBar";
 import { isOutsideArea } from "@/lib/nakuru/area";
@@ -635,7 +633,7 @@ export function ProductDetailView({ productId }: Props) {
               detail.attrs?.mobile
             }
           />
-          <ListingCommentsShell lang={lang} />
+          <ListingComments lang={lang} productId={productId} />
           <section
             ref={sellerSectionRef}
             className="card pd-card pd-seller"
