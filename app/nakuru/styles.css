@@ -1,10 +1,8 @@
 :root{--bg:#f6f1e8;--card:#fff;--ink:#16382b;--mut:#6a7a72;--line:#e4ddd0;--hd:#14352c;--pri:#1a3d32;--fl:#1a3d32;--onpri:#fff;--gold:#c4a035;--goldbg:#f4e6c2;--ok:#1f7a4d;--dk:#1b1b1b;--ondk:#fff;--err:#fde8ec;--errt:#b3253f;--fw-body:430;--fw-label:600;--fw-strong:650;--sticky-bar-h:0px;--bp-tablet:768px;--bp-desktop:1024px;--bp-wide:1440px;--app-content-max:1200px;--app-pad-tablet:24px;--app-pad-desktop:32px;
-box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
-html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:only light}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%;color-scheme:only light}
 html[data-sticky-bar]{scroll-padding-bottom:calc(var(--sticky-bar-h,0px) + var(--nav-h) + env(safe-area-inset-bottom,0px) + 24px)}
 html[data-sticky-bar] body.app{padding-bottom:calc(var(--sticky-bar-h,0px) + var(--nav-h) + env(safe-area-inset-bottom,0px))}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1a16;--card:#16231f;--ink:#e9f2f0;--mut:#93a8a5;--line:#263835;--hd:#0e2a22;--pri:#7dcea0;--fl:#7dcea0;--onpri:#04201e;--gold:#f0bb45;--goldbg:#3a2f12;--ok:#5fd596;--dk:#f2f2f2;--ondk:#111;--err:#3b1a21;--errt:#ff9aab;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#0f1a16;--card:#16231f;--ink:#e9f2f0;--mut:#93a8a5;--line:#263835;--hd:#0e2a22;--pri:#7dcea0;--fl:#7dcea0;--onpri:#04201e;--gold:#f0bb45;--goldbg:#3a2f12;--ok:#5fd596;--dk:#f2f2f2;--ondk:#111;--err:#3b1a21;--errt:#ff9aab;color-scheme:dark}
 *{box-sizing:border-box}
 :focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 [data-a]:not(button){cursor:pointer}
@@ -254,7 +252,6 @@ body.app .ct--pink .ct-icon{background:color-mix(in srgb,var(--fl) 16%,var(--car
 body.app .ct-label{font-size:13px;font-weight:550;line-height:1.25;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;max-width:100%}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:stretch}
 body.app .pc{background:#fff;border:1px solid var(--line);border-radius:12px;padding:0;display:flex;flex-direction:column;gap:0;height:100%;box-shadow:0 1px 2px rgba(0,0,0,.04),0 4px 12px rgba(0,0,0,.06);overflow:hidden;transition:transform .18s ease,box-shadow .18s ease}
-html[data-theme="dark"] body.app .pc{background:var(--card);box-shadow:0 1px 2px rgba(0,0,0,.35),0 4px 12px rgba(0,0,0,.28)}
 @media(hover:hover){body.app .pc:hover{box-shadow:0 2px 4px rgba(0,0,0,.06),0 8px 20px rgba(0,0,0,.1);transform:translateY(-1px)}}
 @media(hover:hover) and (prefers-reduced-motion:reduce){body.app .pc:hover{transform:none}}
 body.app .pc:active{transform:scale(.98)}
@@ -466,6 +463,9 @@ body.app .cl.cat-layout{margin:0 -14px;gap:0;align-items:stretch}
 .cat-panel-group-title{font-family:var(--font-display),system-ui,sans-serif;font-size:20px;font-weight:620;letter-spacing:-.02em;margin:0 0 4px;line-height:1.2}
 .cat-panel-group-desc{margin:0;line-height:1.35}
 .home-cat-grid--browse{grid-template-columns:repeat(2,1fr);gap:14px}
+.home-cat-grid--browse-type .ct{min-height:108px;padding:14px 10px 12px}
+.home-cat-grid--browse-type .ct-icon{width:52px;height:52px;border-radius:14px}
+@media(min-width:768px){.home-cat-grid--browse-type{grid-template-columns:repeat(3,1fr);gap:12px}}
 .home-cat-grid--sparse{grid-template-columns:repeat(2,1fr);gap:14px}
 .home-cat-grid--sparse .ct{min-height:104px;padding:14px 10px}
 .cat-empty{display:flex;flex-direction:column;align-items:center;gap:10px;padding:24px 12px;text-align:center;color:var(--mut)}
@@ -547,7 +547,6 @@ body.app main input,body.app main select,body.app main textarea{font-size:16px}
 /* —— NakuruHub landing (landing.html) —— */
 html:has(body.landing){scroll-behavior:smooth;scroll-padding-top:4.5rem}
 body.landing{max-width:none;margin-inline:0;padding-bottom:0;font:1.0625rem/1.6 var(--font-body);font-weight:420;--landing-max:1180px;--radius-sm:12px;--radius-lg:20px;--border-hairline:1px solid var(--line);--line-strong:#d9d0c2;overflow-x:clip}
-@media(prefers-color-scheme:dark){body.landing{--line-strong:#3a4f4c}}
 body.landing :is(.logo,.logo-text,.hero h1,section h2,.cta-band h2,.stepper-num){font-family:var(--font-display);font-optical-sizing:auto}
 body.landing :is(.hero h1,section h2,.cta-band h2){text-wrap:balance}
 body.landing :is(.lead,.section-intro,.bento-desc,.faq-item p,.lane-steps,.cta-sub,.foot-brand p,.stepper-card p){text-wrap:pretty;max-width:60ch}
@@ -567,7 +566,6 @@ body.landing .mut{color:var(--mut)}
 body.landing .landing-main{padding:0}
 
 body.landing .proto-banner{position:relative;z-index:21;min-height:2.75rem;display:flex;align-items:center;justify-content:center;padding:.5rem 1rem;background:var(--goldbg);color:#4a3800;font-size:.9375rem;font-weight:420;line-height:1.5;text-align:center;border-bottom:1px solid #e0c36a}
-@media(prefers-color-scheme:dark){body.landing .proto-banner{color:var(--ink)}}
 
 body.landing .top{position:sticky;top:0;z-index:20;background:var(--hd);color:#fff;border-bottom:1px solid rgba(255,255,255,.12);padding:0}
 body.landing .top .wrap.header-bar{width:min(var(--landing-max),100% - 2rem);margin-inline:auto}
@@ -763,33 +761,6 @@ body.landing .bento-cars .icon-box{background:rgba(168,111,0,.18);color:#6b4e0a}
 body.landing .bento-cars .bento-desc{color:#4a3800}
 body.landing .bento-services{background:rgba(236,95,123,.1);border-color:rgba(236,95,123,.22)}
 body.landing .bento-services .icon-box{background:rgba(236,95,123,.16);color:#a83b52}
-@media(prefers-color-scheme:dark){
-  body.landing .bento-shop{background:rgba(79,195,187,.12);border-color:rgba(79,195,187,.2)}
-  body.landing .bento-shop .icon-box{background:rgba(79,195,187,.18);color:#9ee8e2}
-  body.landing .bento-shop .bento-chips li{background:rgba(22,35,31,.92);color:var(--ink);border-color:var(--line)}
-  body.landing .bento-chips li{background:rgba(22,35,31,.92);color:var(--ink);border-color:var(--line)}
-  body.landing .bento-mini-row{background:rgba(22,35,31,.75);border-color:var(--line)}
-  body.landing .bento-mini-thumb{background:rgba(79,195,187,.22)}
-  body.landing .bento-mini-thumb--b{background:rgba(240,187,69,.22)}
-  body.landing .bento-mini-thumb--c{background:rgba(95,213,150,.18)}
-  body.landing .bento-property .icon-box{color:#7fd9a8}
-  body.landing .bento-cars{background:rgba(240,187,69,.14);border-color:rgba(240,187,69,.25)}
-  body.landing .bento-cars .icon-box{color:#f0bb45}
-  body.landing .bento-cars .bento-desc{color:var(--ink)}
-  body.landing .bento-services .icon-box{color:#ff9eb2}
-  body.landing .verify-lane.lane-unverified{background:var(--card)}
-  body.landing .verify-lane.lane-verified{background:linear-gradient(165deg,rgba(79,195,187,.12),var(--card) 55%)}
-  body.landing .lane-verified{border-color:var(--pri);box-shadow:0 12px 32px rgba(0,0,0,.25),0 0 28px rgba(79,195,187,.22)}
-  body.landing .proto-banner{border-bottom-color:rgba(240,187,69,.28)}
-  body.landing .foot .lang-toggle{border-color:var(--line)}
-  body.landing .foot .lang-btn{color:var(--ink)}
-  body.landing .foot .lang-btn.on{background:var(--line);color:var(--ink)}
-  body.landing .foot-bottom{border-top-color:var(--line)}
-  body.landing .mock-thumb{background:rgba(79,195,187,.12);border:1px solid var(--line)}
-  body.landing .phone-screen{border-color:var(--line)}
-  body.landing .faq-item{border-color:var(--line)}
-  body.landing .mobile-cta-bar .mobile-cta-browse:hover{background:rgba(79,195,187,.12)}
-}
 @media(hover:hover){body.landing .bento-tile:hover{border-color:var(--line-strong)}}
 @media(min-width:640px){body.landing .bento{grid-template-columns:repeat(2,1fr)}body.landing .bento-shop{grid-column:1;grid-row:span 2}body.landing .bento-property{grid-column:2;grid-row:1}body.landing .bento-cars{grid-column:2;grid-row:2}body.landing .bento-services{grid-column:1/-1;grid-row:3}}
 @media(min-width:900px){body.landing .bento{grid-template-columns:repeat(4,1fr);grid-auto-rows:minmax(7.5rem,auto)}body.landing .bento-shop{grid-column:1/span 2;grid-row:1/span 2;min-height:17rem}body.landing .bento-property{grid-column:3;grid-row:1}body.landing .bento-cars{grid-column:4;grid-row:1}body.landing .bento-services{grid-column:3/span 2;grid-row:2}}
@@ -886,12 +857,6 @@ body.landing .dash-caption{margin:1rem 0 0;font-size:.9375rem;text-align:center}
   body.landing .dash-cards{display:flex;flex-direction:column}
   body.landing .js-dashboard-demo .dash-panels{min-height:var(--dash-panels-h,18rem)}
 }
-@media(prefers-color-scheme:dark){
-  body.landing .dash-chip--new{background:rgba(79,195,187,.16);color:#9ee8e2}
-  body.landing .dash-chip--out{background:rgba(240,187,69,.18);color:var(--ink)}
-  body.landing .dash-chip--done,body.landing .dash-chip--live{background:rgba(95,213,150,.14);color:#7fd9a8}
-  body.landing .dash-browser{box-shadow:0 16px 40px rgba(0,0,0,.35),0 4px 12px rgba(0,0,0,.2)}
-}
 body.landing .section-how{padding-bottom:2rem}
 body.landing .section-faq{padding-top:2rem}
 body.landing .stepper{display:grid;gap:1.25rem;margin:0}
@@ -959,7 +924,6 @@ body.landing .mobile-cta-bar{display:none}
   body.landing .mobile-cta-bar .mobile-cta-browse{background:transparent;color:var(--ink);border:1px solid var(--pri)}
   body.landing .mobile-cta-bar .mobile-cta-browse:hover{background:rgba(13,111,105,.08)}
   body.landing .mobile-cta-bar.is-hidden{transform:translateY(110%);opacity:0;pointer-events:none}
-  @media(prefers-color-scheme:dark){body.landing .mobile-cta-bar{background:var(--card);border-top-color:var(--line);box-shadow:0 -8px 24px rgba(0,0,0,.35)}}
 }
 @media(max-width:360px){body.landing .hero-visual{padding:.5rem 0}body.landing .top .wrap.header-bar,body.landing .wrap{width:min(var(--landing-max),100% - 2rem)}body.landing .zone-strip .wrap{width:min(var(--landing-max),100% - 2rem)}body.landing .top-nav a{font-size:.875rem;padding:.65rem .75rem}body.landing .btn-sell{padding:.65rem .55rem;font-size:.875rem}body.landing .hero-badge{font-size:.6875rem;padding:5px 10px;letter-spacing:.06em}body.landing .mobile-cta-bar .btn{font-size:.875rem;padding:.65rem .45rem;gap:.25rem}body.landing .zone-chip{font-size:.875rem;padding:.45rem .75rem}body.landing .bento-chips li{font-size:.6875rem;padding:.35rem .5rem}body.landing .how-cta .btn{font-size:.875rem;padding:.65rem .55rem}}
 

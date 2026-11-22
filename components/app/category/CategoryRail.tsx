@@ -2,7 +2,7 @@
 
 import { useCallback, useRef, type KeyboardEvent } from "react";
 import { useNakuruApp } from "@/components/app/AppProvider";
-import { SIDE, SOON, type SideRailIcon } from "@/lib/nakuru/data/constants";
+import { SIDE, type SideRailIcon } from "@/lib/nakuru/data/constants";
 import {
   homeCategoryLabel,
   homeCopy,
@@ -48,7 +48,7 @@ export function CategoryRail({ lang }: Props) {
     const rail = railRef.current;
     if (!rail) return;
     const buttons = rail.querySelectorAll<HTMLButtonElement>(
-      "button.cat-rail-item:not(:disabled)",
+      "button.cat-rail-item",
     );
     const btn = buttons[index];
     btn?.focus();
@@ -56,30 +56,24 @@ export function CategoryRail({ lang }: Props) {
 
   const onKeyDown = useCallback(
     (e: KeyboardEvent, index: number) => {
-      const enabled: number[] = [];
-      SIDE.forEach((row, i) => {
-        if (!SOON[row[0] as CategoryId]) enabled.push(i);
-      });
-      const pos = enabled.indexOf(index);
-      if (pos < 0) return;
-
-      let next = pos;
+      const total = SIDE.length;
+      let next = index;
       if (e.key === "ArrowDown" || e.key === "ArrowRight") {
         e.preventDefault();
-        next = (pos + 1) % enabled.length;
+        next = (index + 1) % total;
       } else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
         e.preventDefault();
-        next = (pos - 1 + enabled.length) % enabled.length;
+        next = (index - 1 + total) % total;
       } else if (e.key === "Home") {
         e.preventDefault();
         next = 0;
       } else if (e.key === "End") {
         e.preventDefault();
-        next = enabled.length - 1;
+        next = total - 1;
       } else {
         return;
       }
-      focusIndex(enabled[next]!);
+      focusIndex(next);
     },
     [],
   );
@@ -91,8 +85,7 @@ export function CategoryRail({ lang }: Props) {
       ref={railRef}
     >
       {SIDE.map(([id, , iconKey], index) => {
-        const soon = Boolean(SOON[id as CategoryId]);
-        const active = !soon && s === id;
+        const active = s === id;
         const Icon = RAIL_ICONS[iconKey];
         const label = sideLabel(id, lang);
 
@@ -100,25 +93,15 @@ export function CategoryRail({ lang }: Props) {
           <button
             key={id}
             type="button"
-            className={`cat-rail-item${active ? " on" : ""}${soon ? " is-soon" : ""}`}
-            disabled={soon}
-            aria-disabled={soon}
+            className={`cat-rail-item${active ? " on" : ""}`}
             aria-current={active ? "true" : undefined}
-            onClick={() => {
-              if (soon) return;
-              dispatch({ type: "SET_SIDE", side: id });
-            }}
+            onClick={() => dispatch({ type: "SET_SIDE", side: id })}
             onKeyDown={(e) => onKeyDown(e, index)}
           >
             <span className="cat-rail-icon" aria-hidden>
               {Icon ? <Icon size={24} /> : null}
             </span>
             <span className="cat-rail-label">{label}</span>
-            {soon ? (
-              <span className="cat-rail-soon">
-                {homeCopy("soon", lang)}
-              </span>
-            ) : null}
           </button>
         );
       })}

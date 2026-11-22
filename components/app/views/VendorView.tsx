@@ -10,7 +10,7 @@ import { VendorApplyForm } from "@/components/app/vendor/VendorApplyForm";
 import { VendorShopWorkspace } from "@/components/app/vendor/VendorShopWorkspace";
 import { apiFetch, ApiError } from "@/lib/nakuru/api";
 import { useLiveApi } from "@/lib/nakuru/api-mode";
-import { CATS, SOON } from "@/lib/nakuru/data/constants";
+import { CATS, VENDOR_WAITLIST } from "@/lib/nakuru/data/constants";
 import type { CategoryId } from "@/lib/nakuru/types";
 import {
   pickPrimaryVendor,
@@ -212,7 +212,7 @@ function DemoVendorPanel() {
                 }
               >
                 {c[1]}
-                {SOON[c[0] as CategoryId] ? " (waitlist)" : ""}
+                {VENDOR_WAITLIST[c[0] as CategoryId] ? " (waitlist)" : ""}
               </button>
             );
           })}
