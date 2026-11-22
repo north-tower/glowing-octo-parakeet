@@ -1,4 +1,4 @@
-/** Square flamingo emblem used as favicon, PWA icon, and compact UI mark. */
+/** Square low-poly flamingo app icon used as favicon, PWA icon, and compact UI mark. */
 export const BRAND_LOGO_MARK = "/icons/logo-mark.png";
 /** Full lockup (emblem + NakuruHub wordmark). */
 export const BRAND_LOGO_LOCKUP = "/images/nakuruhub-logo.png";

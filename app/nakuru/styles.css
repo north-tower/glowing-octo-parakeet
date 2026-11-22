@@ -23,7 +23,7 @@ header{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var
 .row{display:flex;align-items:center;gap:8px}.row select{flex:1;min-width:0}.sp{justify-content:space-between}
 .hd-top{min-width:0;gap:6px;flex-wrap:nowrap}
 .logo{font-family:var(--font-display);font-optical-sizing:auto;font-size:clamp(17px,4.6vw,21px);font-weight:620;letter-spacing:-.02em;flex:0 1 auto;min-width:0;white-space:nowrap;display:inline-flex;align-items:center;gap:.35rem;overflow:hidden}
-.logo-mark{flex:none;line-height:1;display:block;width:auto;height:auto;border-radius:12px;background:#fff;object-fit:contain}
+.logo-mark{flex:none;line-height:1;display:block;width:auto;height:auto;border-radius:12px;background:#0d5c58;object-fit:cover}
 .logo-lockup{flex:none;display:block;width:auto;height:auto;max-height:64px;border-radius:0;background:transparent;object-fit:contain}
 .zone-pill{display:inline-flex;align-items:center;gap:6px;flex:1 1 auto;max-width:56%;min-width:0;height:40px;min-height:40px;padding:0 10px;border-radius:999px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;font-size:12px;font-weight:520;cursor:pointer}
 .zone-pill svg{flex:none;color:rgba(255,255,255,.92)}
