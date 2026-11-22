@@ -6,6 +6,7 @@ import {
   TOPC,
 } from "@/lib/nakuru/data/constants";
 import { itemById } from "@/lib/nakuru/data/items";
+import { listingModeOf } from "@/lib/nakuru/listing-mode";
 import { isOutsideArea } from "@/lib/nakuru/area";
 import type {
   AccView,
@@ -48,7 +49,7 @@ export function createInitialState(
 
 export type NakuruAction =
   | { type: "SET_TAB"; tab: TabId }
-  | { type: "SET_CAT"; cat: CategoryId }
+  | { type: "SET_CAT"; cat: string }
   | { type: "SET_SIDE"; side: string }
   | { type: "SET_Q"; q: string }
   | { type: "SET_AREA"; area: string }
@@ -110,7 +111,7 @@ export function nakuruReducer(
     case "SET_Q": {
       const q = action.q.slice(0, 80);
       let cat = state.cat;
-      if (SOON[cat]) cat = "all";
+      if (SOON[cat as CategoryId]) cat = "all";
       return { state: { ...state, q, cat, tab: "home" } };
     }
     case "SET_AREA":
@@ -165,7 +166,8 @@ export function nakuruReducer(
     case "ITEM_ACT": {
       const item = itemById(action.id);
       if (!item) return { state };
-      if (item.c === "shop") {
+      const mode = listingModeOf(item);
+      if (mode === "shop") {
         const key = String(action.id);
         const n = Math.min(
           MAX_CART_QTY,
@@ -176,7 +178,7 @@ export function nakuruReducer(
           toast: "Added to cart",
         };
       }
-      if (item.c === "services") {
+      if (mode === "services") {
         return { state, toast: `Quote request sent to ${item.t}` };
       }
       return {

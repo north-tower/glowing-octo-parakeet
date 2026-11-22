@@ -11,31 +11,64 @@ const strokeBold = { ...stroke, strokeWidth: 2.25 };
 export function SlideArtDelivery() {
   return (
     <svg
-      className="sl-art sl-art--hero"
-      width={168}
-      height={120}
-      viewBox="0 0 168 120"
+      className="sl-art sl-art--hero sl-art--delivery"
+      width={176}
+      height={124}
+      viewBox="0 0 176 124"
       aria-hidden
     >
-      <g opacity={0.95} {...strokeBold}>
-        <ellipse cx="84" cy="98" rx="52" ry="8" fill="rgba(245,230,211,.25)" stroke="none" />
-        <path
-          d="M30 88h72v-6H46l-8-16h-12v22z"
-          fill="rgba(79,195,187,.45)"
+      <g className="sl-art-idle" opacity={0.98} {...strokeBold}>
+        <g className="sl-speed" opacity={0.45} stroke="#fff" strokeWidth={1.5}>
+          <path d="M8 44h22" />
+          <path d="M4 56h18" />
+          <path d="M10 68h16" />
+        </g>
+        <ellipse
+          className="sl-art-shadow"
+          cx="92"
+          cy="108"
+          rx="56"
+          ry="8"
+          fill="rgba(245,230,211,.28)"
           stroke="none"
         />
-        <path
-          d="M52 46h44l10-22h26v22H52z"
-          fill="rgba(236,95,123,.55)"
-          stroke="none"
-        />
-        <rect x="64" y="52" width="22" height="16" rx="3" fill="#F5E6D3" stroke="none" />
-        <circle cx="48" cy="92" r="9" fill="rgba(255,255,255,.2)" />
-        <circle cx="94" cy="92" r="9" fill="rgba(255,255,255,.2)" />
-        <circle cx="48" cy="92" r="9" />
-        <circle cx="94" cy="92" r="9" />
-        <circle cx="118" cy="38" r="8" fill="var(--fl)" stroke="none" />
-        <path d="M118 30v16M110 38h16" stroke="#fff" strokeWidth={2} />
+        <g className="sl-van">
+          <path
+            d="M36 96h78v-8H54l-10-18H32v26z"
+            fill="rgba(79,195,187,.55)"
+            stroke="none"
+          />
+          <path
+            d="M58 50h50l12-24h28v24H58z"
+            fill="rgba(236,95,123,.72)"
+            stroke="none"
+          />
+          <rect
+            x="72"
+            y="58"
+            width="24"
+            height="16"
+            rx="3"
+            fill="#F5E6D3"
+            stroke="none"
+          />
+          <g className="sl-wheel">
+            <circle cx="56" cy="100" r="10" fill="rgba(255,255,255,.22)" />
+            <circle cx="56" cy="100" r="10" />
+            <line x1="56" y1="92" x2="56" y2="108" />
+            <line x1="48" y1="100" x2="64" y2="100" />
+          </g>
+          <g className="sl-wheel">
+            <circle cx="106" cy="100" r="10" fill="rgba(255,255,255,.22)" />
+            <circle cx="106" cy="100" r="10" />
+            <line x1="106" y1="92" x2="106" y2="108" />
+            <line x1="98" y1="100" x2="114" y2="100" />
+          </g>
+        </g>
+        <g className="sl-plus">
+          <circle cx="132" cy="36" r="10" fill="var(--fl)" stroke="none" />
+          <path d="M132 27v18M123 36h18" stroke="#fff" strokeWidth={2.2} />
+        </g>
       </g>
     </svg>
   );
@@ -44,20 +77,42 @@ export function SlideArtDelivery() {
 export function SlideArtProperty() {
   return (
     <svg
-      className="sl-art"
-      width={120}
-      height={88}
-      viewBox="0 0 120 88"
+      className="sl-art sl-art--property"
+      width={132}
+      height={100}
+      viewBox="0 0 132 100"
       aria-hidden
     >
-      <g opacity={0.92} {...stroke}>
-        <path
-          d="M28 56V38l32-24 32 24v18H28z"
-          fill="rgba(255,255,255,.1)"
+      <g className="sl-art-idle" opacity={0.95} {...stroke}>
+        <ellipse
+          className="sl-art-shadow"
+          cx="62"
+          cy="90"
+          rx="36"
+          ry="6"
+          fill="rgba(255,255,255,.22)"
+          stroke="none"
         />
-        <path d="M52 56V42h16v14" />
-        <circle cx="78" cy="34" r="6" fill="rgba(236,95,123,.35)" stroke="none" />
-        <path d="M78 28v12M72 34h12" />
+        <g className="sl-house">
+          <path
+            d="M24 64V42L62 14l38 28v22H24z"
+            fill="rgba(255,255,255,.16)"
+          />
+          <path d="M54 64V46h20v18" />
+          <rect
+            x="58"
+            y="50"
+            width="12"
+            height="8"
+            rx="1.5"
+            fill="rgba(255,255,255,.28)"
+            stroke="none"
+          />
+        </g>
+        <g className="sl-plus">
+          <circle cx="92" cy="32" r="8" fill="rgba(7,59,57,.28)" stroke="none" />
+          <path d="M92 24v16M84 32h16" />
+        </g>
       </g>
     </svg>
   );
@@ -66,25 +121,36 @@ export function SlideArtProperty() {
 export function SlideArtVerified() {
   return (
     <svg
-      className="sl-art"
-      width={120}
-      height={88}
-      viewBox="0 0 120 88"
+      className="sl-art sl-art--verified"
+      width={132}
+      height={100}
+      viewBox="0 0 132 100"
       aria-hidden
     >
-      <g opacity={0.95} {...stroke}>
-        <path
-          d="M60 72s36-16 36-44V22L60 12 24 22v6c0 28 36 44 36 44z"
-          fill="rgba(79,195,187,.15)"
-        />
-        <path d="m44 42 10 10 22-22" strokeWidth={2.25} />
+      <g className="sl-art-idle" opacity={0.96} {...stroke}>
         <circle
-          cx="86"
+          className="sl-ring"
+          cx="66"
+          cy="50"
+          r="38"
+          fill="none"
+          stroke="rgba(79,195,187,.35)"
+          strokeWidth="1.25"
+        />
+        <path
+          className="sl-shield"
+          d="M66 82s40-18 40-48V24L66 12 26 24v10c0 30 40 48 40 48z"
+          fill="rgba(79,195,187,.18)"
+        />
+        <path className="sl-check" d="m48 48 12 12 26-26" strokeWidth={2.4} />
+        <circle
+          className="sl-plus"
+          cx="96"
           cy="26"
-          r="7"
+          r="8"
           fill="var(--fl)"
           stroke="none"
-          opacity={0.85}
+          opacity={0.9}
         />
       </g>
     </svg>

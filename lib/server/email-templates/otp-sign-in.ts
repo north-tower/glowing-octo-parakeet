@@ -1,4 +1,12 @@
-import { BRAND_LOGO, BRAND_NAME } from "@/lib/nakuru/brand";
+import { BRAND_LOGO, BRAND_LOGO_MARK, BRAND_NAME } from "@/lib/nakuru/brand";
+
+function brandAssetUrl(path: string): string | null {
+  const base =
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "");
+  if (!base) return null;
+  return `${base.replace(/\/$/, "")}${path}`;
+}
 
 function escHtml(value: string): string {
   return value
@@ -27,6 +35,10 @@ export function buildOtpSignInMail(
 ): OtpSignInMailContent {
   const name = displayNameFromEmail(email);
   const safeCode = escHtml(code);
+  const markUrl = brandAssetUrl(BRAND_LOGO_MARK);
+  const headerMark = markUrl
+    ? `<img src="${markUrl}" width="36" height="36" alt="" style="vertical-align:middle;border-radius:8px;background:#ffffff;margin-right:8px;" />`
+    : `<span style="font-size:26px;line-height:1;vertical-align:middle;">${BRAND_LOGO}</span> `;
 
   const text = [
     `Hello ${name},`,
@@ -56,7 +68,7 @@ export function buildOtpSignInMail(
             <td style="background:#0d5c58;padding:16px 24px;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
-                  <td style="font-size:20px;font-weight:700;letter-spacing:.02em;color:#ffffff;"><span style="font-size:26px;line-height:1;vertical-align:middle;">${BRAND_LOGO}</span> ${escHtml(BRAND_NAME)}</td>
+                  <td style="font-size:20px;font-weight:700;letter-spacing:.02em;color:#ffffff;">${headerMark}${escHtml(BRAND_NAME)}</td>
                 </tr>
               </table>
             </td>

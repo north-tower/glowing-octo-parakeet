@@ -4,10 +4,9 @@ import { useAuth } from "@/components/app/AppAuthProvider";
 import { useNakuruApp } from "@/components/app/AppProvider";
 import { apiFetch, ApiError } from "@/lib/nakuru/api";
 import {
-  intentFromStartParam,
-  signInCopy,
-  type SignInIntent,
-} from "@/lib/nakuru/sign-in-intent";
+  persistAppMode,
+  wantsSellingEntry,
+} from "@/lib/nakuru/app-mode";
 import { appHrefForDetailNavTab } from "@/lib/nakuru/detail-nav-tab";
 import { homeCopy } from "@/lib/nakuru/home-i18n";
 import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
@@ -29,15 +28,13 @@ function isValidEmail(raw: string): boolean {
 }
 
 type Props = {
-  /** When set, overrides URL `?start=vendor` for Shop vs Seller UI. */
-  intent?: SignInIntent;
-  showIntentSwitch?: boolean;
+  /** After OTP, open Selling (apply / shop) instead of Account home. */
+  openSellingAfterSignIn?: boolean;
   showGuestBrowse?: boolean;
 };
 
 export function EmailOtpForm({
-  intent: intentProp,
-  showIntentSwitch = true,
+  openSellingAfterSignIn = false,
   showGuestBrowse = true,
 }: Props) {
   const { setSessionFromOtp } = useAuth();
@@ -47,15 +44,12 @@ export function EmailOtpForm({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const intent = useMemo((): SignInIntent => {
-    if (intentProp) return intentProp;
-    return intentFromStartParam(
-      searchParams.get("start"),
-      searchParams.has("vendor"),
-    );
-  }, [intentProp, searchParams]);
-
-  const copy = signInCopy(intent);
+  const sellingEntry = useMemo(
+    () =>
+      openSellingAfterSignIn ||
+      wantsSellingEntry(searchParams.get("start"), searchParams.has("vendor")),
+    [openSellingAfterSignIn, searchParams],
+  );
 
   const [step, setStep] = useState<"email" | "code">("email");
   const [email, setEmail] = useState("");
@@ -64,6 +58,10 @@ export function EmailOtpForm({
   const [resendIn, setResendIn] = useState(0);
   const [devCode, setDevCode] = useState<string | null>(null);
   const [remember, setRemember] = useState(false);
+
+  useEffect(() => {
+    if (sellingEntry) persistAppMode("selling");
+  }, [sellingEntry]);
 
   useEffect(() => {
     if (resendIn <= 0) return;
@@ -75,20 +73,14 @@ export function EmailOtpForm({
   }, [resendIn]);
 
   const afterSignIn = useCallback(() => {
-    if (intent === "seller") {
+    if (sellingEntry) {
+      persistAppMode("selling");
       dispatch({ type: "SLIDE_VENDOR" });
     } else {
+      persistAppMode("shopping");
       dispatch({ type: "SET_ACC", acc: null });
     }
-  }, [dispatch, intent]);
-
-  const switchIntent = () => {
-    if (intent === "seller") {
-      dispatch({ type: "SET_ACC", acc: null });
-    } else {
-      dispatch({ type: "SLIDE_VENDOR" });
-    }
-  };
+  }, [dispatch, sellingEntry]);
 
   const sendCode = async (ev?: FormEvent) => {
     ev?.preventDefault();
@@ -145,7 +137,7 @@ export function EmailOtpForm({
         skipAuthRetry: true,
       });
       setSessionFromOtp(data.access, email);
-      toast(copy.successToast);
+      toast(homeCopy("signInSuccess", lang));
       afterSignIn();
     } catch (err) {
       let msg = "Verification failed";
@@ -186,26 +178,11 @@ export function EmailOtpForm({
       </>
     ) : null;
 
-  const intentSwitch = showIntentSwitch ? (
-    <button
-      type="button"
-      className="btn s o full"
-      style={{ marginTop: 12 }}
-      disabled={busy}
-      onClick={switchIntent}
-    >
-      {copy.switchLabel}
-    </button>
-  ) : null;
-
   if (step === "email") {
     return (
-      <form
-        className={`card sign-in-card sign-in-card--${intent}`}
-        onSubmit={sendCode}
-      >
-        <h2 style={{ marginTop: 0 }}>{copy.emailTitle}</h2>
-        <div className="m">{copy.emailLead}</div>
+      <form className="card sign-in-card" onSubmit={sendCode}>
+        <h2 style={{ marginTop: 0 }}>{homeCopy("signInTitle", lang)}</h2>
+        <div className="m">{homeCopy("signInLead", lang)}</div>
         <label htmlFor="otp-email">Email</label>
         <input
           id="otp-email"
@@ -228,20 +205,16 @@ export function EmailOtpForm({
           <span>{homeCopy("signInRemember", lang)}</span>
         </label>
         <button type="submit" className="btn full" disabled={busy}>
-          {busy ? "Sending…" : copy.emailCta}
+          {busy ? "Sending…" : homeCopy("signInCta", lang)}
         </button>
-        {intentSwitch}
         {guestBlock}
       </form>
     );
   }
 
   return (
-    <form
-      className={`card sign-in-card sign-in-card--${intent}`}
-      onSubmit={verifyCode}
-    >
-      <h2 style={{ marginTop: 0 }}>{copy.codeTitle}</h2>
+    <form className="card sign-in-card" onSubmit={verifyCode}>
+      <h2 style={{ marginTop: 0 }}>{homeCopy("signInCodeTitle", lang)}</h2>
       <div className="m">
         Code sent to <strong>{email}</strong>
       </div>
@@ -269,7 +242,7 @@ export function EmailOtpForm({
         }
       />
       <button type="submit" className="btn full" disabled={busy}>
-        {busy ? "Verifying…" : copy.codeVerifyCta}
+        {busy ? "Verifying…" : homeCopy("signInVerifyCta", lang)}
       </button>
       <div className="row" style={{ marginTop: 12, gap: 8, flexWrap: "wrap" }}>
         <button
@@ -293,7 +266,6 @@ export function EmailOtpForm({
           {resendIn > 0 ? `Resend in ${resendIn}s` : "Resend code"}
         </button>
       </div>
-      {intentSwitch}
     </form>
   );
 }

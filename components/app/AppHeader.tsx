@@ -3,27 +3,48 @@
 import { useEffect, useRef, useState } from "react";
 import { useNakuruApp } from "@/components/app/AppProvider";
 import { AppTopNav } from "@/components/app/AppTopNav";
+import { PublicAppNav } from "@/components/app/PublicAppNav";
 import { BrandLogoMark } from "@/components/app/BrandLogoMark";
-import { CATS, SOON } from "@/lib/nakuru/data/constants";
 import { homeCategoryLabel, homeCopy } from "@/lib/nakuru/home-i18n";
+import type { DirectoryCategory } from "@/lib/nakuru/data/category-directory";
 import type { CategoryId } from "@/lib/nakuru/types";
+import { useCategories } from "@/lib/nakuru/use-categories";
 import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
 import { ZoneSheet } from "@/components/app/ZoneSheet";
 import { usePrimaryNav } from "@/components/app/usePrimaryNav";
-import { useAppTabletUp } from "@/lib/nakuru/use-media-query";
+import { useAppDesktopUp, useAppTabletUp } from "@/lib/nakuru/use-media-query";
 import {
   IconCamera,
   IconChevronDown,
   IconMapPin,
   IconSearch,
 } from "@/components/app/icons/LineIcons";
-import { BRAND_NAME } from "@/lib/nakuru/brand";
+import { BRAND_NAME, BRAND_TAGLINE } from "@/lib/nakuru/brand";
+import type { LandingLang } from "@/lib/nakuru/i18n";
+
+const OFFICIAL_TAB_IDS = new Set<CategoryId>([
+  "shop",
+  "property",
+  "cars",
+  "services",
+  "stays",
+  "taxi",
+]);
+
+function directoryTabLabel(row: DirectoryCategory, lang: LandingLang): string {
+  if (row.kind === "official" && OFFICIAL_TAB_IDS.has(row.slug as CategoryId)) {
+    return homeCategoryLabel(row.slug, lang);
+  }
+  return row.label;
+}
 
 export function AppHeader() {
   const { state, dispatch, toast } = useNakuruApp();
+  const { rows: categoryRows } = useCategories();
   const { lang } = usePwaInstall();
   const { goHome } = usePrimaryNav();
   const tabletUp = useAppTabletUp();
+  const desktopUp = useAppDesktopUp();
   const [qLocal, setQLocal] = useState(state.q);
   const [zoneOpen, setZoneOpen] = useState(false);
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -83,22 +104,35 @@ export function AppHeader() {
     dispatch({ type: "SET_TAB", tab: "home" });
   };
 
+  const officialOpen = categoryRows.filter(
+    (r) => r.kind === "official" && r.openForApply,
+  );
+  const officialSoon = categoryRows.filter(
+    (r) => r.kind === "official" && !r.openForApply,
+  );
+  const communityTabs = categoryRows.filter((r) => r.kind === "community");
+
   const tabsBlock = (
     <div className="tabs-scroll">
       <div className="tabs" id="tabs" ref={tabsRef}>
-        {CATS.map(([id]) => {
-          const soon = Boolean(SOON[id as CategoryId]);
-          const label = homeCategoryLabel(id as CategoryId, lang);
+        <button
+          type="button"
+          className={`tb${state.cat === "all" ? " on" : ""}`}
+          onClick={() => dispatch({ type: "SET_CAT", cat: "all" })}
+        >
+          {homeCategoryLabel("all", lang)}
+        </button>
+        {[...officialOpen, ...officialSoon, ...communityTabs].map((row) => {
+          const soon = row.kind === "official" && !row.openForApply;
+          const label = directoryTabLabel(row, lang);
           return (
             <button
-              key={id}
+              key={row.slug}
               type="button"
-              className={`tb${state.cat === id ? " on" : ""}${soon ? " soon" : ""}`}
+              className={`tb${state.cat === row.slug ? " on" : ""}${soon ? " soon" : ""}`}
               disabled={soon}
               aria-disabled={soon}
-              onClick={() =>
-                dispatch({ type: "SET_CAT", cat: id as CategoryId })
-              }
+              onClick={() => dispatch({ type: "SET_CAT", cat: row.slug })}
             >
               {label}
               {soon ? (
@@ -166,8 +200,10 @@ export function AppHeader() {
               <div className="app-hd-mobile-block">
                 <div className="row sp hd-top">
                   <span className="logo">
-                    <BrandLogoMark size={28} />
-                    {BRAND_NAME}
+                    <BrandLogoMark size={36} />
+                    <span className="logo-stack">
+                      <span className="logo-text">{BRAND_NAME}</span>
+                    </span>
                   </span>
                   <button
                     type="button"
@@ -197,8 +233,13 @@ export function AppHeader() {
                   className="logo app-hd-home-link"
                   onClick={goHome}
                 >
-                  <BrandLogoMark size={28} />
-                  {BRAND_NAME}
+                  <BrandLogoMark size={40} />
+                  <span className="logo-stack">
+                    <span className="logo-text">{BRAND_NAME}</span>
+                    {desktopUp ? (
+                      <span className="logo-tagline">{BRAND_TAGLINE}</span>
+                    ) : null}
+                  </span>
                 </button>
                 <div className="app-hd-zone-wrap">
                   <button
@@ -221,7 +262,7 @@ export function AppHeader() {
                   </button>
                 </div>
                 <div className="app-hd-search-wrap">{searchForm}</div>
-                <AppTopNav />
+                {desktopUp ? <PublicAppNav /> : <AppTopNav />}
               </div>
             )}
           </div>

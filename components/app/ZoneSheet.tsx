@@ -15,6 +15,7 @@ type Props = {
   onSelect: (zone: string) => void;
   variant?: "sheet" | "popover";
   anchorRef?: RefObject<HTMLElement | null>;
+  nakuruOnly?: boolean;
 };
 
 function trapFocus(container: HTMLElement, e: KeyboardEvent) {
@@ -42,17 +43,24 @@ function ZoneOptions({
   lang,
   onSelect,
   onClose,
+  nakuruOnly,
 }: {
   area: string;
   lang: LandingLang;
   onSelect: (zone: string) => void;
   onClose: () => void;
+  nakuruOnly?: boolean;
 }) {
   const titleId = useId();
+  const showOutside = Boolean(OUTSIDE) && !nakuruOnly;
   return (
     <>
       <h2 id={titleId} className="pwa-sheet-title">
-        {homeCopy("zoneSheetTitle", lang)}
+        {nakuruOnly
+          ? lang === "sw"
+            ? "Eneo la duka"
+            : "Shop area"
+          : homeCopy("zoneSheetTitle", lang)}
       </h2>
       <ul
         className="zone-sheet-list"
@@ -84,7 +92,7 @@ function ZoneOptions({
           );
         })}
       </ul>
-      {OUTSIDE ? (
+      {showOutside && OUTSIDE ? (
         <>
           <div className="zone-sheet-divider" role="separator" />
           <button
@@ -123,6 +131,7 @@ export function ZoneSheet({
   onSelect,
   variant = "sheet",
   anchorRef,
+  nakuruOnly,
 }: Props) {
   const sheetRef = useRef<HTMLDivElement>(null);
   const startY = useRef(0);
@@ -209,6 +218,7 @@ export function ZoneSheet({
             lang={lang}
             onSelect={onSelect}
             onClose={onClose}
+            nakuruOnly={nakuruOnly}
           />
         </div>
       </div>
@@ -237,6 +247,7 @@ export function ZoneSheet({
           lang={lang}
           onSelect={onSelect}
           onClose={onClose}
+          nakuruOnly={nakuruOnly}
         />
       </div>
     </div>

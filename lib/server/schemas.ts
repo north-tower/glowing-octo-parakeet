@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { ZONES } from "@/lib/nakuru/data/zones";
-import { config } from "@/lib/server/config";
+import { NAKURU_AREA_KEYS, ZONES } from "@/lib/nakuru/data/zones";
+import { CATEGORY_SLUG_RE } from "@/lib/nakuru/category-slug";
 
 const zoneKeys = Object.keys(ZONES) as [string, ...string[]];
 
@@ -25,7 +25,7 @@ export const uuid = z
     /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
   );
 
-const cat = z.enum(["shop", "property", "cars", "services"]);
+const cat = z.string().regex(CATEGORY_SLUG_RE);
 const money = z.number().int().min(0).max(100_000_000);
 
 const imageDataUrl = z
@@ -117,32 +117,55 @@ export const staff = z
   })
   .strict();
 
-const vendorApplyCategory = z.enum([
-  "shop",
-  "property",
-  "cars",
-  "services",
-  "stays",
-  "taxi",
-]);
-
-const launchCategorySet = new Set<string>(config.launchCategories);
+const vendorApplySlug = z.string().regex(CATEGORY_SLUG_RE);
 
 export const vendorNew = z
   .object({
     name: z.string().trim().min(2).max(60),
-    categories: z.array(vendorApplyCategory).min(1).max(4),
+    categories: z.array(vendorApplySlug).min(1).max(4),
     imageDataUrl: imageDataUrl.optional(),
   })
-  .strict()
-  .refine(
-    (data) => data.categories.every((c) => launchCategorySet.has(c)),
-    { path: ["categories"] },
-  );
+  .strict();
+
+export const vendorAreaPatch = z
+  .object({
+    area: z.enum(NAKURU_AREA_KEYS),
+  })
+  .strict();
+
+export const vendorOrderAction = z
+  .object({
+    orderId: uuid,
+    status: z.enum(["accepted", "ready", "cancelled"]),
+  })
+  .strict();
 
 export const inquiryNew = z
   .object({
     productId: uuid,
     message: z.string().trim().max(500).default(""),
+  })
+  .strict();
+
+export const commentNew = z
+  .object({
+    body: z.string().trim().min(1).max(500),
+  })
+  .strict();
+
+export const staffCategoryNew = z
+  .object({
+    label: z.string().trim().min(2).max(40),
+    listingMode: z.enum(["shop", "services", "property", "cars"]),
+    openForApply: z.boolean(),
+  })
+  .strict();
+
+export const staffCategoryPatch = z
+  .object({
+    visible: z.boolean().optional(),
+    listingMode: z.enum(["shop", "services", "property", "cars"]).optional(),
+    openForApply: z.boolean().optional(),
+    label: z.string().trim().min(2).max(40).optional(),
   })
   .strict();

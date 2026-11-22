@@ -18,6 +18,7 @@ const INQUIRIES_PER_HOUR = 20;
 type ProductForInquiry = {
   id: string;
   category: string;
+  listing_mode: string;
   title: string;
   active: boolean;
   vendor_status: string;
@@ -108,10 +109,11 @@ export async function createServiceInquiry(
 
   const product = (
     await db.q<ProductForInquiry>(
-      `select p.id, p.category, p.title, p.active, v.status as vendor_status,
+      `select p.id, p.category, c.listing_mode, p.title, p.active, v.status as vendor_status,
               v.owner_id, v.name as vendor_name
        from products p
        join vendors v on v.id = p.vendor_id
+       join categories c on c.slug = p.category
        where p.id = $1`,
       [productId],
     )
@@ -120,7 +122,7 @@ export async function createServiceInquiry(
   if (!product || !product.active) {
     throw new InquiryError(404, "not_found");
   }
-  if (product.category !== "services") {
+  if (product.listing_mode !== "services") {
     throw new InquiryError(400, "not_a_service");
   }
   if (product.vendor_status !== "approved") {

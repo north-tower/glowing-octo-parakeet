@@ -200,6 +200,9 @@ export type HomeCopyKey =
   | "orderItemsMore"
   | "accRoleBuyer"
   | "accRoleVendor"
+  | "accModeShopping"
+  | "accModeSelling"
+  | "accModeAria"
   | "accStatusPending"
   | "accStatusUnverified"
   | "accSectionSelling"
@@ -252,8 +255,42 @@ export type HomeCopyKey =
   | "signInGuestBrowse"
   | "signInGuestNote"
   | "signInRemember"
+  | "signInTitle"
+  | "signInLead"
+  | "signInCta"
+  | "signInCodeTitle"
+  | "signInVerifyCta"
+  | "signInSuccess"
+  | "vendorApplySameAccount"
   | "accUploadPhotoAria"
-  | "accDefaultName";
+  | "accDefaultName"
+  | "discoverEyebrow"
+  | "discoverTitle"
+  | "discoverSub"
+  | "clearFilters"
+  | "featuredFirst"
+  | "viewDetails"
+  | "saveListingAria"
+  | "waSeller"
+  | "waSellerMissing"
+  | "commentsTitle"
+  | "commentsEmpty"
+  | "commentsPlaceholder"
+  | "commentsSubmit"
+  | "commentsSignIn"
+  | "commentsDelete"
+  | "commentsLoading"
+  | "commentsPostError"
+  | "commentsLoadError"
+  | "commentsForbidden"
+  | "commentsRateLimited"
+  | "commentsNotFound"
+  | "messagesTitle"
+  | "messagesHint"
+  | "navExplore"
+  | "navHow"
+  | "navSaved"
+  | "postListing";
 
 export type TopCategorySlug =
   | "phone"
@@ -643,6 +680,12 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   orderItemsMore: { en: "{title} +{n} more", sw: "{title} +{n} zaidi" },
   accRoleBuyer: { en: "Buyer", sw: "Mnunuzi" },
   accRoleVendor: { en: "Vendor", sw: "Muuzaji" },
+  accModeShopping: { en: "Shopping", sw: "Ununuzi" },
+  accModeSelling: { en: "Selling", sw: "Uuzaji" },
+  accModeAria: {
+    en: "Shopping or selling",
+    sw: "Ununuzi au uuzaji",
+  },
   accStatusPending: { en: "Pending approval", sw: "Inasubiri idhini" },
   accStatusUnverified: { en: "Unverified", sw: "Haijathibitishwa" },
   accSectionSelling: { en: "Selling", sw: "Uuzaji" },
@@ -696,6 +739,19 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   signInRemember: {
     en: "Keep me signed in",
     sw: "Nikumbuke",
+  },
+  signInTitle: { en: "Sign in", sw: "Ingia" },
+  signInLead: {
+    en: "Save orders, cart, and quote requests. We email a one-time code — no password.",
+    sw: "Hifadhi maagizo, kikapu, na maombi ya bei. Tunatuma kodi ya mara moja kwa barua pepe — bila nenosiri.",
+  },
+  signInCta: { en: "Send code", sw: "Tuma kodi" },
+  signInCodeTitle: { en: "Confirm sign-in", sw: "Thibitisha kuingia" },
+  signInVerifyCta: { en: "Verify and sign in", sw: "Thibitisha na uingie" },
+  signInSuccess: { en: "Signed in", sw: "Umeingia" },
+  vendorApplySameAccount: {
+    en: "This uses the same account as shopping — not a second login.",
+    sw: "Hii inatumia akaunti ile ile ya ununuzi — si kuingia kwa pili.",
   },
   accUploadPhotoAria: {
     en: "Upload profile picture",
@@ -764,6 +820,60 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
     en: "Close assistant",
     sw: "Funga msaidizi",
   },
+  discoverEyebrow: { en: "The local marketplace", sw: "Soko la nyumbani" },
+  discoverTitle: { en: "Discover around you", sw: "Gundua karibu nawe" },
+  discoverSub: {
+    en: "Hand-picked local listings and opportunities.",
+    sw: "Matangazo ya nyumbani yaliyochaguliwa.",
+  },
+  clearFilters: { en: "Clear filters", sw: "Futa vichujio" },
+  featuredFirst: { en: "Featured first", sw: "Maarufu kwanza" },
+  viewDetails: { en: "View details", sw: "Tazama maelezo" },
+  saveListingAria: { en: "Save listing", sw: "Hifadhi tangazo" },
+  waSeller: { en: "WhatsApp seller", sw: "WhatsApp muuzaji" },
+  waSellerMissing: {
+    en: "Seller has not added WhatsApp yet.",
+    sw: "Muuzaji hajahifadhi WhatsApp bado.",
+  },
+  commentsTitle: { en: "Comments", sw: "Maoni" },
+  commentsEmpty: {
+    en: "Be the first to comment.",
+    sw: "Kuwa wa kwanza kutoa maoni.",
+  },
+  commentsPlaceholder: { en: "Write a comment", sw: "Andika maoni" },
+  commentsSubmit: { en: "Post comment", sw: "Tuma maoni" },
+  commentsSignIn: { en: "Sign in to comment", sw: "Ingia ili utoe maoni" },
+  commentsDelete: { en: "Delete", sw: "Futa" },
+  commentsLoading: { en: "Loading comments…", sw: "Inapakia maoni…" },
+  commentsPostError: {
+    en: "Couldn’t post comment.",
+    sw: "Imeshindwa kutuma maoni.",
+  },
+  commentsLoadError: {
+    en: "Couldn’t load comments.",
+    sw: "Imeshindwa kupakia maoni.",
+  },
+  commentsForbidden: {
+    en: "You can’t do that.",
+    sw: "Huwezi kufanya hivyo.",
+  },
+  commentsRateLimited: {
+    en: "Too many comments. Try again later.",
+    sw: "Maoni mengi mno. Jaribu tena baadaye.",
+  },
+  commentsNotFound: {
+    en: "This listing isn’t available.",
+    sw: "Tangazo hili halipatikani.",
+  },
+  messagesTitle: { en: "In-app messages", sw: "Ujumbe katika programu" },
+  messagesHint: {
+    en: "Chat with the seller in NakuruHub.",
+    sw: "Ongea na muuzaji ndani ya NakuruHub.",
+  },
+  navExplore: { en: "Explore", sw: "Gundua" },
+  navHow: { en: "How it works", sw: "Jinsi inavyofanya" },
+  navSaved: { en: "Saved", sw: "Vilivyohifadhiwa" },
+  postListing: { en: "Post a listing", sw: "Weka tangazo" },
 };
 
 const TOP_CATEGORY_LABELS: Record<
@@ -800,8 +910,8 @@ export function homeCopy(key: HomeCopyKey, lang: LandingLang): string {
   return COPY[key][lang];
 }
 
-export function homeCategoryLabel(id: CategoryId, lang: LandingLang): string {
-  return CAT_LABELS[id]?.[lang] ?? id;
+export function homeCategoryLabel(id: string, lang: LandingLang): string {
+  return CAT_LABELS[id as CategoryId]?.[lang] ?? id;
 }
 
 export function homeTopCategoryLabel(

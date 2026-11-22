@@ -4,6 +4,7 @@ import { ServiceInquiryModal } from "@/components/app/ServiceInquiryModal";
 import { useNakuruApp } from "@/components/app/AppProvider";
 import { isLiveCatalogEnabled } from "@/lib/nakuru/catalog-live";
 import { itemById } from "@/lib/nakuru/data/items";
+import { listingModeOf } from "@/lib/nakuru/listing-mode";
 import type { Listing } from "@/lib/nakuru/types";
 import { recordProductOpen } from "@/lib/nakuru/pwa-engage";
 import { useCallback, useState, type ReactNode } from "react";
@@ -23,12 +24,8 @@ export function useListingAct(): {
       if (!item) return;
       recordProductOpen(id);
       window.dispatchEvent(new Event("nh:engage"));
-      if (
-        live &&
-        (item.c === "services" ||
-          item.c === "property" ||
-          item.c === "cars")
-      ) {
+      const mode = listingModeOf(item);
+      if (live && mode !== "shop") {
         setInquiryTarget(item);
         return;
       }

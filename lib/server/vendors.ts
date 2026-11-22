@@ -1,5 +1,10 @@
 import { audit } from "./audit";
-import { config } from "./config";
+import {
+  type CategoryPublicRow,
+  getCategoryBySlug,
+  slugsAllowedForApply,
+  upsertCommunityCategory,
+} from "./categories";
 import { db } from "./db";
 import {
   parseImageDataUrl,
@@ -18,15 +23,6 @@ export class VendorError extends Error {
   }
 }
 
-const launchCategorySet = new Set<string>(config.launchCategories);
-
-/** Launch guard: only categories listed in `config.launchCategories` may be applied for. */
-export function categoriesAllowedAtLaunch(categories: readonly string[]): boolean {
-  return (
-    categories.length > 0 && categories.every((c) => launchCategorySet.has(c))
-  );
-}
-
 export async function applyVendor(
   ownerId: string,
   name: string,
@@ -34,7 +30,7 @@ export async function applyVendor(
   ip: string | null,
   imageDataUrl?: string,
 ): Promise<{ id: string; status: string; logo_url: string | null }> {
-  if (!categoriesAllowedAtLaunch(categories)) {
+  if (!(await slugsAllowedForApply(categories))) {
     throw new VendorError(400, "bad_request");
   }
 
@@ -83,6 +79,7 @@ export type VendorMineRow = {
   status: string;
   verified: boolean;
   logo_url: string | null;
+  area: string | null;
   created_at: Date;
 };
 
@@ -90,7 +87,7 @@ export async function listVendorsForOwner(
   ownerId: string,
 ): Promise<VendorMineRow[]> {
   const r = await db.q<VendorMineRow>(
-    `select id, name, categories, status, verified, logo_url, created_at
+    `select id, name, categories, status, verified, logo_url, area, created_at
      from vendors
      where owner_id = $1
      order by created_at desc
@@ -98,6 +95,30 @@ export async function listVendorsForOwner(
     [ownerId],
   );
   return r.rows;
+}
+
+export async function setVendorArea(
+  ownerId: string,
+  area: string,
+  ip: string | null,
+): Promise<{ area: string }> {
+  const r = await db.q<{ area: string }>(
+    `update vendors
+     set area = $2
+     where id = (
+       select id from vendors
+       where owner_id = $1 and status = 'approved'
+       order by created_at
+       limit 1
+     )
+     returning area`,
+    [ownerId, area],
+  );
+  if (!r.rowCount) {
+    throw new VendorError(403, "no_approved_vendor");
+  }
+  await audit("vendor_area", ownerId, ip, { area });
+  return { area: r.rows[0].area };
 }
 
 export type AdminVendorRow = {
@@ -152,13 +173,6 @@ export async function adminVendorAction(
 
   const ownerId = r.rows[0].owner_id;
 
-  if (action === "approve") {
-    await db.q(
-      "update users set role='vendor' where id=$1 and role='customer'",
-      [ownerId],
-    );
-  }
-
   const event =
     action === "approve"
       ? "vendor_approved"
@@ -168,4 +182,70 @@ export async function adminVendorAction(
   await audit(event, staffId, ip, { vendor: vendorId });
 
   return { owner_id: ownerId };
+}
+
+type ApprovedVendorRow = { id: string; categories: string[] };
+
+async function approvedVendorForOwner(
+  ownerId: string,
+): Promise<ApprovedVendorRow | null> {
+  const r = await db.q<ApprovedVendorRow>(
+    `select id, categories
+     from vendors
+     where owner_id = $1
+       and status = 'approved'
+     order by created_at
+     limit 1`,
+    [ownerId],
+  );
+  return r.rows[0] ?? null;
+}
+
+export async function appendVendorCategory(
+  ownerId: string,
+  input: { label?: string; slug?: string },
+): Promise<{ categories: string[]; category: CategoryPublicRow }> {
+  const vendor = await approvedVendorForOwner(ownerId);
+  if (!vendor) {
+    throw new VendorError(403, "no_approved_vendor");
+  }
+
+  let category: CategoryPublicRow;
+  if (input.label !== undefined) {
+    category = await upsertCommunityCategory(ownerId, input.label);
+  } else if (input.slug !== undefined) {
+    const row = await getCategoryBySlug(input.slug);
+    if (!row || !row.visible || !row.open_for_apply) {
+      throw new VendorError(400, "bad_request");
+    }
+    category = {
+      slug: row.slug,
+      label: row.label,
+      kind: row.kind,
+      listingMode: row.listing_mode,
+      openForApply: row.open_for_apply,
+      sortOrder: row.sort_order,
+    };
+  } else {
+    throw new VendorError(400, "bad_request");
+  }
+
+  if (vendor.categories.includes(category.slug)) {
+    return { categories: vendor.categories, category };
+  }
+
+  if (vendor.categories.length >= 4) {
+    throw new VendorError(400, "category_limit");
+  }
+
+  const updated = (
+    await db.q<{ categories: string[] }>(
+      `update vendors set categories = array_append(categories, $2::text)
+       where id = $1
+       returning categories`,
+      [vendor.id, category.slug],
+    )
+  ).rows[0];
+
+  return { categories: updated.categories, category };
 }

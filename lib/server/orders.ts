@@ -174,9 +174,10 @@ export async function createShopOrders(
         `select p.id, p.title, p.price_kes, p.stock, p.vendor_id, v.verified, v.owner_id
          from products p
          join vendors v on v.id = p.vendor_id
+         join categories c on c.slug = p.category
          where p.id = any($1::uuid[])
            and p.active
-           and p.category = 'shop'
+           and c.listing_mode = 'shop'
            and v.status = 'approved'
          order by p.id
          for update of p`,

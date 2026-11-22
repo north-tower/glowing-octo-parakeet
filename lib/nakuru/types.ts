@@ -9,6 +9,8 @@ export type CategoryId =
 
 export type TabId = "home" | "cat" | "msg" | "cart" | "acc";
 
+export type ListingMode = "shop" | "services" | "property" | "cars";
+
 export type AccView = "vendor" | "admin";
 
 export type PayMethod = "cod" | "mpesa";
@@ -16,7 +18,9 @@ export type PayMethod = "cod" | "mpesa";
 export type Listing = {
   /** Demo ids are numbers; live catalog uses product UUIDs. */
   id: number | string;
-  c: CategoryId;
+  c: string;
+  listingMode?: ListingMode;
+  categoryLabel?: string;
   e: string;
   /** Public URL when the vendor uploaded a photo. */
   img?: string;
@@ -78,7 +82,7 @@ export type VendorMe = {
 
 export type NakuruState = {
   tab: TabId;
-  cat: CategoryId;
+  cat: string;
   q: string;
   side: string;
   acc: AccView | null;

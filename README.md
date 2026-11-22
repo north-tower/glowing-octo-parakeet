@@ -30,7 +30,7 @@ Legacy paths redirect via `next.config.ts`: `/landing.html` → `/`, `/index.htm
 ## Fonts & PWA
 
 - Self-hosted **Bricolage Grotesque** and **Figtree** in `public/fonts/` (loaded via `@font-face` in CSS; preloaded in root `layout.tsx`).
-- Web app manifest: `public/manifest.webmanifest`. Master artwork: `lib/nakuru/flamingo-mark-source.png`; PNGs in `public/icons/` and `app/icon.png` via `pnpm icons:pwa`.
+- Web app manifest: `public/manifest.webmanifest`. Wordmark lockup: `lib/nakuru/logo-lockup-source.jpg`; square app icon: `lib/nakuru/pwa-icon-source.jpg`; favicons, PWA icons, `app/icon.png`, and Open Graph image via `pnpm icons:pwa`.
 - **PWA / install:** Service worker `public/sw.js` registers on `/app`. Install UI is in the marketplace shell only. Service workers and “Add to Home screen” work on **HTTPS** or **http://localhost** only — not on `file://`.
 - **Local PWA test:** `pnpm build && pnpm start` (or `npx serve out` if exporting static), open `/app` in Chrome, use DevTools → Application → Manifest / Service workers. For a quick static server: `npx serve public -p 3000` does **not** run the Next app; use `pnpm dev` or `pnpm start` instead.
 

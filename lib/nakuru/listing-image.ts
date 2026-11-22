@@ -1,9 +1,14 @@
+import { listingModeOf } from "@/lib/nakuru/listing-mode";
 import type { CategoryId, Listing } from "@/lib/nakuru/types";
 
 export type ListingAspect = "1" | "4/3";
 
 export function listingAspect(category: CategoryId): ListingAspect {
   return category === "shop" ? "1" : "4/3";
+}
+
+export function listingAspectForListing(item: Listing): ListingAspect {
+  return listingModeOf(item) === "shop" ? "1" : "4/3";
 }
 
 export function listingGallery(item: Listing): string[] {
@@ -45,7 +50,7 @@ function demoArtSlug(item: Listing): string {
 /** Local duotone SVG when a listing has no uploaded photo. */
 export function demoPlaceholderSrc(item: Listing): string {
   const slug = demoArtSlug(item);
-  const ratio = listingAspect(item.c) === "1" ? "1x1" : "4x3";
+  const ratio = listingAspectForListing(item) === "1" ? "1x1" : "4x3";
   return `/demo/${slug}-${ratio}.svg`;
 }
 
@@ -60,9 +65,14 @@ export function displayImageSrc(item: Listing): string {
   return resolveListingImageSrc(item) ?? demoPlaceholderSrc(item);
 }
 
-export function productImageSizes(variant: "rail" | "grid" = "grid"): string {
+export function productImageSizes(
+  variant: "rail" | "grid" | "classified" = "grid",
+): string {
   if (variant === "rail") {
     return "(max-width: 480px) 42vw, (max-width: 768px) 36vw, 320px";
+  }
+  if (variant === "classified") {
+    return "(min-width: 1440px) 270px, (min-width: 1024px) 360px, 90vw";
   }
   return "(max-width: 480px) 44vw, (max-width: 1024px) 33vw, 320px";
 }

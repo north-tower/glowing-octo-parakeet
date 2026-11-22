@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     locale: "en_KE",
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "NakuruHub — Sell to Nakuru from one place",
     description:
       "List shop, homes, cars, or services in Nakuru County. Free to join and list on NakuruHub.",

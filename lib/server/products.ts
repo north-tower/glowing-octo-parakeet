@@ -1,4 +1,5 @@
 import { audit } from "./audit";
+import { getCategoryBySlug } from "./categories";
 import { db } from "./db";
 import {
   parseImageDataUrl,
@@ -17,16 +18,16 @@ export class ProductError extends Error {
   }
 }
 
-type ApprovedVendor = { id: string; categories: string[] };
+type ApprovedVendor = { id: string; area: string | null };
 
 async function approvedVendorForOwner(
   ownerId: string,
   vendorId?: string,
 ): Promise<ApprovedVendor | null> {
   const r = await db.q<ApprovedVendor>(
-    `select id, categories
+    `select id, area
      from vendors
-     where owner_id = $1
+    where owner_id = $1
        and status = 'approved'
        and ($2::uuid is null or id = $2::uuid)
      order by created_at
@@ -56,8 +57,13 @@ export async function createProduct(
   if (!v) {
     throw new ProductError(403, "no_approved_vendor");
   }
-  if (!v.categories.includes(data.category)) {
-    throw new ProductError(403, "category_not_approved");
+  if (!v.area) {
+    throw new ProductError(400, "area_required");
+  }
+
+  const dir = await getCategoryBySlug(data.category);
+  if (!dir || !dir.visible) {
+    throw new ProductError(400, "bad_request");
   }
 
   const n = (
@@ -71,7 +77,7 @@ export async function createProduct(
   }
 
   const stock =
-    data.category === "shop"
+    dir.listing_mode === "shop"
       ? data.stock === undefined
         ? null
         : data.stock
@@ -181,17 +187,16 @@ export async function updateProduct(
     set.push(`${col} = $${vals.length}`);
   };
 
+  let effectiveListingMode: string | null = null;
+
   if (data.category !== undefined && data.category !== row.category) {
-    const v = await db.q<{ categories: string[] }>(
-      "select categories from vendors where id = $1 and status = 'approved'",
-      [row.vendor_id],
-    );
-    const vendor = v.rows[0];
-    if (!vendor?.categories.includes(data.category)) {
-      throw new ProductError(403, "category_not_approved");
+    const dir = await getCategoryBySlug(data.category);
+    if (!dir || !dir.visible) {
+      throw new ProductError(400, "bad_request");
     }
+    effectiveListingMode = dir.listing_mode;
     add("category", data.category);
-    if (data.category === "services") {
+    if (dir.listing_mode !== "shop") {
       add("stock", null);
     }
   }
@@ -199,9 +204,17 @@ export async function updateProduct(
   if (data.title !== undefined) add("title", data.title);
   if (data.price !== undefined) add("price_kes", data.price);
   if (data.stock !== undefined) {
-    const effectiveCat =
-      data.category !== undefined ? data.category : row.category;
-    if (effectiveCat === "shop") {
+    let mode = effectiveListingMode;
+    if (mode === null) {
+      const effectiveCat =
+        data.category !== undefined ? data.category : row.category;
+      const dir = await getCategoryBySlug(effectiveCat);
+      if (!dir) {
+        throw new ProductError(400, "bad_request");
+      }
+      mode = dir.listing_mode;
+    }
+    if (mode === "shop") {
       add("stock", data.stock);
     }
   }

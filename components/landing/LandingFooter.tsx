@@ -4,7 +4,6 @@ import Link from "next/link";
 import { BrandLogoMark } from "@/components/app/BrandLogoMark";
 import { Bi } from "@/components/landing/Bi";
 import { LangToggle } from "@/components/landing/LangToggle";
-import { BRAND_NAME } from "@/lib/nakuru/brand";
 
 export function LandingFooter() {
   return (
@@ -12,8 +11,7 @@ export function LandingFooter() {
       <div className="wrap foot-grid">
         <div className="foot-brand">
           <strong className="foot-brand-lockup">
-            <BrandLogoMark size={28} />
-            {BRAND_NAME}
+            <BrandLogoMark variant="lockup" size={64} />
           </strong>
           <p className="mut">
             <Bi

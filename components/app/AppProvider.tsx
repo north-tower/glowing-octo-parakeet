@@ -11,6 +11,7 @@ import {
 } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { readDetailNavTab } from "@/lib/nakuru/detail-nav-tab";
+import { persistAppMode, wantsSellingEntry } from "@/lib/nakuru/app-mode";
 import {
   createInitialState,
   nakuruReducer,
@@ -46,21 +47,31 @@ export function AppProvider({ children }: ProviderProps) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const onProductDetail = pathname?.startsWith("/app/p/") ?? false;
-  const vendorEntry =
-    searchParams.get("start") === "vendor" || searchParams.has("vendor");
+  const vendorEntry = wantsSellingEntry(
+    searchParams.get("start"),
+    searchParams.has("vendor"),
+  );
 
   const tabParam = searchParams.get("tab");
+  const qParam = searchParams.get("q") ?? "";
+  const catParam = searchParams.get("cat") ?? "";
   const validTabs: TabId[] = ["home", "cat", "msg", "cart", "acc"];
 
   const [state, setState] = useState(() => {
+    if (vendorEntry) persistAppMode("selling");
     const base = createInitialState(vendorEntry);
+    const withQuery = {
+      ...base,
+      ...(qParam ? { q: qParam } : {}),
+      ...(catParam ? { cat: catParam } : {}),
+    };
     if (onProductDetail) {
-      return { ...base, tab: readDetailNavTab() };
+      return { ...withQuery, tab: readDetailNavTab() };
     }
     if (tabParam && validTabs.includes(tabParam as TabId)) {
-      return { ...base, tab: tabParam as TabId };
+      return { ...withQuery, tab: tabParam as TabId };
     }
-    return base;
+    return withQuery;
   });
 
   const [toastText, setToastText] = useState("");

@@ -1,9 +1,11 @@
-import type { CategoryId, Listing } from "@/lib/nakuru/types";
+import type { CategoryId, Listing, ListingMode } from "@/lib/nakuru/types";
 
 /** Raw row from `GET /api/listings` (mirrors reference Express `catalog.js`). */
 export type ApiListing = {
   id: string;
   category: string;
+  categoryLabel?: string;
+  listingMode?: ListingMode;
   title: string;
   description?: string | null;
   emoji: string;
@@ -17,8 +19,15 @@ export type ApiListing = {
 };
 
 export function toProductCardItem(api: ApiListing): Listing {
+  const mode: ListingMode =
+    api.listingMode ??
+    (api.category === "services"
+      ? "services"
+      : api.category === "property" || api.category === "cars"
+        ? api.category
+        : "shop");
   const subtitle =
-    api.category === "services" && api.description
+    mode === "services" && api.description
       ? api.description
       : api.vendor;
   const gallery = (api.galleryUrls ?? []).filter(Boolean);
@@ -26,6 +35,8 @@ export function toProductCardItem(api: ApiListing): Listing {
   return {
     id: api.id,
     c: api.category as CategoryId,
+    listingMode: mode,
+    categoryLabel: api.categoryLabel,
     e: api.emoji || "📦",
     img,
     imgs: gallery.length ? gallery : img ? [img] : undefined,

@@ -12,10 +12,10 @@ export function MobileCtaBar() {
       aria-label="Quick actions"
     >
       <Link className="btn fl" href="/app?start=vendor">
-        <Bi en="Start selling" sw="Anza kuuza" />
+        <Bi en="Post a listing" sw="Weka tangazo" />
       </Link>
       <Link className="btn ghost mobile-cta-browse" href="/app">
-        <Bi en="Browse app" sw="Tazama programu" />
+        <Bi en="Explore" sw="Gundua" />
       </Link>
     </div>
   );

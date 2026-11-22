@@ -7,6 +7,7 @@ import {
 import { VerifiedBadge } from "@/components/app/product/VerifiedBadge";
 import { AccountLangSheet } from "@/components/app/account/AccountLangSheet";
 import { AccountSignOutSheet } from "@/components/app/account/AccountSignOutSheet";
+import { persistAppMode, type AppMode } from "@/lib/nakuru/app-mode";
 import {
   accountMenuRows,
   type AccountMenuRow,
@@ -90,6 +91,7 @@ type Props = {
   standalone: boolean;
   onInstallRow: () => void;
   onDispatchRow: DispatchRow;
+  onSelectMode: (mode: AppMode) => void;
   onSignOut: () => void;
 };
 
@@ -159,6 +161,7 @@ export function AccountSignedInView({
   standalone,
   onInstallRow,
   onDispatchRow,
+  onSelectMode,
   onSignOut,
 }: Props) {
   const { openAssistant } = useAssistantUi();
@@ -170,10 +173,8 @@ export function AccountSignedInView({
   const shopping = menuRows.filter((r) => r.section === "shopping");
 
   const displayName =
-    vendorProfile?.name ?? user.email ?? homeCopy("accDefaultName", lang);
-  const roleCaption = vendorProfile
-    ? homeCopy("accRoleVendor", lang)
-    : homeCopy("accRoleBuyer", lang);
+    user.email ?? homeCopy("accDefaultName", lang);
+  const roleCaption = homeCopy("accRoleBuyer", lang);
   const chip = accountStatusChip(vendorProfile);
   const showGetVerified =
     vendorProfile?.status === "approved" && !vendorProfile.verified;
@@ -231,6 +232,36 @@ export function AccountSignedInView({
         {user.email ? (
           <div className="acc-identity-email m">{user.email}</div>
         ) : null}
+        <div
+          className="acc-mode-seg"
+          role="tablist"
+          aria-label={homeCopy("accModeAria", lang)}
+        >
+          <button
+            type="button"
+            role="tab"
+            className="acc-mode-seg__item"
+            aria-selected="true"
+            onClick={() => {
+              persistAppMode("shopping");
+              onSelectMode("shopping");
+            }}
+          >
+            {homeCopy("accModeShopping", lang)}
+          </button>
+          <button
+            type="button"
+            role="tab"
+            className="acc-mode-seg__item"
+            aria-selected="false"
+            onClick={() => {
+              persistAppMode("selling");
+              onSelectMode("selling");
+            }}
+          >
+            {homeCopy("accModeSelling", lang)}
+          </button>
+        </div>
       </div>
     </div>
 
