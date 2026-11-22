@@ -54,8 +54,7 @@ export function InstallSheet({
     typeof window !== "undefined" &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  const showNativeInstall =
-    platform === "android-chromium" && hasNativePrompt;
+  const showNativeInstall = hasNativePrompt;
 
   useEffect(() => {
     if (!open) return;

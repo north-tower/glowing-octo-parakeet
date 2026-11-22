@@ -194,13 +194,13 @@ export function InstallProvider({ children }: { children: ReactNode }) {
       if (standalone) return;
       dispatchInstallEvent("nh:install-clicked", { source });
       if (source === "card" && homeCardVisible) clearRetriggerAfterShow();
-      if (platform === "android-chromium" && deferredRef.current) {
+      if (deferredRef.current) {
         const accepted = await runNativePrompt();
         if (accepted) return;
       }
       setSheetOpen(true);
     },
-    [homeCardVisible, platform, runNativePrompt, standalone],
+    [homeCardVisible, runNativePrompt, standalone],
   );
 
   useEffect(() => {
