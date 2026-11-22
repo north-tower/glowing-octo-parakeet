@@ -34,7 +34,9 @@ export function VendorProductForm({
   onPublished,
 }: Props) {
   const { rows: directoryRows } = useCategories();
-  const listingOptions = directoryRows;
+  const listingOptions = directoryRows.filter((r) => r.visible);
+  const officialOptions = listingOptions.filter((r) => r.kind === "official");
+  const communityOptions = listingOptions.filter((r) => r.kind === "community");
 
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
   const selectedListingMode = selectedSlug
@@ -206,7 +208,7 @@ export function VendorProductForm({
       <div className="t">Publish a listing</div>
       <div className="m">
         {shopArea
-          ? `Buyers will see this listing in ${shopArea}.`
+          ? `Buyers will see this listing in ${shopArea}. Pick any category below.`
           : "Set your shop area on the profile above before publishing."}
       </div>
 
@@ -217,11 +219,24 @@ export function VendorProductForm({
         disabled={busy || !shopArea}
         onChange={(e) => setSelectedSlug(e.target.value || null)}
       >
-        {listingOptions.map((row) => (
-          <option key={row.slug} value={row.slug}>
-            {row.label}
-          </option>
-        ))}
+        {officialOptions.length ? (
+          <optgroup label="Official">
+            {officialOptions.map((row) => (
+              <option key={row.slug} value={row.slug}>
+                {row.label}
+              </option>
+            ))}
+          </optgroup>
+        ) : null}
+        {communityOptions.length ? (
+          <optgroup label="Community">
+            {communityOptions.map((row) => (
+              <option key={row.slug} value={row.slug}>
+                {row.label}
+              </option>
+            ))}
+          </optgroup>
+        ) : null}
       </select>
 
       <label htmlFor="vp-title">Title</label>

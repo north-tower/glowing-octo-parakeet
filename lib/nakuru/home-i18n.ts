@@ -79,12 +79,14 @@ export type HomeCopyKey =
   | "catGroupServicesDesc"
   | "catGroupStaysDesc"
   | "catGroupTaxiDesc"
+  | "catGroupRiderDesc"
   | "allShop"
   | "allProperty"
   | "allCars"
   | "allServices"
   | "allStays"
   | "allTaxi"
+  | "allRiders"
   | "listings"
   | "sideFeatured"
   | "productBack"
@@ -316,7 +318,9 @@ export type TopCategorySlug =
   | "short"
   | "airport"
   | "town"
-  | "boda";
+  | "boda"
+  | "delivery"
+  | "courier";
 
 const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   deliverTo: { en: "Deliver to", sw: "Tuma kwa" },
@@ -477,12 +481,17 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
     en: "Airport, town rides and boda around Nakuru",
     sw: "Uwanja wa ndege, mjini na boda Nakuru",
   },
+  catGroupRiderDesc: {
+    en: "Delivery riders, couriers and boda for hire",
+    sw: "Waendeshaji, couriers na boda kwa kodi",
+  },
   allShop: { en: "All shop", sw: "Duka zote" },
   allProperty: { en: "All property", sw: "Mali zote" },
   allCars: { en: "All cars", sw: "Magari yote" },
   allServices: { en: "All services", sw: "Huduma zote" },
   allStays: { en: "All stays", sw: "Malazi yote" },
   allTaxi: { en: "All taxi", sw: "Teksi zote" },
+  allRiders: { en: "All riders", sw: "Waendeshaji wote" },
   listings: { en: "Listings", sw: "Orodha" },
   sideFeatured: { en: "Featured", sw: "Maalum" },
   productBack: { en: "Back to browse", sw: "Rudi vinjarini" },
@@ -920,6 +929,8 @@ const TOP_CATEGORY_LABELS: Record<
   airport: { en: "Airport rides", sw: "Usafiri uwanja" },
   town: { en: "Town rides", sw: "Ndani ya mjini" },
   boda: { en: "Boda", sw: "Boda" },
+  delivery: { en: "Delivery rider", sw: "Msafirishaji" },
+  courier: { en: "Courier", sw: "Courier" },
 };
 
 const CAT_LABELS: Record<CategoryId, Record<LandingLang, string>> = {
@@ -930,6 +941,7 @@ const CAT_LABELS: Record<CategoryId, Record<LandingLang, string>> = {
   services: { en: "Services", sw: "Huduma" },
   stays: { en: "Stays", sw: "Malazi" },
   taxi: { en: "Taxi", sw: "Teksi" },
+  rider: { en: "Rider", sw: "Rider" },
 };
 
 export function homeCopy(key: HomeCopyKey, lang: LandingLang): string {
@@ -961,6 +973,7 @@ const GROUP_DESC: Partial<Record<CategoryId, HomeCopyKey>> = {
   services: "catGroupServicesDesc",
   stays: "catGroupStaysDesc",
   taxi: "catGroupTaxiDesc",
+  rider: "catGroupRiderDesc",
 };
 
 const GROUP_ALL: Partial<Record<CategoryId, HomeCopyKey>> = {
@@ -970,6 +983,7 @@ const GROUP_ALL: Partial<Record<CategoryId, HomeCopyKey>> = {
   services: "allServices",
   stays: "allStays",
   taxi: "allTaxi",
+  rider: "allRiders",
 };
 
 export function homeCategoryGroupDesc(

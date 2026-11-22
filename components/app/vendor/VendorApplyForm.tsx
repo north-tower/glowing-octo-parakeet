@@ -8,7 +8,6 @@ import {
   ProfilePhotoUpload,
 } from "@/components/app/ProfilePhotoUpload";
 import { apiFetch, ApiError } from "@/lib/nakuru/api";
-import { VENDOR_WAITLIST } from "@/lib/nakuru/data/constants";
 import { useCategories } from "@/lib/nakuru/use-categories";
 import type { CategoryId } from "@/lib/nakuru/types";
 import {
@@ -197,10 +196,6 @@ export function VendorApplyForm({ disabled, onApplied, toast }: Props) {
             );
           }
           if (row.kind === "official") {
-            const soonSlug = row.slug as CategoryId;
-            const suffix = VENDOR_WAITLIST[soonSlug]
-              ? " (waitlist)"
-              : " (soon)";
             return (
               <button
                 key={row.slug}
@@ -210,7 +205,7 @@ export function VendorApplyForm({ disabled, onApplied, toast }: Props) {
                 title="Opens after launch"
               >
                 {row.label}
-                {suffix}
+                {" (soon)"}
               </button>
             );
           }

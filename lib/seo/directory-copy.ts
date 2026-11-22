@@ -37,6 +37,11 @@ const OFFICIAL_COPY: Record<string, Copy> = {
     heading: (p) => `Taxis & rides in ${p}`,
     intro: (p) => `Taxis and local rides in ${p}.`,
   },
+  rider: {
+    heading: (p) => `Delivery & ride riders in ${p}`,
+    intro: (p) =>
+      `Find delivery riders, couriers and boda operators in ${p} and request a quote.`,
+  },
 };
 
 export function categoryHeading(cat: SeoCategory, place: string): string {
