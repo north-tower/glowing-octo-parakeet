@@ -11,9 +11,22 @@ export const CATS: [CategoryId, string][] = [
   ["taxi", "Taxi"],
 ];
 
-export const SOON: Partial<Record<CategoryId, 1>> = { stays: 1, taxi: 1 };
+/** Official categories on vendor waitlist (copy only; browse is open for shoppers). */
+export const VENDOR_WAITLIST: Partial<Record<CategoryId, 1>> = {
+  property: 1,
+  cars: 1,
+  stays: 1,
+  taxi: 1,
+};
 
-export const BROWSE_SIDES = ["shop", "property", "cars", "services"] as const;
+export const BROWSE_SIDES = [
+  "shop",
+  "property",
+  "cars",
+  "services",
+  "stays",
+  "taxi",
+] as const;
 
 export const ACT: Record<string, string> = {
   shop: "Add to cart",
@@ -48,6 +61,14 @@ export const TOPC: [
   ["bolt", "Electricians", "services", "electric", "pink"],
   ["spray-bottle", "Cleaning", "services", "clean", "pink"],
   ["wrench", "Plumbers", "services", "plumb", "pink"],
+  ["bed", "BnBs & apartments", "stays", "bnb", "green"],
+  ["bed", "Hotels", "stays", "hotel", "green"],
+  ["home", "Short stays", "stays", "short", "green"],
+  ["grid", "All stays", "stays", "", "green"],
+  ["taxi", "Airport rides", "taxi", "airport", "sand"],
+  ["taxi", "Town rides", "taxi", "town", "sand"],
+  ["car", "Boda", "taxi", "boda", "pink"],
+  ["grid", "All taxi", "taxi", "", "sand"],
 ];
 
 /** Indices into `TOPC` (not `ITEMS`). */
@@ -85,6 +106,8 @@ export const BROWSE_GROUPS: {
   { side: "property", icon: "home", tint: "green" },
   { side: "cars", icon: "car", tint: "sand" },
   { side: "services", icon: "wrench", tint: "pink" },
+  { side: "stays", icon: "bed", tint: "green" },
+  { side: "taxi", icon: "taxi", tint: "sand" },
 ];
 
 export const RANK: [number, string, string][] = [
@@ -135,6 +158,8 @@ export const TOOLS: Record<string, string[]> = {
   property: ["Add listing", "Viewing requests", "Mark rented/sold"],
   cars: ["Add vehicle", "Inquiries", "Upload logbook"],
   services: ["Service profile", "Quote requests", "Job history"],
+  stays: ["Add stay", "Bookings", "Calendar", "Earnings"],
+  taxi: ["Driver profile", "Trip requests", "Earnings", "Safety tools"],
 };
 
 export const PHONE_REGEX = /^(?:\+?254|0)[17]\d{8}$/;

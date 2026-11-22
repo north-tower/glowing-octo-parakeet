@@ -9,7 +9,7 @@ import {
 } from "react";
 import { ProductCard } from "@/components/app/ProductCard";
 import { useNakuruApp } from "@/components/app/AppProvider";
-import { FEAT, SLIDES, SOON, TOPC } from "@/lib/nakuru/data/constants";
+import { FEAT, SLIDES, TOPC } from "@/lib/nakuru/data/constants";
 import { ITEMS } from "@/lib/nakuru/data/items";
 import { isLiveCatalogEnabled } from "@/lib/nakuru/catalog-live";
 import {
@@ -220,7 +220,7 @@ function useHomeCarousel(active: boolean) {
 }
 
 function catalogCategoryForFilter(cat: CategoryId): CategoryId | "all" {
-  if (cat === "all" || cat === "stays" || cat === "taxi") return "all";
+  if (cat === "all") return "all";
   return cat;
 }
 
@@ -238,12 +238,7 @@ export function HomeView() {
 
   const activeCat = state.cat as CategoryId;
   const browseCat = catalogCategoryForFilter(activeCat);
-  const catalogFetch =
-    liveCatalog &&
-    !isOutsideArea(state.area) &&
-    !SOON[activeCat] &&
-    activeCat !== "stays" &&
-    activeCat !== "taxi";
+  const catalogFetch = liveCatalog && !isOutsideArea(state.area);
 
   const { items: liveItems, loading, error } = useCatalogListings({
     enabled: catalogFetch,
@@ -305,21 +300,6 @@ export function HomeView() {
           Join the waitlist
         </button>
       </>
-    );
-  }
-
-  if (SOON[activeCat]) {
-    return (
-      <div className="card">
-        <div className="t">
-          {state.cat === "stays" ? "BnB and stays" : "Taxi"} is coming soon
-        </div>
-        <div className="m">
-          {state.cat === "stays"
-            ? "Book verified apartments and BnBs in Nakuru."
-            : "Ride-hailing with live tracking and safety features."}
-        </div>
-      </div>
     );
   }
 

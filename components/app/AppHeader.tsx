@@ -104,12 +104,7 @@ export function AppHeader() {
     dispatch({ type: "SET_TAB", tab: "home" });
   };
 
-  const officialOpen = categoryRows.filter(
-    (r) => r.kind === "official" && r.openForApply,
-  );
-  const officialSoon = categoryRows.filter(
-    (r) => r.kind === "official" && !r.openForApply,
-  );
+  const officialTabs = categoryRows.filter((r) => r.kind === "official");
   const communityTabs = categoryRows.filter((r) => r.kind === "community");
 
   const tabsBlock = (
@@ -122,22 +117,16 @@ export function AppHeader() {
         >
           {homeCategoryLabel("all", lang)}
         </button>
-        {[...officialOpen, ...officialSoon, ...communityTabs].map((row) => {
-          const soon = row.kind === "official" && !row.openForApply;
+        {[...officialTabs, ...communityTabs].map((row) => {
           const label = directoryTabLabel(row, lang);
           return (
             <button
               key={row.slug}
               type="button"
-              className={`tb${state.cat === row.slug ? " on" : ""}${soon ? " soon" : ""}`}
-              disabled={soon}
-              aria-disabled={soon}
+              className={`tb${state.cat === row.slug ? " on" : ""}`}
               onClick={() => dispatch({ type: "SET_CAT", cat: row.slug })}
             >
               {label}
-              {soon ? (
-                <span className="tab-soon-pill">{homeCopy("soon", lang)}</span>
-              ) : null}
             </button>
           );
         })}

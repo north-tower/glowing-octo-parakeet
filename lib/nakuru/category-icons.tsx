@@ -14,6 +14,8 @@ import {
   IconWatch,
   IconWrench,
   IconSalad,
+  IconBed,
+  IconTaxi,
 } from "@/components/app/icons/LineIcons";
 
 export type CategoryIconKey =
@@ -31,7 +33,9 @@ export type CategoryIconKey =
   | "bolt"
   | "spray-bottle"
   | "wrench"
-  | "grid";
+  | "grid"
+  | "bed"
+  | "taxi";
 
 const ICONS: Record<
   CategoryIconKey,
@@ -52,6 +56,8 @@ const ICONS: Record<
   "spray-bottle": IconSprayBottle,
   wrench: IconWrench,
   grid: IconGrid,
+  bed: IconBed,
+  taxi: IconTaxi,
 };
 
 export function CategoryIcon({

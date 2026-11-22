@@ -17,6 +17,7 @@ type Props = {
 function sheetHintKey(platform: InstallPlatform): InstallCopyKey {
   if (platform === "ios") return "sheetHintIos";
   if (platform === "in-app") return "sheetHintInApp";
+  if (platform === "android-chromium") return "sheetHintAndroid";
   return "sheetHintGeneric";
 }
 
@@ -106,8 +107,13 @@ export function InstallSheet({
 
   if (!open) return null;
 
-  const hint =
-    showNativeInstall ? t("installCardBody") : t(sheetHintKey(platform));
+  const fallback = t(sheetHintKey(platform));
+  const hint = showNativeInstall ? t("installCardBody") : fallback;
+  const title = showNativeInstall
+    ? t("sheetTitle")
+    : platform === "android-chromium"
+      ? t("genericTitle")
+      : t("sheetTitle");
 
   return (
     <div className="pwa-sheet-root" aria-hidden={false}>
@@ -128,7 +134,7 @@ export function InstallSheet({
       >
         <div className="pwa-sheet-handle" aria-hidden />
         <h2 id={titleId} className="pwa-sheet-title">
-          {t("sheetTitle")}
+          {title}
         </h2>
         <p className="m pwa-sheet-hint">{hint}</p>
 

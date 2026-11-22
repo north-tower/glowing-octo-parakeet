@@ -22,6 +22,7 @@ export type InstallCopyKey =
   | "dismissSheet"
   | "sheetHintIos"
   | "sheetHintInApp"
+  | "sheetHintAndroid"
   | "sheetHintGeneric";
 
 const COPY: Record<InstallCopyKey, Record<LandingLang, string>> = {
@@ -108,6 +109,10 @@ const COPY: Record<InstallCopyKey, Record<LandingLang, string>> = {
   sheetHintInApp: {
     en: "Open in Chrome or Safari, then install from the browser menu.",
     sw: "Fungua kwenye Chrome au Safari, kisha sakinisha kutoka menyu ya kivinjari.",
+  },
+  sheetHintAndroid: {
+    en: "In Chrome, tap ⋮ (top right), then Install app or Add to Home screen. If those options are missing, refresh the page and try again.",
+    sw: "Katika Chrome, gusa ⋮ (juu kulia), kisha Install app au Add to Home screen. Ikiwa haipo, onyesha upya ukurasa ujaribu tena.",
   },
   sheetHintGeneric: {
     en: "Use your browser menu to add NakuruHub to your home screen.",

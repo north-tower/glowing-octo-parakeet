@@ -85,7 +85,8 @@ export function InstallProvider({ children }: { children: ReactNode }) {
       setHomeCardVisible(false);
       return;
     }
-    setHomeCardVisible(canShowInstallCard());
+    const nativeReady = deferredRef.current != null;
+    setHomeCardVisible(canShowInstallCard() && nativeReady);
   }, []);
 
   const setLangChoice = useCallback((next: LandingLang) => {
@@ -116,6 +117,7 @@ export function InstallProvider({ children }: { children: ReactNode }) {
       e.preventDefault();
       deferredRef.current = e as BeforeInstallPromptEvent;
       setHasNativePrompt(true);
+      refreshCard();
     };
     window.addEventListener("beforeinstallprompt", onBip);
 
@@ -185,6 +187,7 @@ export function InstallProvider({ children }: { children: ReactNode }) {
       dispatchInstallEvent("nh:install-dismissed", { via: "native" });
       return false;
     } catch {
+      refreshCard();
       return false;
     }
   }, [refreshCard, toast]);

@@ -77,10 +77,14 @@ export type HomeCopyKey =
   | "catGroupPropertyDesc"
   | "catGroupCarsDesc"
   | "catGroupServicesDesc"
+  | "catGroupStaysDesc"
+  | "catGroupTaxiDesc"
   | "allShop"
   | "allProperty"
   | "allCars"
   | "allServices"
+  | "allStays"
+  | "allTaxi"
   | "listings"
   | "sideFeatured"
   | "productBack"
@@ -306,7 +310,13 @@ export type TopCategorySlug =
   | "toyota"
   | "subaru"
   | "electric"
-  | "clean";
+  | "clean"
+  | "bnb"
+  | "hotel"
+  | "short"
+  | "airport"
+  | "town"
+  | "boda";
 
 const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   deliverTo: { en: "Deliver to", sw: "Tuma kwa" },
@@ -459,10 +469,20 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
     en: "Electricians, cleaners, plumbers and more",
     sw: "Mafundi umeme, usafi, mabomba na zaidi",
   },
+  catGroupStaysDesc: {
+    en: "BnBs, hotels and short stays in Nakuru",
+    sw: "BnB, hoteli na malazi mafupi Nakuru",
+  },
+  catGroupTaxiDesc: {
+    en: "Airport, town rides and boda around Nakuru",
+    sw: "Uwanja wa ndege, mjini na boda Nakuru",
+  },
   allShop: { en: "All shop", sw: "Duka zote" },
   allProperty: { en: "All property", sw: "Mali zote" },
   allCars: { en: "All cars", sw: "Magari yote" },
   allServices: { en: "All services", sw: "Huduma zote" },
+  allStays: { en: "All stays", sw: "Malazi yote" },
+  allTaxi: { en: "All taxi", sw: "Teksi zote" },
   listings: { en: "Listings", sw: "Orodha" },
   sideFeatured: { en: "Featured", sw: "Maalum" },
   productBack: { en: "Back to browse", sw: "Rudi vinjarini" },
@@ -894,6 +914,12 @@ const TOP_CATEGORY_LABELS: Record<
   subaru: { en: "Subaru", sw: "Subaru" },
   electric: { en: "Electricians", sw: "Mafundi umeme" },
   clean: { en: "Cleaning", sw: "Usafishaji" },
+  bnb: { en: "BnBs & apartments", sw: "BnB na vyumba" },
+  hotel: { en: "Hotels", sw: "Hoteli" },
+  short: { en: "Short stays", sw: "Malazi mafupi" },
+  airport: { en: "Airport rides", sw: "Usafiri uwanja" },
+  town: { en: "Town rides", sw: "Ndani ya mjini" },
+  boda: { en: "Boda", sw: "Boda" },
 };
 
 const CAT_LABELS: Record<CategoryId, Record<LandingLang, string>> = {
@@ -933,6 +959,8 @@ const GROUP_DESC: Partial<Record<CategoryId, HomeCopyKey>> = {
   property: "catGroupPropertyDesc",
   cars: "catGroupCarsDesc",
   services: "catGroupServicesDesc",
+  stays: "catGroupStaysDesc",
+  taxi: "catGroupTaxiDesc",
 };
 
 const GROUP_ALL: Partial<Record<CategoryId, HomeCopyKey>> = {
@@ -940,6 +968,8 @@ const GROUP_ALL: Partial<Record<CategoryId, HomeCopyKey>> = {
   property: "allProperty",
   cars: "allCars",
   services: "allServices",
+  stays: "allStays",
+  taxi: "allTaxi",
 };
 
 export function homeCategoryGroupDesc(

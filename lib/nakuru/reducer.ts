@@ -2,7 +2,6 @@ import { ZONES, DEFAULT_AREA } from "@/lib/nakuru/data/zones";
 import {
   MAX_CART_QTY,
   PHONE_REGEX,
-  SOON,
   TOPC,
 } from "@/lib/nakuru/data/constants";
 import { itemById } from "@/lib/nakuru/data/items";
@@ -110,9 +109,7 @@ export function nakuruReducer(
       return { state: { ...state, side: action.side } };
     case "SET_Q": {
       const q = action.q.slice(0, 80);
-      let cat = state.cat;
-      if (SOON[cat as CategoryId]) cat = "all";
-      return { state: { ...state, q, cat, tab: "home" } };
+      return { state: { ...state, q, tab: "home" } };
     }
     case "SET_AREA":
       return { state: { ...state, area: action.area } };

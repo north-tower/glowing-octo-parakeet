@@ -103,7 +103,8 @@ export function CategoryPanel({
   const ks = topIndicesForSide(s);
   const sparse = ks.length > 0 && ks.length <= 2;
   const gridClass = `home-cat-grid${sparse ? " home-cat-grid--sparse" : ""}${s === "feat" ? "" : ""}`;
-  const browseGridClass = "home-cat-grid home-cat-grid--browse";
+  const browseGridClass =
+    "home-cat-grid home-cat-grid--browse home-cat-grid--browse-type";
 
   return (
     <div className="cat-panel rp">

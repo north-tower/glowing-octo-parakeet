@@ -73,6 +73,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#0d5c58",
+  colorScheme: "only light",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -80,7 +81,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en-KE" className={nakuruFontClassName}>
+    <html lang="en-KE" data-theme="light" className={nakuruFontClassName}>
       {/* Phase 3: scope `landing` to `/` only via route layout */}
       <body className="landing">
         <script
