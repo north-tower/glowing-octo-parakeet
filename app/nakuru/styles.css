@@ -447,6 +447,24 @@ main select{
 body.app main input,body.app main select,body.app main textarea{font-size:16px}
 .chip{border:1px solid var(--line);background:var(--card);border-radius:20px;padding:7px 13px;cursor:pointer;margin:0 6px 6px 0}.chip.on{background:var(--pri);color:var(--onpri);border-color:var(--pri)}
 .tool{display:inline-block;margin:4px 4px 0 0;padding:6px 10px;border-radius:8px;background:var(--bg);font-size:13px}
+.shop-profile-copy{min-width:0;flex:1}
+.shop-zone-chip{display:inline-flex;align-items:center;gap:6px;margin-top:8px;min-height:40px;padding:0 10px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:12px;font-weight:650;cursor:pointer}
+.shop-zone-chip:disabled{opacity:.55;cursor:not-allowed}
+.shop-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin:12px 0;padding:4px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+.shop-tab{min-height:44px;border:0;border-radius:10px;background:none;color:var(--mut);font-size:12px;font-weight:650;cursor:pointer;padding:0 4px}
+.shop-tab.on{background:var(--pri);color:var(--onpri)}
+.shop-stock-list{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:10px}
+.shop-stock-row{padding:10px 0;border-top:1px solid var(--line)}
+.shop-stock-row:first-child{border-top:0;padding-top:0}
+.shop-stock-main{display:flex;gap:10px;align-items:flex-start}
+.shop-stock-emoji{font-size:22px;line-height:1}
+.shop-stock-title{font-weight:650}
+.shop-stock-price{font-weight:650;margin-right:auto;align-self:center}
+.shop-stock-edit{margin-top:8px}
+.shop-earn-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.shop-earn-tile{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px}
+.shop-earn-tile b{display:block;font-size:16px;font-weight:700}
+.shop-earn-tile span{display:block;margin-top:4px;font-size:12px;color:var(--mut)}
 .av img,.pfp img{width:100%;height:100%;object-fit:cover;border-radius:50%}.pfp{position:relative;flex:none;width:84px;height:84px;border-radius:50%;background:var(--bg);display:grid;place-items:center;font-size:34px;cursor:pointer;border:2px dashed var(--pri)}.pfp b{position:absolute;right:-4px;bottom:-4px;background:var(--fl);color:#fff;border-radius:50%;width:28px;height:28px;font-size:14px;display:grid;place-items:center;font-weight:400}.li{display:flex;gap:12px;align-items:center;cursor:pointer}.av{width:44px;height:44px;border-radius:50%;background:var(--bg);display:grid;place-items:center;font-size:22px;flex:none}
 
 /* —— NakuruHub landing (landing.html) —— */
@@ -1318,10 +1336,20 @@ body.landing .browse-cat-card:hover{border-color:var(--pri)}
   body.app .discover-pills{display:flex;flex-wrap:wrap;gap:.45rem}
   body.app .discover-pill{border:1px solid var(--line);background:#fff;border-radius:999px;padding:.45rem .9rem;cursor:pointer;font:inherit;font-weight:600}
   body.app .discover-pill.on{background:var(--pri);color:#fff;border-color:var(--pri)}
-  body.app .discover-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.35rem;max-width:920px}
+  body.app .discover-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;width:100%;max-width:none}
+  body.app .discover-grid .pc--classified{border-radius:18px;padding:8px;box-shadow:0 8px 22px rgba(22,56,43,.06)}
+  body.app .discover-grid .pc--classified .pim{border-radius:14px}
+  body.app .discover-grid .pc--classified .pc-body{padding:10px 6px 4px;gap:4px}
+  body.app .discover-grid .pc--classified .pc-title{font-size:.95rem}
+  body.app .discover-grid .pc--classified .pc-price{font-size:1rem}
+  body.app .discover-grid .pc-view-details{font-size:.82rem}
   body.app .app-shell.app-shell--detail .pd{max-width:720px}
 }
-@media(min-width:1440px){body.app .discover-grid{grid-template-columns:repeat(2,minmax(0,1fr));max-width:980px}}
+@media(min-width:1440px){
+  body.app .discover-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:.9rem}
+  body.app .discover-grid .pc-price-row{flex-wrap:wrap;gap:4px 8px}
+  body.app .discover-grid .pc-vendor{text-align:left}
+}
 body.app .pd-wa .btn:disabled,body.app .pd-comments textarea{opacity:1}
 body.app .pd-comments textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:10px;font:inherit;margin:.5rem 0}
 body.app .pd-comments-form .btn{margin-top:.25rem}

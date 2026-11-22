@@ -7,13 +7,11 @@ import {
 import { useAuth } from "@/components/app/AppAuthProvider";
 import { useNakuruApp } from "@/components/app/AppProvider";
 import { VendorApplyForm } from "@/components/app/vendor/VendorApplyForm";
-import { VendorProductForm } from "@/components/app/vendor/VendorProductForm";
-import { VendorInquiriesList } from "@/components/app/vendor/VendorInquiriesList";
+import { VendorShopWorkspace } from "@/components/app/vendor/VendorShopWorkspace";
 import { apiFetch, ApiError } from "@/lib/nakuru/api";
 import { useLiveApi } from "@/lib/nakuru/api-mode";
-import { CATS, SOON, TOOLS, categoryName } from "@/lib/nakuru/data/constants";
+import { CATS, SOON } from "@/lib/nakuru/data/constants";
 import type { CategoryId } from "@/lib/nakuru/types";
-import { useCategories } from "@/lib/nakuru/use-categories";
 import {
   pickPrimaryVendor,
   vendorStatusLabel,
@@ -24,7 +22,6 @@ import { useCallback, useEffect, useState } from "react";
 function LiveVendorPanel() {
   const { user: authUser, ready } = useAuth();
   const { state, toast } = useNakuruApp();
-  const { rows: directoryRows } = useCategories();
   const [rows, setRows] = useState<ApiVendorRow[] | null>(null);
   const [loadError, setLoadError] = useState(false);
 
@@ -100,74 +97,59 @@ function LiveVendorPanel() {
   }
 
   const approved = primary.status === "approved";
-  const cats = primary.categories as string[];
   const vendorPhoto = primary.logo_url || state.photo;
-
-  const directoryLabel = (slug: string) => {
-    const row = directoryRows.find((r) => r.slug === slug);
-    return row?.label ?? categoryName(slug);
-  };
 
   return (
     <>
-      <div className="card row">
-        <ProfilePhotoUpload
-          className="pfp"
-          role="button"
-          aria-label="Upload profile picture"
-        >
-          <Avatar photo={vendorPhoto} />
-          <b>📷</b>
-        </ProfilePhotoUpload>
-        <div>
-          <div className="t">{primary.name}</div>
-          <div className="m">
-            Status: {vendorStatusLabel(primary.status)} ·{" "}
-            {primary.verified
-              ? "✓ Verified (M-Pesa upfront enabled)"
-              : "Basic (cash on delivery only)"}
-          </div>
-          {primary.status === "pending" ? (
-            <div className="warn" style={{ marginTop: 8 }}>
-              Waiting for staff review. This page refreshes automatically.
-            </div>
-          ) : null}
-          {primary.status === "rejected" ? (
-            <div className="warn" style={{ marginTop: 8 }}>
-              This application was not approved. You can submit a new one
-              below.
-            </div>
-          ) : null}
-        </div>
-      </div>
-
       {approved ? (
-        <>
-          {cats.map((c) =>
-            TOOLS[c] ? (
-              <div key={c} className="card">
-                <div className="t">{directoryLabel(c)} dashboard</div>
-                {TOOLS[c].map((x) => (
-                  <span key={x} className="tool">
-                    {x}
-                  </span>
-                ))}
+        <VendorShopWorkspace
+          vendor={primary}
+          photo={vendorPhoto}
+          toast={toast}
+          onAreaChange={(area) => {
+            setRows((prev) =>
+              prev
+                ? prev.map((row) =>
+                    row.id === primary.id ? { ...row, area } : row,
+                  )
+                : prev,
+            );
+          }}
+        />
+      ) : (
+        <div className="card row">
+          <ProfilePhotoUpload
+            className="pfp"
+            role="button"
+            aria-label="Upload profile picture"
+          >
+            <Avatar photo={vendorPhoto} />
+            <b>📷</b>
+          </ProfilePhotoUpload>
+          <div>
+            <div className="t">{primary.name}</div>
+            <div className="m">
+              Status: {vendorStatusLabel(primary.status)} ·{" "}
+              {primary.verified
+                ? "Verified (M-Pesa upfront enabled)"
+                : "Basic (cash on delivery only)"}
+            </div>
+            {primary.status === "pending" ? (
+              <div className="warn" style={{ marginTop: 8 }}>
+                Waiting for staff review. This page refreshes automatically.
               </div>
-            ) : (
-              <div key={c} className="card">
-                <div className="t">{directoryLabel(c)}</div>
+            ) : null}
+            {primary.status === "rejected" ? (
+              <div className="warn" style={{ marginTop: 8 }}>
+                This application was not approved. You can submit a new one
+                below.
               </div>
-            ),
-          )}
-          <VendorProductForm
-            vendorId={primary.id}
-            approvedCategories={cats}
-            toast={toast}
-            onCategoriesChange={() => void loadMine()}
-          />
-          {cats.includes("services") ? <VendorInquiriesList /> : null}
-        </>
-      ) : primary.status === "rejected" ? (
+            ) : null}
+          </div>
+        </div>
+      )}
+
+      {primary.status === "rejected" ? (
         <VendorApplyForm onApplied={() => void loadMine()} toast={toast} />
       ) : null}
     </>
@@ -278,25 +260,15 @@ function DemoVendorPanel() {
           ) : null}
         </div>
       </div>
-      {ok
-        ? me.cats.map((c) =>
-            TOOLS[c] ? (
-              <div key={c} className="card">
-                <div className="t">{categoryName(c)} dashboard</div>
-                {TOOLS[c].map((x) => (
-                  <span key={x} className="tool">
-                    {x}
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <div key={c} className="card">
-                <div className="t">{categoryName(c)}</div>
-                <div className="m">On the waitlist. We&apos;ll open it soon.</div>
-              </div>
-            ),
-          )
-        : null}
+      {ok ? (
+        <div className="card">
+          <div className="t">Shop workspace</div>
+          <div className="m">
+            Sign in on a live session to add listings, manage stock, and see
+            orders. Demo mode does not publish to the catalog.
+          </div>
+        </div>
+      ) : null}
     </>
   );
 }

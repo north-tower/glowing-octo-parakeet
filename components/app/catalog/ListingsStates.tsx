@@ -17,9 +17,15 @@ export function CategoryTilesSkeleton({ count = 6 }: { count?: number }) {
   );
 }
 
-export function ListingsSkeleton({ count = 4 }: { count?: number }) {
+export function ListingsSkeleton({
+  count = 4,
+  className = "g2",
+}: {
+  count?: number;
+  className?: string;
+}) {
   return (
-    <div className="g2" aria-busy="true" aria-label="Loading listings">
+    <div className={className} aria-busy="true" aria-label="Loading listings">
       {Array.from({ length: count }, (_, i) => (
         <div key={i} className="pc pc-skel" aria-hidden>
           <div className="pim pim--ratio-1" />

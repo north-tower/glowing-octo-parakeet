@@ -5,6 +5,7 @@ export type ApiVendorRow = {
   status: string;
   verified: boolean;
   logo_url: string | null;
+  area: string | null;
   created_at: string;
 };
 

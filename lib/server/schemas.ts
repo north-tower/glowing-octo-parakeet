@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ZONES } from "@/lib/nakuru/data/zones";
+import { NAKURU_AREA_KEYS, ZONES } from "@/lib/nakuru/data/zones";
 import { CATEGORY_SLUG_RE } from "@/lib/nakuru/category-slug";
 
 const zoneKeys = Object.keys(ZONES) as [string, ...string[]];
@@ -124,6 +124,19 @@ export const vendorNew = z
     name: z.string().trim().min(2).max(60),
     categories: z.array(vendorApplySlug).min(1).max(4),
     imageDataUrl: imageDataUrl.optional(),
+  })
+  .strict();
+
+export const vendorAreaPatch = z
+  .object({
+    area: z.enum(NAKURU_AREA_KEYS),
+  })
+  .strict();
+
+export const vendorOrderAction = z
+  .object({
+    orderId: uuid,
+    status: z.enum(["accepted", "ready", "cancelled"]),
   })
   .strict();
 

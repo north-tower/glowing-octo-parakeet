@@ -26,6 +26,7 @@ describe("POST /api/products category directory", () => {
       try {
         const { db } = await import("@/lib/server/db");
         await db.q("select 1");
+        await db.q("alter table vendors add column if not exists area text");
         dbReachable = true;
       } catch {
         dbReachable = false;
@@ -60,10 +61,10 @@ describe("POST /api/products category directory", () => {
 
     const vendor = (
       await db.q<{ id: string }>(
-        `insert into vendors(owner_id, name, status, categories)
-         values($1, $2, 'approved', $3::text[])
+        `insert into vendors(owner_id, name, status, categories, area)
+         values($1, $2, 'approved', $3::text[], $4)
          returning id`,
-        [ownerId, `${tag} Vendor`, ["shop", fashionSlug]],
+        [ownerId, `${tag} Vendor`, ["shop"], "Milimani"],
       )
     ).rows[0];
     vendorId = vendor.id;
@@ -112,11 +113,11 @@ describe("POST /api/products category directory", () => {
   );
 
   it.skipIf(!hasDbEnv)(
-    "rejects a category not on the vendor profile",
+    "accepts a visible category that is not on the vendor profile",
     async ({ skip }) => {
       if (!dbReachable) skip();
 
-      await request(server)
+      const res = await request(server)
         .post("/api/products")
         .set("Authorization", `Bearer ${ownerAccess}`)
         .send({
@@ -124,8 +125,12 @@ describe("POST /api/products category directory", () => {
           title: `${tag} service`,
           price: 0,
         })
-        .expect(403)
-        .expect({ error: "category_not_approved" });
+        .expect(201);
+
+      expect(res.body).toEqual(
+        expect.objectContaining({ id: expect.any(String) }),
+      );
+      createdProductIds.push(res.body.id);
     },
   );
 });

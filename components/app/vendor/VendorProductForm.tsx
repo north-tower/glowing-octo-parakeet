@@ -1,18 +1,11 @@
 "use client";
 
 import { apiFetch, ApiError } from "@/lib/nakuru/api";
-import type { DirectoryCategory } from "@/lib/nakuru/data/category-directory";
-import {
-  MAX_IMAGE_BYTES,
-} from "@/lib/nakuru/data/constants";
+import { MAX_IMAGE_BYTES } from "@/lib/nakuru/data/constants";
 import { resizeImageFile } from "@/lib/nakuru/resize-image";
 import type { ListingMode } from "@/lib/nakuru/types";
+import { useCategories } from "@/lib/nakuru/use-categories";
 import {
-  useCategories,
-  type CategoryPublicApiRow,
-} from "@/lib/nakuru/use-categories";
-import {
-  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -20,74 +13,28 @@ import {
   type FormEvent,
 } from "react";
 
-type VendorProductRow = {
-  id: string;
-  category: string;
-  title: string;
-  emoji: string;
-  price: number;
-  stock: number | null;
-  active: boolean;
-};
-
-function directoryLabel(slug: string, rows: DirectoryCategory[]): string {
-  const row = rows.find((r) => r.slug === slug);
-  return row?.label ?? slug;
-}
-
 function listingModeForSlug(
   slug: string,
-  rows: DirectoryCategory[],
+  rows: { slug: string; listingMode: ListingMode }[],
 ): ListingMode {
-  const row = rows.find((r) => r.slug === slug);
-  return row?.listingMode ?? "shop";
-}
-
-function isPublishableListingMode(mode: ListingMode): boolean {
-  return mode === "shop" || mode === "services";
+  return rows.find((r) => r.slug === slug)?.listingMode ?? "shop";
 }
 
 type Props = {
   vendorId: string;
-  approvedCategories: string[];
+  shopArea: string | null;
   toast: (msg: string) => void;
-  onCategoriesChange?: () => void;
+  onPublished?: () => void;
 };
 
 export function VendorProductForm({
   vendorId,
-  approvedCategories,
+  shopArea,
   toast,
-  onCategoriesChange,
+  onPublished,
 }: Props) {
-  const { rows: directoryRows, upsertRow } = useCategories();
-
-  const publishSlugs = useMemo(
-    () =>
-      approvedCategories.filter((slug) =>
-        isPublishableListingMode(listingModeForSlug(slug, directoryRows)),
-      ),
-    [approvedCategories, directoryRows],
-  );
-
-  const directoryOptions = directoryRows;
-
-  const addableRows = useMemo(
-    () =>
-      directoryOptions.filter(
-        (row) => row.openForApply && !approvedCategories.includes(row.slug),
-      ),
-    [directoryOptions, approvedCategories],
-  );
-
-  const listingOptions = useMemo(() => {
-    const have = new Set(publishSlugs);
-    const extra = directoryOptions.filter(
-      (row) => row.openForApply && !have.has(row.slug),
-    );
-    const owned = directoryOptions.filter((row) => have.has(row.slug));
-    return [...owned, ...extra];
-  }, [directoryOptions, publishSlugs]);
+  const { rows: directoryRows } = useCategories();
+  const listingOptions = directoryRows;
 
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
   const selectedListingMode = selectedSlug
@@ -104,17 +51,10 @@ export function VendorProductForm({
   const imageInputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
 
-  const [catPick, setCatPick] = useState("");
-  const [catBusy, setCatBusy] = useState(false);
-
-  const [listings, setListings] = useState<VendorProductRow[] | null>(null);
-  const [listError, setListError] = useState(false);
-
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editCategory, setEditCategory] = useState<string | null>(null);
-  const [editPrice, setEditPrice] = useState("");
-  const [editStock, setEditStock] = useState("");
-  const [editBusy, setEditBusy] = useState(false);
+  const defaultSlug = useMemo(
+    () => listingOptions[0]?.slug ?? null,
+    [listingOptions],
+  );
 
   useEffect(() => {
     const allowed = listingOptions.map((row) => row.slug);
@@ -131,21 +71,6 @@ export function VendorProductForm({
     if (!selectedListingMode) return;
     setEmoji(selectedListingMode === "shop" ? "🛍️" : "🔧");
   }, [selectedListingMode]);
-
-  const loadListings = useCallback(async () => {
-    try {
-      const data = await apiFetch<VendorProductRow[]>("/api/vendor/products");
-      setListings(data);
-      setListError(false);
-    } catch {
-      setListError(true);
-      setListings([]);
-    }
-  }, []);
-
-  useEffect(() => {
-    void loadListings();
-  }, [loadListings]);
 
   const resetCreateForm = () => {
     setTitle("");
@@ -178,55 +103,13 @@ export function VendorProductForm({
     }
   };
 
-  useEffect(() => {
-    setCatPick((prev) =>
-      addableRows.some((row) => row.slug === prev) ? prev : "",
-    );
-  }, [addableRows]);
-
-  const onAddCategory = async () => {
-    if (catBusy) return;
-    if (!catPick) {
-      toast("Choose a category from the list.");
-      return;
-    }
-
-    setCatBusy(true);
-    try {
-      const result = await apiFetch<{
-        categories: string[];
-        category: CategoryPublicApiRow;
-      }>("/api/vendors/mine/categories", {
-        method: "POST",
-        body: JSON.stringify({ slug: catPick }),
-      });
-      upsertRow(result.category);
-      onCategoriesChange?.();
-      toast("Category added to your profile.");
-    } catch (err) {
-      if (err instanceof ApiError) {
-        if (err.body.error === "category_limit") {
-          toast("You already have 4 categories. Remove one before adding.");
-          return;
-        }
-        if (err.body.error === "no_approved_vendor") {
-          toast("Your vendor profile must be approved before adding categories.");
-          return;
-        }
-        if (err.status === 400) {
-          toast("That category is not available. Pick another.");
-          return;
-        }
-      }
-      toast("Could not add category. Try again.");
-    } finally {
-      setCatBusy(false);
-    }
-  };
-
   const publish = async (ev: FormEvent) => {
     ev.preventDefault();
     if (!selectedSlug || busy) return;
+    if (!shopArea) {
+      toast("Set your shop area on the profile first.");
+      return;
+    }
 
     const trimmedTitle = title.trim();
     if (trimmedTitle.length < 2) {
@@ -273,32 +156,17 @@ export function VendorProductForm({
 
     setBusy(true);
     try {
-      if (!approvedCategories.includes(selectedSlug)) {
-        const result = await apiFetch<{
-          categories: string[];
-          category: CategoryPublicApiRow;
-        }>("/api/vendors/mine/categories", {
-          method: "POST",
-          body: JSON.stringify({ slug: selectedSlug }),
-        });
-        upsertRow(result.category);
-        onCategoriesChange?.();
-      }
       await apiFetch("/api/products", {
         method: "POST",
         body: JSON.stringify(body),
       });
       toast("Listing published.");
       resetCreateForm();
-      await loadListings();
+      onPublished?.();
     } catch (err) {
       if (err instanceof ApiError) {
-        if (err.body.error === "category_not_approved") {
-          toast("That category is not on your approved vendor profile.");
-          return;
-        }
-        if (err.body.error === "category_limit") {
-          toast("You already have 4 categories. Remove one before adding.");
+        if (err.body.error === "area_required") {
+          toast("Set your shop area on the profile first.");
           return;
         }
         if (err.body.error === "too_many_products") {
@@ -324,455 +192,140 @@ export function VendorProductForm({
     }
   };
 
-  const startEdit = (row: VendorProductRow) => {
-    setEditingId(row.id);
-    setEditCategory(
-      publishSlugs.includes(row.category)
-        ? row.category
-        : publishSlugs[0] ?? null,
-    );
-    setEditPrice(String(row.price));
-    setEditStock(row.stock === null ? "" : String(row.stock));
-  };
-
-  const cancelEdit = () => {
-    setEditingId(null);
-    setEditCategory(null);
-    setEditPrice("");
-    setEditStock("");
-  };
-
-  const saveEdit = async (row: VendorProductRow) => {
-    if (editBusy) return;
-    const priceNum = Number.parseInt(editPrice.replace(/\D/g, ""), 10);
-    if (!Number.isFinite(priceNum) || priceNum < 0) {
-      toast("Enter a valid price.");
-      return;
-    }
-
-    const payload: Record<string, unknown> = { price: priceNum };
-    const effectiveSlug =
-      editCategory && publishSlugs.includes(editCategory)
-        ? editCategory
-        : row.category;
-    if (
-      publishSlugs.includes(row.category) &&
-      editCategory &&
-      editCategory !== row.category
-    ) {
-      payload.category = editCategory;
-    }
-
-    if (listingModeForSlug(effectiveSlug, directoryRows) === "shop") {
-      const raw = editStock.trim();
-      if (raw === "") {
-        payload.stock = null;
-      } else {
-        const n = Number.parseInt(raw, 10);
-        if (!Number.isFinite(n) || n < 0) {
-          toast("Stock must be a whole number or empty.");
-          return;
-        }
-        payload.stock = n;
-      }
-    }
-
-    setEditBusy(true);
-    try {
-      await apiFetch(`/api/products/${row.id}/update`, {
-        method: "POST",
-        body: JSON.stringify(payload),
-      });
-      toast("Listing updated.");
-      cancelEdit();
-      await loadListings();
-    } catch (err) {
-      if (err instanceof ApiError) {
-        if (err.body.error === "not_found") {
-          toast("Listing not found. Refresh the page.");
-          return;
-        }
-        if (err.body.error === "category_not_approved") {
-          toast("That listing type is not on your approved vendor profile.");
-          return;
-        }
-      }
-      toast("Could not save changes.");
-    } finally {
-      setEditBusy(false);
-    }
-  };
-
-  const deactivate = async (row: VendorProductRow) => {
-    if (editBusy || !row.active) return;
-    if (!window.confirm(`Hide "${row.title}" from the catalog?`)) return;
-
-    setEditBusy(true);
-    try {
-      await apiFetch(`/api/products/${row.id}/update`, {
-        method: "POST",
-        body: JSON.stringify({ active: false }),
-      });
-      toast("Listing hidden from buyers.");
-      if (editingId === row.id) cancelEdit();
-      await loadListings();
-    } catch {
-      toast("Could not hide listing.");
-    } finally {
-      setEditBusy(false);
-    }
-  };
-
-  const atCategoryCap = approvedCategories.length >= 4;
-  const addCategoryCard = (
-    <div className="card">
-      <div className="t">Add a category</div>
-      <div className="m">
-        {atCategoryCap
-          ? "Your profile already has four categories, the maximum."
-          : "Choose from existing categories on NakuruHub, up to four on your profile."}
-      </div>
-      <label htmlFor="vp-add-cat">Category</label>
-      <div className="row">
-        <select
-          id="vp-add-cat"
-          value={catPick}
-          disabled={catBusy || busy || atCategoryCap}
-          onChange={(e) => setCatPick(e.target.value)}
-        >
-          <option value="">Select a category</option>
-          {directoryOptions.map((row) => {
-            const added = approvedCategories.includes(row.slug);
-            const closed = !row.openForApply;
-            return (
-              <option
-                key={row.slug}
-                value={row.slug}
-                disabled={added || closed}
-              >
-                {row.label}
-                {added ? " (already added)" : closed ? " (soon)" : ""}
-              </option>
-            );
-          })}
-        </select>
-        <button
-          type="button"
-          className="btn s"
-          disabled={catBusy || busy || atCategoryCap || !catPick}
-          onClick={() => void onAddCategory()}
-        >
-          {catBusy ? "Adding…" : "Add"}
-        </button>
-      </div>
-    </div>
-  );
-
-  const listingsCard = (
-    <div className="card">
-      <div className="t">My listings</div>
-      {listings === null ? (
-        <div className="m">Loading listings…</div>
-      ) : listError ? (
-        <>
-          <div className="warn">Could not load your listings.</div>
-          <button type="button" className="btn s" onClick={() => void loadListings()}>
-            Retry
-          </button>
-        </>
-      ) : listings.length === 0 ? (
-        <div className="m">Nothing published yet. Add your first listing above.</div>
-      ) : (
-        <table
-          style={{
-            width: "100%",
-            borderCollapse: "collapse",
-            fontSize: "0.875rem",
-            marginTop: 8,
-          }}
-        >
-          <thead>
-            <tr>
-              <th style={{ textAlign: "left", padding: "6px 4px" }}>Title</th>
-              <th style={{ textAlign: "left", padding: "6px 4px" }}>Category</th>
-              <th style={{ textAlign: "right", padding: "6px 4px" }}>Price</th>
-              <th style={{ textAlign: "center", padding: "6px 4px" }}>Active</th>
-              <th style={{ padding: "6px 4px" }} />
-            </tr>
-          </thead>
-          <tbody>
-            {listings.map((row) => {
-              const editing = editingId === row.id;
-              const catLabel = directoryLabel(row.category, directoryRows);
-              const rowInPicker = publishSlugs.includes(row.category);
-              const effectiveEditSlug = editCategory ?? row.category;
-              const showStockOnEdit =
-                listingModeForSlug(effectiveEditSlug, directoryRows) === "shop";
-              return (
-                <tr key={row.id}>
-                  <td style={{ padding: "8px 4px", verticalAlign: "top" }}>
-                    <span aria-hidden>{row.emoji}</span> {row.title}
-                  </td>
-                  <td style={{ padding: "8px 4px", verticalAlign: "top" }}>{catLabel}</td>
-                  <td style={{ padding: "8px 4px", textAlign: "right", verticalAlign: "top" }}>
-                    {editing ? (
-                      <input
-                        inputMode="numeric"
-                        value={editPrice}
-                        disabled={editBusy}
-                        style={{ width: "5.5rem", textAlign: "right" }}
-                        onChange={(e) => setEditPrice(e.target.value)}
-                      />
-                    ) : (
-                      `KES ${row.price.toLocaleString()}`
-                    )}
-                  </td>
-                  <td
-                    style={{
-                      padding: "8px 4px",
-                      textAlign: "center",
-                      verticalAlign: "top",
-                    }}
-                  >
-                    {row.active ? "Yes" : "Hidden"}
-                  </td>
-                  <td style={{ padding: "8px 4px", verticalAlign: "top", whiteSpace: "nowrap" }}>
-                    {editing ? (
-                      <>
-                        {publishSlugs.length > 1 && rowInPicker ? (
-                          <select
-                            aria-label="Listing category"
-                            value={effectiveEditSlug}
-                            disabled={editBusy}
-                            style={{
-                              width: "auto",
-                              minWidth: "8rem",
-                              marginRight: 6,
-                              marginBottom: 4,
-                            }}
-                            onChange={(e) => setEditCategory(e.target.value)}
-                          >
-                            {publishSlugs.map((slug) => (
-                              <option key={slug} value={slug}>
-                                {directoryLabel(slug, directoryRows)}
-                              </option>
-                            ))}
-                          </select>
-                        ) : null}
-                        {showStockOnEdit ? (
-                          <input
-                            inputMode="numeric"
-                            placeholder="Stock"
-                            title="Stock (empty = unlimited)"
-                            value={editStock}
-                            disabled={editBusy}
-                            style={{ width: "4rem", marginRight: 4 }}
-                            onChange={(e) => setEditStock(e.target.value)}
-                          />
-                        ) : null}
-                        <button
-                          type="button"
-                          className="btn s"
-                          disabled={editBusy}
-                          onClick={() => void saveEdit(row)}
-                        >
-                          Save
-                        </button>{" "}
-                        <button
-                          type="button"
-                          className="btn s"
-                          disabled={editBusy}
-                          onClick={cancelEdit}
-                        >
-                          Cancel
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <button
-                          type="button"
-                          className="btn s"
-                          disabled={editBusy || !row.active}
-                          onClick={() => startEdit(row)}
-                        >
-                          Edit
-                        </button>{" "}
-                        {row.active ? (
-                          <button
-                            type="button"
-                            className="btn s"
-                            disabled={editBusy}
-                            onClick={() => void deactivate(row)}
-                          >
-                            Hide
-                          </button>
-                        ) : null}
-                      </>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      )}
-    </div>
-  );
-
   if (!listingOptions.length) {
     return (
-      <>
-        {addCategoryCard}
-        <div className="card">
-          <div className="t">Publish listings</div>
-          <div className="m">
-            Shop- and services-style categories open here once they are in the
-            directory. Choose a category from the list above or wait for
-            staff-approved types.
-          </div>
-        </div>
-        {listingsCard}
-      </>
+      <div className="card">
+        <div className="t">Publish a listing</div>
+        <div className="m">No categories are available yet. Try again shortly.</div>
+      </div>
     );
   }
 
   return (
-    <>
-      {addCategoryCard}
+    <form className="card" onSubmit={publish}>
+      <div className="t">Publish a listing</div>
+      <div className="m">
+        {shopArea
+          ? `Buyers will see this listing in ${shopArea}.`
+          : "Set your shop area on the profile above before publishing."}
+      </div>
 
-      <form className="card" onSubmit={publish}>
-        <div className="t">Publish a listing</div>
-        <div className="m">
-          {selectedListingMode === "shop"
-            ? "Buyers can add shop items to cart and pay on delivery."
-            : "Services show in the catalog; buyers request a quote (no instant checkout)."}
-        </div>
+      <label htmlFor="vp-listing-cat">Category</label>
+      <select
+        id="vp-listing-cat"
+        value={selectedSlug ?? defaultSlug ?? ""}
+        disabled={busy || !shopArea}
+        onChange={(e) => setSelectedSlug(e.target.value || null)}
+      >
+        {listingOptions.map((row) => (
+          <option key={row.slug} value={row.slug}>
+            {row.label}
+          </option>
+        ))}
+      </select>
 
-        <label htmlFor="vp-listing-cat">Category</label>
-        <select
-          id="vp-listing-cat"
-          value={selectedSlug ?? ""}
-          disabled={busy || listingOptions.length === 0}
-          onChange={(e) => {
-            const next = e.target.value;
-            setSelectedSlug(next || null);
-          }}
+      <label htmlFor="vp-title">Title</label>
+      <input
+        id="vp-title"
+        maxLength={80}
+        placeholder="e.g. Men's size 42 sneakers"
+        value={title}
+        disabled={busy || !shopArea}
+        onChange={(e) => setTitle(e.target.value)}
+      />
+
+      <label htmlFor="vp-desc">Description (optional)</label>
+      <textarea
+        id="vp-desc"
+        maxLength={500}
+        rows={3}
+        placeholder="Sizes, what's included, extra details"
+        value={description}
+        disabled={busy || !shopArea}
+        onChange={(e) => setDescription(e.target.value)}
+      />
+
+      <label>Photo</label>
+      <input
+        ref={imageInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        hidden
+        disabled={busy || imageBusy || !shopArea}
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          e.target.value = "";
+          void onListingImage(f);
+        }}
+      />
+      <div className="listing-photo-row">
+        <button
+          type="button"
+          className="btn s"
+          disabled={busy || imageBusy || !shopArea}
+          onClick={() => imageInputRef.current?.click()}
         >
-          {listingOptions.length === 0 ? (
-            <option value="">No categories yet</option>
-          ) : null}
-          {listingOptions.map((row) => (
-            <option key={row.slug} value={row.slug}>
-              {row.label}
-            </option>
-          ))}
-        </select>
-
-        <label htmlFor="vp-title">Title</label>
-        <input
-          id="vp-title"
-          maxLength={80}
-          placeholder={
-            selectedListingMode === "shop"
-              ? "e.g. Men's size 42 sneakers"
-              : "e.g. House wiring"
-          }
-          value={title}
-          disabled={busy}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-
-        <label htmlFor="vp-desc">Description (optional)</label>
-        <textarea
-          id="vp-desc"
-          maxLength={500}
-          rows={3}
-          placeholder="Sizes, area served, what's included…"
-          value={description}
-          disabled={busy}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-
-        <label>Photo</label>
-        <input
-          ref={imageInputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          hidden
-          disabled={busy || imageBusy}
-          onChange={(e) => {
-            const f = e.target.files?.[0];
-            e.target.value = "";
-            void onListingImage(f);
-          }}
-        />
-        <div className="listing-photo-row">
+          {imageBusy ? "Processing…" : listingImage ? "Change photo" : "Add photo"}
+        </button>
+        {listingImage ? (
           <button
             type="button"
             className="btn s"
             disabled={busy || imageBusy}
-            onClick={() => imageInputRef.current?.click()}
+            onClick={() => setListingImage("")}
           >
-            {imageBusy ? "Processing…" : listingImage ? "Change photo" : "Add photo"}
+            Remove
           </button>
-          {listingImage ? (
-            <button
-              type="button"
-              className="btn s"
-              disabled={busy || imageBusy}
-              onClick={() => setListingImage("")}
-            >
-              Remove
-            </button>
-          ) : null}
-        </div>
-        {listingImage ? (
-          <div className="listing-photo-preview">
-            <img src={listingImage} alt="Listing preview" />
-          </div>
-        ) : (
-          <div className="m">JPG, PNG, or WebP up to 5 MB. Shown on the catalog card.</div>
-        )}
-
-        <label htmlFor="vp-emoji">Emoji (when no photo)</label>
-        <input
-          id="vp-emoji"
-          maxLength={8}
-          value={emoji}
-          disabled={busy || !!listingImage}
-          onChange={(e) => setEmoji(e.target.value)}
-        />
-
-        <label htmlFor="vp-price">Price (KES)</label>
-        <input
-          id="vp-price"
-          inputMode="numeric"
-          placeholder="e.g. 2500"
-          value={price}
-          disabled={busy}
-          onChange={(e) => setPrice(e.target.value)}
-        />
-
-        {selectedListingMode === "shop" ? (
-          <>
-            <label htmlFor="vp-stock">Stock (optional)</label>
-            <input
-              id="vp-stock"
-              inputMode="numeric"
-              placeholder="Leave empty if unlimited"
-              value={stock}
-              disabled={busy}
-              onChange={(e) => setStock(e.target.value)}
-            />
-          </>
         ) : null}
+      </div>
+      {listingImage ? (
+        <div className="listing-photo-preview">
+          <img src={listingImage} alt="Listing preview" />
+        </div>
+      ) : (
+        <div className="m">JPG, PNG, or WebP up to 5 MB. Shown on the catalog card.</div>
+      )}
 
-        <button type="submit" className="btn full" disabled={busy || !selectedSlug}>
-          {busy ? "Publishing…" : "Publish listing"}
-        </button>
-      </form>
+      <label htmlFor="vp-emoji">Emoji (when no photo)</label>
+      <input
+        id="vp-emoji"
+        maxLength={8}
+        value={emoji}
+        disabled={busy || !!listingImage || !shopArea}
+        onChange={(e) => setEmoji(e.target.value)}
+      />
 
-      {listingsCard}
-    </>
+      <label htmlFor="vp-price">Price (KES)</label>
+      <input
+        id="vp-price"
+        inputMode="numeric"
+        placeholder="e.g. 2500"
+        value={price}
+        disabled={busy || !shopArea}
+        onChange={(e) => setPrice(e.target.value)}
+      />
+
+      {selectedListingMode === "shop" ? (
+        <>
+          <label htmlFor="vp-stock">Stock (optional)</label>
+          <input
+            id="vp-stock"
+            inputMode="numeric"
+            placeholder="Leave empty if unlimited"
+            value={stock}
+            disabled={busy || !shopArea}
+            onChange={(e) => setStock(e.target.value)}
+          />
+        </>
+      ) : null}
+
+      <button
+        type="submit"
+        className="btn full"
+        disabled={busy || !selectedSlug || !shopArea}
+      >
+        {busy ? "Publishing…" : "Publish listing"}
+      </button>
+    </form>
   );
 }

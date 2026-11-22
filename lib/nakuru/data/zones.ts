@@ -8,3 +8,7 @@ export const ZONES: Record<string, number> = {
 };
 
 export const DEFAULT_AREA = "Town/CBD";
+
+export const NAKURU_AREA_KEYS = Object.keys(ZONES).filter(
+  (z) => !z.startsWith("Outside"),
+) as [string, ...string[]];

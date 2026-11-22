@@ -79,6 +79,7 @@ export type VendorMineRow = {
   status: string;
   verified: boolean;
   logo_url: string | null;
+  area: string | null;
   created_at: Date;
 };
 
@@ -86,7 +87,7 @@ export async function listVendorsForOwner(
   ownerId: string,
 ): Promise<VendorMineRow[]> {
   const r = await db.q<VendorMineRow>(
-    `select id, name, categories, status, verified, logo_url, created_at
+    `select id, name, categories, status, verified, logo_url, area, created_at
      from vendors
      where owner_id = $1
      order by created_at desc
@@ -94,6 +95,30 @@ export async function listVendorsForOwner(
     [ownerId],
   );
   return r.rows;
+}
+
+export async function setVendorArea(
+  ownerId: string,
+  area: string,
+  ip: string | null,
+): Promise<{ area: string }> {
+  const r = await db.q<{ area: string }>(
+    `update vendors
+     set area = $2
+     where id = (
+       select id from vendors
+       where owner_id = $1 and status = 'approved'
+       order by created_at
+       limit 1
+     )
+     returning area`,
+    [ownerId, area],
+  );
+  if (!r.rowCount) {
+    throw new VendorError(403, "no_approved_vendor");
+  }
+  await audit("vendor_area", ownerId, ip, { area });
+  return { area: r.rows[0].area };
 }
 
 export type AdminVendorRow = {

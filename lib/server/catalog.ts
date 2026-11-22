@@ -1,4 +1,5 @@
 import type { ListingMode } from "@/lib/nakuru/types";
+import { listingAttributesWithShopArea } from "@/lib/nakuru/vendor-area";
 import { q } from "./db";
 
 const NO_MATCH = "__none__";
@@ -32,11 +33,22 @@ async function visibleSlugOrNone(
   return row.rows[0].slug;
 }
 
+type ListingRow = PublicListingRow & { vendorArea: string | null };
+
+function shapeListing(row: ListingRow): PublicListingRow {
+  const { vendorArea, ...rest } = row;
+  return {
+    ...rest,
+    attributes: listingAttributesWithShopArea(rest.attributes, vendorArea),
+  };
+}
+
 const LISTINGS_SQL = `select p.id, p.category, c.label as "categoryLabel", c.listing_mode as "listingMode",
        p.title, p.description, p.emoji, p.image_url as "imageUrl",
        coalesce(p.gallery_urls, '{}') as "galleryUrls",
        coalesce(p.attributes, '{}')::jsonb as attributes,
-       p.price_kes::int price, v.name vendor, v.id as "vendorId", v.verified
+       p.price_kes::int price, v.name vendor, v.id as "vendorId", v.verified,
+       v.area as "vendorArea"
 from products p
 join vendors v on v.id = p.vendor_id
 join categories c on c.slug = p.category
@@ -54,19 +66,20 @@ export async function listPublicListings(
   const cat = await visibleSlugOrNone(category);
   if (cat === NO_MATCH) return [];
 
-  const r = await q<PublicListingRow>(LISTINGS_SQL, [cat]);
-  return r.rows;
+  const r = await q<ListingRow>(LISTINGS_SQL, [cat]);
+  return r.rows.map(shapeListing);
 }
 
 export async function getPublicListingById(
   id: string,
 ): Promise<PublicListingRow | null> {
-  const r = await q<PublicListingRow>(
+  const r = await q<ListingRow>(
     `select p.id, p.category, c.label as "categoryLabel", c.listing_mode as "listingMode",
             p.title, p.description, p.emoji, p.image_url as "imageUrl",
             coalesce(p.gallery_urls, '{}') as "galleryUrls",
             coalesce(p.attributes, '{}')::jsonb as attributes,
-            p.price_kes::int price, v.name vendor, v.id as "vendorId", v.verified
+            p.price_kes::int price, v.name vendor, v.id as "vendorId", v.verified,
+            v.area as "vendorArea"
      from products p
      join vendors v on v.id = p.vendor_id
      join categories c on c.slug = p.category
@@ -78,5 +91,6 @@ export async function getPublicListingById(
      limit 1`,
     [id],
   );
-  return r.rows[0] ?? null;
+  const row = r.rows[0];
+  return row ? shapeListing(row) : null;
 }

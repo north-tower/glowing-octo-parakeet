@@ -89,7 +89,7 @@ export function DesktopDiscoverHome({
       </div>
       {error ? <div className="err">{error}</div> : null}
       {loading ? (
-        <ListingsSkeleton count={8} />
+        <ListingsSkeleton count={8} className="discover-grid" />
       ) : sorted.length ? (
         <div className="discover-grid">
           {sorted.map((item, idx) => (
