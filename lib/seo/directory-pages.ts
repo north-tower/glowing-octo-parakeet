@@ -8,6 +8,7 @@ import {
 } from "./category-tree";
 import { filterListings, type DirectoryData } from "./directory";
 import { categoryHeading } from "./directory-copy";
+import { defaultShareImages, SITE_NAME } from "./site";
 
 export type Segment =
   | { kind: "area"; area: SeoArea }
@@ -52,7 +53,7 @@ function nonEmpty(links: Link[]): Link[] {
 
 export function areaLinks(
   data: DirectoryData,
-  opts: { category?: SeoCategory; exclude?: string } = {},
+  opts: { category?: SeoCategoryNode; exclude?: string } = {},
 ): Link[] {
   return nonEmpty(
     SEO_AREAS.filter((a) => a.slug !== opts.exclude).map((area) => ({
@@ -111,8 +112,15 @@ export function directoryMetadata(opts: {
       description,
       url: path,
       type: "website",
-      siteName: "NakuruHub",
+      siteName: SITE_NAME,
       locale: "en_KE",
+      images: defaultShareImages(),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: defaultShareImages().map((img) => img.url),
     },
   };
 }

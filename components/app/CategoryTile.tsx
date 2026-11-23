@@ -21,11 +21,10 @@ type Props = BaseProps &
 
 export function CategoryTile(props: Props) {
   const { tint, label, onActivate, imageSrc, icon } = props;
-  const useImage = Boolean(imageSrc);
 
   return (
     <div
-      className={`ct ct--${tint}${useImage ? " ct--image" : ""}`}
+      className={`ct ct--${tint}${imageSrc ? " ct--image" : ""}`}
       role="button"
       tabIndex={0}
       onClick={onActivate}
@@ -37,10 +36,10 @@ export function CategoryTile(props: Props) {
       }}
     >
       <span
-        className={`ct-icon${useImage ? " ct-icon--img" : ""}`}
+        className={`ct-icon${imageSrc ? " ct-icon--img" : ""}`}
         aria-hidden
       >
-        {useImage ? (
+        {imageSrc ? (
           <Image
             src={imageSrc}
             alt=""
