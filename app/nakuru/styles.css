@@ -565,8 +565,6 @@ body.landing .sp{justify-content:space-between}
 body.landing .mut{color:var(--mut)}
 body.landing .landing-main{padding:0}
 
-body.landing .proto-banner{position:relative;z-index:21;min-height:2.75rem;display:flex;align-items:center;justify-content:center;padding:.5rem 1rem;background:var(--goldbg);color:#4a3800;font-size:.9375rem;font-weight:420;line-height:1.5;text-align:center;border-bottom:1px solid #e0c36a}
-
 body.landing .top{position:sticky;top:0;z-index:20;background:var(--hd);color:#fff;border-bottom:1px solid rgba(255,255,255,.12);padding:0}
 body.landing .top .wrap.header-bar{width:min(var(--landing-max),100% - 2rem);margin-inline:auto}
 body.landing .header-bar{display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding:.65rem 0;min-width:0;max-width:100%}
@@ -906,7 +904,6 @@ body.landing .foot-meta{display:flex;flex-direction:column;gap:.65rem;align-item
 body.landing .foot .lang-toggle{border:1px solid #b8cac8;border-radius:10px;overflow:hidden;background:var(--card)}
 body.landing .foot .lang-btn{min-width:44px;min-height:44px;padding:0 .75rem;border:0;background:transparent;color:var(--ink);font:inherit;font-weight:600;font-size:.9375rem;cursor:pointer}
 body.landing .foot .lang-btn.on{background:var(--bg);color:var(--ink)}
-body.landing .foot-proto{margin:0;font-size:.9375rem;font-weight:420;color:var(--mut);line-height:1.5;max-width:22ch}
 body.landing .foot-bottom{border-top:1px solid var(--line);margin-top:1.5rem;padding:1rem 0 1.5rem}
 body.landing .foot-bottom .wrap,body.landing .foot-bottom{padding-inline:0}
 body.landing .foot .wrap.foot-grid + .foot-bottom{width:min(var(--landing-max),100% - 2rem);margin-inline:auto}

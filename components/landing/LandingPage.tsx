@@ -32,12 +32,6 @@ export function LandingPage() {
       <a className="skip-link" href="#main-content">
         <Bi en="Skip to content" sw="Ruka hadi maudhui" />
       </a>
-      <div className="proto-banner" role="status">
-        <Bi
-          en="Prototype — demo data resets on reload."
-          sw="Toleo la majaribio — data inajipanga upya ukipakia ukurasa."
-        />
-      </div>
       <LandingHeader />
       <main className="landing-main" id="main-content">
         <HeroSection />
