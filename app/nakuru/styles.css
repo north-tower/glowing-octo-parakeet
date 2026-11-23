@@ -628,7 +628,8 @@ nav.app-bottom-nav .nav-tab-badge{position:absolute;top:-2px;right:6px;min-width
 .toast{position:fixed;left:50%;bottom:calc(72px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--dk);color:var(--ondk);padding:10px 16px;border-radius:12px;font-size:13px;max-width:90%;z-index:20}
 .stat{flex:1;text-align:center}.stat b{display:block;font-size:20px}
 label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px}
-main input:not([type=checkbox]):not([type=radio]):not([type=hidden]),main select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+main input:not([type=checkbox]):not([type=radio]):not([type=hidden]),main select,main textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+main textarea{resize:vertical;min-height:96px;line-height:1.45}
 main select{
   min-height:44px;
   cursor:pointer;

@@ -357,12 +357,16 @@ export function VendorProductForm({
       <textarea
         id="vp-desc"
         maxLength={500}
-        rows={3}
-        placeholder="Sizes, what's included, extra details"
+        rows={4}
+        placeholder="e.g. Size 42, worn twice, box included"
         value={description}
         disabled={busy || !shopArea}
         onChange={(e) => setDescription(e.target.value)}
+        aria-describedby="vp-desc-hint"
       />
+      <div className="m" id="vp-desc-hint" style={{ marginTop: 4 }}>
+        {description.length}/500 — sizes, what&apos;s included, condition
+      </div>
 
       <label>Photo</label>
       <input
