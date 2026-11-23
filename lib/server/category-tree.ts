@@ -8,6 +8,18 @@ export async function resolveCategorySlug(slug: string): Promise<string> {
   return r.rows[0]?.canonical_slug ?? slug;
 }
 
+export async function listCategoryAliases(): Promise<
+  { aliasSlug: string; canonicalSlug: string }[]
+> {
+  const r = await db.q<{ alias_slug: string; canonical_slug: string }>(
+    `select alias_slug, canonical_slug from category_aliases order by alias_slug`,
+  );
+  return r.rows.map((row) => ({
+    aliasSlug: row.alias_slug,
+    canonicalSlug: row.canonical_slug,
+  }));
+}
+
 /** Visible leaf slugs under `slug` (includes `slug` when it is a leaf). */
 export async function listLeafSlugsInSubtree(
   slug: string,

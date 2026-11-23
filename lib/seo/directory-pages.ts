@@ -1,25 +1,47 @@
 import type { Metadata } from "next";
 import { areaBySlug, SEO_AREAS, type SeoArea } from "./areas";
+import {
+  aliasMap,
+  findCategory,
+  resolveCategorySlug,
+  type SeoCategoryNode,
+} from "./category-tree";
 import { filterListings, type DirectoryData } from "./directory";
-import { categoryHeading, type SeoCategory } from "./directory-copy";
+import { categoryHeading } from "./directory-copy";
 
 export type Segment =
   | { kind: "area"; area: SeoArea }
-  | { kind: "category"; category: SeoCategory };
+  | { kind: "category"; category: SeoCategoryNode };
+
+function aliasesBySlug(data: DirectoryData): Map<string, string> {
+  return aliasMap(data.aliases);
+}
 
 /** Area slugs win over category slugs so area URLs stay stable. */
 export function resolveSegment(data: DirectoryData, slug: string): Segment | null {
   const area = areaBySlug(slug);
   if (area) return { kind: "area", area };
-  const category = data.categories.find((c) => c.slug === slug);
+  const category = findCategory(data, slug, aliasesBySlug(data));
   return category ? { kind: "category", category } : null;
+}
+
+/** When `slug` is a category alias, returns the canonical slug for redirects. */
+export function canonicalCategoryPathSlug(
+  data: DirectoryData,
+  slug: string,
+): string | null {
+  if (areaBySlug(slug)) return null;
+  const aliases = aliasesBySlug(data);
+  const canonical = resolveCategorySlug(slug, aliases);
+  if (canonical === slug) return null;
+  return findCategory(data, slug, aliases) ? canonical : null;
 }
 
 export function categoryBySlug(
   data: DirectoryData,
   slug: string,
-): SeoCategory | undefined {
-  return data.categories.find((c) => c.slug === slug);
+): SeoCategoryNode | undefined {
+  return findCategory(data, slug, aliasesBySlug(data));
 }
 
 type Link = { href: string; label: string; count: number };
@@ -40,7 +62,11 @@ export function areaLinks(
       label: opts.category
         ? categoryHeading(opts.category, area.name)
         : area.name,
-      count: filterListings(data.listings, { area, category: opts.category }).length,
+      count: filterListings(data.listings, {
+        area,
+        category: opts.category,
+        categories: data.categories,
+      }).length,
     })),
   );
 }
@@ -59,7 +85,11 @@ export function categoryLinks(
         label: opts.area
           ? categoryHeading(category, opts.area.name)
           : `${category.label} in Nakuru`,
-        count: filterListings(data.listings, { area: opts.area, category }).length,
+        count: filterListings(data.listings, {
+          area: opts.area,
+          category,
+          categories: data.categories,
+        }).length,
       })),
   );
 }

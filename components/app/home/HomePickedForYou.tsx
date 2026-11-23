@@ -76,17 +76,13 @@ export function HomePickedForYou({
         <HomeSectionHeader titleKey="pickedForYou" lang={lang} listingStyle noMarker />
       </div>
       <div
-        className="flex flex-wrap items-center gap-2 pb-2"
+        className="home-picked-filters"
         role="toolbar"
         aria-label={homeCopy("pickedFiltersAria", lang)}
       >
         <button
           type="button"
-          className={`inline-flex h-10 min-w-[56px] items-center rounded-full border px-4 text-sm font-semibold ${
-            !verifiedOnly
-              ? "border-emerald-900 bg-emerald-900 text-white"
-              : "border-stone-200 bg-white text-stone-700"
-          }`}
+          className={`home-filter-chip${!verifiedOnly ? " on" : ""}`}
           aria-pressed={!verifiedOnly}
           onClick={() => setVerifiedOnly(false)}
         >
@@ -94,20 +90,16 @@ export function HomePickedForYou({
         </button>
         <button
           type="button"
-          className={`inline-flex h-10 min-w-[56px] items-center rounded-full border px-4 text-sm font-semibold ${
-            verifiedOnly
-              ? "border-emerald-900 bg-emerald-900 text-white"
-              : "border-stone-200 bg-white text-stone-700"
-          }`}
+          className={`home-filter-chip${verifiedOnly ? " on" : ""}`}
           aria-pressed={verifiedOnly}
           onClick={() => setVerifiedOnly((v) => !v)}
         >
           {homeCopy("pickedFilterVerified", lang)}
         </button>
-        <div className="relative">
+        <div className="home-sort-wrap">
           <button
             type="button"
-            className="inline-flex h-10 items-center gap-1 rounded-full border border-stone-200 bg-white px-4 text-sm font-semibold text-stone-700"
+            className="home-filter-chip"
             aria-expanded={sortOpen}
             aria-haspopup="listbox"
             onClick={() => setSortOpen((o) => !o)}
@@ -116,21 +108,14 @@ export function HomePickedForYou({
             <ChevronDown size={18} aria-hidden />
           </button>
           {sortOpen ? (
-            <div
-              className="absolute left-0 top-[calc(100%+6px)] z-10 min-w-[180px] rounded-xl border border-stone-200 bg-white p-1.5 shadow-lg"
-              role="listbox"
-            >
+            <div className="home-sort-menu" role="listbox">
               {(["newest", "price-asc", "price-desc"] as const).map((key) => (
                 <button
                   key={key}
                   type="button"
                   role="option"
                   aria-selected={sort === key}
-                  className={`w-full rounded-lg px-3 py-2 text-left text-sm ${
-                    sort === key
-                      ? "font-semibold text-emerald-800"
-                      : "text-stone-700"
-                  }`}
+                  className={sort === key ? "on" : undefined}
                   onClick={() => {
                     setSort(key);
                     setSortOpen(false);
@@ -142,7 +127,7 @@ export function HomePickedForYou({
             </div>
           ) : null}
         </div>
-        <span className="ml-auto text-sm text-stone-500">
+        <span className="home-filter-count">
           {homeCopy("pickedResultCount", lang).replace(
             "{n}",
             String(filtered.length),

@@ -328,7 +328,7 @@ Response fields (add): `parentSlug`, `depth`, `hasChildren` (computed).
 | Phase | Deliverable |
 |-------|-------------|
 | **1** | Migration `013_category_tree.sql`: columns, aliases, seed, remap, leaf checks; server subtree + APIs; catalog filter; UI drill-down; update fallbacks in `category-directory.ts` / constants |
-| **2** | `data/jiji-ke-categories.json` + import for jobs/CVs and extra children; SEO sitemap per category slug |
+| **2** | `data/jiji-ke-categories.json` + `014_jiji_category_phase2.sql`; SEO subtree + alias redirects on `/nakuru/*` (done 2026-11-23) |
 | **3** | Staff tree editor; optional alias admin |
 
 ---
