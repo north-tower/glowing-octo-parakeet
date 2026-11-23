@@ -31,6 +31,8 @@ import type { LandingLang } from "@/lib/nakuru/i18n";
 import { useCategories } from "@/lib/nakuru/use-categories";
 import { IconChevronLeft, IconSparkle } from "@/components/app/icons/LineIcons";
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { appCategoryHref } from "@/lib/nakuru/app-category-href";
 
 type ListingsState = {
   items: Listing[];
@@ -97,6 +99,7 @@ export function CategoryPanel({
   onAct,
 }: Props) {
   const { state, dispatch } = useNakuruApp();
+  const router = useRouter();
   const { rows: categoryRows } = useCategories();
   const communityFeatured = categoryRows.filter((r) => r.kind === "community");
   const s = state.side;
@@ -178,6 +181,7 @@ export function CategoryPanel({
               setFocusSlug("feat");
               dispatch({ type: "SET_CAT", cat: "all" });
               dispatch({ type: "SET_SIDE", side: "feat" });
+              router.replace(appCategoryHref());
             }}
           >
             <IconChevronLeft size={20} aria-hidden />

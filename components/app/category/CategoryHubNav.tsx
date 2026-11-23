@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useMemo, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { useNakuruApp } from "@/components/app/AppProvider";
+import { appCategoryHref } from "@/lib/nakuru/app-category-href";
 import { homeCopy } from "@/lib/nakuru/home-i18n";
 import type { LandingLang } from "@/lib/nakuru/i18n";
 import { useCategories } from "@/lib/nakuru/use-categories";
@@ -11,6 +13,7 @@ type Props = { lang: LandingLang };
 
 export function CategoryHubNav({ lang }: Props) {
   const { state, dispatch } = useNakuruApp();
+  const router = useRouter();
   const { rows } = useCategories();
   const trackRef = useRef<HTMLDivElement>(null);
 
@@ -36,6 +39,7 @@ export function CategoryHubNav({ lang }: Props) {
   const select = (slug: string) => {
     dispatch({ type: "SET_CAT", cat: "all" });
     dispatch({ type: "SET_SIDE", side: slug });
+    router.replace(appCategoryHref({ side: slug }));
     scrollChipIntoView(slug);
   };
 
