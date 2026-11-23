@@ -1172,7 +1172,7 @@ body.app .home-flow>.trust--home .trust-copy .m{white-space:normal}
 body.app .home-flow>.qa-scroll{display:none}
 body.app .home-flow>.home-hero-section{grid-column:1/-1;grid-row:2;position:relative;margin:0;min-width:0;width:100%}
 body.app .home-flow>.vendor-sell-card{margin:0}
-body.app .home-flow>.home-section-hd,body.app .home-flow>.home-cat-grid,body.app .home-flow>.home-cat-strip-wrap,body.app .home-flow>.home-product-rail-wrap,body.app .home-flow>.home-picked-filters,body.app .home-flow>.home-picked-grid,body.app .home-flow>.home-load-more,body.app .home-flow>.err,body.app .home-flow>.home-guide,body.app .home-flow>.rank{grid-column:1/-1}
+body.app .home-flow>.home-section-hd,body.app .home-flow>.home-cat-grid,body.app .home-flow>.home-cat-strip-wrap,body.app .home-flow>.home-product-rail-wrap,body.app .home-flow>.listing-row-root,body.app .home-flow>.home-picked-filters,body.app .home-flow>.home-picked-grid,body.app .home-flow>.home-load-more,body.app .home-flow>.err,body.app .home-flow>.home-guide,body.app .home-flow>.rank{grid-column:1/-1}
 body.app .home-cat-grid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:16px}
 body.app .home-cat-grid .ct{max-width:120px;width:100%;justify-self:center}
 body.app .home-cat-grid :is(a,button).browse-tile{max-width:140px;width:100%;justify-self:center;min-height:108px}

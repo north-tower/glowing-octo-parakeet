@@ -208,44 +208,51 @@ export function HomeView() {
           </div>
         </>
       )}
-      {freshRail.length ? (
+      {freshRail.length || (loading && liveCatalog) ? (
         <>
           <HomeSectionHeader
             titleKey="freshInZone"
             title={freshTitle}
             lang={lang}
+            listingStyle
+            noMarker
             seeAll={{
               onClick: () => dispatch({ type: "SET_TAB", tab: "cat" }),
             }}
           />
           <ProductSnapRail
             items={freshRail}
-            onAct={onAct}
-            serviceInquiryEnabled={serviceInquiryEnabled}
+            lang={lang}
+            zoneLabel={state.area}
+            loading={loading && liveCatalog}
           />
         </>
       ) : null}
-      {verifiedRail.length >= 3 ? (
+      {verifiedRail.length >= 3 || (loading && liveCatalog) ? (
         <>
-          <HomeSectionHeader titleKey="verifiedSellers" lang={lang} />
+          <HomeSectionHeader
+            titleKey="verifiedSellers"
+            lang={lang}
+            listingStyle
+            noMarker
+          />
           <ProductSnapRail
             items={verifiedRail}
-            onAct={onAct}
-            serviceInquiryEnabled={serviceInquiryEnabled}
+            lang={lang}
+            zoneLabel={state.area}
+            loading={loading && liveCatalog}
           />
         </>
       ) : null}
-      {loading && liveCatalog ? (
-        <ListingsSkeleton count={4} />
-      ) : error && liveCatalog ? (
+      {error && liveCatalog ? (
         <div className="err">{error}</div>
-      ) : catalogItems.length ? (
+      ) : catalogItems.length || (loading && liveCatalog) ? (
         <HomePickedForYou
           lang={lang}
           items={catalogItems}
+          priorRailItems={[freshRail, verifiedRail]}
           zoneLabel={state.area}
-          onAct={onAct}
-          serviceInquiryEnabled={serviceInquiryEnabled}
+          loading={loading && liveCatalog}
         />
       ) : liveCatalog ? (
         <ListingsEmpty />
