@@ -16,6 +16,7 @@ import {
   vendorStatusLabel,
   type ApiVendorRow,
 } from "@/lib/nakuru/vendor-profile";
+import { useDetectNakuruZone } from "@/components/app/useDetectNakuruZone";
 import { useRef, useState } from "react";
 
 type TabId = "add" | "stock" | "orders" | "earn";
@@ -46,6 +47,7 @@ export function VendorShopWorkspace({
   const [areaBusy, setAreaBusy] = useState(false);
   const [stockTick, setStockTick] = useState(0);
   const zoneBtnRef = useRef<HTMLButtonElement>(null);
+  const { detect: detectZone, busy: detectBusy } = useDetectNakuruZone(toast, lang);
 
   const saveArea = async (area: string) => {
     if (areaBusy || area === vendor.area) return;
@@ -68,6 +70,13 @@ export function VendorShopWorkspace({
     }
   };
 
+  const useMyLocation = async () => {
+    const zone = await detectZone();
+    if (!zone) return;
+    setZoneOpen(false);
+    await saveArea(zone);
+  };
+
   return (
     <>
       <div className="card row">
@@ -87,21 +96,39 @@ export function VendorShopWorkspace({
               ? "Verified (M-Pesa upfront enabled)"
               : "Basic (cash on delivery only)"}
           </div>
-          <button
-            type="button"
-            ref={zoneBtnRef}
-            className="shop-zone-chip"
-            aria-haspopup="dialog"
-            aria-expanded={zoneOpen}
-            disabled={areaBusy}
-            onClick={() => setZoneOpen(true)}
-          >
-            <IconMapPin size={16} />
-            <span>
-              {vendor.area ? `Shop area: ${vendor.area}` : "Set shop area"}
-            </span>
-            <IconChevronDown size={16} />
-          </button>
+          <div className="shop-zone-row">
+            <button
+              type="button"
+              ref={zoneBtnRef}
+              className="shop-zone-chip"
+              aria-haspopup="dialog"
+              aria-expanded={zoneOpen}
+              disabled={areaBusy || detectBusy}
+              onClick={() => setZoneOpen(true)}
+            >
+              <IconMapPin size={16} />
+              <span>
+                {vendor.area ? `Shop area: ${vendor.area}` : "Set shop area"}
+              </span>
+              <IconChevronDown size={16} />
+            </button>
+            {!vendor.area ? (
+              <button
+                type="button"
+                className="btn s shop-zone-locate"
+                disabled={areaBusy || detectBusy}
+                onClick={() => void useMyLocation()}
+              >
+                {detectBusy
+                  ? lang === "sw"
+                    ? "Inatafuta…"
+                    : "Locating…"
+                  : lang === "sw"
+                    ? "Tumia eneo langu"
+                    : "Use my location"}
+              </button>
+            ) : null}
+          </div>
         </div>
       </div>
 
@@ -146,6 +173,8 @@ export function VendorShopWorkspace({
           setZoneOpen(false);
           void saveArea(area);
         }}
+        onUseLocation={() => void useMyLocation()}
+        useLocationBusy={detectBusy || areaBusy}
       />
     </>
   );

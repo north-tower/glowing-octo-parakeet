@@ -7,12 +7,16 @@ import {
   Avatar,
   ProfilePhotoUpload,
 } from "@/components/app/ProfilePhotoUpload";
+import { ZoneSheet } from "@/components/app/ZoneSheet";
+import { IconChevronDown, IconMapPin } from "@/components/app/icons/LineIcons";
+import { useDetectNakuruZone } from "@/components/app/useDetectNakuruZone";
 import { apiFetch, ApiError } from "@/lib/nakuru/api";
 import { useCategories } from "@/lib/nakuru/use-categories";
 import type { CategoryId } from "@/lib/nakuru/types";
 import {
   useCallback,
   useMemo,
+  useRef,
   useState,
   type FormEvent,
 } from "react";
@@ -47,6 +51,10 @@ export function VendorApplyForm({ disabled, onApplied, toast }: Props) {
   const [catPick, setCatPick] = useState("");
   const [catError, setCatError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [shopArea, setShopArea] = useState("");
+  const [zoneOpen, setZoneOpen] = useState(false);
+  const zoneBtnRef = useRef<HTMLButtonElement>(null);
+  const { detect: detectZone, busy: detectBusy } = useDetectNakuruZone(toast, lang);
 
   const applyRows = useMemo(
     () => rows.filter((r) => r.depth === 0),
@@ -115,9 +123,13 @@ export function VendorApplyForm({ disabled, onApplied, toast }: Props) {
         name: string;
         categories: string[];
         imageDataUrl?: string;
+        area?: string;
       } = { name: trimmed, categories: activeCategories };
       if (state.photo) {
         body.imageDataUrl = state.photo;
+      }
+      if (shopArea) {
+        body.area = shopArea;
       }
       await apiFetch("/api/vendors", {
         method: "POST",
@@ -125,6 +137,7 @@ export function VendorApplyForm({ disabled, onApplied, toast }: Props) {
       });
       toast("Application submitted. We'll review it soon.");
       setName("");
+      setShopArea("");
       onApplied();
     } catch (err) {
       if (err instanceof ApiError) {
@@ -151,7 +164,16 @@ export function VendorApplyForm({ disabled, onApplied, toast }: Props) {
     }
   };
 
+  const pickAreaFromDevice = async () => {
+    const zone = await detectZone();
+    if (zone) {
+      setShopArea(zone);
+      setZoneOpen(false);
+    }
+  };
+
   return (
+  <>
     <form onSubmit={submit}>
       <h2>Sell on NakuruHub</h2>
       <div className="m">{homeCopy("vendorApplySameAccount", lang)}</div>
@@ -173,6 +195,42 @@ export function VendorApplyForm({ disabled, onApplied, toast }: Props) {
         <div className="m" style={{ alignSelf: "center" }}>
           Tap to add a profile picture or shop logo (optional)
         </div>
+      </div>
+
+      <label>Shop area (optional)</label>
+      <div className="m">
+        Tell buyers where you are in Nakuru. You can use GPS or pick from the list.
+      </div>
+      <div className="shop-zone-row" style={{ marginBottom: 12 }}>
+        <button
+          type="button"
+          ref={zoneBtnRef}
+          className="shop-zone-chip"
+          aria-haspopup="dialog"
+          aria-expanded={zoneOpen}
+          disabled={busy || detectBusy}
+          onClick={() => setZoneOpen(true)}
+        >
+          <IconMapPin size={16} />
+          <span>
+            {shopArea ? `Shop area: ${shopArea}` : "Set shop area"}
+          </span>
+          <IconChevronDown size={16} />
+        </button>
+        <button
+          type="button"
+          className="btn s shop-zone-locate"
+          disabled={busy || detectBusy}
+          onClick={() => void pickAreaFromDevice()}
+        >
+          {detectBusy
+            ? lang === "sw"
+              ? "Inatafuta…"
+              : "Locating…"
+            : lang === "sw"
+              ? "Tumia eneo langu"
+              : "Use my location"}
+        </button>
       </div>
 
       <label htmlFor="vendor-apply-name">Your name or business</label>
@@ -272,5 +330,22 @@ export function VendorApplyForm({ disabled, onApplied, toast }: Props) {
         {busy ? "Submitting…" : "Submit for approval"}
       </button>
     </form>
+
+    <ZoneSheet
+      open={zoneOpen}
+      area={shopArea}
+      lang={lang}
+      nakuruOnly
+      variant="popover"
+      anchorRef={zoneBtnRef}
+      onClose={() => setZoneOpen(false)}
+      onSelect={(area) => {
+        setShopArea(area);
+        setZoneOpen(false);
+      }}
+      onUseLocation={() => void pickAreaFromDevice()}
+      useLocationBusy={detectBusy || busy}
+    />
+  </>
   );
 }

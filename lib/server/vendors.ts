@@ -30,6 +30,7 @@ export async function applyVendor(
   categories: string[],
   ip: string | null,
   imageDataUrl?: string,
+  area?: string,
 ): Promise<{ id: string; status: string; logo_url: string | null }> {
   if (!(await slugsAllowedForApply(categories))) {
     throw new VendorError(400, "bad_request");
@@ -47,8 +48,9 @@ export async function applyVendor(
 
   const v = (
     await db.q<{ id: string; status: string }>(
-      "insert into vendors(owner_id, name, categories) values($1, $2, $3) returning id, status",
-      [ownerId, name, categories],
+      `insert into vendors(owner_id, name, categories, area)
+       values($1, $2, $3, $4) returning id, status`,
+      [ownerId, name, categories, area?.trim() || null],
     )
   ).rows[0];
 

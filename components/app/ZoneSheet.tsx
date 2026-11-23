@@ -5,7 +5,7 @@ import type { RefObject } from "react";
 import { ZONES } from "@/lib/nakuru/data/zones";
 import { homeCopy } from "@/lib/nakuru/home-i18n";
 import type { LandingLang } from "@/lib/nakuru/i18n";
-import { IconCheck } from "@/components/app/icons/LineIcons";
+import { IconCheck, IconMapPin } from "@/components/app/icons/LineIcons";
 
 type Props = {
   open: boolean;
@@ -16,6 +16,8 @@ type Props = {
   variant?: "sheet" | "popover";
   anchorRef?: RefObject<HTMLElement | null>;
   nakuruOnly?: boolean;
+  onUseLocation?: () => void;
+  useLocationBusy?: boolean;
 };
 
 function trapFocus(container: HTMLElement, e: KeyboardEvent) {
@@ -44,12 +46,16 @@ function ZoneOptions({
   onSelect,
   onClose,
   nakuruOnly,
+  onUseLocation,
+  useLocationBusy,
 }: {
   area: string;
   lang: LandingLang;
   onSelect: (zone: string) => void;
   onClose: () => void;
   nakuruOnly?: boolean;
+  onUseLocation?: () => void;
+  useLocationBusy?: boolean;
 }) {
   const titleId = useId();
   const showOutside = Boolean(OUTSIDE) && !nakuruOnly;
@@ -62,6 +68,23 @@ function ZoneOptions({
             : "Shop area"
           : homeCopy("zoneSheetTitle", lang)}
       </h2>
+      {onUseLocation ? (
+        <button
+          type="button"
+          className="btn s zone-sheet-locate"
+          disabled={useLocationBusy}
+          onClick={() => onUseLocation()}
+        >
+          <IconMapPin size={18} />
+          {useLocationBusy
+            ? lang === "sw"
+              ? "Inatafuta eneo…"
+              : "Finding your location…"
+            : lang === "sw"
+              ? "Tumia eneo langu"
+              : "Use my location"}
+        </button>
+      ) : null}
       <ul
         className="zone-sheet-list"
         role="listbox"
@@ -132,6 +155,8 @@ export function ZoneSheet({
   variant = "sheet",
   anchorRef,
   nakuruOnly,
+  onUseLocation,
+  useLocationBusy,
 }: Props) {
   const sheetRef = useRef<HTMLDivElement>(null);
   const startY = useRef(0);
@@ -219,6 +244,8 @@ export function ZoneSheet({
             onSelect={onSelect}
             onClose={onClose}
             nakuruOnly={nakuruOnly}
+            onUseLocation={onUseLocation}
+            useLocationBusy={useLocationBusy}
           />
         </div>
       </div>
@@ -248,6 +275,8 @@ export function ZoneSheet({
           onSelect={onSelect}
           onClose={onClose}
           nakuruOnly={nakuruOnly}
+          onUseLocation={onUseLocation}
+          useLocationBusy={useLocationBusy}
         />
       </div>
     </div>

@@ -124,6 +124,7 @@ export const vendorNew = z
     name: z.string().trim().min(2).max(60),
     categories: z.array(vendorApplySlug).min(1).max(4),
     imageDataUrl: imageDataUrl.optional(),
+    area: z.enum(NAKURU_AREA_KEYS).optional(),
   })
   .strict();
 
