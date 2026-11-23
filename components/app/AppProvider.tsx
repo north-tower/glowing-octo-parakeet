@@ -53,6 +53,7 @@ export function AppProvider({ children }: ProviderProps) {
   );
 
   const tabParam = searchParams.get("tab");
+  const sideParam = searchParams.get("side") ?? "";
   const qParam = searchParams.get("q") ?? "";
   const catParam = searchParams.get("cat") ?? "";
   const validTabs: TabId[] = ["home", "cat", "msg", "cart", "acc"];
@@ -69,7 +70,12 @@ export function AppProvider({ children }: ProviderProps) {
       return { ...withQuery, tab: readDetailNavTab() };
     }
     if (tabParam && validTabs.includes(tabParam as TabId)) {
-      return { ...withQuery, tab: tabParam as TabId };
+      const tab = tabParam as TabId;
+      return {
+        ...withQuery,
+        tab,
+        ...(tab === "cat" && sideParam ? { side: sideParam, cat: "all" as const } : {}),
+      };
     }
     return withQuery;
   });

@@ -136,7 +136,12 @@ export function nakuruReducer(
       };
     case "SLIDE_SHOP":
       return {
-        state: { ...state, cat: "shop", q: "", tab: "home" },
+        state: {
+          ...state,
+          cat: "mobile-phones-tablets",
+          q: "",
+          tab: "home",
+        },
       };
     case "SLIDE_VENDOR":
       return {

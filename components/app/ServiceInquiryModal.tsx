@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingBlock } from "@/components/app/loading/LoadingUi";
 import { useAuth } from "@/components/app/AppAuthProvider";
 import { useNakuruApp } from "@/components/app/AppProvider";
 import { apiFetch } from "@/lib/nakuru/api";
@@ -130,7 +131,7 @@ export function ServiceInquiryModal({ listing, onClose }: Props) {
         </div>
 
         {!ready ? (
-          <div className="m">Loading…</div>
+          <LoadingBlock label="Loading…" compact />
         ) : !user ? (
           <>
             <div className="warn">

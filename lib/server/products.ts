@@ -1,5 +1,10 @@
 import { audit } from "./audit";
 import { getCategoryBySlug } from "./categories";
+import {
+  assertCategoryIsListableLeaf,
+  CategoryTreeError,
+  vendorMayUseProductCategory,
+} from "./category-tree";
 import { db } from "./db";
 import {
   parseImageDataUrl,
@@ -18,14 +23,18 @@ export class ProductError extends Error {
   }
 }
 
-type ApprovedVendor = { id: string; area: string | null };
+type ApprovedVendor = {
+  id: string;
+  area: string | null;
+  categories: string[];
+};
 
 async function approvedVendorForOwner(
   ownerId: string,
   vendorId?: string,
 ): Promise<ApprovedVendor | null> {
   const r = await db.q<ApprovedVendor>(
-    `select id, area
+    `select id, area, categories
      from vendors
     where owner_id = $1
        and status = 'approved'
@@ -63,6 +72,19 @@ export async function createProduct(
 
   const dir = await getCategoryBySlug(data.category);
   if (!dir || !dir.visible) {
+    throw new ProductError(400, "bad_request");
+  }
+
+  try {
+    await assertCategoryIsListableLeaf(data.category);
+  } catch (err) {
+    if (err instanceof CategoryTreeError) {
+      throw new ProductError(err.status, err.code);
+    }
+    throw err;
+  }
+
+  if (!(await vendorMayUseProductCategory(v.categories, data.category))) {
     throw new ProductError(400, "bad_request");
   }
 
@@ -192,6 +214,21 @@ export async function updateProduct(
   if (data.category !== undefined && data.category !== row.category) {
     const dir = await getCategoryBySlug(data.category);
     if (!dir || !dir.visible) {
+      throw new ProductError(400, "bad_request");
+    }
+    try {
+      await assertCategoryIsListableLeaf(data.category);
+    } catch (err) {
+      if (err instanceof CategoryTreeError) {
+        throw new ProductError(err.status, err.code);
+      }
+      throw err;
+    }
+    const vendor = await approvedVendorForOwner(ownerId);
+    if (
+      !vendor ||
+      !(await vendorMayUseProductCategory(vendor.categories, data.category))
+    ) {
       throw new ProductError(400, "bad_request");
     }
     effectiveListingMode = dir.listing_mode;

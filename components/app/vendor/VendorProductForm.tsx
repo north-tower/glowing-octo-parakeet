@@ -12,6 +12,7 @@ import {
   useState,
   type FormEvent,
 } from "react";
+import { SearchableCategorySelect } from "@/components/app/vendor/SearchableCategorySelect";
 
 function listingModeForSlug(
   slug: string,
@@ -34,7 +35,9 @@ export function VendorProductForm({
   onPublished,
 }: Props) {
   const { rows: directoryRows } = useCategories();
-  const listingOptions = directoryRows.filter((r) => r.visible);
+  const listingOptions = directoryRows.filter(
+    (r) => r.visible && !r.hasChildren,
+  );
   const officialOptions = listingOptions.filter((r) => r.kind === "official");
   const communityOptions = listingOptions.filter((r) => r.kind === "community");
 
@@ -213,31 +216,14 @@ export function VendorProductForm({
       </div>
 
       <label htmlFor="vp-listing-cat">Category</label>
-      <select
+      <SearchableCategorySelect
         id="vp-listing-cat"
         value={selectedSlug ?? defaultSlug ?? ""}
         disabled={busy || !shopArea}
-        onChange={(e) => setSelectedSlug(e.target.value || null)}
-      >
-        {officialOptions.length ? (
-          <optgroup label="Official">
-            {officialOptions.map((row) => (
-              <option key={row.slug} value={row.slug}>
-                {row.label}
-              </option>
-            ))}
-          </optgroup>
-        ) : null}
-        {communityOptions.length ? (
-          <optgroup label="Community">
-            {communityOptions.map((row) => (
-              <option key={row.slug} value={row.slug}>
-                {row.label}
-              </option>
-            ))}
-          </optgroup>
-        ) : null}
-      </select>
+        officialOptions={officialOptions}
+        communityOptions={communityOptions}
+        onChange={(slug) => setSelectedSlug(slug || null)}
+      />
 
       <label htmlFor="vp-title">Title</label>
       <input

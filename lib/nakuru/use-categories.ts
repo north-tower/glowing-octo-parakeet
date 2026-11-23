@@ -15,6 +15,9 @@ export type CategoryPublicApiRow = {
   listingMode: ListingMode;
   openForApply: boolean;
   sortOrder: number;
+  parentSlug?: string | null;
+  depth?: number;
+  hasChildren?: boolean;
 };
 
 function mapApiRow(row: CategoryPublicApiRow): DirectoryCategory {
@@ -26,6 +29,9 @@ function mapApiRow(row: CategoryPublicApiRow): DirectoryCategory {
     visible: true,
     openForApply: row.openForApply,
     sortOrder: row.sortOrder,
+    parentSlug: row.parentSlug ?? null,
+    depth: row.depth ?? 0,
+    hasChildren: row.hasChildren ?? false,
   };
 }
 

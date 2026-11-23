@@ -1,5 +1,6 @@
 "use client";
 
+import { CardRowsSkeleton } from "@/components/app/loading/LoadingUi";
 import { VendorInquiriesList } from "@/components/app/vendor/VendorInquiriesList";
 import { apiFetch, ApiError } from "@/lib/nakuru/api";
 import { useCallback, useEffect, useState } from "react";
@@ -90,7 +91,7 @@ export function VendorOrdersPanel({ toast }: Props) {
           </button>
         </div>
         {orders === null ? (
-          <div className="m">Loading orders…</div>
+          <CardRowsSkeleton count={3} />
         ) : error ? (
           <>
             <div className="warn">Could not load orders.</div>

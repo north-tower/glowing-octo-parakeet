@@ -11,6 +11,7 @@ import {
   useState,
 } from "react";
 import { ProductCard } from "@/components/app/ProductCard";
+import { ProductDetailSkeleton } from "@/components/app/loading/LoadingUi";
 import { VerifiedBadge } from "@/components/app/product/VerifiedBadge";
 import {
   CategoryIcon,
@@ -320,15 +321,7 @@ export function ProductDetailView({ productId }: Props) {
   };
 
   if (rawListing === undefined) {
-    return (
-      <div className="pd" aria-busy="true">
-        <div className="pd-skel pim" />
-        <div className="pd-inner">
-          <div className="pd-skel" style={{ height: 28, width: "70%" }} />
-          <div className="pd-skel" style={{ height: 18, width: "40%" }} />
-        </div>
-      </div>
-    );
+    return <ProductDetailSkeleton />;
   }
 
   if (!detail) {

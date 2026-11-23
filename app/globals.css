@@ -1,3 +1,7 @@
 @import "tailwindcss";
 
-/* Tailwind kept for dev scaffolding; Nakuru product styles load via nakuru-globals.css */
+@source "../components";
+@source "../lib";
+@source ".";
+
+/* Tailwind for utility classes; Nakuru product styles load from app/nakuru/styles.css in layout.tsx */

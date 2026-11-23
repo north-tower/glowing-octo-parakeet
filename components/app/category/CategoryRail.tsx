@@ -1,14 +1,16 @@
 "use client";
 
-import { useCallback, useRef, type KeyboardEvent } from "react";
+import { useCallback, useMemo, useRef, type KeyboardEvent } from "react";
 import { useNakuruApp } from "@/components/app/AppProvider";
-import { SIDE, type SideRailIcon } from "@/lib/nakuru/data/constants";
 import {
   homeCategoryLabel,
   homeCopy,
 } from "@/lib/nakuru/home-i18n";
 import type { CategoryId } from "@/lib/nakuru/types";
 import type { LandingLang } from "@/lib/nakuru/i18n";
+import { useCategories } from "@/lib/nakuru/use-categories";
+import { listingModeRailIcon } from "@/lib/nakuru/listing-mode-icon";
+import type { SideRailIcon } from "@/lib/nakuru/data/constants";
 import {
   IconBed,
   IconCar,
@@ -32,17 +34,49 @@ const RAIL_ICONS: Record<
   taxi: IconTaxi,
 };
 
-function sideLabel(sideId: string, lang: LandingLang): string {
+const NAKURU_ICON: Record<string, SideRailIcon> = {
+  stays: "bed",
+  taxi: "taxi",
+  rider: "taxi",
+};
+
+function sideLabel(
+  sideId: string,
+  fallback: string,
+  lang: LandingLang,
+): string {
   if (sideId === "feat") return homeCopy("sideFeatured", lang);
-  return homeCategoryLabel(sideId as CategoryId, lang);
+  const localized = homeCategoryLabel(sideId as CategoryId, lang);
+  if (localized !== sideId) return localized;
+  return fallback;
 }
 
 type Props = { lang: LandingLang };
 
 export function CategoryRail({ lang }: Props) {
   const { state, dispatch } = useNakuruApp();
+  const { rows } = useCategories();
   const s = state.side;
   const railRef = useRef<HTMLDivElement>(null);
+
+  const roots = useMemo(
+    () =>
+      rows
+        .filter((r) => r.depth === 0 && r.kind === "official")
+        .sort((a, b) => a.sortOrder - b.sortOrder),
+    [rows],
+  );
+
+  const railItems = useMemo(() => {
+    return [
+      { id: "feat", label: homeCopy("sideFeatured", lang), icon: "sparkle" as const },
+      ...roots.map((r) => ({
+        id: r.slug,
+        label: r.label,
+        icon: NAKURU_ICON[r.slug] ?? listingModeRailIcon(r.listingMode),
+      })),
+    ];
+  }, [roots, lang]);
 
   const focusIndex = (index: number) => {
     const rail = railRef.current;
@@ -50,13 +84,12 @@ export function CategoryRail({ lang }: Props) {
     const buttons = rail.querySelectorAll<HTMLButtonElement>(
       "button.cat-rail-item",
     );
-    const btn = buttons[index];
-    btn?.focus();
+    buttons[index]?.focus();
   };
 
   const onKeyDown = useCallback(
     (e: KeyboardEvent, index: number) => {
-      const total = SIDE.length;
+      const total = railItems.length;
       let next = index;
       if (e.key === "ArrowDown" || e.key === "ArrowRight") {
         e.preventDefault();
@@ -75,27 +108,27 @@ export function CategoryRail({ lang }: Props) {
       }
       focusIndex(next);
     },
-    [],
+    [railItems.length],
   );
 
   return (
     <nav
-      className="cat-rail sd"
+      className={`cat-rail sd${roots.length > 10 ? " cat-rail--dense" : ""}`}
       aria-label={homeCopy("categoryRailAria", lang)}
       ref={railRef}
     >
-      {SIDE.map(([id, , iconKey], index) => {
-        const active = s === id;
-        const Icon = RAIL_ICONS[iconKey];
-        const label = sideLabel(id, lang);
+      {railItems.map((item, index) => {
+        const active = s === item.id;
+        const Icon = RAIL_ICONS[item.icon];
+        const label = sideLabel(item.id, item.label, lang);
 
         return (
           <button
-            key={id}
+            key={item.id}
             type="button"
             className={`cat-rail-item${active ? " on" : ""}`}
             aria-current={active ? "true" : undefined}
-            onClick={() => dispatch({ type: "SET_SIDE", side: id })}
+            onClick={() => dispatch({ type: "SET_SIDE", side: item.id })}
             onKeyDown={(e) => onKeyDown(e, index)}
           >
             <span className="cat-rail-icon" aria-hidden>

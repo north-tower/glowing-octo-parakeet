@@ -24,6 +24,9 @@ export type CategoryPublicRow = {
   listingMode: ListingMode;
   openForApply: boolean;
   sortOrder: number;
+  parentSlug: string | null;
+  depth: number;
+  hasChildren: boolean;
 };
 
 export type CategoryAdminRow = CategoryPublicRow & {
@@ -40,11 +43,19 @@ export type DbCategoryRow = {
   visible: boolean;
   open_for_apply: boolean;
   sort_order: number;
+  parent_slug: string | null;
+  depth: number;
   created_by: string | null;
   created_at: Date;
+  child_count?: number;
 };
 
-const categorySelect = `slug, label, kind, listing_mode, visible, open_for_apply, sort_order, created_by, created_at`;
+const categoryReturning = `slug, label, kind, listing_mode, visible, open_for_apply, sort_order,
+  parent_slug, depth, created_by, created_at`;
+
+const categorySelect = `c.slug, c.label, c.kind, c.listing_mode, c.visible, c.open_for_apply, c.sort_order,
+  c.parent_slug, c.depth, c.created_by, c.created_at,
+  (select count(*)::int from categories ch where ch.parent_slug = c.slug and ch.visible) as child_count`;
 
 export function mapCategoryRow(r: DbCategoryRow): CategoryPublicRow {
   return {
@@ -54,6 +65,9 @@ export function mapCategoryRow(r: DbCategoryRow): CategoryPublicRow {
     listingMode: r.listing_mode,
     openForApply: r.open_for_apply,
     sortOrder: r.sort_order,
+    parentSlug: r.parent_slug,
+    depth: r.depth,
+    hasChildren: (r.child_count ?? 0) > 0,
   };
 }
 
@@ -69,7 +83,7 @@ function mapCategoryAdminRow(r: DbCategoryRow): CategoryAdminRow {
 function validateLabel(label: string): string {
   const trimmed = label.trim();
   const len = trimmed.length;
-  if (len < 2 || len > 40) {
+  if (len < 2 || len > 60) {
     throw new CategoryError(400, "bad_request");
   }
   return trimmed;
@@ -81,12 +95,24 @@ function validateSlug(slug: string): void {
   }
 }
 
-export async function listVisibleCategories(): Promise<CategoryPublicRow[]> {
+export async function listVisibleCategories(
+  parentSlug?: string | null,
+): Promise<CategoryPublicRow[]> {
+  if (parentSlug) {
+    const r = await db.q<DbCategoryRow>(
+      `select ${categorySelect}
+       from categories c
+       where c.visible and c.parent_slug = $1
+       order by c.sort_order asc, c.label asc`,
+      [parentSlug],
+    );
+    return r.rows.map(mapCategoryRow);
+  }
   const r = await db.q<DbCategoryRow>(
     `select ${categorySelect}
-     from categories
-     where visible
-     order by sort_order asc`,
+     from categories c
+     where c.visible
+     order by c.sort_order asc, c.label asc`,
   );
   return r.rows.map(mapCategoryRow);
 }
@@ -94,8 +120,8 @@ export async function listVisibleCategories(): Promise<CategoryPublicRow[]> {
 export async function listAllCategories(): Promise<CategoryAdminRow[]> {
   const r = await db.q<DbCategoryRow>(
     `select ${categorySelect}
-     from categories
-     order by sort_order asc`,
+     from categories c
+     order by c.sort_order asc, c.label asc`,
   );
   return r.rows.map(mapCategoryAdminRow);
 }
@@ -104,7 +130,7 @@ export async function getCategoryBySlug(
   slug: string,
 ): Promise<DbCategoryRow | null> {
   const r = await db.q<DbCategoryRow>(
-    `select ${categorySelect} from categories where slug = $1`,
+    `select ${categorySelect} from categories c where c.slug = $1`,
     [slug],
   );
   return r.rows[0] ?? null;
@@ -119,13 +145,21 @@ function isUniqueViolation(err: unknown): boolean {
   );
 }
 
+const DEFAULT_COMMUNITY_PARENT = "business-and-industry";
+
 export async function upsertCommunityCategory(
   userId: string,
   label: string,
+  parentSlug: string = DEFAULT_COMMUNITY_PARENT,
 ): Promise<CategoryPublicRow> {
   const trimmed = validateLabel(label);
   const slug = slugifyCategoryLabel(trimmed);
   validateSlug(slug);
+
+  const parent = await getCategoryBySlug(parentSlug);
+  if (!parent || !parent.visible || parent.depth > 1) {
+    throw new CategoryError(400, "bad_request");
+  }
 
   const existing = await getCategoryBySlug(slug);
   if (existing) {
@@ -133,6 +167,11 @@ export async function upsertCommunityCategory(
       throw new CategoryError(409, "category_hidden");
     }
     return mapCategoryRow(existing);
+  }
+
+  const depth = parent.depth + 1;
+  if (depth > 2) {
+    throw new CategoryError(400, "bad_request");
   }
 
   const count = (
@@ -151,15 +190,17 @@ export async function upsertCommunityCategory(
     const inserted = (
       await db.q<DbCategoryRow>(
         `insert into categories (
-           slug, label, kind, listing_mode, visible, open_for_apply, sort_order, created_by
+           slug, label, kind, listing_mode, visible, open_for_apply, sort_order,
+           created_by, parent_slug, depth
          )
-         select $1, $2, 'community', 'shop', true, true,
-           (select coalesce(max(sort_order), 60) + 10 from categories), $3
-         returning ${categorySelect}`,
-        [slug, trimmed, userId],
+         select $1, $2, 'community', $4, true, true,
+           (select coalesce(max(sort_order), 60) + 10 from categories),
+           $3, $5, $6
+         returning ${categoryReturning}`,
+        [slug, trimmed, userId, parent.listing_mode, parentSlug, depth],
       )
     ).rows[0];
-    return mapCategoryRow(inserted);
+    return mapCategoryRow({ ...inserted, child_count: 0 });
   } catch (err) {
     if (!isUniqueViolation(err)) throw err;
     const raced = await getCategoryBySlug(slug);
@@ -181,7 +222,8 @@ export async function slugsAllowedForApply(slugs: string[]): Promise<boolean> {
     `select slug from categories
      where slug = any($1::text[])
        and visible
-       and open_for_apply`,
+       and open_for_apply
+       and depth = 0`,
     [slugs],
   );
   const allowed = new Set(r.rows.map((row) => row.slug));

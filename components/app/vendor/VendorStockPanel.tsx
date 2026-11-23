@@ -1,5 +1,6 @@
 "use client";
 
+import { CardRowsSkeleton } from "@/components/app/loading/LoadingUi";
 import { apiFetch, ApiError } from "@/lib/nakuru/api";
 import type { DirectoryCategory } from "@/lib/nakuru/data/category-directory";
 import type { ListingMode } from "@/lib/nakuru/types";
@@ -143,7 +144,7 @@ export function VendorStockPanel({ toast, reloadToken = 0 }: Props) {
     <div className="card">
       <div className="t">Stock</div>
       {listings === null ? (
-        <div className="m">Loading listings…</div>
+        <CardRowsSkeleton count={4} />
       ) : listError ? (
         <>
           <div className="warn">Could not load your listings.</div>

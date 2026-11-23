@@ -9,6 +9,8 @@ type Props = {
   lang: LandingLang;
   /** Replaces default copy (e.g. zone interpolation). */
   title?: string;
+  /** Hide the decorative title marker (browse-by-type section). */
+  noMarker?: boolean;
   seeAll?: { labelKey?: "seeAll"; onClick: () => void };
   actions?: ReactNode;
 };
@@ -17,6 +19,7 @@ export function HomeSectionHeader({
   titleKey,
   lang,
   title,
+  noMarker,
   seeAll,
   actions,
 }: Props) {
@@ -41,7 +44,13 @@ export function HomeSectionHeader({
 
   return (
     <div className="home-section-hd">
-      <h2 className="home-section-title">
+      <h2
+        className={
+          noMarker
+            ? "home-section-title home-section-title--no-marker"
+            : "home-section-title"
+        }
+      >
         {title ?? homeCopy(titleKey, lang)}
       </h2>
       {end}

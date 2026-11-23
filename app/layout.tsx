@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import "./nakuru-globals.css";
+import "./nakuru/styles.css";
 import { nakuruFontClassName } from "@/lib/nakuru/fonts";
 import {
   jsonLdString,

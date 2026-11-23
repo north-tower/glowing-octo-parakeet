@@ -1,5 +1,6 @@
 ﻿import type { Metadata } from "next";
 import { cache, Suspense } from "react";
+import { ProductDetailShellLoading } from "@/components/app/loading/LoadingUi";
 import { ProductDetailShell } from "@/components/app/ProductDetailShell";
 import { getPublicListingById } from "@/lib/server/catalog";
 import { categoryName } from "@/lib/nakuru/data/constants";
@@ -188,7 +189,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
           }}
         />
       )}
-      <Suspense fallback={null}>
+      <Suspense fallback={<ProductDetailShellLoading />}>
         <ProductDetailShell productId={id} />
       </Suspense>
     </>
