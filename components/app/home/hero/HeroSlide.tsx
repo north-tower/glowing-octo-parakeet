@@ -57,10 +57,10 @@ export function HeroSlide({
       aria-roledescription="slide"
       aria-label={`${slideIndex + 1} of ${total}`}
       aria-hidden={!active}
-      className={`relative flex min-h-[220px] w-full shrink-0 snap-start snap-always flex-col justify-center overflow-hidden rounded-3xl sm:min-h-[280px] ${slide.gradient} ${textColor(tone)}`}
+      className={`relative flex min-h-[220px] w-full shrink-0 snap-start snap-always flex-col overflow-hidden rounded-3xl sm:min-h-[280px] ${slide.gradient} ${textColor(tone)}`}
     >
-      <div className="relative flex min-h-[inherit] w-full items-center p-6 sm:p-10">
-        <div className="z-[1] flex min-w-0 max-w-full flex-1 flex-col gap-3 sm:max-w-[55%] sm:gap-4">
+      <div className="relative z-20 flex min-h-[inherit] w-full flex-1 flex-col justify-center p-6 pb-[4.75rem] sm:p-10 sm:pb-[5.25rem]">
+        <div className="flex min-w-0 max-w-full flex-1 flex-col gap-3 sm:max-w-[55%] sm:gap-4">
           <div>
             <h2 className="m-0 !text-2xl font-semibold leading-tight tracking-tight sm:!text-4xl lg:!text-5xl">
               {title}
@@ -78,9 +78,15 @@ export function HeroSlide({
               type="button"
               tabIndex={active ? 0 : -1}
               onClick={onCta}
-              className={`inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${ctaClasses(tone)}`}
+              data-hero-cta=""
+              data-tone={tone}
+              className={`hero-slide-cta relative z-20 inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold shadow-md ring-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${ctaClasses(tone)} ${
+                tone === "dark"
+                  ? "ring-black/10"
+                  : "ring-white/25"
+              }`}
             >
-              {ctaLabel}
+              <span className="hero-slide-cta-label">{ctaLabel}</span>
               <ArrowRight className="size-4 shrink-0" aria-hidden />
             </button>
           </div>

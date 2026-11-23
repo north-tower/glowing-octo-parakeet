@@ -8,7 +8,6 @@ import {
   Play,
 } from "lucide-react";
 import type { LandingLang } from "@/lib/nakuru/i18n";
-import { homeCopy } from "@/lib/nakuru/home-i18n";
 import { heroSlides } from "./heroSlides";
 import { useCarousel } from "./useCarousel";
 import { HeroSlide } from "./HeroSlide";

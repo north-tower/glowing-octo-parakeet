@@ -199,8 +199,8 @@ export function HomeView() {
               onClick: () => dispatch({ type: "SET_TAB", tab: "cat" }),
             }}
           />
-          <div className="home-cat-grid grid grid-cols-4 sm:grid-cols-4 lg:!grid-cols-8">
-            {FEAT.map((k) => {
+          <div className="home-cat-grid">
+            {FEAT.slice(0, 8).map((k) => {
               const t = TOPC[k]!;
               const visual = popularLucideForTopcIndex(k);
               return (
