@@ -94,15 +94,20 @@ export function ListingsEmpty({
 
   return (
     <div
-      className={`listings-empty${spacious ? " listings-empty--spacious" : ""}`}
+      className={`listings-empty listings-empty--${variant}${spacious ? " listings-empty--spacious" : ""}`}
       role="status"
     >
-      <span
-        className={`listings-empty-icon listings-empty-icon--${variant}`}
-        aria-hidden
-      >
-        <Icon size={28} />
-      </span>
+      <div className="listings-empty-scene" aria-hidden>
+        {variant === "search" ? (
+          <>
+            <span className="listings-empty-ring" />
+            <span className="listings-empty-ring listings-empty-ring--delay" />
+          </>
+        ) : null}
+        <span className={`listings-empty-icon listings-empty-icon--${variant}`}>
+          <Icon size={28} />
+        </span>
+      </div>
       <h2 className="listings-empty-title">{homeCopy(titleKey, lang)}</h2>
       {query?.trim() ? (
         <p className="listings-empty-query" aria-label={query}>

@@ -57,7 +57,7 @@ export function ListingCardMedia({
           className={`flex h-full w-full items-center justify-center ${tint}`}
           aria-hidden
         >
-          <Icon size={40} strokeWidth={1.5} />
+          <Icon className={`h-14 w-14 ${iconTint}`} strokeWidth={1.5} />
         </div>
       )}
       {imageCount && imageCount > 1 ? (

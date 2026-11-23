@@ -133,6 +133,7 @@ export function HomeView() {
           </div>
         ) : liveCatalog ? (
           <ListingsEmpty
+            key={`${state.q}|${state.cat}`}
             lang={lang}
             variant={q ? "search" : state.cat !== "all" ? "filter" : "default"}
             query={state.q.trim() || undefined}

@@ -38,7 +38,7 @@ export function HomePickedForYou({
   const [loadingMore, setLoadingMore] = useState(false);
 
   const deduped = useMemo(
-    () => excludePriorRailIds(items, priorRailItems),
+    () => dedupeListings(items, priorRailItems[0] ?? []),
     [items, priorRailItems],
   );
 
@@ -71,18 +71,20 @@ export function HomePickedForYou({
   };
 
   return (
-    <>
-      <HomeSectionHeader titleKey="pickedForYou" lang={lang} listingStyle noMarker />
+    <section className="col-span-full mt-10">
+      <div className="mb-4">
+        <HomeSectionHeader titleKey="pickedForYou" lang={lang} listingStyle noMarker />
+      </div>
       <div
-        className="col-span-full flex flex-wrap items-center gap-2 pb-2"
+        className="flex flex-wrap items-center gap-2 pb-2"
         role="toolbar"
         aria-label={homeCopy("pickedFiltersAria", lang)}
       >
         <button
           type="button"
-          className={`inline-flex min-h-10 items-center rounded-full border px-3 text-sm font-semibold ${
+          className={`inline-flex h-10 min-w-[56px] items-center rounded-full border px-4 text-sm font-semibold ${
             !verifiedOnly
-              ? "border-emerald-800 bg-emerald-800 text-white"
+              ? "border-emerald-900 bg-emerald-900 text-white"
               : "border-stone-200 bg-white text-stone-700"
           }`}
           aria-pressed={!verifiedOnly}
@@ -92,9 +94,9 @@ export function HomePickedForYou({
         </button>
         <button
           type="button"
-          className={`inline-flex min-h-10 items-center rounded-full border px-3 text-sm font-semibold ${
+          className={`inline-flex h-10 min-w-[56px] items-center rounded-full border px-4 text-sm font-semibold ${
             verifiedOnly
-              ? "border-emerald-800 bg-emerald-800 text-white"
+              ? "border-emerald-900 bg-emerald-900 text-white"
               : "border-stone-200 bg-white text-stone-700"
           }`}
           aria-pressed={verifiedOnly}
@@ -105,7 +107,7 @@ export function HomePickedForYou({
         <div className="relative">
           <button
             type="button"
-            className="inline-flex min-h-10 items-center gap-1 rounded-full border border-stone-200 bg-white px-3 text-sm font-semibold text-stone-700"
+            className="inline-flex h-10 items-center gap-1 rounded-full border border-stone-200 bg-white px-4 text-sm font-semibold text-stone-700"
             aria-expanded={sortOpen}
             aria-haspopup="listbox"
             onClick={() => setSortOpen((o) => !o)}
@@ -181,6 +183,6 @@ export function HomePickedForYou({
           {homeCopy("pickedLoadMore", lang)}
         </button>
       ) : null}
-    </>
+    </section>
   );
 }
