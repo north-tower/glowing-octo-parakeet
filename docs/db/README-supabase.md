@@ -17,6 +17,7 @@ All schema changes live in `supabase/migrations/`. Apply them to your **Supabase
 | `supabase/migrations/004_email_otp_and_launch_tables.sql` | `vendor_documents`, `service_inquiries` |
 | `supabase/migrations/008_category_directory.sql` | Category directory + product FK |
 | `supabase/migrations/010_listing_comments.sql` | Public listing comments |
+| `supabase/migrations/016_listing_message_threads.sql` | In-app buyer–seller message threads |
 | `supabase/migrations/011_users_role_customer.sql` | Keep marketplace `users.role` as `customer` (shop is `vendors`) |
 
 Run **003** first, then **004**, on an **empty** `public` schema (new project or fresh database).

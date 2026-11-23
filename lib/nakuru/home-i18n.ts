@@ -313,6 +313,18 @@ export type HomeCopyKey =
   | "commentsNotFound"
   | "messagesTitle"
   | "messagesHint"
+  | "messagesPlaceholder"
+  | "messagesSend"
+  | "messagesSignIn"
+  | "messagesEmpty"
+  | "messagesSent"
+  | "messagesOpenInbox"
+  | "messagesPostError"
+  | "messagesLoadError"
+  | "messagesForbidden"
+  | "messagesRateLimited"
+  | "messagesNotFound"
+  | "messagesOwnProduct"
   | "navExplore"
   | "navHow"
   | "navSaved"
@@ -983,6 +995,48 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   messagesHint: {
     en: "Chat with the seller in NakuruHub.",
     sw: "Ongea na muuzaji ndani ya NakuruHub.",
+  },
+  messagesPlaceholder: {
+    en: "Write your message…",
+    sw: "Andika ujumbe wako…",
+  },
+  messagesSend: { en: "Send", sw: "Tuma" },
+  messagesSignIn: {
+    en: "Sign in to message",
+    sw: "Ingia ili kutuma ujumbe",
+  },
+  messagesEmpty: {
+    en: "No conversations yet. Message a seller from a listing.",
+    sw: "Bado hakuna mazungumzo. Mtumie muuzaji kutoka tangazo.",
+  },
+  messagesSent: {
+    en: "Message sent. Continue in your inbox.",
+    sw: "Ujumbe umetumwa. Endelea katika kikasha.",
+  },
+  messagesOpenInbox: { en: "Open inbox", sw: "Fungua kikasha" },
+  messagesPostError: {
+    en: "Could not send message. Try again.",
+    sw: "Haikuweza kutuma ujumbe. Jaribu tena.",
+  },
+  messagesLoadError: {
+    en: "Could not load messages.",
+    sw: "Haikuweza kupakia ujumbe.",
+  },
+  messagesForbidden: {
+    en: "You can’t do that.",
+    sw: "Huwezi kufanya hivyo.",
+  },
+  messagesRateLimited: {
+    en: "Too many messages. Try again later.",
+    sw: "Ujumbe mwingi mno. Jaribu tena baadaye.",
+  },
+  messagesNotFound: {
+    en: "This listing isn’t available.",
+    sw: "Tangazo hili halipatikani.",
+  },
+  messagesOwnProduct: {
+    en: "You can’t message yourself on your own listing.",
+    sw: "Huwezi kujitumia ujumbe kwenye tangazo lako.",
   },
   navExplore: { en: "Explore", sw: "Gundua" },
   navHow: { en: "How it works", sw: "Jinsi inavyofanya" },

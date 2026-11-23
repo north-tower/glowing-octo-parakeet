@@ -162,6 +162,12 @@ export const commentNew = z
   })
   .strict();
 
+export const listingMessageNew = z
+  .object({
+    body: z.string().trim().min(1).max(500),
+  })
+  .strict();
+
 export const staffCategoryNew = z
   .object({
     label: z.string().trim().min(2).max(40),

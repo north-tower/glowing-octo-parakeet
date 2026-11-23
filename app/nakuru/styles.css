@@ -447,6 +447,18 @@ body.app .pd-seller-av{width:48px;height:48px;border-radius:12px;display:grid;pl
 body.app .pd-seller-meta{display:flex;flex-direction:column;gap:6px;min-width:0}
 body.app .pd-seller-name{margin:0;font-weight:600;font-size:15px}
 body.app .pd-seller-msg{min-height:44px;border-radius:12px}
+body.app .pd-msg-form{margin-top:8px;display:flex;flex-direction:column;gap:10px}
+body.app .pd-msg-form textarea{width:100%;min-height:80px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);font:inherit;resize:vertical;box-sizing:border-box}
+body.app .pd-msg-actions{display:flex;flex-direction:column;gap:8px}
+body.app .msg-preview{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+body.app .msg-bubbles{display:flex;flex-direction:column;gap:10px;margin:12px 0;max-height:min(50vh,360px);overflow-y:auto}
+body.app .msg-bubble{max-width:88%;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:var(--bg);align-self:flex-start}
+body.app .msg-bubble--mine{align-self:flex-end;background:color-mix(in srgb,var(--pri) 12%,var(--card));border-color:color-mix(in srgb,var(--pri) 28%,var(--line))}
+body.app .msg-bubble p{margin:4px 0 0;font-size:14px;line-height:1.45;white-space:pre-wrap}
+body.app .msg-bubble time{display:block;margin-top:6px;font-size:11px;color:var(--mut)}
+body.app .msg-bubble-handle{font-size:12px;font-weight:600;color:var(--mut)}
+body.app .msg-compose{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+body.app .msg-compose textarea{width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--line);font:inherit;resize:vertical;box-sizing:border-box}
 body.app .pd-about-title{font-size:14px;font-weight:var(--fw-label);margin:0 0 8px}
 body.app .pd-about-body{font-size:15px;font-weight:430;line-height:1.6;margin:0;color:var(--ink);white-space:pre-wrap;max-width:60ch}
 body.app .pd-about-body--clamp{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:5;overflow:hidden}
