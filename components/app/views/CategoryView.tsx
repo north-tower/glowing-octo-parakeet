@@ -1,36 +1,48 @@
 "use client";
 
 import { useNakuruApp } from "@/components/app/AppProvider";
-import { CategoryRail } from "@/components/app/category/CategoryRail";
+import { CategoryHubNav } from "@/components/app/category/CategoryHubNav";
 import { CategoryPanel } from "@/components/app/category/CategoryPanel";
-import { BROWSE_SIDES } from "@/lib/nakuru/data/constants";
 import { isLiveCatalogEnabled } from "@/lib/nakuru/catalog-live";
 import { useCatalogListings } from "@/lib/nakuru/use-catalog-listings";
 import { useListingAct } from "@/lib/nakuru/use-listing-act";
-import type { CategoryId } from "@/lib/nakuru/types";
+import { useCategories } from "@/lib/nakuru/use-categories";
 import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
-
-const BROWSE_SIDE_SET = new Set<string>(BROWSE_SIDES);
+import { useMemo } from "react";
 
 export function CategoryView() {
   const { state } = useNakuruApp();
   const { lang } = usePwaInstall();
   const { onAct, serviceInquiryEnabled, inquiryModal } = useListingAct();
+  const { rows: categoryRows } = useCategories();
   const s = state.side;
   const liveCatalog = isLiveCatalogEnabled();
+
+  const rootSlugs = useMemo(
+    () =>
+      new Set(
+        categoryRows
+          .filter((r) => r.depth === 0)
+          .map((r) => r.slug),
+      ),
+    [categoryRows],
+  );
+
+  const browseActive =
+    s !== "feat" && (rootSlugs.has(s) || state.cat !== "all");
   const apiCategory =
-    s === "feat" || !BROWSE_SIDE_SET.has(s) ? ("all" as const) : (s as CategoryId);
+    state.cat !== "all" ? state.cat : rootSlugs.has(s) ? s : "all";
 
   const { items, loading, error } = useCatalogListings({
-    enabled: liveCatalog && BROWSE_SIDE_SET.has(s),
+    enabled: liveCatalog && browseActive,
     category: apiCategory,
     query: state.q,
   });
 
   return (
-    <div className="cl cat-layout">
+    <div className="cl cat-layout cat-layout--hub">
       {inquiryModal}
-      <CategoryRail lang={lang} />
+      <CategoryHubNav lang={lang} />
       <CategoryPanel
         lang={lang}
         liveCatalog={liveCatalog}

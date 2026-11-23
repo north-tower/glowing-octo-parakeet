@@ -2,6 +2,7 @@ import { audit } from "./audit";
 import {
   type CategoryPublicRow,
   getCategoryBySlug,
+  mapCategoryRow,
   slugsAllowedForApply,
   upsertCommunityCategory,
 } from "./categories";
@@ -228,7 +229,7 @@ async function approvedVendorForOwner(
 
 export async function appendVendorCategory(
   ownerId: string,
-  input: { label?: string; slug?: string },
+  input: { label?: string; slug?: string; parentSlug?: string },
 ): Promise<{ categories: string[]; category: CategoryPublicRow }> {
   const vendor = await approvedVendorForOwner(ownerId);
   if (!vendor) {
@@ -237,20 +238,21 @@ export async function appendVendorCategory(
 
   let category: CategoryPublicRow;
   if (input.label !== undefined) {
-    category = await upsertCommunityCategory(ownerId, input.label);
+    category = await upsertCommunityCategory(
+      ownerId,
+      input.label,
+      input.parentSlug,
+    );
+    return { categories: vendor.categories, category };
   } else if (input.slug !== undefined) {
     const row = await getCategoryBySlug(input.slug);
     if (!row || !row.visible || !row.open_for_apply) {
       throw new VendorError(400, "bad_request");
     }
-    category = {
-      slug: row.slug,
-      label: row.label,
-      kind: row.kind,
-      listingMode: row.listing_mode,
-      openForApply: row.open_for_apply,
-      sortOrder: row.sort_order,
-    };
+    if (row.depth !== 0) {
+      throw new VendorError(400, "bad_request");
+    }
+    category = mapCategoryRow(row);
   } else {
     throw new VendorError(400, "bad_request");
   }

@@ -1,0 +1,566 @@
+{
+  "version": 1,
+  "source": "Jiji.co.ke jobs nav (curated 2026-11-23)",
+  "categories": [
+    {
+      "slug": "clerical-and-office-jobs",
+      "label": "Clerical & Office Jobs",
+      "parentSlug": "jobs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 155,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "computing-and-it-jobs",
+      "label": "Computing & IT Jobs",
+      "parentSlug": "jobs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 156,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "construction-and-skilled-trades-jobs",
+      "label": "Construction & Skilled Trades Jobs",
+      "parentSlug": "jobs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 157,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "consulting-and-strategy-jobs",
+      "label": "Consulting & Strategy Jobs",
+      "parentSlug": "jobs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 158,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "customer-service-jobs",
+      "label": "Customer Service Jobs",
+      "parentSlug": "jobs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 159,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "driver-jobs",
+      "label": "Driver Jobs",
+      "parentSlug": "jobs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 160,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "engineering-and-architecture-jobs",
+      "label": "Engineering & Architecture Jobs",
+      "parentSlug": "jobs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 161,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "farming-and-veterinary-jobs",
+      "label": "Farming & Veterinary Jobs",
+      "parentSlug": "jobs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 162,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "gardening-and-landscaping-jobs",
+      "label": "Gardening & Landscaping Jobs",
+      "parentSlug": "jobs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 163,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "health-and-beauty-jobs",
+      "label": "Health & Beauty Jobs",
+      "parentSlug": "jobs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 164,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "hospitality-and-catering-jobs",
+      "label": "Hospitality & Catering Jobs",
+      "parentSlug": "jobs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 165,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "housekeeper-jobs",
+      "label": "Housekeeper Jobs",
+      "parentSlug": "jobs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 166,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "human-resources-jobs",
+      "label": "Human Resources Jobs",
+      "parentSlug": "jobs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 167,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "internship-jobs",
+      "label": "Internship Jobs",
+      "parentSlug": "jobs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 168,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "legal-jobs",
+      "label": "Legal Jobs",
+      "parentSlug": "jobs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 169,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "logistics-and-transportation-jobs",
+      "label": "Logistics & Transportation Jobs",
+      "parentSlug": "jobs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 170,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "manual-labour-jobs",
+      "label": "Manual Labour Jobs",
+      "parentSlug": "jobs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 171,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "manufacturing-jobs",
+      "label": "Manufacturing Jobs",
+      "parentSlug": "jobs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 172,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "mining-industry-and-energy-jobs",
+      "label": "Mining, Industry & Energy Jobs",
+      "parentSlug": "jobs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 173,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "quality-control-and-assurance-jobs",
+      "label": "Quality Control & Assurance Jobs",
+      "parentSlug": "jobs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 174,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "research-survey-and-monitoring-jobs",
+      "label": "Research, Survey & Monitoring Jobs",
+      "parentSlug": "jobs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 175,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "restaurant-and-bar-jobs",
+      "label": "Restaurant & Bar Jobs",
+      "parentSlug": "jobs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 176,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "sales-jobs",
+      "label": "Sales Jobs",
+      "parentSlug": "jobs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 177,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "security-jobs",
+      "label": "Security Jobs",
+      "parentSlug": "jobs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 178,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "sports-club-and-entertainment-jobs",
+      "label": "Sports, Club & Entertainment Jobs",
+      "parentSlug": "jobs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 179,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "teaching-jobs",
+      "label": "Teaching Jobs",
+      "parentSlug": "jobs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 180,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "technology-jobs",
+      "label": "Technology Jobs",
+      "parentSlug": "jobs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 181,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "tourism-and-travel-jobs",
+      "label": "Tourism & Travel Jobs",
+      "parentSlug": "jobs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 182,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "clerical-and-office-cvs",
+      "label": "Clerical & Office CVs",
+      "parentSlug": "seeking-work-cvs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 183,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "computing-and-it-cvs",
+      "label": "Computing & IT CVs",
+      "parentSlug": "seeking-work-cvs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 184,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "construction-and-skilled-trades-cvs",
+      "label": "Construction & Skilled Trades CVs",
+      "parentSlug": "seeking-work-cvs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 185,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "consulting-and-strategy-cvs",
+      "label": "Consulting & Strategy CVs",
+      "parentSlug": "seeking-work-cvs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 186,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "customer-service-cvs",
+      "label": "Customer Service CVs",
+      "parentSlug": "seeking-work-cvs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 187,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "driver-cvs",
+      "label": "Driver CVs",
+      "parentSlug": "seeking-work-cvs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 188,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "engineering-and-architecture-cvs",
+      "label": "Engineering & Architecture CVs",
+      "parentSlug": "seeking-work-cvs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 189,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "farming-and-veterinary-cvs",
+      "label": "Farming & Veterinary CVs",
+      "parentSlug": "seeking-work-cvs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 190,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "gardening-and-landscaping-cvs",
+      "label": "Gardening & Landscaping CVs",
+      "parentSlug": "seeking-work-cvs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 191,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "health-and-beauty-cvs",
+      "label": "Health & Beauty CVs",
+      "parentSlug": "seeking-work-cvs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 192,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "hospitality-and-catering-cvs",
+      "label": "Hospitality & Catering CVs",
+      "parentSlug": "seeking-work-cvs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 193,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "housekeeper-cvs",
+      "label": "Housekeeper CVs",
+      "parentSlug": "seeking-work-cvs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 194,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "human-resources-cvs",
+      "label": "Human Resources CVs",
+      "parentSlug": "seeking-work-cvs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 195,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "internship-cvs",
+      "label": "Internship CVs",
+      "parentSlug": "seeking-work-cvs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 196,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "legal-cvs",
+      "label": "Legal CVs",
+      "parentSlug": "seeking-work-cvs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 197,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "logistics-and-transportation-cvs",
+      "label": "Logistics & Transportation CVs",
+      "parentSlug": "seeking-work-cvs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 198,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "manual-labour-cvs",
+      "label": "Manual Labour CVs",
+      "parentSlug": "seeking-work-cvs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 199,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "manufacturing-cvs",
+      "label": "Manufacturing CVs",
+      "parentSlug": "seeking-work-cvs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 200,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "mining-industry-and-energy-cvs",
+      "label": "Mining, Industry & Energy CVs",
+      "parentSlug": "seeking-work-cvs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 201,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "quality-control-and-assurance-cvs",
+      "label": "Quality Control & Assurance CVs",
+      "parentSlug": "seeking-work-cvs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 202,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "research-survey-and-monitoring-cvs",
+      "label": "Research, Survey & Monitoring CVs",
+      "parentSlug": "seeking-work-cvs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 203,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "restaurant-and-bar-cvs",
+      "label": "Restaurant & Bar CVs",
+      "parentSlug": "seeking-work-cvs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 204,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "sales-cvs",
+      "label": "Sales CVs",
+      "parentSlug": "seeking-work-cvs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 205,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "security-cvs",
+      "label": "Security CVs",
+      "parentSlug": "seeking-work-cvs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 206,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "sports-club-and-entertainment-cvs",
+      "label": "Sports, Club & Entertainment CVs",
+      "parentSlug": "seeking-work-cvs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 207,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "teaching-cvs",
+      "label": "Teaching CVs",
+      "parentSlug": "seeking-work-cvs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 208,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "technology-cvs",
+      "label": "Technology CVs",
+      "parentSlug": "seeking-work-cvs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 209,
+      "openForApply": false,
+      "kind": "official"
+    },
+    {
+      "slug": "tourism-and-travel-cvs",
+      "label": "Tourism & Travel CVs",
+      "parentSlug": "seeking-work-cvs",
+      "depth": 1,
+      "listingMode": "services",
+      "sortOrder": 210,
+      "openForApply": false,
+      "kind": "official"
+    }
+  ]
+}

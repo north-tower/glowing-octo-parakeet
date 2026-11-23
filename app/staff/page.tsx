@@ -5,6 +5,7 @@ import { StaffLoginForm } from "@/components/staff/StaffLoginForm";
 import { BRAND_NAME } from "@/lib/nakuru/brand";
 import { StaffVendorQueue } from "@/components/staff/StaffVendorQueue";
 import { getStaffAccessToken } from "@/lib/nakuru/staff-auth";
+import { LoadingBlock } from "@/components/app/loading/LoadingUi";
 import { useCallback, useEffect, useState } from "react";
 
 export default function StaffPage() {
@@ -25,7 +26,7 @@ export default function StaffPage() {
   }, []);
 
   if (!ready) {
-    return null;
+    return <LoadingBlock label="Loading staff console…" />;
   }
 
   return (

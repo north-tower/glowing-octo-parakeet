@@ -195,6 +195,7 @@ export function AssistantFloatingButton({ lang, sheetOpen, onOpen }: Props) {
       id="assistant-fab"
       className={[
         "assistant-fab",
+        "!max-md:bottom-20",
         expanded ? "assistant-fab--expanded" : "",
         hidden ? "assistant-fab--hidden" : "",
         reduced ? "assistant-fab--reduced" : "",

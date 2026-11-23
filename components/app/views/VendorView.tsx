@@ -17,6 +17,7 @@ import {
   vendorStatusLabel,
   type ApiVendorRow,
 } from "@/lib/nakuru/vendor-profile";
+import { LoadingBlock, VendorWorkspaceSkeleton } from "@/components/app/loading/LoadingUi";
 import { useCallback, useEffect, useState } from "react";
 
 function LiveVendorPanel() {
@@ -58,7 +59,7 @@ function LiveVendorPanel() {
   }, [pendingPoll, authUser, loadMine]);
 
   if (!ready) {
-    return <div className="m">Loading…</div>;
+    return <LoadingBlock label="Loading…" compact />;
   }
 
   if (!authUser) {
@@ -73,7 +74,7 @@ function LiveVendorPanel() {
   }
 
   if (rows === null) {
-    return <div className="m">Loading your vendor profile…</div>;
+    return <VendorWorkspaceSkeleton />;
   }
 
   if (loadError) {

@@ -7,7 +7,12 @@ import { listingModeOf } from "@/lib/nakuru/listing-mode";
 import type { ListingMode } from "@/lib/nakuru/types";
 import { listPublicListings } from "@/lib/server/catalog";
 import { listVisibleCategories } from "@/lib/server/categories";
+import { listCategoryAliases } from "@/lib/server/category-tree";
 import { areaForLocation, type SeoArea } from "./areas";
+import {
+  listingInCategorySubtree,
+  type SeoCategoryNode,
+} from "./category-tree";
 import type { SeoCategory } from "./directory-copy";
 
 export type DirListing = {
@@ -26,17 +31,29 @@ export type DirListing = {
   rent: boolean;
 };
 
+export type CategoryAlias = { aliasSlug: string; canonicalSlug: string };
+
 export type DirectoryData = {
-  categories: SeoCategory[];
+  categories: SeoCategoryNode[];
   listings: DirListing[];
+  aliases: CategoryAlias[];
 };
 
-function fallbackCategories(): SeoCategory[] {
-  return OFFICIAL_DIRECTORY_FALLBACK.map(({ slug, label, listingMode }) => ({
-    slug,
-    label,
-    listingMode,
-  }));
+const FALLBACK_ALIASES: CategoryAlias[] = [
+  { aliasSlug: "shop", canonicalSlug: "business-and-industry" },
+  { aliasSlug: "property", canonicalSlug: "real-estate" },
+];
+
+function fallbackCategories(): SeoCategoryNode[] {
+  return OFFICIAL_DIRECTORY_FALLBACK.map(
+    ({ slug, label, listingMode, parentSlug, depth }) => ({
+      slug,
+      label,
+      listingMode,
+      parentSlug,
+      depth,
+    }),
+  );
 }
 
 function demoListings(): DirListing[] {
@@ -87,34 +104,62 @@ export async function getDirectoryData(): Promise<DirectoryData> {
   cacheLife("minutes");
 
   if (!isLiveCatalogEnabled()) {
-    return { categories: fallbackCategories(), listings: demoListings() };
+    return {
+      categories: fallbackCategories(),
+      listings: demoListings(),
+      aliases: FALLBACK_ALIASES,
+    };
   }
   try {
-    const [categories, listings] = await Promise.all([
+    const [categories, listings, aliases] = await Promise.all([
       listVisibleCategories(),
       liveListings(),
+      listCategoryAliases(),
     ]);
     return {
-      categories: categories.map(({ slug, label, listingMode }) => ({
-        slug,
-        label,
-        listingMode,
-      })),
+      categories: categories.map(
+        ({ slug, label, listingMode, parentSlug, depth }) => ({
+          slug,
+          label,
+          listingMode,
+          parentSlug,
+          depth,
+        }),
+      ),
       listings,
+      aliases,
     };
   } catch {
-    return { categories: fallbackCategories(), listings: [] };
+    return {
+      categories: fallbackCategories(),
+      listings: [],
+      aliases: FALLBACK_ALIASES,
+    };
   }
 }
 
 export function filterListings(
   listings: DirListing[],
-  opts: { category?: SeoCategory; area?: SeoArea; vendorId?: string },
+  opts: {
+    category?: SeoCategoryNode;
+    area?: SeoArea;
+    vendorId?: string;
+    categories?: SeoCategoryNode[];
+  },
 ): DirListing[] {
-  return listings.filter(
-    (l) =>
-      (!opts.category || l.categorySlug === opts.category.slug) &&
-      (!opts.area || l.areaSlug === opts.area.slug) &&
-      (!opts.vendorId || l.vendorId === opts.vendorId),
-  );
+  const catalog = opts.categories;
+  return listings.filter((l) => {
+    if (opts.category) {
+      if (catalog) {
+        if (!listingInCategorySubtree(l.categorySlug, opts.category, catalog)) {
+          return false;
+        }
+      } else if (l.categorySlug !== opts.category.slug) {
+        return false;
+      }
+    }
+    if (opts.area && l.areaSlug !== opts.area.slug) return false;
+    if (opts.vendorId && l.vendorId !== opts.vendorId) return false;
+    return true;
+  });
 }

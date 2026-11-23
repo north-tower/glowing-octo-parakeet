@@ -1,3 +1,29 @@
 @import "tailwindcss";
 
-/* Tailwind kept for dev scaffolding; Nakuru product styles load via nakuru-globals.css */
+@source "../components";
+@source "../lib";
+@source ".";
+
+/* Tailwind for utility classes; Nakuru product styles load from app/nakuru/styles.css in layout.tsx */
+
+/*
+ * Variable fonts (Figtree / Bricolage): body.app pins wght via font-variation-settings,
+ * which overrides inherited font-weight from Tailwind utilities — reset on the shell only.
+ */
+@layer base {
+  body.app {
+    font-variation-settings: normal;
+  }
+
+  body.app .font-medium {
+    font-variation-settings: "wght" 500;
+  }
+
+  body.app .font-semibold {
+    font-variation-settings: "wght" 600;
+  }
+
+  body.app .font-bold {
+    font-variation-settings: "wght" 700;
+  }
+}

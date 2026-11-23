@@ -33,12 +33,6 @@ export function LandingFooter() {
         </nav>
         <div className="foot-meta">
           <LangToggle />
-          <p className="foot-proto">
-            <Bi
-              en="Prototype — demo data resets on reload."
-              sw="Toleo la majaribio — data inajipanga upya ukipakia ukurasa."
-            />
-          </p>
         </div>
       </div>
       <div className="foot-bottom">

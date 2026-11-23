@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { DirectoryView } from "@/components/seo/DirectoryView";
 import { SeoShell } from "@/components/seo/SeoShell";
 import { areaBySlug, SEO_AREAS } from "@/lib/seo/areas";
@@ -11,6 +11,7 @@ import {
 import { categoryHeading, categoryIntro, placeName } from "@/lib/seo/directory-copy";
 import {
   areaLinks,
+  canonicalCategoryPathSlug,
   categoryBySlug,
   categoryLinks,
   directoryMetadata,
@@ -35,17 +36,23 @@ function resolve(data: DirectoryData, slug: string, categorySlug: string) {
     category,
     heading: categoryHeading(category, place),
     intro: `${categoryIntro(category, place)} ${area.blurb}`,
-    listings: filterListings(data.listings, { area, category }),
+    listings: filterListings(data.listings, {
+      area,
+      category,
+      categories: data.categories,
+    }),
   };
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug, category } = await params;
   const data = await getDirectoryData();
+  const categoryPath =
+    canonicalCategoryPathSlug(data, category) ?? category;
   const r = resolve(data, slug, category);
   if (!r) return { title: "Not found", robots: { index: false } };
   return directoryMetadata({
-    path: `/nakuru/${slug}/${category}`,
+    path: `/nakuru/${slug}/${categoryPath}`,
     title: r.heading,
     description: categoryIntro(r.category, placeName(r.area.name)),
     listingCount: r.listings.length,
@@ -55,6 +62,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function NakuruAreaCategoryPage({ params }: PageProps) {
   const { slug, category } = await params;
   const data = await getDirectoryData();
+  const canonicalCategory = canonicalCategoryPathSlug(data, category);
+  if (canonicalCategory) redirect(`/nakuru/${slug}/${canonicalCategory}`);
   const r = resolve(data, slug, category);
   if (!r) notFound();
   const path = `/nakuru/${slug}/${category}`;

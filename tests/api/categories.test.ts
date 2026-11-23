@@ -76,22 +76,41 @@ describe("/api/categories", () => {
     const res = await request(server).get("/api/categories").expect(200);
 
     expect(Array.isArray(res.body)).toBe(true);
-    const shop = res.body.find((c: { slug: string }) => c.slug === "shop");
-    const property = res.body.find(
-      (c: { slug: string }) => c.slug === "property",
+    expect(res.body.find((c: { slug: string }) => c.slug === "shop")).toBe(
+      undefined,
     );
-    expect(shop).toEqual(
-      expect.objectContaining({ openForApply: true, kind: "official" }),
+    expect(res.body.find((c: { slug: string }) => c.slug === "property")).toBe(
+      undefined,
     );
-    expect(property).toEqual(
-      expect.objectContaining({ openForApply: true, kind: "official" }),
+
+    const phones = res.body.find(
+      (c: { slug: string }) => c.slug === "mobile-phones-tablets",
     );
+    expect(phones).toEqual(
+      expect.objectContaining({
+        openForApply: true,
+        kind: "official",
+        depth: 0,
+        parentSlug: null,
+      }),
+    );
+
+    const cars = res.body.find((c: { slug: string }) => c.slug === "cars");
+    expect(cars).toEqual(
+      expect.objectContaining({
+        kind: "official",
+        depth: 1,
+        parentSlug: "vehicles",
+      }),
+    );
+
     const rider = res.body.find((c: { slug: string }) => c.slug === "rider");
     if (rider) {
       expect(rider).toEqual(
         expect.objectContaining({ kind: "official", listingMode: "services" }),
       );
     }
+
     for (const row of res.body) {
       expect(row).toEqual(
         expect.objectContaining({
@@ -101,10 +120,30 @@ describe("/api/categories", () => {
           listingMode: expect.stringMatching(/^(shop|services|property|cars)$/),
           openForApply: expect.any(Boolean),
           sortOrder: expect.any(Number),
+          depth: expect.any(Number),
+          hasChildren: expect.any(Boolean),
         }),
       );
       expect(row).not.toHaveProperty("visible");
     }
+  });
+
+  it.skipIf(!hasDbEnv)("GET format=tree returns roots", async ({ skip }) => {
+    if (!dbReachable) skip();
+
+    const res = await request(server)
+      .get("/api/categories?format=tree")
+      .expect(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(
+      res.body.some((n: { slug: string }) => n.slug === "vehicles"),
+    ).toBe(true);
+    const vehicles = res.body.find(
+      (n: { slug: string }) => n.slug === "vehicles",
+    );
+    expect(vehicles.children?.some((c: { slug: string }) => c.slug === "cars"))
+      .toBe(true);
   });
 
   it("POST without auth returns 401", async () => {
@@ -132,6 +171,8 @@ describe("/api/categories", () => {
           kind: "community",
           listingMode: "shop",
           openForApply: true,
+          depth: 1,
+          parentSlug: "business-and-industry",
         }),
       );
     },

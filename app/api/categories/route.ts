@@ -5,6 +5,7 @@ import {
   RESERVED_CATEGORY_SLUGS,
   slugifyCategoryLabel,
 } from "@/lib/nakuru/category-slug";
+import { buildCategoryTree } from "@/lib/nakuru/category-tree";
 import {
   CategoryError,
   getCategoryBySlug,
@@ -13,11 +14,28 @@ import {
 } from "@/lib/server/categories";
 import { bearerUser, requireRole } from "@/lib/server/middleware";
 
-const categoryNew = z.object({ label: z.string() }).strict();
+const categoryNew = z
+  .object({
+    label: z.string(),
+    parentSlug: z.string().optional(),
+  })
+  .strict();
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    const rows = await listVisibleCategories();
+    const { searchParams } = new URL(req.url);
+    const format = searchParams.get("format");
+    const parent = searchParams.get("parent");
+
+    if (format === "tree") {
+      const rows = await listVisibleCategories();
+      const tree = buildCategoryTree(rows);
+      return NextResponse.json(tree, {
+        headers: { "Cache-Control": "public, max-age=15" },
+      });
+    }
+
+    const rows = await listVisibleCategories(parent);
     return NextResponse.json(rows, {
       headers: { "Cache-Control": "public, max-age=15" },
     });
@@ -57,7 +75,11 @@ export async function POST(req: Request) {
   }
 
   try {
-    const row = await upsertCommunityCategory(user.id, parsed.data.label);
+    const row = await upsertCommunityCategory(
+      user.id,
+      parsed.data.label,
+      parsed.data.parentSlug,
+    );
     return NextResponse.json(row, { status: reuse ? 200 : 201 });
   } catch (err) {
     if (err instanceof CategoryError) {

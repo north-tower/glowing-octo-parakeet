@@ -21,6 +21,8 @@ export function VendorSellCard() {
   const signedIn = ready && Boolean(user);
   const signedOutDemo = !state.me && !signedIn;
 
+  const [pastHero, setPastHero] = useState(false);
+
   useEffect(() => {
     if (!signedOutDemo) {
       setVisible(false);
@@ -29,7 +31,21 @@ export function VendorSellCard() {
     setVisible(canShowVendorSellCard());
   }, [signedOutDemo]);
 
-  if (!visible) return null;
+  useEffect(() => {
+    if (!visible) return;
+    const hero = document.querySelector(".home-hero-section");
+    if (!hero || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        setPastHero(Boolean(entry && !entry.isIntersecting));
+      },
+      { threshold: 0, rootMargin: "0px 0px -8% 0px" },
+    );
+    io.observe(hero);
+    return () => io.disconnect();
+  }, [visible]);
+
+  if (!visible || !pastHero) return null;
 
   const dismiss = () => {
     markVendorSellCardDismissed();
@@ -38,7 +54,7 @@ export function VendorSellCard() {
 
   return (
     <div
-      className="vendor-sell-card card"
+      className="vendor-sell-card card fixed bottom-4 right-4 z-40 max-w-[min(100vw-2rem,22rem)] shadow-lg"
       role="region"
       aria-labelledby="vendor-sell-title"
     >

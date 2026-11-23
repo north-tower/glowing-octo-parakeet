@@ -22,11 +22,14 @@ function defaultCategorySelection(
   rows: DirectoryCategory[],
   loading: boolean,
 ): string[] {
-  if (loading || rows.length === 0) return ["shop"];
-  const shopOpen = rows.some((r) => r.slug === "shop" && r.openForApply);
-  if (shopOpen) return ["shop"];
-  const firstOpen = rows.find((r) => r.openForApply)?.slug;
-  return firstOpen ? [firstOpen] : ["shop"];
+  const roots = rows.filter((r) => r.depth === 0);
+  if (loading || roots.length === 0) return ["mobile-phones-tablets"];
+  const preferred = roots.find(
+    (r) => r.slug === "mobile-phones-tablets" && r.openForApply,
+  );
+  if (preferred) return [preferred.slug];
+  const firstOpen = roots.find((r) => r.openForApply)?.slug;
+  return firstOpen ? [firstOpen] : [roots[0]!.slug];
 }
 
 type Props = {
@@ -45,9 +48,14 @@ export function VendorApplyForm({ disabled, onApplied, toast }: Props) {
   const [catError, setCatError] = useState("");
   const [busy, setBusy] = useState(false);
 
+  const applyRows = useMemo(
+    () => rows.filter((r) => r.depth === 0),
+    [rows],
+  );
+
   const defaultCategories = useMemo(
-    () => defaultCategorySelection(rows, loading),
-    [rows, loading],
+    () => defaultCategorySelection(applyRows, loading),
+    [applyRows, loading],
   );
   const activeCategories = categories ?? defaultCategories;
 
@@ -180,7 +188,7 @@ export function VendorApplyForm({ disabled, onApplied, toast }: Props) {
 
       <label>Categories (tap to add or remove)</label>
       <div>
-        {rows.map((row) => {
+        {applyRows.map((row) => {
           if (row.openForApply) {
             const on = activeCategories.includes(row.slug);
             return (
@@ -225,7 +233,7 @@ export function VendorApplyForm({ disabled, onApplied, toast }: Props) {
           }}
         >
           <option value="">Select a category</option>
-          {rows.map((row) => {
+          {applyRows.map((row) => {
             const selected = activeCategories.includes(row.slug);
             const closed = !row.openForApply;
             return (

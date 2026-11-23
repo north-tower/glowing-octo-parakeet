@@ -2,15 +2,19 @@
 
 import { ProductCard } from "@/components/app/ProductCard";
 import { useNakuruApp } from "@/components/app/AppProvider";
+import { CategoryRow } from "@/components/app/category/CategoryRow";
 import { CategoryTile } from "@/components/app/CategoryTile";
 import { HomeSectionHeader } from "@/components/app/HomeSectionHeader";
 import { SlideArtDelivery } from "@/components/app/HomeSlideArt";
+import { CAT_POPULAR, TOPC } from "@/lib/nakuru/data/constants";
+import { BrowseByTypeSection } from "@/components/app/category/browse/BrowseByTypeSection";
+import { BrowseStyleTileButton } from "@/components/app/category/browse/BrowseStyleTile";
 import {
-  BROWSE_GROUPS,
-  BROWSE_SIDES,
-  CAT_POPULAR,
-  TOPC,
-} from "@/lib/nakuru/data/constants";
+  popularLucideForCommunity,
+  popularLucideForTopcIndex,
+} from "@/components/app/category/browse/popular-lucide";
+import { iconForCategorySlug } from "@/lib/nakuru/category-root-visual";
+import type { DirectoryCategory } from "@/lib/nakuru/data/category-directory";
 import {
   homeCategoryAllLabel,
   homeCategoryGroupDesc,
@@ -25,9 +29,10 @@ import {
 import type { CategoryId, Listing } from "@/lib/nakuru/types";
 import type { LandingLang } from "@/lib/nakuru/i18n";
 import { useCategories } from "@/lib/nakuru/use-categories";
-import { IconSparkle } from "@/components/app/icons/LineIcons";
-
-const BROWSE_SIDE_SET = new Set<string>(BROWSE_SIDES);
+import { IconChevronLeft, IconSparkle } from "@/components/app/icons/LineIcons";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { appCategoryHref } from "@/lib/nakuru/app-nav-href";
 
 type ListingsState = {
   items: Listing[];
@@ -94,20 +99,30 @@ export function CategoryPanel({
   onAct,
 }: Props) {
   const { state, dispatch } = useNakuruApp();
+  const router = useRouter();
   const { rows: categoryRows } = useCategories();
   const communityFeatured = categoryRows.filter((r) => r.kind === "community");
   const s = state.side;
-  const isBrowseGroup = BROWSE_SIDE_SET.has(s);
+  const roots = useMemo(
+  () => categoryRows.filter((r) => r.depth === 0),
+    [categoryRows],
+  );
+  const isBrowseGroup =
+    s !== "feat" && roots.some((r) => r.slug === s);
+  const [focusSlug, setFocusSlug] = useState(s);
 
-  const showListings = liveCatalog && isBrowseGroup;
+  useEffect(() => {
+    setFocusSlug(s);
+  }, [s]);
+
+  const focusRow = categoryRows.find((r) => r.slug === focusSlug);
+  const childRows = categoryRows.filter((r) => r.parentSlug === focusSlug);
+  const showListings = liveCatalog && (isBrowseGroup || state.cat !== "all");
   const ks = topIndicesForSide(s);
   const sparse = ks.length > 0 && ks.length <= 2;
   const gridClass = `home-cat-grid${sparse ? " home-cat-grid--sparse" : ""}${s === "feat" ? "" : ""}`;
-  const browseGridClass =
-    "home-cat-grid home-cat-grid--browse home-cat-grid--browse-type";
-
   return (
-    <div className="cat-panel rp">
+    <div className="cat-panel rp cat-panel--hub">
       {s === "feat" ? (
         <>
           <PromoBanner
@@ -115,71 +130,100 @@ export function CategoryPanel({
             onShop={() => dispatch({ type: "SLIDE_SHOP" })}
           />
           <HomeSectionHeader titleKey="popularRightNow" lang={lang} />
-          <div className="home-cat-grid">
+          <div className="cat-popular-track" role="list">
             {CAT_POPULAR.map((k) => {
               const t = TOPC[k]!;
+              const visual = popularLucideForTopcIndex(k);
+              const label = t[3]
+                ? homeTopCategoryLabel(t[3], lang)
+                : t[1];
               return (
-                <CategoryTile
-                  key={k}
-                  icon={t[0]}
-                  tint={t[4]}
-                  label={
-                    t[3]
-                      ? homeTopCategoryLabel(t[3], lang)
-                      : t[1]
-                  }
-                  onActivate={() =>
-                    dispatch({ type: "SELECT_TOPC", index: k })
-                  }
-                />
+                <div key={k} className="cat-popular-item" role="listitem">
+                  <BrowseStyleTileButton
+                    icon={visual.icon}
+                    tint={visual.tint}
+                    label={label}
+                    onActivate={() =>
+                      dispatch({ type: "SELECT_TOPC", index: k })
+                    }
+                  />
+                </div>
               );
             })}
           </div>
           {communityFeatured.length ? (
-            <div className="home-cat-grid" style={{ marginTop: 8 }}>
-              {communityFeatured.map((row) => (
-                <CategoryTile
-                  key={row.slug}
-                  icon="shirt"
-                  tint="teal"
-                  label={row.label}
-                  onActivate={() =>
-                    dispatch({ type: "SET_CAT", cat: row.slug })
-                  }
-                />
-              ))}
+            <div className="cat-popular-track" style={{ marginTop: 8 }}>
+              {communityFeatured.map((row) => {
+                const visual = popularLucideForCommunity();
+                return (
+                  <div key={row.slug} className="cat-popular-item">
+                    <BrowseStyleTileButton
+                      icon={visual.icon}
+                      tint={visual.tint}
+                      label={row.label}
+                      onActivate={() =>
+                        dispatch({ type: "SET_CAT", cat: row.slug })
+                      }
+                    />
+                  </div>
+                );
+              })}
             </div>
           ) : null}
-          <HomeSectionHeader titleKey="browseByType" lang={lang} />
-          <div className={browseGridClass}>
-            {BROWSE_GROUPS.map((g) => (
-              <CategoryTile
-                key={g.side}
-                icon={g.icon}
-                tint={g.tint}
-                label={homeCategoryLabel(g.side as CategoryId, lang)}
-                onActivate={() =>
-                  dispatch({ type: "SET_SIDE", side: g.side })
-                }
-              />
-            ))}
-          </div>
+          <BrowseByTypeSection lang={lang} />
         </>
       ) : isBrowseGroup ? (
         <>
+          <button
+            type="button"
+            className="cat-hub-back"
+            onClick={() => {
+              setFocusSlug("feat");
+              dispatch({ type: "SET_CAT", cat: "all" });
+              dispatch({ type: "SET_SIDE", side: "feat" });
+              router.push(appCategoryHref());
+            }}
+          >
+            <IconChevronLeft size={20} aria-hidden />
+            {homeCopy("categoryAllSections", lang)}
+          </button>
           <PromoBanner
             lang={lang}
             onShop={() => dispatch({ type: "SLIDE_SHOP" })}
           />
           <div className="cat-panel-group-hd">
             <h2 className="cat-panel-group-title">
-              {homeCategoryLabel(s as CategoryId, lang)}
+              {focusRow?.label ??
+                homeCategoryLabel(s as CategoryId, lang)}
             </h2>
             <p className="cat-panel-group-desc m">
-              {homeCategoryGroupDesc(s as CategoryId, lang)}
+              {homeCategoryGroupDesc(s as CategoryId, lang) ||
+                homeCopy("categoryDrillHint", lang)}
             </p>
           </div>
-          {ks.length === 0 ? (
+          {childRows.length > 0 ? (
+            <div className="cat-row-list">
+              {childRows.map((row: DirectoryCategory) => (
+                <CategoryRow
+                  key={row.slug}
+                  icon={iconForCategorySlug(row.slug, row.listingMode)}
+                  label={row.label}
+                  onActivate={() => {
+                    if (row.hasChildren) {
+                      setFocusSlug(row.slug);
+                    } else {
+                      dispatch({ type: "SET_CAT", cat: row.slug });
+                    }
+                  }}
+                />
+              ))}
+              <CategoryRow
+                icon="grid"
+                label={homeCategoryAllLabel(s as CategoryId, lang)}
+                onActivate={() => dispatch({ type: "SET_CAT", cat: focusSlug })}
+              />
+            </div>
+          ) : ks.length === 0 ? (
             <EmptySubcats lang={lang} />
           ) : (
             <div className={gridClass}>
@@ -226,7 +270,10 @@ export function CategoryPanel({
             lang={lang}
             seeAll={{
               onClick: () =>
-                dispatch({ type: "SET_CAT", cat: s as CategoryId }),
+                dispatch({
+                  type: "SET_CAT",
+                  cat: state.cat !== "all" ? state.cat : focusSlug,
+                }),
             }}
           />
           {listings.error ? (
@@ -250,7 +297,14 @@ export function CategoryPanel({
             </div>
           ) : (
             <div style={{ marginTop: 8 }}>
-              <ListingsEmpty />
+              <ListingsEmpty
+                lang={lang}
+                variant="filter"
+                onBrowseCategories={() =>
+                  dispatch({ type: "SET_CAT", cat: "all" })
+                }
+                spacious={false}
+              />
             </div>
           )}
         </div>

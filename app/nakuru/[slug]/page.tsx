@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { DirectoryView, type LinkGroup } from "@/components/seo/DirectoryView";
 import { SeoShell } from "@/components/seo/SeoShell";
 import { SEO_AREAS } from "@/lib/seo/areas";
@@ -11,6 +11,7 @@ import {
 import { categoryHeading, categoryIntro, placeName } from "@/lib/seo/directory-copy";
 import {
   areaLinks,
+  canonicalCategoryPathSlug,
   categoryLinks,
   directoryMetadata,
   resolveSegment,
@@ -38,7 +39,7 @@ function pageContent(data: DirectoryData, seg: Segment) {
       heading: `Buy, sell & rent in ${placeName(area.name)}`,
       title: `${area.name}, Nakuru: shops, homes, cars & services`,
       intro: area.blurb,
-      listings: filterListings(data.listings, { area }),
+      listings: filterListings(data.listings, { area, categories: data.categories }),
       crumbName: area.name,
       related,
     };
@@ -53,7 +54,10 @@ function pageContent(data: DirectoryData, seg: Segment) {
     heading,
     title: heading,
     intro: categoryIntro(category, "Nakuru"),
-    listings: filterListings(data.listings, { category }),
+    listings: filterListings(data.listings, {
+      category,
+      categories: data.categories,
+    }),
     crumbName: category.label,
     related,
   };
@@ -62,11 +66,12 @@ function pageContent(data: DirectoryData, seg: Segment) {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const data = await getDirectoryData();
+  const canonical = canonicalCategoryPathSlug(data, slug) ?? slug;
   const seg = resolveSegment(data, slug);
   if (!seg) return { title: "Not found", robots: { index: false } };
   const c = pageContent(data, seg);
   return directoryMetadata({
-    path: `/nakuru/${slug}`,
+    path: `/nakuru/${canonical}`,
     title: c.title,
     description: c.intro,
     listingCount: c.listings.length,
@@ -76,18 +81,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function NakuruSegmentPage({ params }: PageProps) {
   const { slug } = await params;
   const data = await getDirectoryData();
+  const canonicalSlug = canonicalCategoryPathSlug(data, slug);
+  if (canonicalSlug) redirect(`/nakuru/${canonicalSlug}`);
   const seg = resolveSegment(data, slug);
   if (!seg) notFound();
   const c = pageContent(data, seg);
+  const path = `/nakuru/${slug}`;
 
   return (
     <SeoShell categories={data.categories}>
       <DirectoryView
-        path={`/nakuru/${slug}`}
+        path={path}
         crumbs={[
           { name: "NakuruHub", href: "/" },
           { name: "Nakuru", href: "/nakuru" },
-          { name: c.crumbName, href: `/nakuru/${slug}` },
+          { name: c.crumbName, href: path },
         ]}
         heading={c.heading}
         intro={c.intro}

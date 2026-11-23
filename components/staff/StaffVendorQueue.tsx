@@ -6,6 +6,7 @@ import {
   getStaffAccessToken,
 } from "@/lib/nakuru/staff-auth";
 import { staffFetch, type StaffVendorRow } from "@/lib/nakuru/staff-api";
+import { CardRowsSkeleton } from "@/components/app/loading/LoadingUi";
 import { useCallback, useEffect, useState } from "react";
 
 type StatusFilter = "pending" | "approved" | "rejected";
@@ -128,7 +129,7 @@ export function StaffVendorQueue({ onSessionLost }: Props) {
       </div>
       {error ? <div className="err">{error}</div> : null}
       {loading ? (
-        <div className="m">Loading…</div>
+        <CardRowsSkeleton count={4} />
       ) : rows.length === 0 ? (
         <div className="card m">No {status} applications.</div>
       ) : (

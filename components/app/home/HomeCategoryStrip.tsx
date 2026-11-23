@@ -1,6 +1,7 @@
 "use client";
 
-import { CategoryTile } from "@/components/app/CategoryTile";
+import { BrowseStyleTileButton } from "@/components/app/category/browse/BrowseStyleTile";
+import { popularLucideForTopcIndex } from "@/components/app/category/browse/popular-lucide";
 import { FEAT, TOPC } from "@/lib/nakuru/data/constants";
 import { homeCopy, homeTopCategoryLabel } from "@/lib/nakuru/home-i18n";
 import type { LandingLang } from "@/lib/nakuru/i18n";
@@ -22,11 +23,12 @@ export function HomeCategoryStrip({ lang, onCategory, onSeeAll }: Props) {
       >
         {FEAT.map((k) => {
           const t = TOPC[k]!;
+          const visual = popularLucideForTopcIndex(k);
           return (
             <div key={k} className="home-cat-strip-item" role="listitem">
-              <CategoryTile
-                icon={t[0]}
-                tint={t[4]}
+              <BrowseStyleTileButton
+                icon={visual.icon}
+                tint={visual.tint}
                 label={
                   t[3] ? homeTopCategoryLabel(t[3], lang) : t[1]
                 }

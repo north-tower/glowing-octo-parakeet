@@ -4,6 +4,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -31,6 +32,50 @@ type NakuruContextValue = {
 
 const NakuruContext = createContext<NakuruContextValue | null>(null);
 
+const VALID_TABS: TabId[] = ["home", "cat", "msg", "cart", "acc"];
+
+type UrlNavSlice = {
+  tabParam: string | null;
+  sideParam: string;
+  qParam: string;
+  catParam: string;
+  onProductDetail: boolean;
+  vendorEntry: boolean;
+};
+
+function applyUrlNavToState(prev: NakuruState, url: UrlNavSlice): NakuruState {
+  let next: NakuruState = {
+    ...prev,
+    ...(url.qParam ? { q: url.qParam } : {}),
+    ...(url.catParam ? { cat: url.catParam } : {}),
+  };
+
+  if (url.onProductDetail) {
+    return { ...next, tab: readDetailNavTab() };
+  }
+
+  if (url.tabParam && VALID_TABS.includes(url.tabParam as TabId)) {
+    const tab = url.tabParam as TabId;
+    next = { ...next, tab };
+    if (tab === "cat" && url.sideParam) {
+      next = { ...next, side: url.sideParam, cat: "all" };
+    }
+  } else if (!url.vendorEntry) {
+    next = { ...next, tab: "home" };
+  }
+
+  return next;
+}
+
+function urlNavMatches(a: NakuruState, b: NakuruState): boolean {
+  return (
+    a.tab === b.tab &&
+    a.side === b.side &&
+    a.cat === b.cat &&
+    a.q === b.q
+  );
+}
+
 export function useNakuruApp(): NakuruContextValue {
   const ctx = useContext(NakuruContext);
   if (!ctx) {
@@ -53,26 +98,31 @@ export function AppProvider({ children }: ProviderProps) {
   );
 
   const tabParam = searchParams.get("tab");
+  const sideParam = searchParams.get("side") ?? "";
   const qParam = searchParams.get("q") ?? "";
   const catParam = searchParams.get("cat") ?? "";
-  const validTabs: TabId[] = ["home", "cat", "msg", "cart", "acc"];
+
+  const urlNav: UrlNavSlice = {
+    tabParam,
+    sideParam,
+    qParam,
+    catParam,
+    onProductDetail,
+    vendorEntry,
+  };
 
   const [state, setState] = useState(() => {
     if (vendorEntry) persistAppMode("selling");
     const base = createInitialState(vendorEntry);
-    const withQuery = {
-      ...base,
-      ...(qParam ? { q: qParam } : {}),
-      ...(catParam ? { cat: catParam } : {}),
-    };
-    if (onProductDetail) {
-      return { ...withQuery, tab: readDetailNavTab() };
-    }
-    if (tabParam && validTabs.includes(tabParam as TabId)) {
-      return { ...withQuery, tab: tabParam as TabId };
-    }
-    return withQuery;
+    return applyUrlNavToState(base, urlNav);
   });
+
+  useEffect(() => {
+    setState((prev) => {
+      const next = applyUrlNavToState(prev, urlNav);
+      return urlNavMatches(prev, next) ? prev : next;
+    });
+  }, [tabParam, sideParam, qParam, catParam, onProductDetail, vendorEntry]);
 
   const [toastText, setToastText] = useState("");
   const [toastVisible, setToastVisible] = useState(false);

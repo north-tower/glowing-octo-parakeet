@@ -1,6 +1,7 @@
 "use client";
 
 import { apiFetch } from "@/lib/nakuru/api";
+import { EarningsSkeleton } from "@/components/app/loading/LoadingUi";
 import { useCallback, useEffect, useState } from "react";
 
 type Earnings = {
@@ -39,7 +40,7 @@ export function VendorEarningsPanel() {
       </div>
       <div className="m">Totals from delivered orders. Payouts are not in this screen yet.</div>
       {data === null && !error ? (
-        <div className="m">Loading earnings…</div>
+        <EarningsSkeleton />
       ) : error ? (
         <>
           <div className="warn">Could not load earnings.</div>

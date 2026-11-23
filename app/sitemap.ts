@@ -16,7 +16,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ): Entry => ({ url: absoluteUrl(path), lastModified: now, changeFrequency, priority });
 
   const hasListings = (opts: Parameters<typeof filterListings>[1]) =>
-    filterListings(listings, opts).length > 0;
+    filterListings(listings, { ...opts, categories }).length > 0;
 
   const categoryPages = categories
     .filter((category) => hasListings({ category }))
@@ -39,7 +39,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     page("/", 1, "weekly"),
     page("/nakuru", 0.9),
-    page("/app", 0.8),
+    page("/app", 0.65),
     ...categoryPages,
     ...areaPages,
     ...comboPages,

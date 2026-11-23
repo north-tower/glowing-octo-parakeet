@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
+import { CommentsSkeleton } from "@/components/app/loading/LoadingUi";
 import { useAuth } from "@/components/app/AppAuthProvider";
 import { usePrimaryNav } from "@/components/app/usePrimaryNav";
 import { ApiError, apiFetch } from "@/lib/nakuru/api";
@@ -119,7 +120,7 @@ export function ListingComments({ lang, productId }: Props) {
       </h2>
 
       {loading ? (
-        <p className="m">{homeCopy("commentsLoading", lang)}</p>
+        <CommentsSkeleton />
       ) : comments.length === 0 ? (
         <p className="m">{homeCopy("commentsEmpty", lang)}</p>
       ) : (

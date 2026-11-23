@@ -2,6 +2,7 @@
 
 import { apiFetch } from "@/lib/nakuru/api";
 import type { VendorInquiryRow } from "@/lib/nakuru/inquiries";
+import { CardRowsSkeleton } from "@/components/app/loading/LoadingUi";
 import { useCallback, useEffect, useState } from "react";
 
 function formatWhen(iso: string): string {
@@ -54,7 +55,7 @@ export function VendorInquiriesList() {
         </button>
       </div>
       {rows === null ? (
-        <div className="m">Loading inquiries…</div>
+        <CardRowsSkeleton count={3} />
       ) : error ? (
         <>
           <div className="warn">Could not load quote requests.</div>

@@ -9,6 +9,21 @@ export type SeoCategory = {
 type Copy = { heading: (place: string) => string; intro: (place: string) => string };
 
 const OFFICIAL_COPY: Record<string, Copy> = {
+  vehicles: {
+    heading: (p) => `Vehicles for sale in ${p}`,
+    intro: (p) =>
+      `Cars, motorcycles, buses and vehicle parts from sellers in ${p} on NakuruHub.`,
+  },
+  "real-estate": {
+    heading: (p) => `Houses, land & property in ${p}`,
+    intro: (p) =>
+      `Houses and apartments for rent or sale, plots and land in ${p}. Contact owners and agents directly.`,
+  },
+  "business-and-industry": {
+    heading: (p) => `Shops & products in ${p}`,
+    intro: (p) =>
+      `Buy from local shops in ${p} — electronics, fashion, home goods and more from vendors near you.`,
+  },
   shop: {
     heading: (p) => `Shops & products in ${p}`,
     intro: (p) =>

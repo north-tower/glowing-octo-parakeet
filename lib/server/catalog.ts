@@ -1,5 +1,6 @@
 import type { ListingMode } from "@/lib/nakuru/types";
 import { listingAttributesWithShopArea } from "@/lib/nakuru/vendor-area";
+import { listLeafSlugsInSubtree, resolveCategorySlug } from "./category-tree";
 import { q } from "./db";
 
 const NO_MATCH = "__none__";
@@ -21,16 +22,15 @@ export type PublicListingRow = {
   verified: boolean;
 };
 
-async function visibleSlugOrNone(
+async function visibleLeafSlugsOrNone(
   category: string | null | undefined,
-): Promise<string | null | typeof NO_MATCH> {
+): Promise<string[] | null | typeof NO_MATCH> {
   if (!category || category === "all") return null;
-  const row = await q<{ slug: string }>(
-    "select slug from categories where slug=$1 and visible",
-    [category],
-  );
-  if (!row.rows[0]) return NO_MATCH;
-  return row.rows[0].slug;
+  const canonical = await resolveCategorySlug(category);
+  const leaves = await listLeafSlugsInSubtree(canonical);
+  if (leaves === null) return NO_MATCH;
+  if (leaves.length === 0) return NO_MATCH;
+  return leaves;
 }
 
 type ListingRow = PublicListingRow & { vendorArea: string | null };
@@ -56,17 +56,17 @@ where p.active
   and v.status = 'approved'
   and c.visible
   and (p.stock is null or p.stock > 0)
-  and ($1::text is null or p.category = $1)
+  and ($1::text[] is null or p.category = any($1::text[]))
 order by p.created_at desc
 limit 200`;
 
 export async function listPublicListings(
   category: string | null | undefined,
 ): Promise<PublicListingRow[]> {
-  const cat = await visibleSlugOrNone(category);
-  if (cat === NO_MATCH) return [];
+  const leaves = await visibleLeafSlugsOrNone(category);
+  if (leaves === NO_MATCH) return [];
 
-  const r = await q<ListingRow>(LISTINGS_SQL, [cat]);
+  const r = await q<ListingRow>(LISTINGS_SQL, [leaves]);
   return r.rows.map(shapeListing);
 }
 

@@ -81,6 +81,19 @@ export function isOptimizablePhotoUrl(src: string): boolean {
   return !src.endsWith(".svg") && !src.startsWith("data:");
 }
 
+/** Generated duotone demo SVGs — not real listing photos. */
+export function isPlaceholderImage(url: string | undefined | null): boolean {
+  if (!url?.trim()) return false;
+  try {
+    const path = url.startsWith("http")
+      ? new URL(url).pathname
+      : url.split("?")[0] ?? url;
+    return /^\/demo\/[a-z0-9-]+-\d+x\d+\.svg$/i.test(path);
+  } catch {
+    return /^\/demo\/[a-z0-9-]+-\d+x\d+\.svg/i.test(url.split("?")[0] ?? "");
+  }
+}
+
 /** Optional named files in `public/demo/photos/` referenced by seed. */
 export function demoPhotoPath(filename: string): string {
   return `/demo/photos/${filename}`;

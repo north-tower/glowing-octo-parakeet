@@ -12,8 +12,10 @@ export type HomeCopyKey =
   | "homePageTitle"
   | "trustVerifiedTitle"
   | "trustVerifiedSub"
+  | "trustVerifiedLink"
   | "trustPayTitle"
   | "trustPaySub"
+  | "trustPayLink"
   | "qaCategories"
   | "qaQuote"
   | "qaSell"
@@ -49,6 +51,13 @@ export type HomeCopyKey =
   | "pickedResultCount"
   | "pickedLoadMore"
   | "pickedEmpty"
+  | "listingsEmptyTitle"
+  | "listingsEmptyBody"
+  | "listingsEmptySearchTitle"
+  | "listingsEmptySearchBody"
+  | "listingsEmptyFilterTitle"
+  | "listingsEmptyFilterBody"
+  | "listingsEmptyBrowse"
   | "pickedFiltersAria"
   | "photoCountPill"
   | "addToCartAria"
@@ -71,6 +80,17 @@ export type HomeCopyKey =
   | "vendorCardDismissAria"
   | "popularRightNow"
   | "browseByType"
+  | "browseByTypeHint"
+  | "categoryBreadcrumb"
+  | "categoryDrillHint"
+  | "categoryHubNav"
+  | "categorySearchPlaceholder"
+  | "categoryAllSections"
+  | "hubGroupMotors"
+  | "hubGroupProperty"
+  | "hubGroupShopping"
+  | "hubGroupServices"
+  | "hubGroupWork"
   | "moreComingSoon"
   | "categoryRailAria"
   | "catGroupShopDesc"
@@ -341,9 +361,17 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
     sw: "Nyumbani — soko la NakuruHub",
   },
   trustVerifiedTitle: { en: "Verified vendors", sw: "Wauzaji waliothibitishwa" },
-  trustVerifiedSub: { en: "ID and shop checked", sw: "Kitambulisho na duka vimekaguliwa" },
+  trustVerifiedSub: {
+    en: "Every seller ID-checked, so you buy with confidence.",
+    sw: "Kila muuzaji amekaguliwa kwa kitambulisho, ununue kwa ujasiri.",
+  },
+  trustVerifiedLink: { en: "How we verify", sw: "Jinsi tunavyothibitisha" },
   trustPayTitle: { en: "Pay on delivery", sw: "Lipa ukifika" },
-  trustPaySub: { en: "Pay when it arrives", sw: "Lipa bidhaa itakapofika" },
+  trustPaySub: {
+    en: "Inspect your item first, then pay by M-Pesa or cash.",
+    sw: "Kagua bidhaa kwanza, kisha lipa kwa M-Pesa au taslimu.",
+  },
+  trustPayLink: { en: "See how it works", sw: "Angalia jinsi inavyofanya" },
   qaCategories: { en: "Categories", sw: "Kategoria" },
   qaQuote: { en: "Request a quote", sw: "Omba bei" },
   qaSell: { en: "Sell with us", sw: "Uza nasi" },
@@ -424,6 +452,34 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
     en: "No listings match these filters.",
     sw: "Hakuna matangazo yanayolingana.",
   },
+  listingsEmptyTitle: {
+    en: "Nothing here yet",
+    sw: "Bado hakuna kitu hapa",
+  },
+  listingsEmptyBody: {
+    en: "Approved vendors are adding products — check back soon.",
+    sw: "Wauzaji waliothibitishwa wanaongeza bidhaa — rudi hivi karibuni.",
+  },
+  listingsEmptySearchTitle: {
+    en: "No results found",
+    sw: "Hakuna matokeo",
+  },
+  listingsEmptySearchBody: {
+    en: "Try a different search or browse categories.",
+    sw: "Jaribu utafutaji mwingine au angalia kategoria.",
+  },
+  listingsEmptyFilterTitle: {
+    en: "No listings here",
+    sw: "Hakuna matangazo hapa",
+  },
+  listingsEmptyFilterBody: {
+    en: "Nothing in this category yet. Clear filters or try another section.",
+    sw: "Bado hakuna katika kategoria hii. Futa vichujio au jaribu sehemu nyingine.",
+  },
+  listingsEmptyBrowse: {
+    en: "Browse categories",
+    sw: "Angalia kategoria",
+  },
   pickedFiltersAria: {
     en: "Filter and sort listings",
     sw: "Chuja na panga orodha",
@@ -455,6 +511,35 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   },
   popularRightNow: { en: "Popular right now", sw: "Maarufu sasa hivi" },
   browseByType: { en: "Browse by type", sw: "Vinjari kwa aina" },
+  browseByTypeHint: {
+    en: "All marketplace sections — tap a section, then pick a subcategory.",
+    sw: "Sehemu zote za soko — gusa sehemu, kisha chagua kategoria ndogo.",
+  },
+  categoryBreadcrumb: {
+    en: "Category path",
+    sw: "Njia ya kategoria",
+  },
+  categoryDrillHint: {
+    en: "Pick a subcategory or view everything in this section.",
+    sw: "Chagua kategoria ndogo au ona yote katika sehemu hii.",
+  },
+  categoryHubNav: {
+    en: "Marketplace sections",
+    sw: "Sehemu za soko",
+  },
+  categorySearchPlaceholder: {
+    en: "Search categories…",
+    sw: "Tafuta kategoria…",
+  },
+  categoryAllSections: {
+    en: "All categories",
+    sw: "Kategoria zote",
+  },
+  hubGroupMotors: { en: "Motors", sw: "Magari" },
+  hubGroupProperty: { en: "Property & stays", sw: "Nyumba na makao" },
+  hubGroupShopping: { en: "Shopping", sw: "Ununuzi" },
+  hubGroupServices: { en: "Services & transport", sw: "Huduma na usafiri" },
+  hubGroupWork: { en: "Jobs & CVs", sw: "Kazi na CV" },
   moreComingSoon: { en: "More coming soon", sw: "Zaidi inakuja" },
   categoryRailAria: { en: "Category groups", sw: "Makundi ya kategoria" },
   catGroupShopDesc: {

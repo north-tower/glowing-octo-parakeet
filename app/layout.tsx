@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import "./nakuru-globals.css";
+import "./nakuru/styles.css";
 import { nakuruFontClassName } from "@/lib/nakuru/fonts";
 import {
+  defaultShareImages,
   jsonLdString,
   SITE_DESCRIPTION,
   SITE_NAME,
@@ -47,12 +48,15 @@ export const metadata: Metadata = {
     type: "website",
     siteName: SITE_NAME,
     locale: "en_KE",
+    url: "/",
+    images: defaultShareImages(),
   },
   twitter: {
     card: "summary_large_image",
     title: DEFAULT_TITLE,
     description:
       "Shops, homes, land, cars, and services in Nakuru County. Free to join and list on NakuruHub.",
+    images: defaultShareImages().map((img) => img.url),
   },
   appleWebApp: {
     capable: true,
