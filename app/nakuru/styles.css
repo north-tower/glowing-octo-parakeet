@@ -1244,6 +1244,18 @@ body.app .cart-empty-icon{display:grid;place-items:center;width:64px;height:64px
 body.app .cart-empty-icon--cart{background:color-mix(in srgb,var(--fl) 12%,var(--card));color:var(--fl)}
 body.app .cart-empty-title{font-family:var(--font-display);font-size:20px;font-weight:620;margin:4px 0 0;letter-spacing:-.02em}
 body.app .cart-empty-cta{margin-top:8px;min-height:48px}
+body.app .listings-empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:20px 12px 28px;color:var(--mut)}
+body.app .listings-empty--spacious{min-height:min(48vh,380px);justify-content:center;padding-top:32px}
+body.app .listings-empty-icon{display:grid;place-items:center;width:64px;height:64px;border-radius:50%;background:color-mix(in srgb,var(--pri) 14%,var(--card));color:var(--pri);border:1px solid var(--line)}
+body.app .listings-empty-icon--search{background:color-mix(in srgb,var(--fl) 12%,var(--card));color:var(--fl)}
+body.app .listings-empty-icon--filter{background:color-mix(in srgb,var(--pri) 14%,var(--card));color:var(--pri)}
+body.app .listings-empty-title{font-family:var(--font-display);font-size:20px;font-weight:620;margin:6px 0 0;letter-spacing:-.02em;color:var(--fg)}
+body.app .listings-empty-query{margin:0;font-size:15px;font-weight:600;color:var(--fg);opacity:.88}
+body.app .listings-empty-body{margin:0;max-width:22rem;line-height:1.45}
+body.app .listings-empty-actions{display:flex;flex-direction:column;align-items:stretch;gap:8px;width:100%;max-width:280px;margin-top:12px}
+body.app .listings-empty-cta{min-height:48px;width:100%}
+body.app .listings-empty-cta--ghost{background:transparent;border:1px solid var(--line);color:var(--fg);font-weight:550}
+body.app .listings-empty-cta--ghost:active{background:var(--line)}
 body.app .cart-promo-title{margin:0;font-weight:650;font-size:15px;line-height:1.25}
 body.app .cart-item{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:12px;border:1px solid var(--line)}
 body.app .cart-item-thumb{flex:none;width:64px;height:64px;border-radius:12px;aspect-ratio:1;margin:0}

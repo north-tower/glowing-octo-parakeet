@@ -15,6 +15,21 @@ export const LISTING_TINT_TILE: Record<CategoryTint, string> = {
   stone: "bg-stone-100 text-stone-600",
 };
 
+export const LISTING_TINT_ICON: Record<CategoryTint, string> = {
+  amber: "text-amber-700",
+  teal: "text-teal-700",
+  sky: "text-sky-700",
+  violet: "text-violet-700",
+  rose: "text-rose-700",
+  lime: "text-lime-700",
+  orange: "text-orange-700",
+  cyan: "text-cyan-700",
+  indigo: "text-indigo-700",
+  emerald: "text-emerald-700",
+  fuchsia: "text-fuchsia-700",
+  stone: "text-stone-700",
+};
+
 const BADGE_PRIORITY: readonly ListingCardBadgeOrder[] = [
   "featured",
   "verified",

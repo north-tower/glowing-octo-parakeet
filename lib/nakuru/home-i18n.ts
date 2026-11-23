@@ -51,6 +51,13 @@ export type HomeCopyKey =
   | "pickedResultCount"
   | "pickedLoadMore"
   | "pickedEmpty"
+  | "listingsEmptyTitle"
+  | "listingsEmptyBody"
+  | "listingsEmptySearchTitle"
+  | "listingsEmptySearchBody"
+  | "listingsEmptyFilterTitle"
+  | "listingsEmptyFilterBody"
+  | "listingsEmptyBrowse"
   | "pickedFiltersAria"
   | "photoCountPill"
   | "addToCartAria"
@@ -444,6 +451,34 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   pickedEmpty: {
     en: "No listings match these filters.",
     sw: "Hakuna matangazo yanayolingana.",
+  },
+  listingsEmptyTitle: {
+    en: "Nothing here yet",
+    sw: "Bado hakuna kitu hapa",
+  },
+  listingsEmptyBody: {
+    en: "Approved vendors are adding products — check back soon.",
+    sw: "Wauzaji waliothibitishwa wanaongeza bidhaa — rudi hivi karibuni.",
+  },
+  listingsEmptySearchTitle: {
+    en: "No results found",
+    sw: "Hakuna matokeo",
+  },
+  listingsEmptySearchBody: {
+    en: "Try a different search or browse categories.",
+    sw: "Jaribu utafutaji mwingine au angalia kategoria.",
+  },
+  listingsEmptyFilterTitle: {
+    en: "No listings here",
+    sw: "Hakuna matangazo hapa",
+  },
+  listingsEmptyFilterBody: {
+    en: "Nothing in this category yet. Clear filters or try another section.",
+    sw: "Bado hakuna katika kategoria hii. Futa vichujio au jaribu sehemu nyingine.",
+  },
+  listingsEmptyBrowse: {
+    en: "Browse categories",
+    sw: "Angalia kategoria",
   },
   pickedFiltersAria: {
     en: "Filter and sort listings",

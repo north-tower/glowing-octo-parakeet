@@ -5,9 +5,13 @@ import { Camera, Images } from "lucide-react";
 import { useState } from "react";
 import {
   isOptimizablePhotoUrl,
+  isPlaceholderImage,
   productImageSizes,
 } from "@/lib/nakuru/listing-image";
-import { LISTING_TINT_TILE } from "@/components/app/listing/listing-tints";
+import {
+  LISTING_TINT_ICON,
+  LISTING_TINT_TILE,
+} from "@/components/app/listing/listing-tints";
 import type { ListingCardCategory } from "@/components/app/listing/listing-card-types";
 
 type Props = {
@@ -28,21 +32,24 @@ export function ListingCardMedia({
   variant,
 }: Props) {
   const [imgOk, setImgOk] = useState(true);
-  const showPhoto = imageUrl && imgOk;
+  const resolvedUrl =
+    imageUrl && !isPlaceholderImage(imageUrl) ? imageUrl : undefined;
+  const showPhoto = resolvedUrl && imgOk;
   const Icon = category.icon;
   const tint = LISTING_TINT_TILE[category.tint];
+  const iconTint = LISTING_TINT_ICON[category.tint];
 
   return (
     <div className="group/pim relative aspect-[4/3] w-full overflow-hidden rounded-t-2xl bg-stone-100">
       {showPhoto ? (
         <Image
           className="object-cover"
-          src={imageUrl}
+          src={resolvedUrl}
           alt=""
           fill
           sizes={productImageSizes(variant === "rail" ? "rail" : "grid")}
           priority={priority}
-          unoptimized={!isOptimizablePhotoUrl(imageUrl)}
+          unoptimized={!isOptimizablePhotoUrl(resolvedUrl)}
           onError={() => setImgOk(false)}
         />
       ) : (

@@ -7,7 +7,7 @@ import { ListingCard } from "@/components/app/listing/ListingCard";
 import { ListingGrid } from "@/components/app/listing/ListingGrid";
 import { ListingCardSkeleton } from "@/components/app/listing/ListingCardSkeleton";
 import { homeCopy, type HomeCopyKey } from "@/lib/nakuru/home-i18n";
-import { excludePriorRailIds } from "@/lib/nakuru/home-listing-dedupe";
+import { dedupeListings } from "@/lib/nakuru/home-listing-dedupe";
 import { listingToCardProps } from "@/lib/nakuru/listing-card-props";
 import type { LandingLang } from "@/lib/nakuru/i18n";
 import type { Listing } from "@/lib/nakuru/types";

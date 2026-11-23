@@ -106,7 +106,13 @@ export function DesktopDiscoverHome({
           ))}
         </div>
       ) : liveCatalog ? (
-        <ListingsEmpty />
+        <ListingsEmpty
+          lang={lang}
+          variant={query.trim() ? "search" : filtered ? "filter" : "default"}
+          query={query.trim() || undefined}
+          onClearFilters={filtered ? onClear : undefined}
+          onBrowseCategories={() => onCat("all")}
+        />
       ) : (
         <div className="m">
           {lang === "sw"

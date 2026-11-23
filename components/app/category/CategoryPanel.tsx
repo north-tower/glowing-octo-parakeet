@@ -297,7 +297,14 @@ export function CategoryPanel({
             </div>
           ) : (
             <div style={{ marginTop: 8 }}>
-              <ListingsEmpty />
+              <ListingsEmpty
+                lang={lang}
+                variant="filter"
+                onBrowseCategories={() =>
+                  dispatch({ type: "SET_CAT", cat: "all" })
+                }
+                spacious={false}
+              />
             </div>
           )}
         </div>

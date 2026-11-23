@@ -68,7 +68,7 @@ export function ListingRow({
         {Array.from({ length: skeletonCount }, (_, i) => (
           <div
             key={i}
-            className="w-[44vw] min-w-[160px] shrink-0 sm:w-[220px] lg:w-[240px]"
+            className="w-[200px] shrink-0 sm:w-[220px] lg:w-[240px]"
           >
             <ListingCardSkeleton />
           </div>
@@ -78,11 +78,11 @@ export function ListingRow({
   }
 
   return (
-    <div className="listing-row-root relative col-span-full">
+    <div className="listing-row-root relative col-span-full mb-4 [--slot-w:200px] sm:[--slot-w:220px] lg:[--slot-w:240px]">
       {finePointer && canPrev ? (
         <button
           type="button"
-          className="absolute left-0 top-[calc(50%-24px)] z-10 hidden h-10 w-10 -translate-x-1/2 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-800 shadow-md disabled:opacity-40 [@media(hover:hover)]:inline-flex"
+          className="absolute left-2 top-[calc(var(--slot-w)*3/8)] z-10 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-800 shadow-md disabled:opacity-40 [@media(hover:hover)]:inline-flex"
           aria-label="Scroll listings left"
           disabled={!canPrev}
           onClick={() => scrollByViewport(-1)}
@@ -104,7 +104,7 @@ export function ListingRow({
           />
           <button
             type="button"
-            className="absolute right-0 top-[calc(50%-24px)] z-10 hidden h-10 w-10 translate-x-1/2 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-800 shadow-md disabled:opacity-40 [@media(hover:hover)]:inline-flex"
+            className="absolute right-2 top-[calc(var(--slot-w)*3/8)] z-10 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-800 shadow-md disabled:opacity-40 [@media(hover:hover)]:inline-flex"
             aria-label="Scroll listings right"
             disabled={!canNext}
             onClick={() => scrollByViewport(1)}
@@ -119,8 +119,8 @@ export function ListingRow({
 
 export function ListingRowItem({ children }: { children: ReactNode }) {
   return (
-    <div className="flex w-[44vw] min-w-[160px] shrink-0 snap-start sm:w-[220px] lg:w-[240px]">
-      <div className="flex min-h-0 w-full">{children}</div>
+    <div className="flex w-[200px] shrink-0 snap-start sm:w-[220px] lg:w-[240px]">
+      <div className="flex min-h-0 w-full flex-col">{children}</div>
     </div>
   );
 }

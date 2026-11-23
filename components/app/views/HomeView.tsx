@@ -132,7 +132,24 @@ export function HomeView() {
             ))}
           </div>
         ) : liveCatalog ? (
-          <ListingsEmpty />
+          <ListingsEmpty
+            lang={lang}
+            variant={q ? "search" : state.cat !== "all" ? "filter" : "default"}
+            query={state.q.trim() || undefined}
+            onClearFilters={
+              q || state.cat !== "all"
+                ? () => {
+                    if (state.q) dispatch({ type: "SET_Q", q: "" });
+                    if (state.cat !== "all") {
+                      dispatch({ type: "SET_CAT", cat: "all" });
+                    }
+                  }
+                : undefined
+            }
+            onBrowseCategories={() =>
+              dispatch({ type: "SET_TAB", tab: "cat" })
+            }
+          />
         ) : (
           <div className="m">
             {lang === "sw"
@@ -255,7 +272,13 @@ export function HomeView() {
           loading={loading && liveCatalog}
         />
       ) : liveCatalog ? (
-        <ListingsEmpty />
+        <ListingsEmpty
+          lang={lang}
+          spacious={false}
+          onBrowseCategories={() =>
+            dispatch({ type: "SET_TAB", tab: "cat" })
+          }
+        />
       ) : null}
       <VendorSellCard />
     </div>

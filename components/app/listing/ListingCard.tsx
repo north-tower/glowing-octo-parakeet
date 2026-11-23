@@ -72,12 +72,12 @@ export function ListingCard({
   const ariaLabel = `${card.title}, ${currency} ${amount}`;
 
   return (
-    <article className="flex h-full min-h-0 flex-col">
+    <article className="flex h-full min-h-0 w-full flex-col">
       <ListingCardTrackLink
         href={card.href}
         id={card.id}
         ariaLabel={ariaLabel}
-        className="group flex h-full min-h-0 flex-col rounded-2xl border border-stone-200/90 bg-white shadow-sm transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+        className="group flex h-full w-full min-h-0 flex-col rounded-2xl border border-stone-200/90 bg-white shadow-sm transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
       >
         <div className="relative">
           <ListingCardMedia
