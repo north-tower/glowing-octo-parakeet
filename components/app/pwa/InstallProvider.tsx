@@ -10,7 +10,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useNakuruApp } from "@/components/app/AppProvider";
+import { useOptionalNakuruApp } from "@/components/app/AppProvider";
 import {
   LANDING_LANG_KEY,
   applyLang,
@@ -69,8 +69,13 @@ function registerServiceWorker(): void {
   });
 }
 
+const noopToast = () => undefined;
+
 export function InstallProvider({ children }: { children: ReactNode }) {
-  const { toast, state } = useNakuruApp();
+  const nakuru = useOptionalNakuruApp();
+  const toast = nakuru?.toast ?? noopToast;
+  const cart = nakuru?.state.cart;
+  const tab = nakuru?.state.tab;
   const [lang, setLang] = useState<LandingLang>("en");
   const [standalone, setStandalone] = useState(false);
   const [platform, setPlatform] = useState<InstallPlatform>("generic");
@@ -153,13 +158,14 @@ export function InstallProvider({ children }: { children: ReactNode }) {
   }, [refreshCard, toast]);
 
   useEffect(() => {
-    if (standalone) return;
-    if (Object.keys(state.cart).length > 0) recordCartEngagement();
-  }, [state.cart, standalone]);
+    if (standalone || !cart) return;
+    if (Object.keys(cart).length > 0) recordCartEngagement();
+  }, [cart, standalone]);
 
   useEffect(() => {
+    if (tab == null) return;
     refreshCard();
-  }, [state.tab, refreshCard]);
+  }, [tab, refreshCard]);
 
   const dismissHomeCard = useCallback(() => {
     markInstallDismissed();

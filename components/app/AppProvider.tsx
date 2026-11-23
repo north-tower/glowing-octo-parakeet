@@ -84,6 +84,11 @@ export function useNakuruApp(): NakuruContextValue {
   return ctx;
 }
 
+/** Auth and other routes that mount `InstallProvider` without full app state. */
+export function useOptionalNakuruApp(): NakuruContextValue | null {
+  return useContext(NakuruContext);
+}
+
 type ProviderProps = {
   children: ReactNode;
 };
