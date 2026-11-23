@@ -11,7 +11,6 @@ import type { LandingLang } from "@/lib/nakuru/i18n";
 import { heroSlides } from "./heroSlides";
 import { useCarousel } from "./useCarousel";
 import { HeroSlide } from "./HeroSlide";
-import { CarouselDots } from "./CarouselDots";
 import type { HeroSlideAction } from "./heroSlides";
 
 type HeroCarouselProps = {
@@ -33,7 +32,6 @@ export function HeroCarousel({
     userPaused,
     reducedMotion,
     progress,
-    goTo,
     next,
     prev,
     setUserPaused,
@@ -86,6 +84,12 @@ export function HeroCarousel({
       }}
       className="group/hero relative h-full min-h-[220px] rounded-3xl outline-none sm:min-h-[280px] focus-visible:ring-2 focus-visible:ring-[#0d6f69] focus-visible:ring-offset-2"
     >
+      <style>{`
+        .hero-slide-title {
+          font-weight: 600;
+          letter-spacing: -0.025em;
+        }
+      `}</style>
       <div
         ref={scrollRef}
         className="flex h-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
@@ -110,40 +114,33 @@ export function HeroCarousel({
             active={i === index}
             lang={lang}
             tone={slide.tone}
-            progress={progress}
-            showProgress={!paused && !reducedMotion}
+            progress={i === index ? progress : 0}
+            reducedMotion={reducedMotion}
             onCta={() => onSlideAction(slide.cta.action)}
           />
         ))}
       </div>
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex items-end justify-between gap-3 p-6 sm:p-10">
-        <CarouselDots
-          count={heroSlides.length}
-          index={index}
-          onSelect={goTo}
-        />
-        <button
-          type="button"
-          onClick={() => setUserPaused((v) => !v)}
-          className="pointer-events-auto flex size-11 shrink-0 items-center justify-center rounded-full bg-white/20 text-white ring-1 ring-white/40 backdrop-blur transition hover:bg-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
-          aria-label={
-            userPaused
-              ? lang === "sw"
-                ? "Endeleza kiotomatiki"
-                : "Resume autoplay"
-              : lang === "sw"
-                ? "Simamisha kiotomatiki"
-                : "Pause autoplay"
-          }
-        >
-          {userPaused ? (
-            <Play className="size-[18px]" aria-hidden />
-          ) : (
-            <Pause className="size-[18px]" aria-hidden />
-          )}
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={() => setUserPaused((v) => !v)}
+        className="hero-carousel-pause pointer-events-auto absolute bottom-5 right-6 z-20 flex size-11 items-center justify-center rounded-full border-0 bg-white/20 text-white shadow-none ring-1 ring-white/40 backdrop-blur transition hover:bg-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent sm:right-10 [&_svg]:text-white"
+        aria-label={
+          userPaused
+            ? lang === "sw"
+              ? "Endeleza kiotomatiki"
+              : "Resume autoplay"
+            : lang === "sw"
+              ? "Simamisha kiotomatiki"
+              : "Pause autoplay"
+        }
+      >
+        {userPaused ? (
+          <Play className="size-9 text-white" strokeWidth={2} aria-hidden />
+        ) : (
+          <Pause className="size-9 text-white" strokeWidth={2} aria-hidden />
+        )}
+      </button>
 
       <button
         type="button"

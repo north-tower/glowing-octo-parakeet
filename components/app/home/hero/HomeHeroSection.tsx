@@ -6,61 +6,14 @@ import { homeCopy } from "@/lib/nakuru/home-i18n";
 import { HeroCarousel } from "./HeroCarousel";
 import { HeroSideCard } from "./HeroSideCard";
 import type { HeroSlideAction } from "./heroSlides";
-import {
-  IconBookOpen,
-  IconMessageQuote,
-} from "@/components/app/icons/LineIcons";
 
 type HomeHeroSectionProps = {
   lang: LandingLang;
   carouselEnabled: boolean;
-  guideOpen: boolean;
   onSlideAction: (action: HeroSlideAction) => void;
-  onQuote: () => void;
-  onToggleGuide: () => void;
   onTrustLink: () => void;
   onPayLink: () => void;
 };
-
-function QuickChips({
-  lang,
-  guideOpen,
-  onQuote,
-  onToggleGuide,
-}: Pick<
-  HomeHeroSectionProps,
-  "lang" | "guideOpen" | "onQuote" | "onToggleGuide"
->) {
-  return (
-    <div className="flex flex-wrap gap-2 pt-2">
-      <button
-        type="button"
-        onClick={onQuote}
-        className="inline-flex min-h-10 items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 text-sm font-semibold text-stone-900 shadow-sm transition hover:border-stone-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0d6f69] focus-visible:ring-offset-2"
-      >
-        <span className="text-[#0d6f69]">
-          <IconMessageQuote size={18} />
-        </span>
-        {homeCopy("qaQuote", lang)}
-      </button>
-      <button
-        type="button"
-        aria-expanded={guideOpen}
-        onClick={onToggleGuide}
-        className={`inline-flex min-h-10 items-center gap-1.5 rounded-full border px-3 text-sm font-semibold shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0d6f69] focus-visible:ring-offset-2 ${
-          guideOpen
-            ? "border-[#0d6f69]/35 bg-[#0d6f69]/10 text-stone-900"
-            : "border-stone-200 bg-white text-stone-900 hover:border-stone-300"
-        }`}
-      >
-        <span className="text-[#0d6f69]">
-          <IconBookOpen size={18} />
-        </span>
-        {homeCopy("qaGuide", lang)}
-      </button>
-    </div>
-  );
-}
 
 function SideCardsColumn({
   lang,
@@ -96,10 +49,7 @@ function SideCardsColumn({
 export function HomeHeroSection({
   lang,
   carouselEnabled,
-  guideOpen,
   onSlideAction,
-  onQuote,
-  onToggleGuide,
   onTrustLink,
   onPayLink,
 }: HomeHeroSectionProps) {
@@ -125,12 +75,6 @@ export function HomeHeroSection({
         onTrustLink={onTrustLink}
         onPayLink={onPayLink}
         className="grid grid-cols-2 gap-2 sm:gap-3 lg:hidden"
-      />
-      <QuickChips
-        lang={lang}
-        guideOpen={guideOpen}
-        onQuote={onQuote}
-        onToggleGuide={onToggleGuide}
       />
     </div>
   );

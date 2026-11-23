@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { ProductCard } from "@/components/app/ProductCard";
 import { useNakuruApp } from "@/components/app/AppProvider";
 import { FEAT, TOPC } from "@/lib/nakuru/data/constants";
@@ -22,7 +22,6 @@ import { popularLucideForTopcIndex } from "@/components/app/category/browse/popu
 import { useAssistantUi } from "@/components/app/assistant/AssistantUiProvider";
 import { VendorSellCard } from "@/components/app/VendorSellCard";
 import { HomeSectionHeader } from "@/components/app/HomeSectionHeader";
-import { HomeUserGuide } from "@/components/app/HomeUserGuide";
 import { HomeCategoryStrip } from "@/components/app/home/HomeCategoryStrip";
 import { ProductSnapRail } from "@/components/app/home/ProductSnapRail";
 import { HomePickedForYou } from "@/components/app/home/HomePickedForYou";
@@ -41,7 +40,6 @@ export function HomeView() {
   const { lang } = usePwaInstall();
   const desktopUp = useAppDesktopUp();
   const { onAct, serviceInquiryEnabled, inquiryModal } = useListingAct();
-  const [guideOpen, setGuideOpen] = useState(false);
   const carouselEnabled = state.tab === "home";
   const liveCatalog = isLiveCatalogEnabled();
 
@@ -172,17 +170,9 @@ export function HomeView() {
       <HomeHeroSection
         lang={lang}
         carouselEnabled={carouselEnabled}
-        guideOpen={guideOpen}
         onSlideAction={onSlideAction}
-        onQuote={() => dispatch({ type: "QUOTE_HOME" })}
-        onToggleGuide={() => setGuideOpen((v) => !v)}
         onTrustLink={() => openHelp("hero-trust-verify")}
         onPayLink={() => openHelp("hero-trust-pay")}
-      />
-      <HomeUserGuide
-        open={guideOpen}
-        lang={lang}
-        onClose={() => setGuideOpen(false)}
       />
       {!desktopUp ? (
         <HomeCategoryStrip
