@@ -128,11 +128,19 @@ export const vendorNew = z
   })
   .strict();
 
-export const vendorAreaPatch = z
+export const vendorMinePatch = z
   .object({
-    area: z.enum(NAKURU_AREA_KEYS),
+    area: z.enum(NAKURU_AREA_KEYS).optional(),
+    bannerImageDataUrl: imageDataUrl.optional(),
   })
-  .strict();
+  .strict()
+  .refine(
+    (d) => d.area !== undefined || d.bannerImageDataUrl !== undefined,
+    { message: "bad_request" },
+  );
+
+/** @deprecated use vendorMinePatch */
+export const vendorAreaPatch = vendorMinePatch;
 
 export const vendorOrderAction = z
   .object({

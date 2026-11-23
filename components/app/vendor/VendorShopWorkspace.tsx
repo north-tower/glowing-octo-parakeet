@@ -10,6 +10,7 @@ import { ZoneSheet } from "@/components/app/ZoneSheet";
 import { VendorEarningsPanel } from "@/components/app/vendor/VendorEarningsPanel";
 import { VendorOrdersPanel } from "@/components/app/vendor/VendorOrdersPanel";
 import { VendorProductForm } from "@/components/app/vendor/VendorProductForm";
+import { ShopBannerUpload } from "@/components/app/vendor/ShopBannerUpload";
 import { VendorStockPanel } from "@/components/app/vendor/VendorStockPanel";
 import { apiFetch, ApiError } from "@/lib/nakuru/api";
 import {
@@ -33,6 +34,7 @@ type Props = {
   photo: string;
   toast: (msg: string) => void;
   onAreaChange: (area: string) => void;
+  onBannerChange: (bannerUrl: string) => void;
 };
 
 export function VendorShopWorkspace({
@@ -40,6 +42,7 @@ export function VendorShopWorkspace({
   photo,
   toast,
   onAreaChange,
+  onBannerChange,
 }: Props) {
   const { lang } = usePwaInstall();
   const [tab, setTab] = useState<TabId>("add");
@@ -79,6 +82,12 @@ export function VendorShopWorkspace({
 
   return (
     <>
+      <ShopBannerUpload
+        bannerUrl={vendor.banner_url}
+        toast={toast}
+        disabled={areaBusy}
+        onUploaded={onBannerChange}
+      />
       <div className="card row">
         <ProfilePhotoUpload
           className="pfp"

@@ -116,6 +116,15 @@ function LiveVendorPanel() {
                 : prev,
             );
           }}
+          onBannerChange={(banner_url) => {
+            setRows((prev) =>
+              prev
+                ? prev.map((row) =>
+                    row.id === primary.id ? { ...row, banner_url } : row,
+                  )
+                : prev,
+            );
+          }}
         />
       ) : (
         <div className="card row">

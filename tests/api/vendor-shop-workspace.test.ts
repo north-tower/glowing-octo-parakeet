@@ -36,6 +36,9 @@ describe("vendor shop workspace APIs", () => {
         const { db } = await import("@/lib/server/db");
         await db.q("select 1");
         await db.q("alter table vendors add column if not exists area text");
+        await db.q(
+          "alter table vendors add column if not exists banner_url text",
+        );
         dbReachable = true;
       } catch {
         dbReachable = false;

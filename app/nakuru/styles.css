@@ -667,6 +667,13 @@ body.app main input,body.app main select,body.app main textarea{font-size:16px}
 .cat-combo,.cat-combo-field{overflow:visible}
 .chip{border:1px solid var(--line);background:var(--card);border-radius:20px;padding:7px 13px;cursor:pointer;margin:0 6px 6px 0}.chip.on{background:var(--pri);color:var(--onpri);border-color:var(--pri)}
 .tool{display:inline-block;margin:4px 4px 0 0;padding:6px 10px;border-radius:8px;background:var(--bg);font-size:13px}
+.shop-banner{position:relative;display:block;width:100%;aspect-ratio:3/1;max-height:140px;margin:0 0 10px;padding:0;border:2px dashed var(--line);border-radius:14px;background:var(--bg);overflow:hidden;cursor:pointer}
+.shop-banner:disabled{opacity:.55;cursor:not-allowed}
+.shop-banner img{width:100%;height:100%;object-fit:cover;display:block}
+.shop-banner-placeholder{display:grid;place-items:center;width:100%;height:100%;padding:0 12px;color:var(--mut);font-size:12px;font-weight:650;text-align:center}
+.shop-banner.has-img{border-style:solid;border-color:var(--line)}
+.shop-banner-camera{position:absolute;right:10px;bottom:10px;width:32px;height:32px;border-radius:50%;background:var(--fl);color:#fff;font-size:14px;display:grid;place-items:center;box-shadow:0 2px 8px rgb(0 0 0 / 18%)}
+.shop-banner-hint{margin:0 0 10px;font-size:11px}
 .shop-profile-copy{min-width:0;flex:1}
 .shop-zone-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px}
 .shop-zone-chip{display:inline-flex;align-items:center;gap:6px;margin-top:0;min-height:40px;padding:0 10px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:12px;font-weight:650;cursor:pointer}
