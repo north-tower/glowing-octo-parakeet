@@ -628,7 +628,7 @@ nav.app-bottom-nav .nav-tab-badge{position:absolute;top:-2px;right:6px;min-width
 .toast{position:fixed;left:50%;bottom:calc(72px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--dk);color:var(--ondk);padding:10px 16px;border-radius:12px;font-size:13px;max-width:90%;z-index:20}
 .stat{flex:1;text-align:center}.stat b{display:block;font-size:20px}
 label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px}
-main input,main select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+main input:not([type=checkbox]):not([type=radio]):not([type=hidden]),main select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card)}
 main select{
   min-height:44px;
   cursor:pointer;
@@ -656,6 +656,14 @@ body.app main input,body.app main select,body.app main textarea{font-size:16px}
 .cat-combo-option:hover,.cat-combo-option.is-active{background:color-mix(in srgb,var(--pri) 8%,var(--bg))}
 .cat-combo-option.is-selected{font-weight:650}
 .cat-combo-empty{padding:12px}
+.cat-combo-create{font-weight:650;color:var(--pri);border-top:1px solid var(--line)}
+.cat-combo-create:disabled{opacity:.55;cursor:not-allowed}
+.cat-combo-empty{padding:12px;display:flex;flex-direction:column;gap:10px}
+.cat-combo-create-btn{margin-top:2px}
+.cat-create-row{align-items:stretch;margin-bottom:8px}
+.cat-create-row input{flex:1;min-width:0;margin-bottom:0}
+.cat-create-row .btn{flex:none;align-self:stretch}
+.cat-combo,.cat-combo-field{overflow:visible}
 .chip{border:1px solid var(--line);background:var(--card);border-radius:20px;padding:7px 13px;cursor:pointer;margin:0 6px 6px 0}.chip.on{background:var(--pri);color:var(--onpri);border-color:var(--pri)}
 .tool{display:inline-block;margin:4px 4px 0 0;padding:6px 10px;border-radius:8px;background:var(--bg);font-size:13px}
 .shop-profile-copy{min-width:0;flex:1}
@@ -1132,8 +1140,12 @@ body.app .otp-dev-banner-label{margin:0 0 6px;font-size:12px;line-height:1.35}
 body.app .otp-dev-code{display:block;font-family:var(--font-display);font-size:1.5rem;font-weight:650;letter-spacing:.25em;font-variant-numeric:tabular-nums;color:var(--ink)}
 body.app .sign-in-card--seller{border-color:color-mix(in srgb,var(--pri) 28%,var(--line))}
 body.app .sign-in-card--seller h2{color:var(--pri)}
-body.app .sign-in-remember{display:flex;align-items:center;gap:8px;margin:12px 0 4px;font-size:14px;font-weight:400;cursor:pointer}
-body.app .sign-in-remember input{width:16px;height:16px;margin:0;accent-color:var(--pri)}
+body.app .sign-in-card label[for="signin-email"],body.app .sign-in-card label[for="signin-phone"]{display:block;margin:0;font-size:14px;font-weight:600;color:var(--ink)}
+body.app .sign-in-card input[type=email],body.app .sign-in-card input[type=tel]{min-height:48px;padding:0 1rem 0 2.75rem;border-radius:12px;font-size:16px;color:var(--ink)}
+body.app .sign-in-card input[type=email]::placeholder,body.app .sign-in-card input[type=tel]::placeholder{color:var(--mut)}
+body.app .sign-in-card button[type=submit]{color:#fff;border:0}
+body.app .sign-in-remember{display:flex;align-items:center;gap:12px;margin:16px 0 0;font-size:14px;font-weight:400;color:var(--ink);cursor:pointer}
+body.app .sign-in-remember input{width:20px;height:20px;flex:none;accent-color:var(--pri)}
 body.app .sign-in-guest{display:block;width:100%;margin-top:14px;text-align:center;border:1.5px solid var(--pri);color:var(--pri);background:transparent;font-weight:650;font-size:15px;padding:11px;border-radius:10px;cursor:pointer}
 body.app .sign-in-guest:hover{background:var(--bg)}
 body.app .sign-in-guest-note{font-size:12px;color:var(--mute);text-align:center;margin:6px 0 0}

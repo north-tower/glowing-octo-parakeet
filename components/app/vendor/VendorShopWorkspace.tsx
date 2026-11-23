@@ -150,6 +150,7 @@ export function VendorShopWorkspace({
       {tab === "add" ? (
         <VendorProductForm
           vendorId={vendor.id}
+          vendorCategories={vendor.categories}
           shopArea={vendor.area}
           toast={toast}
           onPublished={() => setStockTick((n) => n + 1)}

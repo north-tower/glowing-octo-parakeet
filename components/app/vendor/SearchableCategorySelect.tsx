@@ -17,6 +17,9 @@ type Props = {
   officialOptions: DirectoryCategory[];
   communityOptions: DirectoryCategory[];
   onChange: (slug: string) => void;
+  /** When the typed name is new, create a community category and select it. */
+  onCreateCustom?: (label: string) => boolean | void | Promise<boolean | void>;
+  createBusy?: boolean;
 };
 
 function matchesLabel(label: string, query: string): boolean {
@@ -32,6 +35,8 @@ export function SearchableCategorySelect({
   officialOptions,
   communityOptions,
   onChange,
+  onCreateCustom,
+  createBusy,
 }: Props) {
   const listId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -59,6 +64,25 @@ export function SearchableCategorySelect({
     () => [...filteredOfficial, ...filteredCommunity],
     [filteredOfficial, filteredCommunity],
   );
+
+  const trimmedQuery = query.trim();
+  const mayCreate = !!onCreateCustom && trimmedQuery.length >= 2;
+  const canOfferCreate =
+    mayCreate &&
+    flatFiltered.length > 0 &&
+    !allOptions.some(
+      (r) => r.label.toLowerCase() === trimmedQuery.toLowerCase(),
+    );
+  const showEmptyCreate = mayCreate && flatFiltered.length === 0;
+  const createOptionIndex = canOfferCreate ? flatFiltered.length : -1;
+  const navigableCount =
+    flatFiltered.length + (canOfferCreate || showEmptyCreate ? 1 : 0);
+
+  const runCreate = async () => {
+    if (!onCreateCustom || !mayCreate || createBusy || disabled) return;
+    const ok = await onCreateCustom(trimmedQuery);
+    if (ok !== false) close();
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -110,17 +134,20 @@ export function SearchableCategorySelect({
     if (e.key === "ArrowDown") {
       e.preventDefault();
       setHighlight((i) =>
-        flatFiltered.length ? Math.min(i + 1, flatFiltered.length - 1) : 0,
+        navigableCount ? Math.min(i + 1, navigableCount - 1) : 0,
       );
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setHighlight((i) => Math.max(i - 1, 0));
     } else if (e.key === "Enter") {
-      const row = flatFiltered[highlight];
-      if (row) {
-        e.preventDefault();
-        pick(row.slug);
+      e.preventDefault();
+      if (canOfferCreate && highlight === createOptionIndex) {
+        void runCreate();
+        return;
       }
+      const row = flatFiltered[highlight];
+      if (row) pick(row.slug);
+      else if (mayCreate) void runCreate();
     }
   };
 
@@ -179,9 +206,45 @@ export function SearchableCategorySelect({
           aria-label="Categories"
         >
           {!flatFiltered.length ? (
-            <div className="cat-combo-empty m">No matching categories</div>
+            <div className="cat-combo-empty">
+              <div className="m">No matching categories.</div>
+              {onCreateCustom && trimmedQuery.length >= 2 ? (
+                <button
+                  type="button"
+                  className={`btn s full cat-combo-create-btn${
+                    highlight === 0 ? " is-active-outline" : ""
+                  }`}
+                  disabled={createBusy || disabled}
+                  onMouseEnter={() => setHighlight(0)}
+                  onClick={() => void runCreate()}
+                >
+                  {createBusy
+                    ? "Creating…"
+                    : `Add “${trimmedQuery}” as new category`}
+                </button>
+              ) : (
+                <div className="m">
+                  Type at least 2 characters to add a new category.
+                </div>
+              )}
+            </div>
           ) : (
             <>
+              {canOfferCreate ? (
+                <button
+                  type="button"
+                  className={`cat-combo-option cat-combo-create${
+                    highlight === createOptionIndex ? " is-active" : ""
+                  }`}
+                  disabled={createBusy || disabled}
+                  onMouseEnter={() => setHighlight(createOptionIndex)}
+                  onClick={() => void runCreate()}
+                >
+                  {createBusy
+                    ? "Creating…"
+                    : `Add “${trimmedQuery}” as new category`}
+                </button>
+              ) : null}
               {filteredOfficial.length ? (
                 <>
                   <div className="cat-combo-group" role="presentation">

@@ -4,7 +4,11 @@ import { apiFetch, ApiError } from "@/lib/nakuru/api";
 import { MAX_IMAGE_BYTES } from "@/lib/nakuru/data/constants";
 import { resizeImageFile } from "@/lib/nakuru/resize-image";
 import type { ListingMode } from "@/lib/nakuru/types";
-import { useCategories } from "@/lib/nakuru/use-categories";
+import {
+  useCategories,
+  type CategoryPublicApiRow,
+} from "@/lib/nakuru/use-categories";
+import type { DirectoryCategory } from "@/lib/nakuru/data/category-directory";
 import {
   useEffect,
   useMemo,
@@ -21,8 +25,29 @@ function listingModeForSlug(
   return rows.find((r) => r.slug === slug)?.listingMode ?? "shop";
 }
 
+/** Parent for a new community leaf — must match a category root the vendor sells under. */
+function parentSlugForCustomCategory(
+  vendorRoots: string[],
+  rows: DirectoryCategory[],
+): string {
+  const bySlug = new Map(rows.map((r) => [r.slug, r]));
+  for (const slug of vendorRoots) {
+    const row = bySlug.get(slug);
+    if (row && row.depth <= 1) return slug;
+    if (row?.parentSlug) {
+      const parent = bySlug.get(row.parentSlug);
+      if (parent && parent.depth <= 1) return parent.slug;
+    }
+  }
+  const openRoot = rows.find(
+    (r) => r.kind === "official" && r.depth === 0 && r.openForApply,
+  );
+  return openRoot?.slug ?? "business-and-industry";
+}
+
 type Props = {
   vendorId: string;
+  vendorCategories: string[];
   shopArea: string | null;
   toast: (msg: string) => void;
   onPublished?: () => void;
@@ -30,11 +55,12 @@ type Props = {
 
 export function VendorProductForm({
   vendorId,
+  vendorCategories,
   shopArea,
   toast,
   onPublished,
 }: Props) {
-  const { rows: directoryRows } = useCategories();
+  const { rows: directoryRows, upsertRow } = useCategories();
   const listingOptions = directoryRows.filter(
     (r) => r.visible && !r.hasChildren,
   );
@@ -55,6 +81,8 @@ export function VendorProductForm({
   const [imageBusy, setImageBusy] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
+  const [catCreateBusy, setCatCreateBusy] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
 
   const defaultSlug = useMemo(
     () => listingOptions[0]?.slug ?? null,
@@ -67,15 +95,75 @@ export function VendorProductForm({
       setSelectedSlug(null);
       return;
     }
-    setSelectedSlug((prev) =>
-      prev && allowed.includes(prev) ? prev : allowed[0]!,
-    );
-  }, [listingOptions]);
+    setSelectedSlug((prev) => {
+      if (prev && allowed.includes(prev)) return prev;
+      if (
+        prev &&
+        directoryRows.some(
+          (r) => r.slug === prev && r.visible && !r.hasChildren,
+        )
+      ) {
+        return prev;
+      }
+      return allowed[0]!;
+    });
+  }, [listingOptions, directoryRows]);
 
   useEffect(() => {
     if (!selectedListingMode) return;
     setEmoji(selectedListingMode === "shop" ? "🛍️" : "🔧");
   }, [selectedListingMode]);
+
+  const createCustomCategory = async (label: string): Promise<boolean> => {
+    if (catCreateBusy || busy) return false;
+    const trimmed = label.trim();
+    if (trimmed.length < 2) {
+      toast("Category name needs at least 2 characters.");
+      return false;
+    }
+    const parentSlug = parentSlugForCustomCategory(
+      vendorCategories,
+      directoryRows,
+    );
+    setCatCreateBusy(true);
+    try {
+      const row = await apiFetch<CategoryPublicApiRow>("/api/categories", {
+        method: "POST",
+        body: JSON.stringify({ label: trimmed, parentSlug }),
+      });
+      upsertRow(row);
+      setSelectedSlug(row.slug);
+      toast(
+        shopArea
+          ? `Category “${row.label}” is ready. Finish the listing and publish.`
+          : `Category “${row.label}” is ready. Set shop area, then publish.`,
+      );
+      return true;
+    } catch (err) {
+      if (err instanceof ApiError) {
+        if (err.body.error === "too_many_requests") {
+          toast("Too many new categories today. Try again tomorrow.");
+          return false;
+        }
+        if (err.body.error === "category_hidden") {
+          toast("That category name exists but is not available.");
+          return false;
+        }
+        if (err.status === 401) {
+          toast("Sign in again to add a category.");
+          return false;
+        }
+        if (err.status === 400) {
+          toast("That category name is not allowed. Try another.");
+          return false;
+        }
+      }
+      toast("Could not create that category. Try a different name.");
+      return false;
+    } finally {
+      setCatCreateBusy(false);
+    }
+  };
 
   const resetCreateForm = () => {
     setTitle("");
@@ -211,19 +299,49 @@ export function VendorProductForm({
       <div className="t">Publish a listing</div>
       <div className="m">
         {shopArea
-          ? `Buyers will see this listing in ${shopArea}. Pick any category below.`
+          ? `Buyers will see this listing in ${shopArea}. Pick a category or type a new one.`
           : "Set your shop area on the profile above before publishing."}
       </div>
 
       <label htmlFor="vp-listing-cat">Category</label>
+      <div className="m">
+        Search an existing category, or type a new name and choose{" "}
+        <strong>Add as new category</strong>.
+      </div>
       <SearchableCategorySelect
         id="vp-listing-cat"
         value={selectedSlug ?? defaultSlug ?? ""}
-        disabled={busy || !shopArea}
+        disabled={busy}
         officialOptions={officialOptions}
         communityOptions={communityOptions}
+        createBusy={catCreateBusy}
+        onCreateCustom={createCustomCategory}
         onChange={(slug) => setSelectedSlug(slug || null)}
       />
+
+      <label htmlFor="vp-new-cat">New category name</label>
+      <div className="row cat-create-row">
+        <input
+          id="vp-new-cat"
+          maxLength={40}
+          placeholder="e.g. Cyber"
+          value={newCategoryName}
+          disabled={busy || catCreateBusy}
+          onChange={(e) => setNewCategoryName(e.target.value)}
+        />
+        <button
+          type="button"
+          className="btn s"
+          disabled={busy || catCreateBusy || newCategoryName.trim().length < 2}
+          onClick={() => {
+            void createCustomCategory(newCategoryName).then((ok) => {
+              if (ok) setNewCategoryName("");
+            });
+          }}
+        >
+          {catCreateBusy ? "Adding…" : "Add category"}
+        </button>
+      </div>
 
       <label htmlFor="vp-title">Title</label>
       <input

@@ -380,7 +380,7 @@ function SignInFormInner({
           )}
 
           <label
-            className="mt-4 flex min-h-11 cursor-pointer items-center gap-3"
+            className="sign-in-remember min-h-11"
             htmlFor="signin-remember"
           >
             <input
