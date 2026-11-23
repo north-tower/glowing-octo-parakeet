@@ -40,6 +40,7 @@ type UrlNavSlice = {
   qParam: string;
   catParam: string;
   onProductDetail: boolean;
+  vendorEntry: boolean;
 };
 
 function applyUrlNavToState(prev: NakuruState, url: UrlNavSlice): NakuruState {
@@ -59,6 +60,8 @@ function applyUrlNavToState(prev: NakuruState, url: UrlNavSlice): NakuruState {
     if (tab === "cat" && url.sideParam) {
       next = { ...next, side: url.sideParam, cat: "all" };
     }
+  } else if (!url.vendorEntry) {
+    next = { ...next, tab: "home" };
   }
 
   return next;
@@ -105,6 +108,7 @@ export function AppProvider({ children }: ProviderProps) {
     qParam,
     catParam,
     onProductDetail,
+    vendorEntry,
   };
 
   const [state, setState] = useState(() => {
@@ -118,7 +122,7 @@ export function AppProvider({ children }: ProviderProps) {
       const next = applyUrlNavToState(prev, urlNav);
       return urlNavMatches(prev, next) ? prev : next;
     });
-  }, [tabParam, sideParam, qParam, catParam, onProductDetail]);
+  }, [tabParam, sideParam, qParam, catParam, onProductDetail, vendorEntry]);
 
   const [toastText, setToastText] = useState("");
   const [toastVisible, setToastVisible] = useState(false);

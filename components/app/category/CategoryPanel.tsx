@@ -32,7 +32,7 @@ import { useCategories } from "@/lib/nakuru/use-categories";
 import { IconChevronLeft, IconSparkle } from "@/components/app/icons/LineIcons";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { appCategoryHref } from "@/lib/nakuru/app-category-href";
+import { appCategoryHref } from "@/lib/nakuru/app-nav-href";
 
 type ListingsState = {
   items: Listing[];
@@ -181,7 +181,7 @@ export function CategoryPanel({
               setFocusSlug("feat");
               dispatch({ type: "SET_CAT", cat: "all" });
               dispatch({ type: "SET_SIDE", side: "feat" });
-              router.replace(appCategoryHref());
+              router.push(appCategoryHref());
             }}
           >
             <IconChevronLeft size={20} aria-hidden />

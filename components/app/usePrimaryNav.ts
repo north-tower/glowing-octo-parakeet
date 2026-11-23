@@ -7,6 +7,7 @@ import {
   bottomNavHighlightTab,
   persistDetailNavTab,
 } from "@/lib/nakuru/detail-nav-tab";
+import { appHrefForTab } from "@/lib/nakuru/app-nav-href";
 import { cartCount } from "@/lib/nakuru/reducer";
 import type { TabId } from "@/lib/nakuru/types";
 
@@ -23,15 +24,23 @@ export function usePrimaryNav() {
       ? (state as { msgUnread: number }).msgUnread
       : 0;
 
+  const onAppShell = pathname === "/app";
+
   const goTab = (id: TabId) => {
-    if (onDetailRoute) {
-      persistDetailNavTab(id);
-      router.push(
-        id === "home" || id === "cat"
-          ? appHrefForDetailNavTab(id === "cat" ? "cat" : "home")
-          : `/app?tab=${id}`,
-      );
-    }
+    const href = onDetailRoute
+      ? id === "home" || id === "cat"
+        ? appHrefForDetailNavTab(id === "cat" ? "cat" : "home")
+        : `/app?tab=${id}`
+      : onAppShell
+        ? appHrefForTab(id, {
+            side: id === "cat" ? state.side : undefined,
+            cat: state.cat,
+            q: state.q,
+          })
+        : null;
+
+    if (onDetailRoute) persistDetailNavTab(id);
+    if (href) router.push(href);
     dispatch({ type: "SET_TAB", tab: id });
   };
 
