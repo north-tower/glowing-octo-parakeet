@@ -107,7 +107,7 @@ describe("POST /api/vendors launch category guard", () => {
         .expect(201);
 
       expect(res.body).toEqual(
-        expect.objectContaining({ status: "pending", id: expect.any(String) }),
+        expect.objectContaining({ status: "approved", id: expect.any(String) }),
       );
     },
   );

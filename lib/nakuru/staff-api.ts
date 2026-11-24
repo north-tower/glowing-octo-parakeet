@@ -111,6 +111,9 @@ export type StaffCategoryRow = {
   openForApply: boolean;
   sortOrder: number;
   visible: boolean;
+  parentSlug: string | null;
+  depth: number;
+  hasChildren: boolean;
   createdAt: string;
   createdBy: string | null;
 };
@@ -124,4 +127,103 @@ export type StaffVendorRow = {
   logo_url: string | null;
   created_at: string;
   owner_email: string | null;
+};
+
+export type StaffMe = {
+  id: string;
+  email: string;
+  role: "admin" | "support";
+};
+
+export type StaffAuditRow = {
+  id: number;
+  at: string;
+  event: string;
+  userId: string | null;
+  actorEmail: string | null;
+  ip: string | null;
+  meta: Record<string, unknown>;
+};
+
+export type StaffAuditPage = {
+  rows: StaffAuditRow[];
+  nextCursor: string | null;
+};
+
+export type StaffOrderRow = {
+  id: string;
+  status: string;
+  totalKes: number;
+  deliveryFeeKes: number;
+  payment: string;
+  paymentStatus: string;
+  zone: string | null;
+  address: string | null;
+  createdAt: string;
+  customerId: string;
+  customerEmail: string | null;
+  vendorId: string | null;
+  vendorName: string | null;
+  itemCount: number;
+};
+
+export type StaffOrdersPage = {
+  rows: StaffOrderRow[];
+  nextCursor: string | null;
+};
+
+export type StaffOrderItemRow = {
+  productId: string;
+  title: string;
+  unitKes: number;
+  qty: number;
+};
+
+export type StaffListingRow = {
+  id: string;
+  title: string;
+  priceKes: number;
+  active: boolean;
+  stock: number | null;
+  category: string;
+  categoryLabel: string;
+  listingMode: string;
+  categoryVisible: boolean;
+  vendorId: string;
+  vendorName: string;
+  vendorStatus: string;
+  createdAt: string;
+  onPublicCatalog: boolean;
+};
+
+export type StaffListingsPage = {
+  rows: StaffListingRow[];
+  nextCursor: string | null;
+};
+
+export type StaffInquiryRow = {
+  id: string;
+  status: string;
+  message: string;
+  createdAt: string;
+  customerId: string;
+  customerEmail: string | null;
+  productId: string;
+  productTitle: string;
+  vendorId: string;
+  vendorName: string;
+};
+
+export type StaffInquiriesPage = {
+  rows: StaffInquiryRow[];
+  nextCursor: string | null;
+};
+
+export type StaffOverview = {
+  pendingVendors: number;
+  approvedVendors7d: number;
+  openOrders: number;
+  ordersToday: number;
+  staffLoginFailures24h: number;
+  recentAudit: StaffAuditRow[];
 };

@@ -40,7 +40,7 @@ export async function POST(req: Request) {
 
   await audit("staff_login", u.id, ip);
   const session = await startSession({ id: u.id, role: u.role });
-  const res = NextResponse.json({ access: session.access });
+  const res = NextResponse.json({ access: session.access, role: u.role });
   res.cookies.set(REFRESH_COOKIE, session.refresh, refreshCookieOptions(true));
   return res;
 }

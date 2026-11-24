@@ -11,6 +11,9 @@ export async function PATCH(req: Request, ctx: RouteContext) {
   if (!user || !requireRole(user, "admin", "support")) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
+  if (!requireRole(user, "admin")) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  }
 
   const { slug } = await ctx.params;
   if (!CATEGORY_SLUG_RE.test(slug)) {
@@ -31,7 +34,10 @@ export async function PATCH(req: Request, ctx: RouteContext) {
 
   try {
     const row = await staffPatchCategory(slug, parsed.data);
-    return NextResponse.json(row);
+    return NextResponse.json({
+      ...row,
+      createdAt: row.createdAt.toISOString(),
+    });
   } catch (err) {
     if (err instanceof CategoryError) {
       return NextResponse.json({ error: err.code }, { status: err.status });

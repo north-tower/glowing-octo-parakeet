@@ -12,7 +12,7 @@ import { useCallback, useEffect, useState } from "react";
 type StatusFilter = "pending" | "approved" | "rejected";
 
 type Props = {
-  onSessionLost: () => void;
+  onSessionLost?: () => void;
 };
 
 function formatWhen(iso: string): string {
@@ -32,10 +32,16 @@ export function StaffVendorQueue({ onSessionLost }: Props) {
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+
+  const loseSession = useCallback(() => {
+    if (onSessionLost) onSessionLost();
+    else window.location.reload();
+  }, [onSessionLost]);
 
   const load = useCallback(async () => {
     if (!getStaffAccessToken()) {
-      onSessionLost();
+      loseSession();
       return;
     }
     setLoading(true);
@@ -48,14 +54,14 @@ export function StaffVendorQueue({ onSessionLost }: Props) {
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
         clearStaffAccessToken();
-        onSessionLost();
+        loseSession();
         return;
       }
       setError(err instanceof ApiError ? err.message : "Could not load queue.");
     } finally {
       setLoading(false);
     }
-  }, [onSessionLost, status]);
+  }, [loseSession, status]);
 
   useEffect(() => {
     void load();
@@ -72,7 +78,7 @@ export function StaffVendorQueue({ onSessionLost }: Props) {
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
         clearStaffAccessToken();
-        onSessionLost();
+        loseSession();
         return;
       }
       setError(err instanceof ApiError ? err.message : "Action failed.");
@@ -81,26 +87,31 @@ export function StaffVendorQueue({ onSessionLost }: Props) {
     }
   };
 
-  const signOut = () => {
-    clearStaffAccessToken();
-    void fetch("/api/auth/logout", {
-      method: "POST",
-      credentials: "include",
-    }).finally(() => onSessionLost());
-  };
+  const q = search.trim().toLowerCase();
+  const visible = q
+    ? rows.filter(
+        (v) =>
+          v.name.toLowerCase().includes(q) ||
+          (v.owner_email ?? "").toLowerCase().includes(q),
+      )
+    : rows;
 
   return (
     <>
-      <div className="row sp" style={{ marginBottom: 8 }}>
-        <h2 style={{ margin: 0 }}>Vendor queue</h2>
-        <button type="button" className="btn s o" onClick={signOut}>
-          Sign out
-        </button>
-      </div>
+      <h2 style={{ marginTop: 0 }}>Vendor queue</h2>
       <p className="m" style={{ marginTop: 0 }}>
         Review applications verified by email OTP. Documents UI ships in a later
         phase.
       </p>
+      <label htmlFor="vendor-search">Search name or email</label>
+      <input
+        id="vendor-search"
+        type="search"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder="Filter loaded list…"
+        style={{ marginBottom: 10 }}
+      />
       <div className="row" style={{ flexWrap: "wrap", marginBottom: 10 }}>
         {(
           [
@@ -130,10 +141,14 @@ export function StaffVendorQueue({ onSessionLost }: Props) {
       {error ? <div className="err">{error}</div> : null}
       {loading ? (
         <CardRowsSkeleton count={4} />
-      ) : rows.length === 0 ? (
-        <div className="card m">No {status} applications.</div>
+      ) : visible.length === 0 ? (
+        <div className="card m">
+          {rows.length === 0
+            ? `No ${status} applications.`
+            : "No vendors match your search."}
+        </div>
       ) : (
-        rows.map((v) => (
+        visible.map((v) => (
           <VendorQueueCard
             key={v.id}
             v={v}
@@ -164,6 +179,8 @@ function VendorQueueCard({
   onVerify: () => void;
   formatWhen: (iso: string) => string;
 }) {
+  const [open, setOpen] = useState(false);
+
   return (
     <div className="card">
       <div className="row" style={{ gap: 12, alignItems: "flex-start" }}>
@@ -185,6 +202,24 @@ function VendorQueueCard({
         Applied {formatWhen(v.created_at)}
         {v.verified ? " · Verified badge" : ""}
       </div>
+      <button
+        type="button"
+        className="btn s o"
+        style={{ marginTop: 6 }}
+        onClick={() => setOpen((o) => !o)}
+      >
+        {open ? "Hide details" : "Details"}
+      </button>
+      {open ? (
+        <div className="m staff-ops-vendor-detail">
+          <div>
+            Vendor ID:{" "}
+            <code style={{ fontSize: 12, wordBreak: "break-all" }}>{v.id}</code>
+          </div>
+          <div>Status: {v.status}</div>
+          <div>Categories: {v.categories.join(", ") || "—"}</div>
+        </div>
+      ) : null}
       <div className="row" style={{ marginTop: 8, flexWrap: "wrap" }}>
         {v.status === "pending" ? (
           <>

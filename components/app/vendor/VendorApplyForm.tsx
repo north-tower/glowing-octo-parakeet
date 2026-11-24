@@ -135,7 +135,7 @@ export function VendorApplyForm({ disabled, onApplied, toast }: Props) {
         method: "POST",
         body: JSON.stringify(body),
       });
-      toast("Application submitted. We'll review it soon.");
+      toast("You're approved — your shop is ready.");
       setName("");
       setShopArea("");
       onApplied();
