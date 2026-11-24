@@ -125,3 +125,33 @@ export type StaffVendorRow = {
   created_at: string;
   owner_email: string | null;
 };
+
+export type StaffMe = {
+  id: string;
+  email: string;
+  role: "admin" | "support";
+};
+
+export type StaffAuditRow = {
+  id: number;
+  at: string;
+  event: string;
+  userId: string | null;
+  actorEmail: string | null;
+  ip: string | null;
+  meta: Record<string, unknown>;
+};
+
+export type StaffAuditPage = {
+  rows: StaffAuditRow[];
+  nextCursor: string | null;
+};
+
+export type StaffOverview = {
+  pendingVendors: number;
+  approvedVendors7d: number;
+  openOrders: number;
+  ordersToday: number;
+  staffLoginFailures24h: number;
+  recentAudit: StaffAuditRow[];
+};

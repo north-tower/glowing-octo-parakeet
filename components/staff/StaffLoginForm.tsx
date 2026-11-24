@@ -7,7 +7,7 @@ import { useCallback, useMemo, useState, type FormEvent } from "react";
 const devPrefill = staffDevLoginPrefill();
 
 type Props = {
-  onLoggedIn: (access: string) => void;
+  onLoggedIn: (access: string, role?: "admin" | "support") => void;
 };
 
 function isValidEmail(raw: string): boolean {
@@ -74,6 +74,7 @@ export function StaffLoginForm({ onLoggedIn }: Props) {
         });
         const data = (await res.json().catch(() => null)) as {
           access?: string;
+          role?: "admin" | "support";
           error?: string;
         } | null;
 
@@ -89,7 +90,7 @@ export function StaffLoginForm({ onLoggedIn }: Props) {
         }
 
         setStaffAccessToken(data.access);
-        onLoggedIn(data.access);
+        onLoggedIn(data.access, data.role);
       } catch {
         setError("Network error. Try again.");
       } finally {

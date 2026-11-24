@@ -1,48 +1,28 @@
 "use client";
 
-import { BrandLogoMark } from "@/components/app/BrandLogoMark";
-import { StaffLoginForm } from "@/components/staff/StaffLoginForm";
-import { BRAND_NAME } from "@/lib/nakuru/brand";
-import { StaffVendorQueue } from "@/components/staff/StaffVendorQueue";
-import { getStaffAccessToken } from "@/lib/nakuru/staff-auth";
-import { LoadingBlock } from "@/components/app/loading/LoadingUi";
-import { useCallback, useEffect, useState } from "react";
+import { StaffAdminOnly } from "@/components/staff/StaffAdminOnly";
+import { StaffOverviewPanel } from "@/components/staff/StaffOverviewPanel";
+import { useStaffSession } from "@/components/staff/StaffSessionContext";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
-export default function StaffPage() {
-  const [authed, setAuthed] = useState(false);
-  const [ready, setReady] = useState(false);
+export default function StaffOverviewPage() {
+  const { me } = useStaffSession();
+  const router = useRouter();
 
   useEffect(() => {
-    setAuthed(!!getStaffAccessToken());
-    setReady(true);
-  }, []);
+    if (me.role === "support") {
+      router.replace("/staff/vendors");
+    }
+  }, [me.role, router]);
 
-  const onLoggedIn = useCallback(() => {
-    setAuthed(true);
-  }, []);
-
-  const onSessionLost = useCallback(() => {
-    setAuthed(false);
-  }, []);
-
-  if (!ready) {
-    return <LoadingBlock label="Loading staff console…" />;
+  if (me.role === "support") {
+    return null;
   }
 
   return (
-    <>
-      <header>
-        <div className="logo">
-          <BrandLogoMark size={28} /> {BRAND_NAME} staff
-        </div>
-      </header>
-      <main>
-        {authed ? (
-          <StaffVendorQueue onSessionLost={onSessionLost} />
-        ) : (
-          <StaffLoginForm onLoggedIn={onLoggedIn} />
-        )}
-      </main>
-    </>
+    <StaffAdminOnly>
+      <StaffOverviewPanel />
+    </StaffAdminOnly>
   );
 }
