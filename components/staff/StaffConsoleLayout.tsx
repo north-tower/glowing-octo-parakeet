@@ -10,14 +10,17 @@ import { useStaffSession } from "./StaffSessionContext";
 type NavItem = { href: string; label: string };
 
 function navForRole(role: "admin" | "support"): NavItem[] {
-  if (role === "support") {
-    return [{ href: "/staff/vendors", label: "Vendors" }];
-  }
+  const shared: NavItem[] = [
+    { href: "/staff/vendors", label: "Vendors" },
+    { href: "/staff/inquiries", label: "Inquiries" },
+  ];
+  if (role === "support") return shared;
   return [
     { href: "/staff", label: "Overview" },
     { href: "/staff/audit", label: "Audit" },
-    { href: "/staff/vendors", label: "Vendors" },
+    ...shared,
     { href: "/staff/categories", label: "Categories" },
+    { href: "/staff/orders", label: "Orders" },
   ];
 }
 

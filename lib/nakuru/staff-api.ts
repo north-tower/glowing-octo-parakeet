@@ -150,6 +150,53 @@ export type StaffAuditPage = {
   nextCursor: string | null;
 };
 
+export type StaffOrderRow = {
+  id: string;
+  status: string;
+  totalKes: number;
+  deliveryFeeKes: number;
+  payment: string;
+  paymentStatus: string;
+  zone: string | null;
+  address: string | null;
+  createdAt: string;
+  customerId: string;
+  customerEmail: string | null;
+  vendorId: string | null;
+  vendorName: string | null;
+  itemCount: number;
+};
+
+export type StaffOrdersPage = {
+  rows: StaffOrderRow[];
+  nextCursor: string | null;
+};
+
+export type StaffOrderItemRow = {
+  productId: string;
+  title: string;
+  unitKes: number;
+  qty: number;
+};
+
+export type StaffInquiryRow = {
+  id: string;
+  status: string;
+  message: string;
+  createdAt: string;
+  customerId: string;
+  customerEmail: string | null;
+  productId: string;
+  productTitle: string;
+  vendorId: string;
+  vendorName: string;
+};
+
+export type StaffInquiriesPage = {
+  rows: StaffInquiryRow[];
+  nextCursor: string | null;
+};
+
 export type StaffOverview = {
   pendingVendors: number;
   approvedVendors7d: number;

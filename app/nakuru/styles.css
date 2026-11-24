@@ -1628,3 +1628,6 @@ body.app .pd-comment-del:disabled{opacity:.5;cursor:wait}
 .staff-ops-audit-teaser{margin-bottom:8px}
 .staff-ops-cat-new{margin-bottom:16px}
 .staff-ops-cat-table select{min-height:36px;font-size:13px;padding:6px 28px 6px 8px}
+.staff-ops-order-card{margin-bottom:10px}
+.staff-ops-order-items{margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
+.staff-ops-inquiry-msg{padding:8px;border-radius:8px;background:color-mix(in srgb,var(--pri) 4%,var(--bg))}
