@@ -12,6 +12,7 @@ type NavItem = { href: string; label: string };
 function navForRole(role: "admin" | "support"): NavItem[] {
   const shared: NavItem[] = [
     { href: "/staff/vendors", label: "Vendors" },
+    { href: "/staff/listings", label: "Listings" },
     { href: "/staff/inquiries", label: "Inquiries" },
   ];
   if (role === "support") return shared;

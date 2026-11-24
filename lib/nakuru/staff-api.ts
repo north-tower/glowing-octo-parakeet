@@ -179,6 +179,28 @@ export type StaffOrderItemRow = {
   qty: number;
 };
 
+export type StaffListingRow = {
+  id: string;
+  title: string;
+  priceKes: number;
+  active: boolean;
+  stock: number | null;
+  category: string;
+  categoryLabel: string;
+  listingMode: string;
+  categoryVisible: boolean;
+  vendorId: string;
+  vendorName: string;
+  vendorStatus: string;
+  createdAt: string;
+  onPublicCatalog: boolean;
+};
+
+export type StaffListingsPage = {
+  rows: StaffListingRow[];
+  nextCursor: string | null;
+};
+
 export type StaffInquiryRow = {
   id: string;
   status: string;
