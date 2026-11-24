@@ -49,8 +49,8 @@ export async function applyVendor(
 
   const v = (
     await db.q<{ id: string; status: string }>(
-      `insert into vendors(owner_id, name, categories, area)
-       values($1, $2, $3, $4) returning id, status`,
+      `insert into vendors(owner_id, name, categories, area, status)
+       values($1, $2, $3, $4, 'approved') returning id, status`,
       [ownerId, name, categories, area?.trim() || null],
     )
   ).rows[0];
