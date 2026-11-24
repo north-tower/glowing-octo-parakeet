@@ -1626,3 +1626,5 @@ body.app .pd-comment-del:disabled{opacity:.5;cursor:wait}
 .staff-ops-meta{margin:8px 0 0;font-size:11px;max-width:280px;overflow:auto;background:color-mix(in srgb,var(--pri) 4%,var(--bg));padding:8px;border-radius:8px}
 .staff-ops-vendor-detail{margin-top:8px;padding:8px;border-radius:8px;background:color-mix(in srgb,var(--pri) 4%,var(--bg))}
 .staff-ops-audit-teaser{margin-bottom:8px}
+.staff-ops-cat-new{margin-bottom:16px}
+.staff-ops-cat-table select{min-height:36px;font-size:13px;padding:6px 28px 6px 8px}

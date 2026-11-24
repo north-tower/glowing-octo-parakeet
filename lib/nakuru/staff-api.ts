@@ -111,6 +111,9 @@ export type StaffCategoryRow = {
   openForApply: boolean;
   sortOrder: number;
   visible: boolean;
+  parentSlug: string | null;
+  depth: number;
+  hasChildren: boolean;
   createdAt: string;
   createdBy: string | null;
 };

@@ -17,6 +17,7 @@ function navForRole(role: "admin" | "support"): NavItem[] {
     { href: "/staff", label: "Overview" },
     { href: "/staff/audit", label: "Audit" },
     { href: "/staff/vendors", label: "Vendors" },
+    { href: "/staff/categories", label: "Categories" },
   ];
 }
 

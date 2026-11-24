@@ -12,6 +12,9 @@ export async function GET(req: Request) {
   if (!user || !requireRole(user, "admin", "support")) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
+  if (!requireRole(user, "admin")) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  }
 
   try {
     const rows = await listAllCategories();
@@ -32,6 +35,9 @@ export async function POST(req: Request) {
   if (!user || !requireRole(user, "admin", "support")) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
+  if (!requireRole(user, "admin")) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  }
 
   let body: unknown;
   try {
@@ -47,7 +53,10 @@ export async function POST(req: Request) {
 
   try {
     const row = await staffCreateOfficial(parsed.data);
-    return NextResponse.json(row, { status: 201 });
+    return NextResponse.json(
+      { ...row, createdAt: row.createdAt.toISOString() },
+      { status: 201 },
+    );
   } catch (err) {
     if (err instanceof CategoryError) {
       return NextResponse.json({ error: err.code }, { status: err.status });

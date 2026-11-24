@@ -234,7 +234,7 @@ export async function staffCreateOfficial(input: {
   label: string;
   listingMode: ListingMode;
   openForApply: boolean;
-}): Promise<CategoryPublicRow> {
+}): Promise<CategoryAdminRow> {
   const trimmed = validateLabel(input.label);
   const slug = slugifyCategoryLabel(trimmed);
   validateSlug(slug);
@@ -255,7 +255,7 @@ export async function staffCreateOfficial(input: {
       [slug, trimmed, input.listingMode, input.openForApply],
     )
   ).rows[0];
-  return mapCategoryRow(inserted);
+  return mapCategoryAdminRow(inserted);
 }
 
 export async function staffPatchCategory(
@@ -266,7 +266,7 @@ export async function staffPatchCategory(
     openForApply?: boolean;
     label?: string;
   },
-): Promise<CategoryPublicRow> {
+): Promise<CategoryAdminRow> {
   const existing = await getCategoryBySlug(slug);
   if (!existing) {
     throw new CategoryError(404, "not_found");
@@ -295,16 +295,17 @@ export async function staffPatchCategory(
   }
 
   if (sets.length === 0) {
-    return mapCategoryRow(existing);
+    return mapCategoryAdminRow(existing);
   }
 
-  const updated = (
-    await db.q<DbCategoryRow>(
-      `update categories set ${sets.join(", ")}
-       where slug = $1
-       returning ${categorySelect}`,
-      params,
-    )
-  ).rows[0];
-  return mapCategoryRow(updated);
+  await db.q(
+    `update categories set ${sets.join(", ")}
+     where slug = $1`,
+    params,
+  );
+  const refreshed = await getCategoryBySlug(slug);
+  if (!refreshed) {
+    throw new CategoryError(404, "not_found");
+  }
+  return mapCategoryAdminRow(refreshed);
 }
