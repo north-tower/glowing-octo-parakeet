@@ -89,3 +89,28 @@ export async function uploadVendorLogo(
   const { data } = supabase.storage.from(PRODUCT_BUCKET).getPublicUrl(path);
   return data.publicUrl;
 }
+
+export async function uploadVendorBanner(
+  vendorId: string,
+  bytes: Buffer,
+  contentType: "image/jpeg" | "image/png" | "image/webp",
+): Promise<string> {
+  const ext =
+    contentType === "image/png"
+      ? "png"
+      : contentType === "image/webp"
+        ? "webp"
+        : "jpg";
+  const path = `vendor-banners/${vendorId}.${ext}`;
+  const supabase = storageClient();
+  const { error } = await supabase.storage.from(PRODUCT_BUCKET).upload(path, bytes, {
+    contentType,
+    upsert: true,
+  });
+  if (error) {
+    console.error("[storage] vendor banner upload", error.message);
+    throw new StorageError("upload_failed");
+  }
+  const { data } = supabase.storage.from(PRODUCT_BUCKET).getPublicUrl(path);
+  return data.publicUrl;
+}

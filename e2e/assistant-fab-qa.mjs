@@ -65,10 +65,14 @@ async function runCase(page, width, theme) {
   });
 
   await page.getByRole("button", { name: /Message|Ujumbe/i }).click();
-  await page.locator(".card.li").first().click();
-  await page.waitForSelector(".msg-thread");
-  await page.waitForTimeout(350);
-  const fabHiddenInThread = !(await fabShown(page));
+  let fabHiddenInThread = false;
+  const threadCard = page.locator(".card.li").first();
+  if ((await threadCard.count()) > 0) {
+    await threadCard.click();
+    await page.waitForSelector(".msg-thread");
+    await page.waitForTimeout(350);
+    fabHiddenInThread = !(await fabShown(page));
+  }
 
   await page.getByRole("button", { name: /^(Home|Nyumbani)$/i }).click();
   let fabScrollHides = false;

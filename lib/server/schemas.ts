@@ -124,14 +124,23 @@ export const vendorNew = z
     name: z.string().trim().min(2).max(60),
     categories: z.array(vendorApplySlug).min(1).max(4),
     imageDataUrl: imageDataUrl.optional(),
+    area: z.enum(NAKURU_AREA_KEYS).optional(),
   })
   .strict();
 
-export const vendorAreaPatch = z
+export const vendorMinePatch = z
   .object({
-    area: z.enum(NAKURU_AREA_KEYS),
+    area: z.enum(NAKURU_AREA_KEYS).optional(),
+    bannerImageDataUrl: imageDataUrl.optional(),
   })
-  .strict();
+  .strict()
+  .refine(
+    (d) => d.area !== undefined || d.bannerImageDataUrl !== undefined,
+    { message: "bad_request" },
+  );
+
+/** @deprecated use vendorMinePatch */
+export const vendorAreaPatch = vendorMinePatch;
 
 export const vendorOrderAction = z
   .object({
@@ -148,6 +157,12 @@ export const inquiryNew = z
   .strict();
 
 export const commentNew = z
+  .object({
+    body: z.string().trim().min(1).max(500),
+  })
+  .strict();
+
+export const listingMessageNew = z
   .object({
     body: z.string().trim().min(1).max(500),
   })

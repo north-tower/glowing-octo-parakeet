@@ -10,6 +10,7 @@ import { db } from "./db";
 import {
   parseImageDataUrl,
   StorageError,
+  uploadVendorBanner,
   uploadVendorLogo,
 } from "./storage";
 
@@ -30,6 +31,7 @@ export async function applyVendor(
   categories: string[],
   ip: string | null,
   imageDataUrl?: string,
+  area?: string,
 ): Promise<{ id: string; status: string; logo_url: string | null }> {
   if (!(await slugsAllowedForApply(categories))) {
     throw new VendorError(400, "bad_request");
@@ -47,8 +49,9 @@ export async function applyVendor(
 
   const v = (
     await db.q<{ id: string; status: string }>(
-      "insert into vendors(owner_id, name, categories) values($1, $2, $3) returning id, status",
-      [ownerId, name, categories],
+      `insert into vendors(owner_id, name, categories, area)
+       values($1, $2, $3, $4) returning id, status`,
+      [ownerId, name, categories, area?.trim() || null],
     )
   ).rows[0];
 
@@ -80,6 +83,7 @@ export type VendorMineRow = {
   status: string;
   verified: boolean;
   logo_url: string | null;
+  banner_url: string | null;
   area: string | null;
   created_at: Date;
 };
@@ -88,7 +92,7 @@ export async function listVendorsForOwner(
   ownerId: string,
 ): Promise<VendorMineRow[]> {
   const r = await db.q<VendorMineRow>(
-    `select id, name, categories, status, verified, logo_url, area, created_at
+    `select id, name, categories, status, verified, logo_url, banner_url, area, created_at
      from vendors
      where owner_id = $1
      order by created_at desc
@@ -103,6 +107,7 @@ export type PublicVendorRow = {
   name: string;
   verified: boolean;
   logo_url: string | null;
+  banner_url: string | null;
   area: string | null;
 };
 
@@ -114,7 +119,7 @@ export async function getPublicVendor(
 ): Promise<PublicVendorRow | null> {
   if (!UUID_RE.test(id)) return null;
   const r = await db.q<PublicVendorRow>(
-    `select id, name, verified, logo_url, area
+    `select id, name, verified, logo_url, banner_url, area
      from vendors
      where id = $1::uuid and status = 'approved'
      limit 1`,
@@ -145,6 +150,51 @@ export async function setVendorArea(
   }
   await audit("vendor_area", ownerId, ip, { area });
   return { area: r.rows[0].area };
+}
+
+export async function setVendorBanner(
+  ownerId: string,
+  imageDataUrl: string,
+  ip: string | null,
+): Promise<{ banner_url: string }> {
+  const parsed = parseImageDataUrl(imageDataUrl);
+  if (!parsed) {
+    throw new VendorError(400, "bad_request");
+  }
+
+  const vendor = (
+    await db.q<{ id: string }>(
+      `select id from vendors
+       where owner_id = $1 and status = 'approved'
+       order by created_at
+       limit 1`,
+      [ownerId],
+    )
+  ).rows[0];
+  if (!vendor) {
+    throw new VendorError(403, "no_approved_vendor");
+  }
+
+  let bannerUrl: string;
+  try {
+    bannerUrl = await uploadVendorBanner(
+      vendor.id,
+      parsed.bytes,
+      parsed.contentType,
+    );
+  } catch (err) {
+    if (err instanceof StorageError) {
+      throw new VendorError(503, "image_upload_failed");
+    }
+    throw err;
+  }
+
+  await db.q("update vendors set banner_url = $2 where id = $1", [
+    vendor.id,
+    bannerUrl,
+  ]);
+  await audit("vendor_banner", ownerId, ip, { vendor: vendor.id });
+  return { banner_url: bannerUrl };
 }
 
 export type AdminVendorRow = {

@@ -44,7 +44,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       type: "profile",
       siteName: "NakuruHub",
       locale: "en_KE",
-      ...(vendor.logo_url ? { images: [vendor.logo_url] } : {}),
+      ...((vendor.banner_url ?? vendor.logo_url)
+        ? { images: [vendor.banner_url ?? vendor.logo_url!] }
+        : {}),
     },
   };
 }
@@ -66,7 +68,10 @@ async function VendorContent({ params }: PageProps) {
     "@id": `${absoluteUrl(path)}#business`,
     name: vendor.name,
     url: absoluteUrl(path),
-    ...(vendor.logo_url ? { image: vendor.logo_url, logo: vendor.logo_url } : {}),
+    ...(vendor.logo_url ? { logo: vendor.logo_url } : {}),
+    ...((vendor.banner_url ?? vendor.logo_url)
+      ? { image: vendor.banner_url ?? vendor.logo_url }
+      : {}),
     address: {
       "@type": "PostalAddress",
       ...(area ? { streetAddress: area.name } : {}),
@@ -91,16 +96,30 @@ async function VendorContent({ params }: PageProps) {
           { name: vendor.name, href: path },
         ]}
         lead={
-          vendor.logo_url ? (
-            <div className="seo-vendor-head">
-              <Image
-                className="seo-vendor-logo"
-                src={vendor.logo_url}
-                alt={`${vendor.name} logo`}
-                width={72}
-                height={72}
-                unoptimized={!isOptimizablePhotoUrl(vendor.logo_url)}
-              />
+          vendor.banner_url || vendor.logo_url ? (
+            <div className="seo-vendor-lead">
+              {vendor.banner_url ? (
+                <Image
+                  className="seo-vendor-banner"
+                  src={vendor.banner_url}
+                  alt={`${vendor.name} shop banner`}
+                  width={1200}
+                  height={400}
+                  unoptimized={!isOptimizablePhotoUrl(vendor.banner_url)}
+                />
+              ) : null}
+              {vendor.logo_url ? (
+                <div className="seo-vendor-head">
+                  <Image
+                    className="seo-vendor-logo"
+                    src={vendor.logo_url}
+                    alt={`${vendor.name} logo`}
+                    width={72}
+                    height={72}
+                    unoptimized={!isOptimizablePhotoUrl(vendor.logo_url)}
+                  />
+                </div>
+              ) : null}
             </div>
           ) : null
         }

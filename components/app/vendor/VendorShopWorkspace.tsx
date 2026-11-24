@@ -10,12 +10,14 @@ import { ZoneSheet } from "@/components/app/ZoneSheet";
 import { VendorEarningsPanel } from "@/components/app/vendor/VendorEarningsPanel";
 import { VendorOrdersPanel } from "@/components/app/vendor/VendorOrdersPanel";
 import { VendorProductForm } from "@/components/app/vendor/VendorProductForm";
+import { ShopBannerUpload } from "@/components/app/vendor/ShopBannerUpload";
 import { VendorStockPanel } from "@/components/app/vendor/VendorStockPanel";
 import { apiFetch, ApiError } from "@/lib/nakuru/api";
 import {
   vendorStatusLabel,
   type ApiVendorRow,
 } from "@/lib/nakuru/vendor-profile";
+import { useDetectNakuruZone } from "@/components/app/useDetectNakuruZone";
 import { useRef, useState } from "react";
 
 type TabId = "add" | "stock" | "orders" | "earn";
@@ -32,6 +34,7 @@ type Props = {
   photo: string;
   toast: (msg: string) => void;
   onAreaChange: (area: string) => void;
+  onBannerChange: (bannerUrl: string) => void;
 };
 
 export function VendorShopWorkspace({
@@ -39,6 +42,7 @@ export function VendorShopWorkspace({
   photo,
   toast,
   onAreaChange,
+  onBannerChange,
 }: Props) {
   const { lang } = usePwaInstall();
   const [tab, setTab] = useState<TabId>("add");
@@ -46,6 +50,7 @@ export function VendorShopWorkspace({
   const [areaBusy, setAreaBusy] = useState(false);
   const [stockTick, setStockTick] = useState(0);
   const zoneBtnRef = useRef<HTMLButtonElement>(null);
+  const { detect: detectZone, busy: detectBusy } = useDetectNakuruZone(toast, lang);
 
   const saveArea = async (area: string) => {
     if (areaBusy || area === vendor.area) return;
@@ -68,8 +73,21 @@ export function VendorShopWorkspace({
     }
   };
 
+  const useMyLocation = async () => {
+    const zone = await detectZone();
+    if (!zone) return;
+    setZoneOpen(false);
+    await saveArea(zone);
+  };
+
   return (
     <>
+      <ShopBannerUpload
+        bannerUrl={vendor.banner_url}
+        toast={toast}
+        disabled={areaBusy}
+        onUploaded={onBannerChange}
+      />
       <div className="card row">
         <ProfilePhotoUpload
           className="pfp"
@@ -87,21 +105,39 @@ export function VendorShopWorkspace({
               ? "Verified (M-Pesa upfront enabled)"
               : "Basic (cash on delivery only)"}
           </div>
-          <button
-            type="button"
-            ref={zoneBtnRef}
-            className="shop-zone-chip"
-            aria-haspopup="dialog"
-            aria-expanded={zoneOpen}
-            disabled={areaBusy}
-            onClick={() => setZoneOpen(true)}
-          >
-            <IconMapPin size={16} />
-            <span>
-              {vendor.area ? `Shop area: ${vendor.area}` : "Set shop area"}
-            </span>
-            <IconChevronDown size={16} />
-          </button>
+          <div className="shop-zone-row">
+            <button
+              type="button"
+              ref={zoneBtnRef}
+              className="shop-zone-chip"
+              aria-haspopup="dialog"
+              aria-expanded={zoneOpen}
+              disabled={areaBusy || detectBusy}
+              onClick={() => setZoneOpen(true)}
+            >
+              <IconMapPin size={16} />
+              <span>
+                {vendor.area ? `Shop area: ${vendor.area}` : "Set shop area"}
+              </span>
+              <IconChevronDown size={16} />
+            </button>
+            {!vendor.area ? (
+              <button
+                type="button"
+                className="btn s shop-zone-locate"
+                disabled={areaBusy || detectBusy}
+                onClick={() => void useMyLocation()}
+              >
+                {detectBusy
+                  ? lang === "sw"
+                    ? "Inatafuta…"
+                    : "Locating…"
+                  : lang === "sw"
+                    ? "Tumia eneo langu"
+                    : "Use my location"}
+              </button>
+            ) : null}
+          </div>
         </div>
       </div>
 
@@ -123,6 +159,7 @@ export function VendorShopWorkspace({
       {tab === "add" ? (
         <VendorProductForm
           vendorId={vendor.id}
+          vendorCategories={vendor.categories}
           shopArea={vendor.area}
           toast={toast}
           onPublished={() => setStockTick((n) => n + 1)}
@@ -146,6 +183,8 @@ export function VendorShopWorkspace({
           setZoneOpen(false);
           void saveArea(area);
         }}
+        onUseLocation={() => void useMyLocation()}
+        useLocationBusy={detectBusy || areaBusy}
       />
     </>
   );

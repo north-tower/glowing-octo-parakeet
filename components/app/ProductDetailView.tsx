@@ -50,6 +50,7 @@ import { useNakuruApp } from "@/components/app/AppProvider";
 import { AssistantEntryChip } from "@/components/app/assistant/AssistantEntryChip";
 import { ListingComments } from "@/components/app/product/ListingComments";
 import { ListingWhatsApp } from "@/components/app/product/ListingContactBlocks";
+import { ListingInAppMessages } from "@/components/app/product/ListingInAppMessages";
 import { useAssistantUi } from "@/components/app/assistant/AssistantUiProvider";
 import { useStickyBar } from "@/components/app/assistant/useStickyBar";
 import { isOutsideArea } from "@/lib/nakuru/area";
@@ -107,7 +108,7 @@ export function ProductDetailView({ productId }: Props) {
   const [aboutClamp, setAboutClamp] = useState(false);
   const aboutRef = useRef<HTMLParagraphElement>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
-  const sellerSectionRef = useRef<HTMLElement>(null);
+  const sellerSectionRef = useRef<HTMLDivElement>(null);
   const pdBarRef = useRef<HTMLDivElement>(null);
   const pdBarMeasureRef = useStickyBar(pdBarRef);
   const backHref = appHrefForDetailNavTab();
@@ -267,12 +268,6 @@ export function ProductDetailView({ productId }: Props) {
     }
   };
 
-  const messageSeller = () => {
-    dispatch({ type: "SET_TAB", tab: "msg" });
-    toast(homeCopy("productViewingPrefill", lang));
-    router.push("/app?tab=msg");
-  };
-
   const requestViewing = () => {
     if (!detail) return;
     if (live) {
@@ -280,9 +275,11 @@ export function ProductDetailView({ productId }: Props) {
       return;
     }
     dispatch({ type: "ITEM_ACT", id: detail.id });
-    dispatch({ type: "SET_TAB", tab: "msg" });
-    toast(homeCopy("productViewingPrefill", lang));
-    router.push("/app?tab=msg");
+    sellerSectionRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+    toast(homeCopy("messagesHint", lang));
   };
 
   const handlePrimary = () => {
@@ -627,32 +624,15 @@ export function ProductDetailView({ productId }: Props) {
             }
           />
           <ListingComments lang={lang} productId={productId} />
-          <section
-            ref={sellerSectionRef}
-            className="card pd-card pd-seller"
-            aria-labelledby="pd-msg-h"
-          >
-            <h2 id="pd-msg-h" className="pd-about-title">
-              {homeCopy("messagesTitle", lang)}
-            </h2>
-            <p className="m">{homeCopy("messagesHint", lang)}</p>
-            <div className="pd-seller-row">
-              <span className="pd-seller-av" aria-hidden>
-                {vendorInitials || "?"}
-              </span>
-              <div className="pd-seller-meta">
-                <p className="pd-seller-name">{detail.vendorName}</p>
-                {verified ? <VerifiedBadge lang={lang} /> : null}
-              </div>
-            </div>
-            <button
-              type="button"
-              className="btn o full pd-seller-msg"
-              onClick={messageSeller}
-            >
-              {homeCopy("productMessageSeller", lang)}
-            </button>
-          </section>
+          <div ref={sellerSectionRef}>
+            <ListingInAppMessages
+              lang={lang}
+              productId={productId}
+              vendorName={detail.vendorName}
+              vendorInitials={vendorInitials}
+              verified={verified}
+            />
+          </div>
 
           {related.length ? (
             <section className="pd-related" aria-labelledby="pd-related-h">

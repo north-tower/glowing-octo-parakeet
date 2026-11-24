@@ -1,6 +1,6 @@
 "use client";
 
-import { EmailOtpForm } from "@/components/app/auth/EmailOtpForm";
+import { SignInForm } from "@/components/app/auth/SignInForm";
 import { AccountSignedInView } from "@/components/app/account/AccountSignedInView";
 import { useAuth } from "@/components/app/AppAuthProvider";
 import { VendorView } from "@/components/app/views/VendorView";
@@ -60,19 +60,12 @@ export function AccountView() {
   if (state.acc) {
     if (state.acc === "vendor" && ready && !user) {
       return (
-        <>
-          <button
-            type="button"
-            className="btn s o"
-            onClick={() => dispatch({ type: "SET_ACC", acc: null })}
-          >
-            ‹ Back
-          </button>
-          <EmailOtpForm
-            openSellingAfterSignIn
-            showGuestBrowse={false}
-          />
-        </>
+        <SignInForm
+          openSellingAfterSignIn
+          showGuestBrowse={false}
+          showBack
+          onBack={() => dispatch({ type: "SET_ACC", acc: null })}
+        />
       );
     }
 
@@ -101,7 +94,7 @@ export function AccountView() {
   if (!signedIn) {
     return (
       <>
-        <EmailOtpForm />
+        <SignInForm />
         <div
           className="card li"
           role="button"

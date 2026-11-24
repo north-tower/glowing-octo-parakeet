@@ -29,6 +29,7 @@ export async function POST(req: Request) {
       parsed.data.categories,
       clientIp(req),
       parsed.data.imageDataUrl,
+      parsed.data.area,
     );
     return NextResponse.json(row, { status: 201 });
   } catch (err) {
