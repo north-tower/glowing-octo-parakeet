@@ -31,6 +31,7 @@ import {
   SearchSuggest,
   rememberSearch,
 } from "@/components/app/home/SearchSuggest";
+import { nextHeaderScrolled } from "@/lib/nakuru/header-scroll-collapse";
 import Link from "next/link";
 
 export function AppHeader() {
@@ -50,14 +51,13 @@ export function AppHeader() {
   const wideUp = useMediaQuery("(min-width: 1280px)");
   const [qLocal, setQLocal] = useState(state.q);
   const [zoneOpen, setZoneOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [suggestOpen, setSuggestOpen] = useState(false);
   const [suggestIdx, setSuggestIdx] = useState(0);
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const zoneBtnRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
-  const lastY = useRef(0);
+  const scrolledRef = useRef(false);
 
   useEffect(() => {
     setQLocal(state.q);
@@ -84,20 +84,17 @@ export function AppHeader() {
   }, []);
 
   useEffect(() => {
-    lastY.current = window.scrollY;
     const onScroll = () => {
-      const y = window.scrollY;
-      const delta = y - lastY.current;
-      setScrolled(y > 8);
-      if (y < 24) {
-        setCollapsed(false);
-      } else if (delta > 8) {
-        setCollapsed(true);
-      } else if (delta < -8) {
-        setCollapsed(false);
+      const nextScrolled = nextHeaderScrolled(
+        window.scrollY,
+        scrolledRef.current,
+      );
+      if (nextScrolled !== scrolledRef.current) {
+        scrolledRef.current = nextScrolled;
+        setScrolled(nextScrolled);
       }
-      lastY.current = y;
     };
+    onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -218,7 +215,7 @@ export function AppHeader() {
     <>
       <header
         id="hd"
-        className={`t-${state.tab}${collapsed ? " hd-collapsed" : ""}${scrolled ? " hd-scrolled" : ""}`}
+        className={`t-${state.tab}${scrolled ? " hd-scrolled" : ""}`}
       >
         <div className="app-hd-band">
           <div className="app-container app-hd-bar">
@@ -250,7 +247,6 @@ export function AppHeader() {
                     <IconChevronDown size={18} />
                   </button>
                 </div>
-                {searchForm}
               </div>
             ) : (
               <div className="app-hd-wide-block">
@@ -326,7 +322,10 @@ export function AppHeader() {
             )}
           </div>
         </div>
-        <div className="app-container app-hd-tabs">{tabsBlock}</div>
+        <div className="app-hd-sticky">
+          {!tabletUp ? searchForm : null}
+          <div className="app-container app-hd-tabs">{tabsBlock}</div>
+        </div>
       </header>
       <ZoneSheet
         open={zoneOpen}
