@@ -223,7 +223,7 @@ export async function slugsAllowedForApply(slugs: string[]): Promise<boolean> {
      where slug = any($1::text[])
        and visible
        and open_for_apply
-       and depth = 0`,
+       and (depth = 0 or kind = 'community')`,
     [slugs],
   );
   const allowed = new Set(r.rows.map((row) => row.slug));

@@ -17,32 +17,18 @@ import {
   type FormEvent,
 } from "react";
 import { SearchableCategorySelect } from "@/components/app/vendor/SearchableCategorySelect";
+import {
+  defaultListingCategorySlug,
+  listingLeavesForVendor,
+  parentSlugForCustomCategory,
+  vendorRootLabels,
+} from "@/lib/nakuru/vendor-category-pick";
 
 function listingModeForSlug(
   slug: string,
   rows: { slug: string; listingMode: ListingMode }[],
 ): ListingMode {
   return rows.find((r) => r.slug === slug)?.listingMode ?? "shop";
-}
-
-/** Parent for a new community leaf — must match a category root the vendor sells under. */
-function parentSlugForCustomCategory(
-  vendorRoots: string[],
-  rows: DirectoryCategory[],
-): string {
-  const bySlug = new Map(rows.map((r) => [r.slug, r]));
-  for (const slug of vendorRoots) {
-    const row = bySlug.get(slug);
-    if (row && row.depth <= 1) return slug;
-    if (row?.parentSlug) {
-      const parent = bySlug.get(row.parentSlug);
-      if (parent && parent.depth <= 1) return parent.slug;
-    }
-  }
-  const openRoot = rows.find(
-    (r) => r.kind === "official" && r.depth === 0 && r.openForApply,
-  );
-  return openRoot?.slug ?? "business-and-industry";
 }
 
 type Props = {
@@ -61,13 +47,19 @@ export function VendorProductForm({
   onPublished,
 }: Props) {
   const { rows: directoryRows, upsertRow } = useCategories();
-  const listingOptions = directoryRows.filter(
-    (r) => r.visible && !r.hasChildren,
+  const listingOptions = useMemo(
+    () => listingLeavesForVendor(directoryRows, vendorCategories),
+    [directoryRows, vendorCategories],
   );
   const officialOptions = listingOptions.filter((r) => r.kind === "official");
   const communityOptions = listingOptions.filter((r) => r.kind === "community");
+  const shopSections = useMemo(
+    () => vendorRootLabels(vendorCategories, directoryRows),
+    [vendorCategories, directoryRows],
+  );
 
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
+  const [showCategoryPicker, setShowCategoryPicker] = useState(false);
   const selectedListingMode = selectedSlug
     ? listingModeForSlug(selectedSlug, directoryRows)
     : null;
@@ -84,30 +76,27 @@ export function VendorProductForm({
   const [catCreateBusy, setCatCreateBusy] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
 
-  const defaultSlug = useMemo(
-    () => listingOptions[0]?.slug ?? null,
-    [listingOptions],
+  const preferredDefault = useMemo(
+    () =>
+      defaultListingCategorySlug(
+        listingOptions,
+        vendorCategories,
+        directoryRows,
+      ),
+    [listingOptions, vendorCategories, directoryRows],
   );
 
   useEffect(() => {
-    const allowed = listingOptions.map((row) => row.slug);
-    if (!allowed.length) {
+    const allowed = new Set(listingOptions.map((row) => row.slug));
+    if (!allowed.size) {
       setSelectedSlug(null);
       return;
     }
     setSelectedSlug((prev) => {
-      if (prev && allowed.includes(prev)) return prev;
-      if (
-        prev &&
-        directoryRows.some(
-          (r) => r.slug === prev && r.visible && !r.hasChildren,
-        )
-      ) {
-        return prev;
-      }
-      return allowed[0]!;
+      if (prev && allowed.has(prev)) return prev;
+      return preferredDefault ?? listingOptions[0]!.slug;
     });
-  }, [listingOptions, directoryRows]);
+  }, [listingOptions, preferredDefault]);
 
   useEffect(() => {
     if (!selectedListingMode) return;
@@ -133,6 +122,7 @@ export function VendorProductForm({
       });
       upsertRow(row);
       setSelectedSlug(row.slug);
+      setShowCategoryPicker(false);
       toast(
         shopArea
           ? `Category “${row.label}” is ready. Finish the listing and publish.`
@@ -285,11 +275,20 @@ export function VendorProductForm({
     }
   };
 
+  const selectedLabel =
+    listingOptions.find((r) => r.slug === selectedSlug)?.label ??
+    directoryRows.find((r) => r.slug === selectedSlug)?.label ??
+    "";
+
   if (!listingOptions.length) {
     return (
       <div className="card">
         <div className="t">Publish a listing</div>
-        <div className="m">No categories are available yet. Try again shortly.</div>
+        <div className="m">
+          No listing categories match your shop sections (
+          {shopSections.join(", ") || "none"}). Add a section from Account →
+          Sell or contact staff.
+        </div>
       </div>
     );
   }
@@ -299,49 +298,85 @@ export function VendorProductForm({
       <div className="t">Publish a listing</div>
       <div className="m">
         {shopArea
-          ? `Buyers will see this listing in ${shopArea}. Pick a category or type a new one.`
+          ? `Buyers will see this listing in ${shopArea}.`
           : "Set your shop area on the profile above before publishing."}
+        {shopSections.length ? (
+          <>
+            {" "}
+            Your shop sections: {shopSections.join(", ")}.
+          </>
+        ) : null}
       </div>
 
-      <label htmlFor="vp-listing-cat">Category</label>
-      <div className="m">
-        Search an existing category, or type a new name and choose{" "}
-        <strong>Add as new category</strong>.
-      </div>
-      <SearchableCategorySelect
-        id="vp-listing-cat"
-        value={selectedSlug ?? defaultSlug ?? ""}
-        disabled={busy}
-        officialOptions={officialOptions}
-        communityOptions={communityOptions}
-        createBusy={catCreateBusy}
-        onCreateCustom={createCustomCategory}
-        onChange={(slug) => setSelectedSlug(slug || null)}
-      />
+      <label>Listing category</label>
+      {!showCategoryPicker ? (
+        <div className="row" style={{ flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
+          <span className="chip on" aria-current="true">
+            {selectedLabel || "…"}
+          </span>
+          <button
+            type="button"
+            className="btn s"
+            disabled={busy}
+            onClick={() => setShowCategoryPicker(true)}
+          >
+            Change category
+          </button>
+        </div>
+      ) : (
+        <>
+          <div className="m">
+            Pick where this listing appears in the catalog, or add a new name
+            under your shop sections.
+          </div>
+          <SearchableCategorySelect
+            id="vp-listing-cat"
+            value={selectedSlug ?? preferredDefault ?? ""}
+            disabled={busy}
+            officialOptions={officialOptions}
+            communityOptions={communityOptions}
+            createBusy={catCreateBusy}
+            onCreateCustom={createCustomCategory}
+            onChange={(slug) => {
+              setSelectedSlug(slug || null);
+              if (slug) setShowCategoryPicker(false);
+            }}
+          />
 
-      <label htmlFor="vp-new-cat">New category name</label>
-      <div className="row cat-create-row">
-        <input
-          id="vp-new-cat"
-          maxLength={40}
-          placeholder="e.g. Cyber"
-          value={newCategoryName}
-          disabled={busy || catCreateBusy}
-          onChange={(e) => setNewCategoryName(e.target.value)}
-        />
-        <button
-          type="button"
-          className="btn s"
-          disabled={busy || catCreateBusy || newCategoryName.trim().length < 2}
-          onClick={() => {
-            void createCustomCategory(newCategoryName).then((ok) => {
-              if (ok) setNewCategoryName("");
-            });
-          }}
-        >
-          {catCreateBusy ? "Adding…" : "Add category"}
-        </button>
-      </div>
+          <label htmlFor="vp-new-cat">New category name</label>
+          <div className="row cat-create-row">
+            <input
+              id="vp-new-cat"
+              maxLength={40}
+              placeholder="e.g. Cyber"
+              value={newCategoryName}
+              disabled={busy || catCreateBusy}
+              onChange={(e) => setNewCategoryName(e.target.value)}
+            />
+            <button
+              type="button"
+              className="btn s"
+              disabled={busy || catCreateBusy || newCategoryName.trim().length < 2}
+              onClick={() => {
+                void createCustomCategory(newCategoryName).then((ok) => {
+                  if (ok) setNewCategoryName("");
+                });
+              }}
+            >
+              {catCreateBusy ? "Adding…" : "Add category"}
+            </button>
+          </div>
+          <button
+            type="button"
+            className="btn s"
+            style={{ marginBottom: 12 }}
+            disabled={busy || !selectedSlug}
+            onClick={() => setShowCategoryPicker(false)}
+          >
+            Done
+          </button>
+        </>
+      )}
 
       <label htmlFor="vp-title">Title</label>
       <input

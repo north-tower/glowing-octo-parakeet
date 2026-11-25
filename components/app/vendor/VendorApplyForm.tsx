@@ -11,8 +11,14 @@ import { ZoneSheet } from "@/components/app/ZoneSheet";
 import { IconChevronDown, IconMapPin } from "@/components/app/icons/LineIcons";
 import { useDetectNakuruZone } from "@/components/app/useDetectNakuruZone";
 import { apiFetch, ApiError } from "@/lib/nakuru/api";
-import { useCategories } from "@/lib/nakuru/use-categories";
-import type { CategoryId } from "@/lib/nakuru/types";
+import {
+  useCategories,
+  type CategoryPublicApiRow,
+} from "@/lib/nakuru/use-categories";
+import {
+  parentSlugForCustomCategory,
+  vendorApplyChipRows,
+} from "@/lib/nakuru/vendor-category-pick";
 import {
   useCallback,
   useMemo,
@@ -45,25 +51,27 @@ type Props = {
 export function VendorApplyForm({ disabled, onApplied, toast }: Props) {
   const { state } = useNakuruApp();
   const { lang } = usePwaInstall();
-  const { rows, loading } = useCategories();
+  const { rows, loading, upsertRow } = useCategories();
   const [name, setName] = useState("");
   const [categories, setCategories] = useState<string[] | null>(null);
-  const [catPick, setCatPick] = useState("");
+  const [catDraft, setCatDraft] = useState("");
   const [catError, setCatError] = useState("");
+  const [catCreateBusy, setCatCreateBusy] = useState(false);
   const [busy, setBusy] = useState(false);
   const [shopArea, setShopArea] = useState("");
   const [zoneOpen, setZoneOpen] = useState(false);
   const zoneBtnRef = useRef<HTMLButtonElement>(null);
   const { detect: detectZone, busy: detectBusy } = useDetectNakuruZone(toast, lang);
 
-  const applyRows = useMemo(
-    () => rows.filter((r) => r.depth === 0),
-    [rows],
+  const chipRows = useMemo(() => vendorApplyChipRows(rows), [rows]);
+  const rootRows = useMemo(
+    () => chipRows.filter((r) => r.depth === 0),
+    [chipRows],
   );
 
   const defaultCategories = useMemo(
-    () => defaultCategorySelection(applyRows, loading),
-    [applyRows, loading],
+    () => defaultCategorySelection(rootRows, loading),
+    [rootRows, loading],
   );
   const activeCategories = categories ?? defaultCategories;
 
@@ -83,24 +91,62 @@ export function VendorApplyForm({ disabled, onApplied, toast }: Props) {
     [defaultCategories],
   );
 
-  const onAddExisting = () => {
-    if (disabled || busy) return;
+  const onAddCustom = async () => {
+    if (disabled || busy || catCreateBusy) return;
     setCatError("");
-    if (!catPick) {
-      setCatError("Choose a category from the list.");
+    const trimmed = catDraft.trim();
+    if (trimmed.length < 2) {
+      setCatError("Use at least 2 characters for the category name.");
+      return;
+    }
+    if (trimmed.length > 40) {
+      setCatError("Keep the name at 40 characters or fewer.");
       return;
     }
     const current = categories ?? defaultCategories;
-    if (current.includes(catPick)) {
-      setCatError("That category is already selected.");
-      return;
-    }
     if (current.length >= 4) {
-      setCatError("You can pick up to four categories.");
+      setCatError("You can pick up to four categories. Remove one to add another.");
       return;
     }
-    toggleCategory(catPick);
-    setCatPick("");
+    const parentSlug = parentSlugForCustomCategory(current, rows);
+    setCatCreateBusy(true);
+    try {
+      const row = await apiFetch<CategoryPublicApiRow>("/api/categories", {
+        method: "POST",
+        body: JSON.stringify({ label: trimmed, parentSlug }),
+      });
+      upsertRow(row);
+      setCategories((prev) => {
+        const base = prev ?? defaultCategories;
+        if (base.includes(row.slug)) return base;
+        if (base.length >= 4) return base;
+        return [...base, row.slug];
+      });
+      setCatDraft("");
+      toast(`Added “${row.label}”.`);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        if (err.body.error === "too_many_requests") {
+          setCatError("Too many new categories today. Try again tomorrow.");
+          return;
+        }
+        if (err.body.error === "category_hidden") {
+          setCatError("That category name exists but is not available.");
+          return;
+        }
+        if (err.status === 401) {
+          setCatError("Sign in with your email code first.");
+          return;
+        }
+        if (err.status === 400) {
+          setCatError("That name is not allowed. Try another.");
+          return;
+        }
+      }
+      setCatError("Could not add that category. Try a different name.");
+    } finally {
+      setCatCreateBusy(false);
+    }
   };
 
   const submit = async (ev: FormEvent) => {
@@ -245,8 +291,12 @@ export function VendorApplyForm({ disabled, onApplied, toast }: Props) {
       />
 
       <label>Categories (tap to add or remove)</label>
+      <div className="m">
+        Choose up to four marketplace sections. Community names other sellers added
+        appear below the official list.
+      </div>
       <div>
-        {applyRows.map((row) => {
+        {chipRows.map((row) => {
           if (row.openForApply) {
             const on = activeCategories.includes(row.slug);
             return (
@@ -279,40 +329,37 @@ export function VendorApplyForm({ disabled, onApplied, toast }: Props) {
         })}
       </div>
 
-      <label htmlFor="vendor-apply-cat">Add a category</label>
+      <label htmlFor="vendor-apply-cat">Add your own category</label>
+      <div className="m">
+        Not listed above? Type a name (e.g. Sneakers, Salon) and we will share it
+        with other sellers once staff approve your shop.
+      </div>
       <div className="row">
-        <select
+        <input
           id="vendor-apply-cat"
-          value={catPick}
-          disabled={disabled || busy || loading}
+          type="text"
+          maxLength={40}
+          placeholder="e.g. Sneakers"
+          value={catDraft}
+          disabled={disabled || busy || loading || catCreateBusy}
           onChange={(e) => {
-            setCatPick(e.target.value);
+            setCatDraft(e.target.value);
             if (catError) setCatError("");
           }}
-        >
-          <option value="">Select a category</option>
-          {applyRows.map((row) => {
-            const selected = activeCategories.includes(row.slug);
-            const closed = !row.openForApply;
-            return (
-              <option
-                key={row.slug}
-                value={row.slug}
-                disabled={selected || closed}
-              >
-                {row.label}
-                {selected ? " (selected)" : closed ? " (soon)" : ""}
-              </option>
-            );
-          })}
-        </select>
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              void onAddCustom();
+            }
+          }}
+        />
         <button
           type="button"
           className="btn s"
-          disabled={disabled || busy || !catPick}
-          onClick={onAddExisting}
+          disabled={disabled || busy || catCreateBusy || !catDraft.trim()}
+          onClick={() => void onAddCustom()}
         >
-          Add
+          {catCreateBusy ? "Adding…" : "Add"}
         </button>
       </div>
       {catError ? <div className="err">{catError}</div> : null}
