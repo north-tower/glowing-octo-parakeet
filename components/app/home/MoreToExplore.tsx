@@ -90,6 +90,7 @@ export function MoreToExplore({
         listingStyle
         noMarker
       />
+      <div className="more-explore-layout">
       <FilterBar
         lang={lang}
         filters={filters}
@@ -99,6 +100,7 @@ export function MoreToExplore({
         onZone={onZone}
         onClear={onClearFilters}
       />
+      <div className="more-explore-main">
       {loading ? (
         <ListingGrid>
           {Array.from({ length: 8 }, (_, i) => (
@@ -113,7 +115,7 @@ export function MoreToExplore({
               {...listingToCardProps(item, lang, zoneLabel)}
               lang={lang}
               variant="grid"
-              priorityImage={i < 2}
+              priorityImage={false}
             />
           ))}
         </ListingGrid>
@@ -147,6 +149,8 @@ export function MoreToExplore({
           </button>
         </>
       ) : null}
+      </div>
+      </div>
     </section>
   );
 }

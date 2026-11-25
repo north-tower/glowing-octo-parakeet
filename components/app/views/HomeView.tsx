@@ -165,12 +165,20 @@ export function HomeView() {
         lang={lang}
         carouselEnabled={carouselEnabled}
         onSlideAction={onSlideAction}
+        onPostListing={goSell}
+        onPayExplain={() =>
+          openAssistant({ screen: "help", source: "hero-pay" })
+        }
       />
       <TrustStrip lang={lang} onSell={goSell} />
       <AssistantPromptRow
         lang={lang}
-        onAsk={() =>
-          openAssistant({ screen: "help", source: "feed-ask-row" })
+        onAsk={(prompt) =>
+          openAssistant({
+            screen: "help",
+            source: "feed-ask-row",
+            suggestedPrompt: prompt,
+          })
         }
       />
       <CategoryTiles
