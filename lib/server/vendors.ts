@@ -85,6 +85,7 @@ export type VendorMineRow = {
   logo_url: string | null;
   banner_url: string | null;
   area: string | null;
+  whatsapp: string | null;
   created_at: Date;
 };
 
@@ -92,7 +93,7 @@ export async function listVendorsForOwner(
   ownerId: string,
 ): Promise<VendorMineRow[]> {
   const r = await db.q<VendorMineRow>(
-    `select id, name, categories, status, verified, logo_url, banner_url, area, created_at
+    `select id, name, categories, status, verified, logo_url, banner_url, area, whatsapp, created_at
      from vendors
      where owner_id = $1
      order by created_at desc
@@ -150,6 +151,30 @@ export async function setVendorArea(
   }
   await audit("vendor_area", ownerId, ip, { area });
   return { area: r.rows[0].area };
+}
+
+export async function setVendorWhatsApp(
+  ownerId: string,
+  whatsapp: string | null,
+  ip: string | null,
+): Promise<{ whatsapp: string | null }> {
+  const r = await db.q<{ whatsapp: string | null }>(
+    `update vendors
+     set whatsapp = $2
+     where id = (
+       select id from vendors
+       where owner_id = $1 and status = 'approved'
+       order by created_at
+       limit 1
+     )
+     returning whatsapp`,
+    [ownerId, whatsapp],
+  );
+  if (!r.rowCount) {
+    throw new VendorError(403, "no_approved_vendor");
+  }
+  await audit("vendor_whatsapp", ownerId, ip, { whatsapp: Boolean(whatsapp) });
+  return { whatsapp: r.rows[0].whatsapp };
 }
 
 export async function setVendorBanner(

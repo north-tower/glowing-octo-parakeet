@@ -3,14 +3,16 @@
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { CommentsSkeleton } from "@/components/app/loading/LoadingUi";
 import { useAuth } from "@/components/app/AppAuthProvider";
-import { usePrimaryNav } from "@/components/app/usePrimaryNav";
 import { ApiError, apiFetch } from "@/lib/nakuru/api";
 import {
+  commentInitials,
   formatCommentTime,
   type ListingCommentRow,
 } from "@/lib/nakuru/comment-display";
 import { homeCopy } from "@/lib/nakuru/home-i18n";
 import type { LandingLang } from "@/lib/nakuru/i18n";
+import { signInHref } from "@/lib/nakuru/post-sign-in-tab";
+import Link from "next/link";
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -34,7 +36,6 @@ function isStaffRole(role: string | undefined): boolean {
 
 export function ListingComments({ lang, productId }: Props) {
   const { user, ready } = useAuth();
-  const { goTab } = usePrimaryNav();
   const liveId = UUID_RE.test(productId) ? productId : null;
 
   const [comments, setComments] = useState<ListingCommentRow[]>([]);
@@ -130,6 +131,10 @@ export function ListingComments({ lang, productId }: Props) {
             const showDelete = own || canModerate;
             return (
               <li key={c.id} className="pd-comment">
+                <span className="pd-comment-av" aria-hidden>
+                  {commentInitials(c.authorHandle)}
+                </span>
+                <div className="pd-comment-main">
                 <div className="pd-comment-meta">
                   <span className="pd-comment-handle">{c.authorHandle}</span>
                   <time dateTime={c.createdAt}>
@@ -147,6 +152,7 @@ export function ListingComments({ lang, productId }: Props) {
                     {homeCopy("commentsDelete", lang)}
                   </button>
                 ) : null}
+                </div>
               </li>
             );
           })}
@@ -173,20 +179,12 @@ export function ListingComments({ lang, productId }: Props) {
           </button>
         </form>
       ) : canModerate ? null : (
-        <div className="pd-comments-signin">
-          <textarea
-            rows={3}
-            disabled
-            placeholder={homeCopy("commentsPlaceholder", lang)}
-          />
-          <button
-            type="button"
-            className="btn"
-            onClick={() => goTab("acc")}
-          >
-            {homeCopy("commentsSignIn", lang)}
-          </button>
-        </div>
+        <Link
+          className="pd-comments-signin-row"
+          href={signInHref(`/app/p/${productId}`)}
+        >
+          {homeCopy("commentsSignIn", lang)}
+        </Link>
       )}
 
       {status ? (

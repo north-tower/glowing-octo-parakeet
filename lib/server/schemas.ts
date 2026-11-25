@@ -132,10 +132,14 @@ export const vendorMinePatch = z
   .object({
     area: z.enum(NAKURU_AREA_KEYS).optional(),
     bannerImageDataUrl: imageDataUrl.optional(),
+    whatsapp: z.union([phone, z.literal(""), z.null()]).optional(),
   })
   .strict()
   .refine(
-    (d) => d.area !== undefined || d.bannerImageDataUrl !== undefined,
+    (d) =>
+      d.area !== undefined ||
+      d.bannerImageDataUrl !== undefined ||
+      d.whatsapp !== undefined,
     { message: "bad_request" },
   );
 

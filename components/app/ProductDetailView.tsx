@@ -3,69 +3,54 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { appHrefForDetailNavTab } from "@/lib/nakuru/detail-nav-tab";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { ProductCard } from "@/components/app/ProductCard";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ProductDetailSkeleton } from "@/components/app/loading/LoadingUi";
-import { VerifiedBadge } from "@/components/app/product/VerifiedBadge";
-import {
-  CategoryIcon,
-  isCategoryIconKey,
-  type CategoryIconKey,
-} from "@/lib/nakuru/category-icons";
+import { isCategoryIconKey, type CategoryIconKey } from "@/lib/nakuru/category-icons";
 import { itemById, ITEMS } from "@/lib/nakuru/data/items";
 import { MAX_CART_QTY } from "@/lib/nakuru/data/constants";
 import { apiFetch } from "@/lib/nakuru/api";
 import { syncLiveListings, isLiveCatalogEnabled } from "@/lib/nakuru/catalog-live";
-import { kes } from "@/lib/nakuru/format";
-import {
-  formatPropertyPrice,
-  propertyLocation,
-  propertyListingBadge,
-  propertyTenure,
-} from "@/lib/nakuru/property-display";
-import { homeCopy, homeCategoryLabel } from "@/lib/nakuru/home-i18n";
+import { homeCopy } from "@/lib/nakuru/home-i18n";
 import {
   toProductCardItem,
   type ApiListing,
 } from "@/lib/nakuru/listings-map";
 import {
   categoryTint,
+  listingDisplayPrice,
+  listingKeyFacts,
   similarByCategory,
   similarByVendor,
   toProductDetail,
   type ProductDetail,
 } from "@/lib/nakuru/listing-detail";
+import { listingLayoutOf } from "@/lib/nakuru/listing-layout";
 import { listingModeOf } from "@/lib/nakuru/listing-mode";
-import type { CategoryId, Listing } from "@/lib/nakuru/types";
+import type { Listing } from "@/lib/nakuru/types";
 import { useListingAct } from "@/lib/nakuru/use-listing-act";
 import { recordProductOpen } from "@/lib/nakuru/pwa-engage";
 import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
 import { useNakuruApp } from "@/components/app/AppProvider";
-import { AssistantEntryChip } from "@/components/app/assistant/AssistantEntryChip";
 import { ListingComments } from "@/components/app/product/ListingComments";
-import { ListingWhatsApp } from "@/components/app/product/ListingContactBlocks";
 import { ListingInAppMessages } from "@/components/app/product/ListingInAppMessages";
-import { useAssistantUi } from "@/components/app/assistant/AssistantUiProvider";
-import { useStickyBar } from "@/components/app/assistant/useStickyBar";
-import { isOutsideArea } from "@/lib/nakuru/area";
+import { ListingGallery } from "@/components/app/product/ListingGallery";
+import { ListingHeader } from "@/components/app/product/ListingHeader";
+import { ListingQuickActions } from "@/components/app/product/ListingQuickActions";
+import { SellerCard } from "@/components/app/product/SellerCard";
+import { KeyFacts } from "@/components/app/product/KeyFacts";
+import { Description } from "@/components/app/product/Description";
+import { ListingTypeSections } from "@/components/app/product/ListingTypeSections";
+import { StickyActionBar } from "@/components/app/product/StickyActionBar";
 import {
-  IconCheck,
-  IconChevronLeft,
-  IconChevronRight,
-  IconMapPin,
-  IconMinus,
-  IconPlus,
-  IconPromoDelivery,
-  IconShare2,
-  IconShieldCheck,
-  IconWallet,
-} from "@/components/app/icons/LineIcons";
+  SimilarListings,
+  similarCategoryTitle,
+} from "@/components/app/product/SimilarListings";
+import { ListingSafety } from "@/components/app/product/ListingSafety";
+import { useSavedListing } from "@/components/app/product/useSavedListing";
+import { useAssistantUi } from "@/components/app/assistant/AssistantUiProvider";
+import { isOutsideArea } from "@/lib/nakuru/area";
+import { toTelHref, toWhatsAppHref } from "@/lib/nakuru/whatsapp";
+import { IconChevronLeft } from "@/components/app/icons/LineIcons";
 
 const DEFAULT_ICON: Record<string, CategoryIconKey> = {
   shop: "shirt",
@@ -90,27 +75,31 @@ export function ProductDetailView({ productId }: Props) {
   const { openAssistant } = useAssistantUi();
   const { onAct, serviceInquiryEnabled, inquiryModal } = useListingAct();
   const live = isLiveCatalogEnabled();
+  const { saved, toggle: toggleSaved } = useSavedListing(productId);
 
   const [rawListing, setRawListing] = useState<Listing | null | undefined>(
     undefined,
   );
   const [apiMeta, setApiMeta] = useState<
-    Pick<ApiListing, "vendor" | "vendorId" | "galleryUrls" | "attributes"> | null
+    Pick<
+      ApiListing,
+      | "vendor"
+      | "vendorId"
+      | "galleryUrls"
+      | "attributes"
+      | "vendorLogoUrl"
+      | "createdAt"
+      | "vendorCreatedAt"
+      | "categoryLabel"
+    > | null
   >(null);
-  const [related, setRelated] = useState<Listing[]>([]);
-  const [relatedFromVendor, setRelatedFromVendor] = useState(false);
-  const [galleryIndex, setGalleryIndex] = useState(0);
-  const [imgFailed, setImgFailed] = useState<Record<number, boolean>>({});
+  const [fromSeller, setFromSeller] = useState<Listing[]>([]);
+  const [similar, setSimilar] = useState<Listing[]>([]);
   const [addedPulse, setAddedPulse] = useState(false);
   const [goCart, setGoCart] = useState(false);
   const [localQty, setLocalQty] = useState(1);
-  const [aboutExpanded, setAboutExpanded] = useState(false);
-  const [aboutClamp, setAboutClamp] = useState(false);
-  const aboutRef = useRef<HTMLParagraphElement>(null);
-  const galleryRef = useRef<HTMLDivElement>(null);
   const sellerSectionRef = useRef<HTMLDivElement>(null);
-  const pdBarRef = useRef<HTMLDivElement>(null);
-  const pdBarMeasureRef = useStickyBar(pdBarRef);
+  const messageRef = useRef<HTMLDivElement>(null);
   const backHref = appHrefForDetailNavTab();
 
   const load = useCallback(async () => {
@@ -135,6 +124,10 @@ export function ProductDetailView({ productId }: Props) {
         vendorId: row.vendorId,
         galleryUrls: row.galleryUrls,
         attributes: row.attributes,
+        vendorLogoUrl: row.vendorLogoUrl,
+        createdAt: row.createdAt,
+        vendorCreatedAt: row.vendorCreatedAt,
+        categoryLabel: row.categoryLabel,
       });
     } catch {
       const cached = itemById(productId);
@@ -145,11 +138,8 @@ export function ProductDetailView({ productId }: Props) {
 
   const loadRelated = useCallback(async (detail: ProductDetail) => {
     if (!live) {
-      const byVendor = similarByVendor(ITEMS, detail);
-      setRelatedFromVendor(byVendor.length > 0);
-      setRelated(
-        byVendor.length ? byVendor : similarByCategory(ITEMS, detail),
-      );
+      setFromSeller(similarByVendor(ITEMS, detail));
+      setSimilar(similarByCategory(ITEMS, detail));
       return;
     }
     try {
@@ -159,7 +149,7 @@ export function ProductDetailView({ productId }: Props) {
       });
       const items = rows.map(toProductCardItem);
       syncLiveListings(items);
-      const byVendor = detail.vendorId
+      const vendorItems = detail.vendorId
         ? items.filter(
             (x) =>
               String(x.id) !== String(detail.id) &&
@@ -167,14 +157,11 @@ export function ProductDetailView({ productId }: Props) {
                 detail.vendorId,
           )
         : similarByVendor(items, detail);
-      const picked = byVendor.length
-        ? byVendor.slice(0, 6)
-        : similarByCategory(items, detail);
-      setRelatedFromVendor(byVendor.length > 0);
-      setRelated(picked);
+      setFromSeller(vendorItems.slice(0, 6));
+      setSimilar(similarByCategory(items, detail));
     } catch {
-      setRelated([]);
-      setRelatedFromVendor(false);
+      setFromSeller([]);
+      setSimilar([]);
     }
   }, [live]);
 
@@ -198,25 +185,6 @@ export function ProductDetailView({ productId }: Props) {
     }
   }, [detail]);
 
-  useEffect(() => {
-    const el = aboutRef.current;
-    if (!el || aboutExpanded) return;
-    const lh = parseFloat(getComputedStyle(el).lineHeight);
-    setAboutClamp(el.scrollHeight > lh * 5 + 2);
-  }, [detail, aboutExpanded, lang]);
-
-  useEffect(() => {
-    const node = galleryRef.current;
-    if (!node) return;
-    const onScroll = () => {
-      const w = node.clientWidth || 1;
-      const i = Math.round(node.scrollLeft / w);
-      setGalleryIndex(i);
-    };
-    node.addEventListener("scroll", onScroll, { passive: true });
-    return () => node.removeEventListener("scroll", onScroll);
-  }, [detail?.gallery.length]);
-
   const cartKey = detail ? String(detail.id) : "";
   const inCart = cartKey ? (state.cart[cartKey] ?? 0) : 0;
   const shopQty = inCart > 0 ? inCart : localQty;
@@ -225,23 +193,16 @@ export function ProductDetailView({ productId }: Props) {
     if (inCart === 0) setGoCart(false);
   }, [inCart]);
 
-  const shareUrl =
-    typeof window !== "undefined" && detail
-      ? `${window.location.origin}/app/p/${detail.id}`
-      : "";
-
   const handleShare = async () => {
-    if (!shareUrl) return;
+    if (!detail) return;
+    const shareUrl = `${window.location.origin}/app/p/${detail.id}`;
     try {
-      if (typeof navigator !== "undefined" && navigator.share) {
-        await navigator.share({
-          title: detail?.t,
-          url: shareUrl,
-        });
+      if (navigator.share) {
+        await navigator.share({ title: detail.t, url: shareUrl });
         return;
       }
     } catch {
-      /* fall through to copy */
+      /* fall through */
     }
     try {
       await navigator.clipboard.writeText(shareUrl);
@@ -343,19 +304,24 @@ export function ProductDetailView({ productId }: Props) {
 
   const verified = detail.v === 1;
   const mode = listingModeOf(detail);
+  const layout = listingLayoutOf(mode);
   const icon = listingIconKey(detail);
-  const tint = categoryTint(detail.c as CategoryId);
-  const bodyText = detail.desc?.trim() ?? "";
+  const tint = categoryTint(detail.c);
   const serviceHeld =
     live && mode === "services" && !serviceInquiryEnabled;
   const shopBlock = mode === "shop" && isOutsideArea(state.area);
-  const gallery = detail.gallery.length ? detail.gallery : [];
-  const openVendor = () => {
-    sellerSectionRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
-  };
+  const phone =
+    detail.attrs?.phone || detail.attrs?.mobile || detail.attrs?.whatsapp;
+  const callHref = phone ? toTelHref(phone) : null;
+  const waNumber = detail.attrs?.whatsapp || null;
+  const whatsappHref = waNumber
+    ? toWhatsAppHref(waNumber, `Hi, I am interested in ${detail.t} on NakuruHub`)
+    : null;
+  const containHero = Boolean(
+    detail.vendorLogoUrl &&
+      detail.gallery[0] &&
+      detail.gallery[0] === detail.vendorLogoUrl,
+  );
 
   let primaryLabel = homeCopy("productMessageSeller", lang);
   if (mode === "shop") {
@@ -370,344 +336,145 @@ export function ProductDetailView({ productId }: Props) {
       : homeCopy("productRequestQuote", lang);
   }
 
-  const vendorInitials = detail.vendorName
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase();
-  const propertyBadge =
-    mode === "property" ? propertyListingBadge(detail) : null;
-  const propLoc = mode === "property" ? propertyLocation(detail) : null;
-  const propertyPrice =
-    mode === "property"
-      ? formatPropertyPrice(detail.p, propertyTenure(detail), lang)
-      : null;
+  const facts = listingKeyFacts(detail, lang);
+  const similarOnly = similar.filter(
+    (x) => !fromSeller.some((s) => String(s.id) === String(x.id)),
+  );
+
+  const openVendor = () => {
+    sellerSectionRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
+
+  const openMessage = () => {
+    messageRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   return (
     <>
       <article className="pd">
-        <div className={`pd-gallery-wrap pd-gallery-wrap--${tint}`}>
-          <div
-            className="pd-gallery"
-            ref={galleryRef}
-            role="region"
-            aria-label={detail.t}
-          >
-            {gallery.length ? (
-              gallery.map((src, i) => (
-                <div className="pd-gallery-slide" key={`${src}-${i}`}>
-                  {!imgFailed[i] ? (
-                    <img
-                      src={src}
-                      alt=""
-                      loading={i === 0 ? "eager" : "lazy"}
-                      decoding="async"
-                      onError={() =>
-                        setImgFailed((prev) => ({ ...prev, [i]: true }))
-                      }
-                    />
-                  ) : (
-                    <span className="pim-fallback" aria-hidden>
-                      <CategoryIcon icon={icon} size={48} />
-                    </span>
-                  )}
-                </div>
-              ))
-            ) : (
-              <div className="pd-gallery-slide">
-                <span className={`pim-fallback pim pim--${detail.c}`} aria-hidden>
-                  <CategoryIcon icon={icon} size={48} />
-                </span>
-              </div>
-            )}
-          </div>
-
-          <div className="pd-overlay">
-            <Link
-              href={backHref}
-              className="pd-icon-btn"
-              aria-label={homeCopy("productBackAria", lang)}
-            >
-              <IconChevronLeft size={22} />
-            </Link>
-            <div className="pd-overlay-end">
-              <button
-                type="button"
-                className="pd-icon-btn"
-                aria-label={homeCopy("productShareAria", lang)}
-                onClick={() => void handleShare()}
-              >
-                <IconShare2 size={22} />
-              </button>
-            </div>
-          </div>
-
-          {gallery.length > 1 ? (
-            <span className="pd-gallery-pill" aria-live="polite">
-              {galleryIndex + 1}/{gallery.length}
-            </span>
-          ) : null}
-        </div>
+        <ListingGallery
+          title={detail.t}
+          gallery={detail.gallery}
+          tint={tint}
+          icon={icon}
+          containHero={containHero}
+          lang={lang}
+          backHref={backHref}
+          saved={saved}
+          onShare={() => void handleShare()}
+          onSave={toggleSaved}
+        />
 
         <div className="pd-inner">
-          <div className="pd-head">
-            <span className={`pd-chip pd-chip--${tint}`}>
-              {propertyBadge ?? homeCategoryLabel(detail.c, lang)}
-            </span>
-            <h1 className="pd-title">{detail.t}</h1>
-            {propLoc ? (
-              <p className="pd-property-loc">
-                <IconMapPin size={18} aria-hidden />
-                {propLoc}
-              </p>
-            ) : null}
-            <p className="pd-price">
-              {propertyPrice ? (
-                <>
-                  <span>{propertyPrice.amount}</span>
-                  {propertyPrice.suffix ? (
-                    <span className="pd-price-suffix">
-                      {" "}
-                      {propertyPrice.suffix}
-                    </span>
-                  ) : null}
-                </>
-              ) : (
-                kes(detail.p)
-              )}
-            </p>
-            <button
-              type="button"
-              className="pd-vendor-link"
-              onClick={openVendor}
-            >
-              <span className="pd-vendor-link-label">{detail.vendorName}</span>
-              {verified ? (
-                <span className="pd-vendor-tick" aria-label={homeCopy("verifiedPill", lang)}>
-                  <IconCheck size={16} />
-                </span>
-              ) : null}
-              <IconChevronRight size={20} aria-hidden />
-            </button>
-          </div>
+          <ListingHeader
+            detail={detail}
+            tint={tint}
+            lang={lang}
+            onOpenSeller={openVendor}
+          />
 
-          <section className="card pd-card pd-trust" aria-labelledby="pd-trust-h">
-            <h2 id="pd-trust-h" className="sr-only">
-              {homeCopy("trustVerifiedTitle", lang)}
-            </h2>
-            {verified ? (
-              <div className="pd-trust-row pd-trust-row--verified">
-                <IconShieldCheck size={22} />
-                <div className="pd-trust-copy">
-                  <VerifiedBadge lang={lang} />
-                  <span className="m">{homeCopy("trustVerifiedSub", lang)}</span>
-                </div>
-              </div>
-            ) : (
-              <div className="pd-trust-row pd-trust-row--unverified">
-                <IconWallet size={22} />
-                <div className="pd-trust-copy pd-trust-copy--stack">
-                  <strong className="pd-trust-unverified-title">
-                    {homeCopy("productTrustUnverifiedTitle", lang)}
-                  </strong>
-                  <span className="m">
-                    {homeCopy("productTrustUnverifiedBody", lang)}
-                  </span>
-                </div>
-              </div>
-            )}
-            {verified ? (
-              <ul className="pd-pay-list">
-                <li>{homeCopy("productPayCodDetail", lang)}</li>
-                <li>{homeCopy("productPayMpesaDetail", lang)}</li>
-              </ul>
-            ) : null}
-            {mode === "shop" ? (
-              <>
-                <div className="pd-delivery">
-                  <IconMapPin size={20} />
-                  <div>
-                    <p className="pd-delivery-line">
-                      {homeCopy("productDeliveringTo", lang)}{" "}
-                      <strong>{state.area}</strong>
-                    </p>
-                    <p className="m">{homeCopy("productDeliveryFeeHint", lang)}</p>
-                  </div>
-                </div>
-                <div className="pd-promo-row" role="note">
-                  <IconPromoDelivery size={22} aria-hidden />
-                  <div className="pd-promo-copy">
-                    <b>{homeCopy("slide0Title", lang)}</b>
-                    <span>{homeCopy("slide0Sub", lang)}</span>
-                  </div>
-                </div>
-              </>
-            ) : mode === "property" || mode === "cars" ? (
-              <div className="pd-delivery pd-delivery--viewing">
-                <IconMapPin size={20} />
-                <div>
-                  <p className="pd-delivery-line">
-                    <strong>{homeCopy("productRequestViewing", lang)}</strong>
-                  </p>
-                  <p className="m">{homeCopy("productViewingOnSiteHint", lang)}</p>
-                </div>
-              </div>
-            ) : null}
-          </section>
+          <ListingQuickActions
+            lang={lang}
+            callHref={callHref}
+            whatsappHref={whatsappHref}
+            onMessage={openMessage}
+            onAsk={() =>
+              openAssistant({
+                screen: "product",
+                productId: String(productId),
+                source: "product",
+                suggestedPrompt: `${homeCopy("assistantEntryProduct", lang)}: ${detail.t}`,
+              })
+            }
+          />
 
-          <div className="assistant-entry-row">
-            <AssistantEntryChip
-              label={homeCopy("assistantEntryProduct", lang)}
-              onClick={() =>
-                openAssistant({
-                  screen: "product",
-                  productId: String(productId),
-                  source: "product",
-                  suggestedPrompt:
-                    lang === "sw"
-                      ? "Je, muuzaji ame Verified?"
-                      : "Is this seller Verified?",
-                })
-              }
+          <div ref={sellerSectionRef}>
+            <SellerCard
+              lang={lang}
+              vendorName={detail.vendorName}
+              vendorId={detail.vendorId}
+              vendorLogoUrl={detail.vendorLogoUrl}
+              verified={verified}
+              memberSince={detail.vendorCreatedAt}
             />
           </div>
 
-          {bodyText ? (
-            <section className="card pd-card pd-about" aria-labelledby="pd-about-h">
-              <h2 id="pd-about-h" className="pd-about-title">
-                {homeCopy("productAbout", lang)}
-              </h2>
-              <p
-                ref={aboutRef}
-                className={`pd-about-body${aboutExpanded ? "" : aboutClamp ? " pd-about-body--clamp" : ""}`}
-              >
-                {bodyText}
-              </p>
-              {aboutClamp ? (
-                <button
-                  type="button"
-                  className="pd-read-more"
-                  onClick={() => setAboutExpanded((v) => !v)}
-                >
-                  {aboutExpanded
-                    ? homeCopy("productReadLess", lang)
-                    : homeCopy("productReadMore", lang)}
-                </button>
-              ) : null}
-            </section>
-          ) : null}
-
-          {detail.attributeRows.length ? (
-            <section className="card pd-card pd-attrs" aria-labelledby="pd-attrs-h">
-              <h2 id="pd-attrs-h" className="pd-about-title">
-                {homeCopy("productDetails", lang)}
-              </h2>
-              <dl className="pd-attr-grid">
-                {detail.attributeRows.map((row) => (
-                  <div key={row.label}>
-                    <dt>{row.label}</dt>
-                    <dd>{row.value}</dd>
-                  </div>
-                ))}
-              </dl>
-            </section>
-          ) : null}
-
-          <ListingWhatsApp
+          <KeyFacts lang={lang} facts={facts} />
+          <Description lang={lang} raw={detail.desc} />
+          <ListingTypeSections
             lang={lang}
-            title={detail.t}
-            phone={
-              detail.attrs?.whatsapp ||
-              detail.attrs?.phone ||
-              detail.attrs?.mobile
-            }
+            layout={layout}
+            listing={detail}
+            area={state.area}
+            qty={shopQty}
+            onQty={setShopQty}
           />
+
           <ListingComments lang={lang} productId={productId} />
-          <div ref={sellerSectionRef}>
+
+          <div ref={messageRef}>
             <ListingInAppMessages
               lang={lang}
               productId={productId}
               vendorName={detail.vendorName}
-              vendorInitials={vendorInitials}
+              vendorInitials={
+                detail.vendorName
+                  .split(/\s+/)
+                  .slice(0, 2)
+                  .map((w) => w[0])
+                  .join("")
+                  .toUpperCase()
+              }
               verified={verified}
             />
           </div>
 
-          {related.length ? (
-            <section className="pd-related" aria-labelledby="pd-related-h">
-              <div className="home-section-hd">
-                <h2 id="pd-related-h" className="home-section-title">
-                  {relatedFromVendor
-                    ? homeCopy("productMoreFromSeller", lang)
-                    : homeCopy("productSimilar", lang)}
-                </h2>
-              </div>
-              <div className="pd-related-scroll hs">
-                {related.map((item) => (
-                  <div className="pd-related-card" key={item.id}>
-                    <ProductCard
-                      item={item}
-                      onAct={onAct}
-                      serviceInquiryEnabled={serviceInquiryEnabled}
-                    />
-                  </div>
-                ))}
-              </div>
-            </section>
-          ) : null}
+          <ListingSafety
+            lang={lang}
+            listingTitle={detail.t}
+            onReport={() =>
+              openAssistant({
+                screen: "product",
+                productId: String(productId),
+                source: "product-report",
+                suggestedPrompt: `I want to report this listing: ${detail.t}`,
+              })
+            }
+          />
+
+          <SimilarListings
+            lang={lang}
+            title={homeCopy("productMoreFromSeller", lang)}
+            items={fromSeller}
+            onAct={onAct}
+            serviceInquiryEnabled={serviceInquiryEnabled}
+          />
+          <SimilarListings
+            lang={lang}
+            title={similarCategoryTitle(detail, lang)}
+            items={similarOnly}
+            onAct={onAct}
+            serviceInquiryEnabled={serviceInquiryEnabled}
+          />
         </div>
 
-        <div
-          ref={pdBarMeasureRef}
-          className="pd-bar"
-          role="region"
-          aria-label={primaryLabel}
-        >
-          <div className="pd-bar-left">
-            <span className="pd-bar-price">{kes(detail.p)}</span>
-            {mode === "shop" ? (
-              <div className="pd-qty" aria-label="Quantity">
-                <button
-                  type="button"
-                  className="pd-qty-btn"
-                  disabled={shopQty <= 1}
-                  onClick={() => setShopQty(shopQty - 1)}
-                  aria-label="Decrease quantity"
-                >
-                  <IconMinus size={18} />
-                </button>
-                <span className="pd-qty-val" aria-live="polite">
-                  {shopQty}
-                </span>
-                <button
-                  type="button"
-                  className="pd-qty-btn"
-                  disabled={shopQty >= MAX_CART_QTY}
-                  onClick={() => setShopQty(shopQty + 1)}
-                  aria-label="Increase quantity"
-                >
-                  <IconPlus size={18} />
-                </button>
-              </div>
-            ) : null}
-          </div>
-          <button
-            type="button"
-            className={`btn pd-bar-cta${addedPulse ? " pc-add--done" : ""}`}
-            disabled={serviceHeld || (mode === "shop" && shopBlock)}
-            aria-live={mode === "shop" ? "polite" : undefined}
-            title={shopBlock ? homeCopy("productOutsideZone", lang) : undefined}
-            onClick={handlePrimary}
-          >
-            {primaryLabel}
-          </button>
-        </div>
+        <StickyActionBar
+          listing={detail}
+          ctaLabel={primaryLabel}
+          disabled={serviceHeld || (mode === "shop" && shopBlock)}
+          title={shopBlock ? homeCopy("productOutsideZone", lang) : undefined}
+          done={addedPulse}
+          onCta={handlePrimary}
+        />
         {shopBlock ? (
           <p className="pd-zone-hint m" role="status">
             {homeCopy("productOutsideZone", lang)}
           </p>
         ) : null}
+        <span className="sr-only">{listingDisplayPrice(detail)}</span>
       </article>
       {inquiryModal}
     </>

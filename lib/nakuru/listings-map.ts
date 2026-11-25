@@ -16,6 +16,9 @@ export type ApiListing = {
   vendor: string;
   vendorId?: string;
   verified: boolean;
+  vendorLogoUrl?: string | null;
+  createdAt?: string | null;
+  vendorCreatedAt?: string | null;
 };
 
 export function toProductCardItem(api: ApiListing): Listing {

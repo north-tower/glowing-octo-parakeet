@@ -1,5 +1,6 @@
 ﻿import type { Metadata } from "next";
 import { cache, Suspense } from "react";
+import { notFound } from "next/navigation";
 import { ProductDetailShellLoading } from "@/components/app/loading/LoadingUi";
 import { ProductDetailShell } from "@/components/app/ProductDetailShell";
 import { getPublicListingById } from "@/lib/server/catalog";
@@ -13,6 +14,7 @@ import {
   ORGANIZATION_ID,
   SITE_NAME,
 } from "@/lib/seo/site";
+import { cleanDescription } from "@/lib/nakuru/clean-description";
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -80,7 +82,9 @@ function seoTitle(l: SeoListing): string {
 }
 
 function seoDescription(l: SeoListing): string {
-  const text = `${l.description} ${l.categoryLabel} in ${place(l.area)}, Kenya on NakuruHub.`;
+  const cleaned = cleanDescription(l.description);
+  const body = cleaned.paragraphs[0] || cleaned.bullets.join(", ") || l.title;
+  const text = `${body} ${l.categoryLabel} in ${place(l.area)}, Kenya on NakuruHub.`;
   return text.length > 160 ? `${text.slice(0, 157).trimEnd()}…` : text;
 }
 
@@ -179,6 +183,7 @@ export async function generateMetadata({
 export default async function ProductDetailPage({ params }: PageProps) {
   const { id } = await params;
   const listing = await loadListing(id);
+  if (isLiveCatalogEnabled() && !listing) notFound();
   return (
     <>
       {listing && (

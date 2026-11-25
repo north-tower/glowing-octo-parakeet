@@ -65,14 +65,21 @@ export function displayImageSrc(item: Listing): string {
   return resolveListingImageSrc(item) ?? demoPlaceholderSrc(item);
 }
 
+/** Tiny teal placeholder for listing hero blur-up. */
+export const LISTING_BLUR_DATA_URL =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
+
 export function productImageSizes(
-  variant: "rail" | "grid" | "classified" = "grid",
+  variant: "rail" | "grid" | "classified" | "hero" = "grid",
 ): string {
   if (variant === "rail") {
     return "(max-width: 480px) 42vw, (max-width: 768px) 36vw, 320px";
   }
   if (variant === "classified") {
     return "(min-width: 1440px) 270px, (min-width: 1024px) 360px, 90vw";
+  }
+  if (variant === "hero") {
+    return "(max-width: 560px) 100vw, (max-width: 1024px) 560px, 720px";
   }
   return "(max-width: 480px) 44vw, (max-width: 1024px) 33vw, 320px";
 }

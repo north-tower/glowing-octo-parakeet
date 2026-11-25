@@ -1,5 +1,17 @@
-export function kes(n: number): string {
+export function formatKES(n: number): string {
   return `KES ${n.toLocaleString("en-KE")}`;
+}
+
+export function kes(n: number): string {
+  return formatKES(n);
+}
+
+export function formatListingPrice(
+  amount: number,
+  opts?: { from?: boolean },
+): string {
+  const body = formatKES(amount);
+  return opts?.from ? `From ${body}` : body;
 }
 
 /** Escape for rare residual HTML strings; React children do not need this. */

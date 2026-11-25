@@ -137,6 +137,8 @@ function useFloatingHidden(sheetOpen: boolean) {
         document.querySelector(".sign-in-card"),
     );
 
+  const onListingDetail = Boolean(pathname?.startsWith("/app/p/"));
+
   const hidden =
     sheetOpen ||
     overlayOpen ||
@@ -144,7 +146,8 @@ function useFloatingHidden(sheetOpen: boolean) {
     keyboardOpen ||
     inputFocused ||
     msgThread ||
-    onSignInScreen;
+    onSignInScreen ||
+    onListingDetail;
 
   return hidden;
 }

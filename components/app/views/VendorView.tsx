@@ -125,6 +125,15 @@ function LiveVendorPanel() {
                 : prev,
             );
           }}
+          onWhatsAppChange={(whatsapp) => {
+            setRows((prev) =>
+              prev
+                ? prev.map((row) =>
+                    row.id === primary.id ? { ...row, whatsapp } : row,
+                  )
+                : prev,
+            );
+          }}
         />
       ) : (
         <div className="card row">

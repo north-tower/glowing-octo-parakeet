@@ -18,7 +18,7 @@ import {
   type ApiVendorRow,
 } from "@/lib/nakuru/vendor-profile";
 import { useDetectNakuruZone } from "@/components/app/useDetectNakuruZone";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 
 type TabId = "add" | "stock" | "orders" | "earn";
 
@@ -35,6 +35,7 @@ type Props = {
   toast: (msg: string) => void;
   onAreaChange: (area: string) => void;
   onBannerChange: (bannerUrl: string) => void;
+  onWhatsAppChange: (whatsapp: string | null) => void;
 };
 
 export function VendorShopWorkspace({
@@ -43,14 +44,21 @@ export function VendorShopWorkspace({
   toast,
   onAreaChange,
   onBannerChange,
+  onWhatsAppChange,
 }: Props) {
   const { lang } = usePwaInstall();
   const [tab, setTab] = useState<TabId>("add");
   const [zoneOpen, setZoneOpen] = useState(false);
   const [areaBusy, setAreaBusy] = useState(false);
+  const [whatsapp, setWhatsapp] = useState(vendor.whatsapp ?? "");
+  const [waBusy, setWaBusy] = useState(false);
   const [stockTick, setStockTick] = useState(0);
   const zoneBtnRef = useRef<HTMLButtonElement>(null);
   const { detect: detectZone, busy: detectBusy } = useDetectNakuruZone(toast, lang);
+
+  useEffect(() => {
+    setWhatsapp(vendor.whatsapp ?? "");
+  }, [vendor.whatsapp]);
 
   const saveArea = async (area: string) => {
     if (areaBusy || area === vendor.area) return;
@@ -70,6 +78,42 @@ export function VendorShopWorkspace({
       }
     } finally {
       setAreaBusy(false);
+    }
+  };
+
+  const saveWhatsApp = async (ev: FormEvent) => {
+    ev.preventDefault();
+    if (waBusy) return;
+    const trimmed = whatsapp.trim();
+    setWaBusy(true);
+    try {
+      const row = await apiFetch<{ whatsapp: string | null }>(
+        "/api/vendors/mine",
+        {
+          method: "PATCH",
+          body: JSON.stringify({ whatsapp: trimmed }),
+        },
+      );
+      onWhatsAppChange(row.whatsapp ?? null);
+      setWhatsapp(row.whatsapp ?? "");
+      toast(
+        row.whatsapp
+          ? "WhatsApp saved. Buyers will see it on your listings."
+          : "WhatsApp number removed.",
+      );
+    } catch (err) {
+      if (err instanceof ApiError && err.body.error === "bad_request") {
+        toast("Enter a valid Kenyan mobile, e.g. 0712 345 678.");
+      } else if (
+        err instanceof ApiError &&
+        err.body.error === "no_approved_vendor"
+      ) {
+        toast("Your shop must be approved before saving WhatsApp.");
+      } else {
+        toast("Could not save WhatsApp.");
+      }
+    } finally {
+      setWaBusy(false);
     }
   };
 
@@ -138,6 +182,27 @@ export function VendorShopWorkspace({
               </button>
             ) : null}
           </div>
+          <form className="shop-wa" onSubmit={(ev) => void saveWhatsApp(ev)}>
+            <label htmlFor="shop-wa">WhatsApp number</label>
+            <p className="m">
+              Shown on every listing as WhatsApp seller. Kenyan mobile only.
+            </p>
+            <div className="row shop-wa-row">
+              <input
+                id="shop-wa"
+                maxLength={16}
+                autoComplete="tel"
+                inputMode="tel"
+                placeholder="0712 345 678"
+                value={whatsapp}
+                disabled={waBusy}
+                onChange={(e) => setWhatsapp(e.target.value)}
+              />
+              <button type="submit" className="btn s" disabled={waBusy}>
+                {waBusy ? "Saving…" : "Save"}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
 

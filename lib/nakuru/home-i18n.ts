@@ -147,6 +147,33 @@ export type HomeCopyKey =
   | "productAttrLocation"
   | "productAttrTenure"
   | "productAttrPlotSize"
+  | "productAttrBathrooms"
+  | "productAttrHours"
+  | "productAttrServiceArea"
+  | "productAttrWalkIn"
+  | "productAttrTransmission"
+  | "productAttrCondition"
+  | "productAttrPosted"
+  | "productAttrCategory"
+  | "productSellerTitle"
+  | "productNotVerifiedPill"
+  | "productVerifiedMeaningTitle"
+  | "productVerifiedMeaningBody"
+  | "productUnverifiedMeaningBody"
+  | "productWhatVerifiedMeans"
+  | "productViewSellerListings"
+  | "productSafetyTitle"
+  | "productSafetyMeet"
+  | "productSafetyPay"
+  | "productReport"
+  | "productNoReviews"
+  | "productCall"
+  | "productServiceAreaTitle"
+  | "productWalkInTitle"
+  | "productLightboxClose"
+  | "productSimilarIn"
+  | "productSaveAria"
+  | "productUnsaveAria"
   | "productPricePerMonth"
   | "productPriceForSale"
   | "inquiryViewingTitle"
@@ -683,6 +710,48 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   productAttrLocation: { en: "Location", sw: "Mahali" },
   productAttrTenure: { en: "Listing type", sw: "Aina ya tangazo" },
   productAttrPlotSize: { en: "Plot size", sw: "Ukubwa wa kiwanja" },
+  productAttrBathrooms: { en: "Bathrooms", sw: "Bafu" },
+  productAttrHours: { en: "Hours", sw: "Saa" },
+  productAttrServiceArea: { en: "Service area", sw: "Eneo la huduma" },
+  productAttrWalkIn: { en: "Walk-in address", sw: "Anwani ya ofisi" },
+  productAttrTransmission: { en: "Transmission", sw: "Gia" },
+  productAttrCondition: { en: "Condition", sw: "Hali" },
+  productAttrPosted: { en: "Posted", sw: "Imewekwa" },
+  productAttrCategory: { en: "Category", sw: "Kundi" },
+  productSellerTitle: { en: "Seller", sw: "Muuzaji" },
+  productNotVerifiedPill: { en: "Not yet verified", sw: "Bado haijathibitishwa" },
+  productVerifiedMeaningTitle: { en: "What does this mean?", sw: "Hii inamaanisha nini?" },
+  productVerifiedMeaningBody: {
+    en: "Verified sellers can take M-Pesa upfront. You can pay before delivery with more protection.",
+    sw: "Wauzaji waliothibitishwa wanaweza kupokea M-Pesa mapema. Unaweza kulipa kabla ya kuwasilisha.",
+  },
+  productUnverifiedMeaningBody: {
+    en: "This seller is not yet Verified. Pay cash or M-Pesa on delivery — don’t send money in advance.",
+    sw: "Muuzaji huyu bado hajathibitishwa. Lipa taslimu au M-Pesa ukifika — usitume pesa mapema.",
+  },
+  productWhatVerifiedMeans: { en: "What does this mean?", sw: "Hii inamaanisha nini?" },
+  productViewSellerListings: {
+    en: "View all listings from this seller",
+    sw: "Tazama matangazo yote ya muuzaji huyu",
+  },
+  productSafetyTitle: { en: "Safety tips", sw: "Vidokezo vya usalama" },
+  productSafetyMeet: {
+    en: "Meet in public places when you inspect an item, home, or car.",
+    sw: "Kutane sehemu za umma unapokagua bidhaa, nyumba, au gari.",
+  },
+  productSafetyPay: {
+    en: "Don’t pay in advance unless the seller is Verified.",
+    sw: "Usilipe mapema isipokuwa muuzaji ame Verified.",
+  },
+  productReport: { en: "Report listing", sw: "Ripoti tangazo" },
+  productNoReviews: { en: "No reviews yet", sw: "Bado hakuna maoni" },
+  productCall: { en: "Call", sw: "Piga" },
+  productServiceAreaTitle: { en: "Service area", sw: "Eneo la huduma" },
+  productWalkInTitle: { en: "Walk-in address / hours", sw: "Ofisi na saa" },
+  productLightboxClose: { en: "Close photos", sw: "Funga picha" },
+  productSimilarIn: { en: "Similar in", sw: "Zinazofanana katika" },
+  productSaveAria: { en: "Save listing", sw: "Hifadhi tangazo" },
+  productUnsaveAria: { en: "Remove from saved", sw: "Ondoa kwenye vilivyohifadhiwa" },
   productPricePerMonth: { en: "/ month", sw: "/ mwezi" },
   productPriceForSale: { en: "for sale", sw: "kwa kuuza" },
   inquiryViewingTitle: { en: "Request a viewing", sw: "Omba kutembelea" },
@@ -999,8 +1068,8 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
     sw: "Uliza msaidizi",
   },
   assistantEntryProduct: {
-    en: "Ask about this item",
-    sw: "Uliza kuhusu bidhaa hii",
+    en: "Ask about this listing",
+    sw: "Uliza kuhusu tangazo hili",
   },
   assistantEntryCartPay: {
     en: "Need help with payment?",
@@ -1047,8 +1116,8 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   },
   commentsTitle: { en: "Comments", sw: "Maoni" },
   commentsEmpty: {
-    en: "Be the first to comment.",
-    sw: "Kuwa wa kwanza kutoa maoni.",
+    en: "Be the first to ask a question",
+    sw: "Kuwa wa kwanza kuuliza swali",
   },
   commentsPlaceholder: { en: "Write a comment", sw: "Andika maoni" },
   commentsSubmit: { en: "Post comment", sw: "Tuma maoni" },

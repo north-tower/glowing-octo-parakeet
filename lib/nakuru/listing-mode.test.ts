@@ -12,4 +12,13 @@ describe("listingModeOf", () => {
       listingModeOf({ c: "fashion", listingMode: "services" } as Listing),
     ).toBe("services");
   });
+
+  it("treats repair categories as services even if listingMode is shop", () => {
+    expect(
+      listingModeOf({
+        c: "phone-and-laptop-repair",
+        listingMode: "shop",
+      } as Listing),
+    ).toBe("services");
+  });
 });

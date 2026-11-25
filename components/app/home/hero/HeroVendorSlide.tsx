@@ -1,6 +1,5 @@
 "use client";
 
-import type { ReactNode } from "react";
 import Image from "next/image";
 import { ArrowRight, BadgeCheck } from "lucide-react";
 import type { LandingLang } from "@/lib/nakuru/i18n";
@@ -89,14 +88,17 @@ export function HeroVendorSlide({
               </span>
             ) : null}
           </div>
-          <MotionBlock active={active}>
+          <div
+            className="transition-opacity duration-300"
+            style={{ opacity: active ? 1 : 0.92 }}
+          >
             <h2 className="hero-slide-title m-0 text-balance !text-2xl !font-semibold leading-tight tracking-tight sm:!text-4xl lg:!text-5xl">
               {slide.title}
             </h2>
             <p className="mt-3 text-base text-white/90 sm:text-lg">
               {slide.subtitle}
             </p>
-          </MotionBlock>
+          </div>
           <div>
             <button
               type="button"
@@ -125,23 +127,6 @@ export function HeroVendorSlide({
           />
         </div>
       ) : null}
-    </div>
-  );
-}
-
-function MotionBlock({
-  active,
-  children,
-}: {
-  active: boolean;
-  children: ReactNode;
-}) {
-  return (
-    <div
-      className="transition-opacity duration-300"
-      style={{ opacity: active ? 1 : 0.92 }}
-    >
-      {children}
     </div>
   );
 }

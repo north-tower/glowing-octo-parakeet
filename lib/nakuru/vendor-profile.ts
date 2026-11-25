@@ -7,6 +7,7 @@ export type ApiVendorRow = {
   logo_url: string | null;
   banner_url: string | null;
   area: string | null;
+  whatsapp: string | null;
   created_at: string;
 };
 

@@ -4,11 +4,11 @@ import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/app/AppAuthProvider";
-import { VerifiedBadge } from "@/components/app/product/VerifiedBadge";
 import { ApiError, apiFetch } from "@/lib/nakuru/api";
 import { homeCopy } from "@/lib/nakuru/home-i18n";
 import type { LandingLang } from "@/lib/nakuru/i18n";
 import { requireAuth } from "@/lib/nakuru/require-auth";
+import { signInHref } from "@/lib/nakuru/post-sign-in-tab";
 import { usePrimaryNav } from "@/components/app/usePrimaryNav";
 import { useNakuruApp } from "@/components/app/AppProvider";
 
@@ -36,7 +36,7 @@ export function ListingInAppMessages({
   lang,
   productId,
   vendorName,
-  vendorInitials,
+  vendorInitials: _vendorInitials,
   verified,
 }: Props) {
   const { user, ready } = useAuth();
@@ -104,18 +104,12 @@ export function ListingInAppMessages({
       aria-labelledby="pd-msg-h"
     >
       <h2 id="pd-msg-h" className="pd-about-title">
-        {homeCopy("messagesTitle", lang)}
+        {homeCopy("productMessageSeller", lang)}
       </h2>
-      <p className="m">{homeCopy("messagesHint", lang)}</p>
-      <div className="pd-seller-row">
-        <span className="pd-seller-av" aria-hidden>
-          {vendorInitials || "?"}
-        </span>
-        <div className="pd-seller-meta">
-          <p className="pd-seller-name">{vendorName}</p>
-          {verified ? <VerifiedBadge lang={lang} /> : null}
-        </div>
-      </div>
+      <p className="m">
+        {vendorName}
+        {verified ? " ✓" : ""} · {homeCopy("messagesHint", lang)}
+      </p>
 
       {!ready ? null : signedIn ? (
         <form className="pd-msg-form" onSubmit={(e) => void onSubmit(e)}>
@@ -149,16 +143,12 @@ export function ListingInAppMessages({
           </div>
         </form>
       ) : (
-        <div className="pd-comments-signin">
-          <textarea
-            rows={3}
-            disabled
-            placeholder={homeCopy("messagesPlaceholder", lang)}
-          />
-          <button type="button" className="btn full pd-seller-msg" onClick={() => goTab("acc")}>
-            {homeCopy("messagesSignIn", lang)}
-          </button>
-        </div>
+        <Link
+          className="pd-comments-signin-row"
+          href={signInHref(`/app/p/${productId}`)}
+        >
+          {homeCopy("messagesSignIn", lang)}
+        </Link>
       )}
 
       {status ? (

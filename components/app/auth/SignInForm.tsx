@@ -19,7 +19,10 @@ import {
   requestSignInCode,
   verifySignInCode,
 } from "@/lib/nakuru/otp-adapter";
-import { consumePostSignInReturn } from "@/lib/nakuru/post-sign-in-tab";
+import {
+  consumePostSignInReturn,
+  parseReturnToParam,
+} from "@/lib/nakuru/post-sign-in-tab";
 import type { NakuruAction } from "@/lib/nakuru/reducer";
 import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
 import { useAppDesktopUp } from "@/lib/nakuru/use-media-query";
@@ -122,16 +125,18 @@ function SignInFormInner({
     }
 
     const { tab, path } = consumePostSignInReturn();
+    const returnTo = parseReturnToParam(searchParams.get("returnTo"));
     if (sellingEntry) {
       persistAppMode("selling");
-      router.push(path ?? "/app?start=vendor");
+      router.push(path ?? returnTo ?? "/app?start=vendor");
       return;
     }
     persistAppMode("shopping");
     if (path) router.push(path);
+    else if (returnTo) router.push(returnTo);
     else if (tab) router.push(`/app?tab=${tab}`);
     else router.push("/app");
-  }, [dispatch, router, sellingEntry, variant]);
+  }, [dispatch, router, sellingEntry, variant, searchParams]);
 
   const validateEmailField = (raw: string): boolean => {
     if (isValidEmail(raw)) {

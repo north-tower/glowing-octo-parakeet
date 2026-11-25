@@ -1,7 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   consumePostSignInReturn,
+  parseReturnToParam,
   requestPostSignInReturn,
+  signInHref,
 } from "./post-sign-in-tab";
 
 function mockSessionStorage() {
@@ -40,5 +42,19 @@ describe("post sign-in return", () => {
 
     requestPostSignInReturn({ tab: "cart", path: "/staff" });
     expect(consumePostSignInReturn()).toEqual({ tab: "cart", path: null });
+  });
+});
+
+describe("parseReturnToParam", () => {
+  it("accepts listing paths and rejects off-origin values", () => {
+    expect(parseReturnToParam("/app/p/abc")).toBe("/app/p/abc");
+    expect(parseReturnToParam(encodeURIComponent("/app/p/abc"))).toBe(
+      "/app/p/abc",
+    );
+    expect(parseReturnToParam("https://evil.test/app")).toBeNull();
+    expect(parseReturnToParam("//evil.test")).toBeNull();
+    expect(signInHref("/app/p/abc")).toBe(
+      "/auth/sign-in?returnTo=%2Fapp%2Fp%2Fabc",
+    );
   });
 });

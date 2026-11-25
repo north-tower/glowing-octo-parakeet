@@ -6,6 +6,7 @@ import {
   listVendorsForOwner,
   setVendorArea,
   setVendorBanner,
+  setVendorWhatsApp,
   VendorError,
 } from "@/lib/server/vendors";
 
@@ -40,7 +41,11 @@ export async function PATCH(req: Request) {
   const ip = clientIp(req);
 
   try {
-    const out: { area?: string; banner_url?: string } = {};
+    const out: {
+      area?: string;
+      banner_url?: string;
+      whatsapp?: string | null;
+    } = {};
     if (parsed.data.area !== undefined) {
       const row = await setVendorArea(user.id, parsed.data.area, ip);
       out.area = row.area;
@@ -52,6 +57,14 @@ export async function PATCH(req: Request) {
         ip,
       );
       out.banner_url = row.banner_url;
+    }
+    if (parsed.data.whatsapp !== undefined) {
+      const value =
+        parsed.data.whatsapp === "" || parsed.data.whatsapp === null
+          ? null
+          : parsed.data.whatsapp;
+      const row = await setVendorWhatsApp(user.id, value, ip);
+      out.whatsapp = row.whatsapp;
     }
     return NextResponse.json(out);
   } catch (err) {
