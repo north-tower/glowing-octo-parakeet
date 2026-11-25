@@ -12,6 +12,7 @@ import {
   userFromAccessToken,
   type AuthUser,
 } from "@/lib/nakuru/auth";
+import { clearDemoSession, readDemoSession } from "@/lib/nakuru/otp-adapter";
 import {
   createContext,
   useCallback,
@@ -92,19 +93,27 @@ export function AppAuthProvider({ children }: Props) {
       clearAccessToken();
       setToken(null);
       clearAppMode();
+      clearDemoSession();
     }
   }, []);
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      await login();
+      const ok = await login();
+      if (!ok) {
+        const demo = readDemoSession();
+        if (demo && !cancelled) {
+          setEmail(demo.email);
+          syncToken(demo.access);
+        }
+      }
       if (!cancelled) setReady(true);
     })();
     return () => {
       cancelled = true;
     };
-  }, [login]);
+  }, [login, syncToken]);
 
   const value = useMemo(
     () => ({

@@ -4,7 +4,7 @@ import { useAuth } from "@/components/app/AppAuthProvider";
 import { useNakuruApp } from "@/components/app/AppProvider";
 import { AuthBackLink } from "@/components/app/auth/AuthBackLink";
 import { OtpInput } from "@/components/app/auth/OtpInput";
-import { apiFetch, ApiError } from "@/lib/nakuru/api";
+import { IconCheck, IconMail } from "@/components/app/icons/LineIcons";
 import {
   persistAppMode,
   wantsSellingEntry,
@@ -12,16 +12,23 @@ import {
 import { appHrefForDetailNavTab } from "@/lib/nakuru/detail-nav-tab";
 import { homeCopy } from "@/lib/nakuru/home-i18n";
 import { maskEmail } from "@/lib/nakuru/mask-email";
+import {
+  isClientOtpDemo,
+  isValidEmail,
+  OtpAdapterError,
+  requestSignInCode,
+  verifySignInCode,
+} from "@/lib/nakuru/otp-adapter";
 import { consumePostSignInReturn } from "@/lib/nakuru/post-sign-in-tab";
 import type { NakuruAction } from "@/lib/nakuru/reducer";
 import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
 import { useAppDesktopUp } from "@/lib/nakuru/use-media-query";
-import { Loader2, Mail } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   useCallback,
   useEffect,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -29,16 +36,13 @@ import {
 } from "react";
 
 const RESEND_SECONDS = 30;
-const PHONE_AUTH =
-  process.env.NEXT_PUBLIC_AUTH_PHONE_ENABLED === "true";
-
-function isValidEmail(raw: string): boolean {
-  const s = raw.trim();
-  if (s.length < 3 || s.length > 254) return false;
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
-}
+const SUCCESS_MS = 700;
+const PHONE_AUTH = process.env.NEXT_PUBLIC_AUTH_PHONE_ENABLED === "true";
 
 type Channel = "email" | "phone";
+type Step = "email" | "code" | "success";
+
+export type SignInIntent = "orders" | "saved" | null;
 
 export type SignInFormProps = {
   variant: "standalone" | "embedded";
@@ -48,6 +52,7 @@ export type SignInFormProps = {
   onBack?: () => void;
   dispatch?: (action: NakuruAction) => void;
   toast?: (message: string) => void;
+  intent?: SignInIntent;
 };
 
 function SignInFormInner({
@@ -58,6 +63,7 @@ function SignInFormInner({
   onBack,
   dispatch,
   toast = () => undefined,
+  intent = null,
 }: SignInFormProps) {
   const { setSessionFromOtp } = useAuth();
   const { lang } = usePwaInstall();
@@ -65,6 +71,7 @@ function SignInFormInner({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const desktopUp = useAppDesktopUp();
+  const headingId = useId();
 
   const sellingEntry = useMemo(
     () =>
@@ -73,7 +80,7 @@ function SignInFormInner({
     [openSellingAfterSignIn, searchParams],
   );
 
-  const [step, setStep] = useState<"email" | "code">("email");
+  const [step, setStep] = useState<Step>("email");
   const [channel, setChannel] = useState<Channel>("email");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -82,6 +89,7 @@ function SignInFormInner({
   const [resendIn, setResendIn] = useState(0);
   const [devCode, setDevCode] = useState<string | null>(null);
   const [remember, setRemember] = useState(false);
+  const [emailTouched, setEmailTouched] = useState(false);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [codeError, setCodeError] = useState<string | null>(null);
@@ -125,36 +133,35 @@ function SignInFormInner({
     else router.push("/app");
   }, [dispatch, router, sellingEntry, variant]);
 
+  const validateEmailField = (raw: string): boolean => {
+    if (isValidEmail(raw)) {
+      setEmailError(null);
+      return true;
+    }
+    setEmailError(homeCopy("signInEmailError", lang));
+    return false;
+  };
+
   const sendCode = async (ev?: FormEvent) => {
     ev?.preventDefault();
     if (submittingRef.current || busy) return;
 
     setFormError(null);
-    setEmailError(null);
     setStatusMessage(null);
+    setEmailTouched(true);
 
     if (channel === "phone") {
-      setFormError("Phone sign-in is coming soon. Use email for now.");
+      setFormError(homeCopy("signInPhoneSoon", lang));
       return;
     }
 
     const normalized = email.trim().toLowerCase();
-    if (!isValidEmail(normalized)) {
-      setEmailError("Enter a valid email address");
-      return;
-    }
+    if (!validateEmailField(normalized)) return;
 
     submittingRef.current = true;
     setBusy(true);
     try {
-      const res = await apiFetch<{ ok: boolean; devCode?: string }>(
-        "/api/auth/otp/request",
-        {
-          method: "POST",
-          body: JSON.stringify({ email: normalized }),
-          skipAuthRetry: true,
-        },
-      );
+      const res = await requestSignInCode(normalized);
       setEmail(normalized);
       setDevCode((prev) => res.devCode ?? prev);
       setStep("code");
@@ -162,14 +169,20 @@ function SignInFormInner({
       setCodeError(null);
       setResendIn(RESEND_SECONDS);
       setStatusMessage(
-        res.devCode
+        res.devCode && !isClientOtpDemo()
           ? "Dev mode: use the code shown below."
-          : "Code sent — check your inbox.",
+          : null,
       );
     } catch (err) {
-      const msg =
-        err instanceof ApiError ? err.message : "Could not send sign-in code";
-      setFormError(msg);
+      if (err instanceof OtpAdapterError && err.code === "rate_limited") {
+        setFormError(homeCopy("signInRateLimit", lang));
+      } else {
+        setFormError(
+          err instanceof OtpAdapterError
+            ? err.message
+            : "Could not send sign-in code",
+        );
+      }
     } finally {
       setBusy(false);
       submittingRef.current = false;
@@ -185,7 +198,7 @@ function SignInFormInner({
     async (digitsOverride?: string) => {
       const digits = (digitsOverride ?? code).replace(/\D/g, "").slice(0, 6);
       if (digits.length !== 6) {
-        setCodeError("Enter the 6-digit code");
+        setCodeError(homeCopy("signInWrongCode", lang));
         return;
       }
       if (submittingRef.current || busy) return;
@@ -194,23 +207,20 @@ function SignInFormInner({
       setBusy(true);
       setCodeError(null);
       try {
-        const data = await apiFetch<{ access: string }>("/api/auth/otp/verify", {
-          method: "POST",
-          body: JSON.stringify({ email, code: digits, remember }),
-          skipAuthRetry: true,
-        });
+        const data = await verifySignInCode(email, digits, remember);
         setSessionFromOtp(data.access, email);
+        setStep("success");
         setStatusMessage(homeCopy("signInSuccess", lang));
         toast(homeCopy("signInSuccess", lang));
-        afterSignIn();
+        window.setTimeout(() => afterSignIn(), SUCCESS_MS);
       } catch (err) {
-        let msg = "Verification failed";
-        if (err instanceof ApiError) {
-          const codeErr = err.body.error;
-          if (codeErr === "invalid_code") msg = "Invalid or expired code";
-          else if (codeErr === "use_staff_login") {
+        let msg = homeCopy("signInWrongCode", lang);
+        if (err instanceof OtpAdapterError) {
+          if (err.code === "expired") msg = homeCopy("signInExpired", lang);
+          else if (err.code === "rate_limited") msg = homeCopy("signInRateLimit", lang);
+          else if (err.code === "use_staff_login") {
             msg = "Staff accounts must use the staff login page";
-          } else if (codeErr === "disabled") msg = "This account is disabled";
+          } else if (err.code === "disabled") msg = "This account is disabled";
           else msg = err.message;
         }
         setCodeError(msg);
@@ -240,33 +250,47 @@ function SignInFormInner({
     }
   };
 
-  const cardChrome =
-    variant === "standalone"
-      ? "lg:rounded-2xl lg:border lg:border-stone-200/90 lg:bg-white lg:p-8 lg:shadow-sm"
-      : "max-lg:border-0 max-lg:bg-transparent max-lg:p-0 max-lg:shadow-none lg:rounded-2xl lg:border lg:border-stone-200/90 lg:bg-white lg:p-8 lg:shadow-sm";
+  const emailValid = isValidEmail(email);
+  const canSubmitEmail =
+    channel === "email" ? emailValid : phone.length >= 9;
+  const contextCopy =
+    intent === "orders"
+      ? homeCopy("signInContextOrders", lang)
+      : intent === "saved"
+        ? homeCopy("signInContextSaved", lang)
+        : null;
 
-  const emailInvalid = email.trim().length > 0 && !isValidEmail(email.trim());
+  if (step === "success") {
+    return (
+      <div className="sign-in-card">
+        <div className="sign-in-success sign-in-step" role="status" aria-live="polite">
+          <span className="sign-in-success-mark" aria-hidden>
+            <IconCheck size={28} />
+          </span>
+          <p className="sign-in-lead">{homeCopy("signInSuccess", lang)}</p>
+        </div>
+      </div>
+    );
+  }
 
   if (step === "email") {
     return (
-      <div className={`sign-in-card w-full ${cardChrome}`}>
+      <div className="sign-in-card">
         {showBack ? <AuthBackLink onBack={onBack} /> : null}
 
-        <form onSubmit={sendCode} noValidate>
-          <h1 className="text-3xl font-semibold tracking-tight text-stone-900">
-            Welcome back
-          </h1>
-          <p className="mt-2 text-base text-balance text-stone-600">
-            Enter your email and we&apos;ll send you a 6-digit code. No password
-            needed.
-          </p>
-          <p className="mt-2 text-sm text-stone-600">
-            We&apos;ll send a 6-digit code. It expires in 10 minutes.
-          </p>
+        <form className="sign-in-step" onSubmit={sendCode} noValidate>
+          {contextCopy ? (
+            <p className="sign-in-context" role="status">
+              {contextCopy}
+            </p>
+          ) : null}
+          <h1 id={headingId}>{homeCopy("signInTitle", lang)}</h1>
+          <p className="sign-in-lead">{homeCopy("signInLead", lang)}</p>
+          <p className="sign-in-help">{homeCopy("signInHelper", lang)}</p>
 
           {PHONE_AUTH ? (
             <div
-              className="mt-6 flex rounded-xl border border-stone-200 bg-stone-100/80 p-1"
+              className="sign-in-channel"
               role="tablist"
               aria-label="Sign-in method"
             >
@@ -276,11 +300,7 @@ function SignInFormInner({
                   type="button"
                   role="tab"
                   aria-selected={channel === tab}
-                  className={`flex-1 rounded-lg py-2 text-sm font-medium transition-colors ${
-                    channel === tab
-                      ? "bg-white text-stone-900 shadow-sm"
-                      : "text-stone-600 hover:text-stone-900"
-                  }`}
+                  className="flex-1 rounded-lg py-2 text-sm font-medium"
                   onClick={() => setChannel(tab)}
                 >
                   {tab === "email" ? "Email" : "Phone"}
@@ -289,33 +309,22 @@ function SignInFormInner({
             </div>
           ) : null}
 
-          {formError ? (
-            <p role="alert" className="mt-4 text-sm text-red-600">
-              {formError}
-            </p>
-          ) : null}
-
-          {statusMessage ? (
-            <p className="mt-4 text-sm text-emerald-800" aria-live="polite">
-              {statusMessage}
-            </p>
-          ) : null}
+          <div className="sign-in-status is-error" role="alert" aria-live="assertive">
+            {formError ?? "\u00a0"}
+          </div>
 
           {channel === "email" ? (
-            <div className="mt-6">
-              <label
-                htmlFor="signin-email"
-                className="text-sm font-medium text-stone-800"
-              >
-                Email
+            <div className="sign-in-field-wrap">
+              <label htmlFor="signin-email">
+                {homeCopy("signInEmailLabel", lang)}
               </label>
-              <div className="relative mt-1.5">
-                <Mail
-                  className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-400"
-                  aria-hidden
-                />
+              <div className="sign-in-field">
+                <span className="sign-in-field-ico" aria-hidden>
+                  <IconMail size={20} />
+                </span>
                 <input
                   id="signin-email"
+                  className={`sign-in-input${emailError ? " is-invalid" : ""}`}
                   type="email"
                   inputMode="email"
                   autoComplete="email"
@@ -327,38 +336,29 @@ function SignInFormInner({
                   placeholder="you@example.com"
                   value={email}
                   disabled={busy}
-                  aria-invalid={emailError || emailInvalid ? true : undefined}
-                  aria-describedby={
-                    emailError ? "signin-email-error" : undefined
-                  }
-                  className={`h-12 w-full rounded-xl border bg-white py-0 pl-11 pr-4 text-base text-stone-900 placeholder:text-stone-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700 ${
-                    emailError || emailInvalid
-                      ? "border-red-400"
-                      : "border-stone-300"
-                  }`}
+                  aria-invalid={emailError ? true : undefined}
+                  aria-describedby="signin-email-error"
+                  onBlur={() => {
+                    setEmailTouched(true);
+                    if (email.trim()) validateEmailField(email);
+                  }}
                   onChange={(e) => {
                     setEmail(e.target.value);
-                    setEmailError(null);
                     setFormError(null);
+                    if (emailTouched) validateEmailField(e.target.value);
+                    else setEmailError(null);
                   }}
                 />
               </div>
-              {emailError ? (
-                <p id="signin-email-error" role="alert" className="mt-1.5 text-sm text-red-600">
-                  {emailError}
-                </p>
-              ) : null}
+              <p id="signin-email-error" className="sign-in-field-error" role="alert">
+                {emailError ?? "\u00a0"}
+              </p>
             </div>
           ) : (
-            <div className="mt-6">
-              <label
-                htmlFor="signin-phone"
-                className="text-sm font-medium text-stone-800"
-              >
-                Phone
-              </label>
+            <div className="sign-in-field-wrap">
+              <label htmlFor="signin-phone">Phone</label>
               <div className="mt-1.5 flex gap-2">
-                <span className="flex h-12 items-center rounded-xl border border-stone-300 bg-stone-50 px-3 text-base font-medium text-stone-700">
+                <span className="flex h-12 items-center rounded-xl border px-3 text-base font-medium">
                   +254
                 </span>
                 <input
@@ -370,7 +370,7 @@ function SignInFormInner({
                   maxLength={9}
                   value={phone}
                   disabled={busy}
-                  className="h-12 min-w-0 flex-1 rounded-xl border border-stone-300 bg-white px-4 text-base text-stone-900"
+                  className="sign-in-input sign-in-input--plain"
                   onChange={(e) =>
                     setPhone(e.target.value.replace(/\D/g, "").slice(0, 9))
                   }
@@ -379,74 +379,53 @@ function SignInFormInner({
             </div>
           )}
 
-          <label
-            className="sign-in-remember min-h-11"
-            htmlFor="signin-remember"
-          >
-            <input
-              id="signin-remember"
-              type="checkbox"
-              checked={remember}
-              disabled={busy}
-              className="h-5 w-5 shrink-0 accent-emerald-800"
-              onChange={(e) => setRemember(e.target.checked)}
-            />
-            <span className="text-sm text-stone-700">
-              {homeCopy("signInRemember", lang)}
+          <label className="sign-in-remember" htmlFor="signin-remember">
+            <span className="sign-in-check">
+              <input
+                id="signin-remember"
+                type="checkbox"
+                checked={remember}
+                disabled={busy}
+                onChange={(e) => setRemember(e.target.checked)}
+              />
+              <span className="sign-in-check-ui" aria-hidden />
             </span>
+            <span>{homeCopy("signInRemember", lang)}</span>
           </label>
 
           <button
             type="submit"
-            disabled={
-              busy ||
-              (channel === "email" &&
-                (!email.trim() || !isValidEmail(email.trim()))) ||
-              (channel === "phone" && phone.length < 9)
-            }
-            className="mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-emerald-900 text-base font-semibold text-white transition-colors hover:bg-emerald-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className={`sign-in-submit${busy ? " is-busy" : ""}`}
+            disabled={busy || !canSubmitEmail}
           >
             {busy ? (
               <>
-                <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
-                Sending…
+                <span className="sign-in-spin" aria-hidden />
+                {homeCopy("signInSending", lang)}
               </>
             ) : (
               homeCopy("signInCta", lang)
             )}
           </button>
 
-          <p className="mt-4 text-center text-xs text-stone-500">
-            By continuing you agree to our{" "}
-            <Link
-              href="/terms"
-              className="font-medium text-stone-600 underline-offset-2 hover:text-stone-900 hover:underline"
-            >
-              Terms
-            </Link>{" "}
+          <p className="sign-in-legal">
+            {homeCopy("signInTermsBefore", lang)}{" "}
+            <Link href="/terms">{homeCopy("signInTerms", lang)}</Link>{" "}
             and{" "}
-            <Link
-              href="/privacy"
-              className="font-medium text-stone-600 underline-offset-2 hover:text-stone-900 hover:underline"
-            >
-              Privacy Policy
-            </Link>
-            .
+            <Link href="/privacy">{homeCopy("signInPrivacy", lang)}</Link>.
           </p>
 
           {showGuestBrowse ? (
             <>
               <button
                 type="button"
-                className="sign-in-guest mt-6 w-full text-center text-sm font-semibold text-emerald-900 underline-offset-2 hover:underline"
+                className="sign-in-guest"
                 disabled={busy}
                 onClick={browseAsGuest}
               >
                 {homeCopy("signInGuestBrowse", lang)}
               </button>
-              <p className="sign-in-guest-note mt-2 text-center text-xs text-stone-500">
-                {homeCopy("signInGuestNote", lang)}
-              </p>
+              <p className="sign-in-guest-note">{homeCopy("signInGuestNote", lang)}</p>
             </>
           ) : null}
         </form>
@@ -455,20 +434,17 @@ function SignInFormInner({
   }
 
   return (
-    <div className={`sign-in-card w-full ${cardChrome}`}>
+    <div className="sign-in-card">
       {showBack ? <AuthBackLink onBack={onBack} /> : null}
 
-      <form onSubmit={onVerifySubmit}>
-        <h1 className="text-3xl font-semibold tracking-tight text-stone-900">
-          Check your email
-        </h1>
-        <p className="mt-2 text-base text-stone-600">
-          We sent a code to{" "}
-          <span className="font-medium text-stone-800">{maskEmail(email)}</span>
+      <form className="sign-in-step" onSubmit={onVerifySubmit}>
+        <h1 id={headingId}>{homeCopy("signInCodeTitle", lang)}</h1>
+        <p className="sign-in-lead">
+          {homeCopy("signInCodeSent", lang).replace("{email}", maskEmail(email))}
           .{" "}
           <button
             type="button"
-            className="font-medium text-emerald-900 underline-offset-2 hover:underline"
+            className="sign-in-link"
             disabled={busy}
             onClick={() => {
               setStep("email");
@@ -478,28 +454,23 @@ function SignInFormInner({
               setStatusMessage(null);
             }}
           >
-            Change email
+            {homeCopy("signInChangeEmail", lang)}
           </button>
         </p>
+        <p className="sign-in-help">{homeCopy("signInExpiry", lang)}</p>
 
         {devCode ? (
-          <div
-            className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950"
-            role="status"
-            aria-live="polite"
-          >
-            <p className="font-medium">Development — use this code</p>
-            <p className="mt-1 font-mono text-lg tracking-widest">{devCode}</p>
+          <div className="otp-dev-banner" role="status" aria-live="polite">
+            <p className="otp-dev-banner-label">Development — use this code</p>
+            <p className="otp-dev-code">{devCode}</p>
           </div>
         ) : null}
 
-        {statusMessage ? (
-          <p className="mt-4 text-sm text-emerald-800" aria-live="polite">
-            {statusMessage}
-          </p>
-        ) : null}
+        <div className="sign-in-status" aria-live="polite">
+          {statusMessage ?? "\u00a0"}
+        </div>
 
-        <div className="mt-8">
+        <div className="mt-2">
           <OtpInput
             value={code}
             onChange={setCode}
@@ -507,38 +478,37 @@ function SignInFormInner({
             disabled={busy}
             error={codeError}
             autoFocus
+            labelledBy={headingId}
           />
         </div>
 
         <button
           type="submit"
+          className={`sign-in-submit${busy ? " is-busy" : ""}`}
           disabled={busy || code.replace(/\D/g, "").length !== 6}
-          className="mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-emerald-900 text-base font-semibold text-white transition-colors hover:bg-emerald-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {busy ? (
             <>
-              <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
-              Verifying…
+              <span className="sign-in-spin" aria-hidden />
+              {homeCopy("signInVerifying", lang)}
             </>
           ) : (
             homeCopy("signInVerifyCta", lang)
           )}
         </button>
 
-        <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+        <div className="otp-actions">
           <button
             type="button"
-            className="text-sm font-medium text-stone-600 hover:text-stone-900 disabled:opacity-50"
+            className="sign-in-link"
             disabled={busy || resendIn > 0}
             onClick={resend}
           >
-            {resendIn > 0 ? `Resend in ${resendIn}s` : "Resend code"}
+            {resendIn > 0
+              ? homeCopy("signInResendIn", lang).replace("{n}", String(resendIn))
+              : homeCopy("signInResend", lang)}
           </button>
         </div>
-
-        <p className="mt-6 text-center text-xs text-stone-500">
-          Didn&apos;t get it? Check spam or wait for the timer, then resend.
-        </p>
       </form>
     </div>
   );
@@ -555,6 +525,7 @@ export function SignInForm({
   showGuestBrowse,
   showBack,
   onBack,
+  intent,
 }: OtpFormProps = {}) {
   const { dispatch, toast } = useNakuruApp();
   return (
@@ -566,6 +537,7 @@ export function SignInForm({
       showGuestBrowse={showGuestBrowse}
       showBack={showBack}
       onBack={onBack}
+      intent={intent}
     />
   );
 }

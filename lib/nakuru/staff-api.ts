@@ -201,6 +201,24 @@ export type StaffListingsPage = {
   nextCursor: string | null;
 };
 
+export type StaffHomePlacement = {
+  id: string;
+  productId: string;
+  productTitle: string;
+  vendorName: string;
+  onPublicCatalog: boolean;
+  placement: string;
+  sortOrder: number;
+  headline: string | null;
+  subtitle: string | null;
+  imageUrl: string | null;
+  active: boolean;
+  startsAt: string | null;
+  endsAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type StaffInquiryRow = {
   id: string;
   status: string;

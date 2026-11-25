@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { ProductCard } from "@/components/app/ProductCard";
 import { useNakuruApp } from "@/components/app/AppProvider";
 import { FEAT, TOPC } from "@/lib/nakuru/data/constants";
@@ -35,6 +36,7 @@ function catalogCategoryForFilter(cat: CategoryId): CategoryId | "all" {
 }
 
 export function HomeView() {
+  const router = useRouter();
   const { state, dispatch } = useNakuruApp();
   const { openAssistant } = useAssistantUi();
   const { lang } = usePwaInstall();
@@ -189,6 +191,9 @@ export function HomeView() {
         lang={lang}
         carouselEnabled={carouselEnabled}
         onSlideAction={onSlideAction}
+        onVendorListing={(productId) =>
+          router.push(`/app/p/${encodeURIComponent(productId)}`)
+        }
         onTrustLink={() => openHelp("hero-trust-verify")}
         onPayLink={() => openHelp("hero-trust-pay")}
       />

@@ -184,3 +184,35 @@ export const staffCategoryPatch = z
     label: z.string().trim().min(2).max(40).optional(),
   })
   .strict();
+
+const optionalHttpUrl = z
+  .string()
+  .trim()
+  .url()
+  .max(2000)
+  .optional();
+
+export const staffHomePlacementNew = z
+  .object({
+    productId: uuid,
+    sortOrder: z.number().int().min(0).max(9999).default(50),
+    headline: z.string().trim().max(80).optional(),
+    subtitle: z.string().trim().max(140).optional(),
+    imageUrl: optionalHttpUrl,
+    active: z.boolean().default(true),
+    startsAt: z.string().datetime().optional().nullable(),
+    endsAt: z.string().datetime().optional().nullable(),
+  })
+  .strict();
+
+export const staffHomePlacementPatch = z
+  .object({
+    sortOrder: z.number().int().min(0).max(9999).optional(),
+    headline: z.string().trim().max(80).optional().nullable(),
+    subtitle: z.string().trim().max(140).optional().nullable(),
+    imageUrl: z.string().trim().url().max(2000).optional().nullable(),
+    active: z.boolean().optional(),
+    startsAt: z.string().datetime().optional().nullable(),
+    endsAt: z.string().datetime().optional().nullable(),
+  })
+  .strict();

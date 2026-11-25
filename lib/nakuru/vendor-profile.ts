@@ -54,7 +54,8 @@ export type AccountRowIcon =
   | "receipt"
   | "heart"
   | "lifebuoy"
-  | "clipboard";
+  | "clipboard"
+  | "map";
 
 export type AccountMenuRow = {
   icon: AccountRowIcon;
@@ -68,7 +69,8 @@ export type AccountMenuRow = {
     | "accApplicationStatus"
     | "accApplyAgain"
     | "accSell"
-    | "accMyOrders";
+    | "accMyOrders"
+    | "accAddresses";
   disabled?: boolean;
   disabledReasonKey?: "accShopAfterApproval";
   section: "selling" | "shopping";
@@ -83,6 +85,12 @@ function signedInShoppingTail(): AccountMenuRow[] {
       icon: "heart",
       actionId: "acc:saved",
       labelKey: "accSaved",
+      section: "shopping",
+    },
+    {
+      icon: "map",
+      actionId: "acc:addresses",
+      labelKey: "accAddresses",
       section: "shopping",
     },
   ];

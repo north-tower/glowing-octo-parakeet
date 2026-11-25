@@ -64,6 +64,9 @@ export type HomeCopyKey =
   | "slide0Cta"
   | "slide1Cta"
   | "slide2Cta"
+  | "heroVendorCta"
+  | "heroVendorFeatured"
+  | "heroVendorVerified"
   | "seeAll"
   | "verifiedPill"
   | "payOnDelivery"
@@ -283,10 +286,31 @@ export type HomeCopyKey =
   | "signInRemember"
   | "signInTitle"
   | "signInLead"
+  | "signInHelper"
+  | "signInEmailLabel"
+  | "signInEmailError"
+  | "signInSending"
   | "signInCta"
   | "signInCodeTitle"
+  | "signInCodeSent"
+  | "signInChangeEmail"
+  | "signInExpiry"
+  | "signInResend"
+  | "signInResendIn"
+  | "signInWrongCode"
+  | "signInExpired"
+  | "signInRateLimit"
+  | "signInVerifying"
   | "signInVerifyCta"
   | "signInSuccess"
+  | "signInContextOrders"
+  | "signInContextSaved"
+  | "signInTermsBefore"
+  | "signInTerms"
+  | "signInPrivacy"
+  | "signInPhoneSoon"
+  | "accAddresses"
+  | "accSellPromoSub"
   | "vendorApplySameAccount"
   | "accUploadPhotoAria"
   | "accDefaultName"
@@ -504,6 +528,9 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   slide0Cta: { en: "Shop now", sw: "Nunua sasa" },
   slide1Cta: { en: "Start selling", sw: "Anza kuuza" },
   slide2Cta: { en: "Learn more", sw: "Jifunze zaidi" },
+  heroVendorCta: { en: "View listing", sw: "Angalia tangazo" },
+  heroVendorFeatured: { en: "Featured in Nakuru", sw: "Maalum Nakuru" },
+  heroVendorVerified: { en: "Verified", sw: "Thibitishwa" },
   seeAll: { en: "See all", sw: "Angalia zote" },
   verifiedPill: { en: "Verified", sw: "Thibitishwa" },
   payOnDelivery: { en: "Pay on delivery", sw: "Lipa ukifika" },
@@ -820,10 +847,15 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   accMyShop: { en: "My shop", sw: "Duka langu" },
   accOrdersBuyer: { en: "Orders as buyer", sw: "Maagizo kama mnunuzi" },
   accSaved: { en: "Saved items", sw: "Vilivyohifadhiwa" },
+  accAddresses: { en: "Addresses", sw: "Anwani" },
   accHelp: { en: "Help and support", sw: "Msaada" },
   accApplicationStatus: { en: "Application status", sw: "Hali ya ombi" },
   accApplyAgain: { en: "Apply again", sw: "Omba tena" },
   accSell: { en: "Sell on NakuruHub", sw: "Uza kwenye NakuruHub" },
+  accSellPromoSub: {
+    en: "List products, property, or services.",
+    sw: "Orodhesha bidhaa, mali, au huduma.",
+  },
   accMyOrders: { en: "My orders", sw: "Maagizo yangu" },
   accShopAfterApproval: {
     en: "Available after approval",
@@ -866,15 +898,67 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
     en: "Keep me signed in",
     sw: "Nikumbuke",
   },
-  signInTitle: { en: "Sign in", sw: "Ingia" },
+  signInTitle: { en: "Welcome back", sw: "Karibu tena" },
   signInLead: {
-    en: "Save orders, cart, and quote requests. We email a one-time code — no password.",
-    sw: "Hifadhi maagizo, kikapu, na maombi ya bei. Tunatuma kodi ya mara moja kwa barua pepe — bila nenosiri.",
+    en: "We’ll email a 6-digit code — no password needed.",
+    sw: "Tutakutumia kodi ya tarakimu 6 — bila nenosiri.",
   },
+  signInHelper: {
+    en: "The code expires in 10 minutes.",
+    sw: "Kodi inaisha baada ya dakika 10.",
+  },
+  signInEmailLabel: { en: "Email", sw: "Barua pepe" },
+  signInEmailError: {
+    en: "Enter a valid email address",
+    sw: "Weka barua pepe sahihi",
+  },
+  signInSending: { en: "Sending…", sw: "Inatuma…" },
   signInCta: { en: "Send code", sw: "Tuma kodi" },
-  signInCodeTitle: { en: "Confirm sign-in", sw: "Thibitisha kuingia" },
+  signInCodeTitle: { en: "Check your email", sw: "Angalia barua pepe" },
+  signInCodeSent: {
+    en: "Code sent to {email}",
+    sw: "Kodi imetumwa kwa {email}",
+  },
+  signInChangeEmail: { en: "Change email", sw: "Badilisha barua pepe" },
+  signInExpiry: {
+    en: "Expires in 10 minutes.",
+    sw: "Inaisha baada ya dakika 10.",
+  },
+  signInResend: { en: "Resend code", sw: "Tuma kodi tena" },
+  signInResendIn: { en: "Resend in {n}s", sw: "Tuma tena baada ya {n}s" },
+  signInWrongCode: {
+    en: "That code doesn’t match. Try again.",
+    sw: "Kodi hailingani. Jaribu tena.",
+  },
+  signInExpired: {
+    en: "This code expired. Request a new one.",
+    sw: "Kodi hii imeisha. Omba nyingine.",
+  },
+  signInRateLimit: {
+    en: "Too many codes sent. Wait a few minutes.",
+    sw: "Kodi nyingi zimetumwa. Subiri dakika chache.",
+  },
+  signInVerifying: { en: "Verifying…", sw: "Inathibitisha…" },
   signInVerifyCta: { en: "Verify and sign in", sw: "Thibitisha na uingie" },
   signInSuccess: { en: "Signed in", sw: "Umeingia" },
+  signInContextOrders: {
+    en: "Sign in to see your orders",
+    sw: "Ingia ili uone maagizo yako",
+  },
+  signInContextSaved: {
+    en: "Sign in to see your saved items",
+    sw: "Ingia ili uone vilivyohifadhiwa",
+  },
+  signInTermsBefore: {
+    en: "By continuing you agree to our",
+    sw: "Kwa kuendelea unakubali",
+  },
+  signInTerms: { en: "Terms", sw: "Masharti" },
+  signInPrivacy: { en: "Privacy Policy", sw: "Sera ya faragha" },
+  signInPhoneSoon: {
+    en: "Phone sign-in is coming soon. Use email for now.",
+    sw: "Kuingia kwa simu inakuja. Tumia barua pepe kwa sasa.",
+  },
   vendorApplySameAccount: {
     en: "This uses the same account as shopping — not a second login.",
     sw: "Hii inatumia akaunti ile ile ya ununuzi — si kuingia kwa pili.",

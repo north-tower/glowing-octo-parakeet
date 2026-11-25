@@ -28,6 +28,7 @@ import {
   IconHeart,
   IconLifeBuoy,
   IconLogOut,
+  IconMapPin,
   IconReceipt,
   IconStore,
   IconWallet,
@@ -54,6 +55,8 @@ function rowIcon(icon: AccountRowIcon | "globe" | "install", size = 22): ReactNo
       return <IconReceipt size={size} />;
     case "heart":
       return <IconHeart size={size} />;
+    case "map":
+      return <IconMapPin size={size} />;
     case "lifebuoy":
       return <IconLifeBuoy size={size} />;
     case "clipboard":
