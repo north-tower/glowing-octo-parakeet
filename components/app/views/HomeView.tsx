@@ -165,12 +165,20 @@ export function HomeView() {
         lang={lang}
         carouselEnabled={carouselEnabled}
         onSlideAction={onSlideAction}
+        onPostListing={goSell}
+        onPayExplain={() =>
+          openAssistant({ screen: "help", source: "hero-pay" })
+        }
       />
       <TrustStrip lang={lang} onSell={goSell} />
       <AssistantPromptRow
         lang={lang}
-        onAsk={() =>
-          openAssistant({ screen: "help", source: "feed-ask-row" })
+        onAsk={(prompt) =>
+          openAssistant({
+            screen: "help",
+            source: "feed-ask-row",
+            suggestedPrompt: prompt,
+          })
         }
       />
       <CategoryTiles
@@ -178,92 +186,84 @@ export function HomeView() {
         onCategory={(k) => dispatch({ type: "SELECT_TOPC", index: k })}
         onSeeAll={goCat}
       />
-      {freshRail.length || (loading && liveCatalog) ? (
-        <>
-          <HomeSectionHeader
-            titleKey="freshInZone"
-            title={freshTitle}
-            lang={lang}
-            listingStyle
-            noMarker
-            seeAll={{ onClick: goCat }}
-          />
-          <ListingRail
-            items={freshRail}
-            lang={lang}
-            zoneLabel={state.area}
-            loading={loading && liveCatalog}
-            ariaLabel={freshTitle}
-          />
-        </>
-      ) : null}
+      <div className="home-block">
+        <HomeSectionHeader
+          titleKey="freshInZone"
+          title={freshTitle}
+          lang={lang}
+          listingStyle
+          noMarker
+          seeAll={{ onClick: goCat }}
+        />
+        <ListingRail
+          items={freshRail}
+          lang={lang}
+          zoneLabel={state.area}
+          loading={loading && liveCatalog}
+          ariaLabel={freshTitle}
+        />
+      </div>
       <SellPromoCard placement="feed" />
-      {servicesRail.length || (loading && liveCatalog) ? (
-        <>
-          <HomeSectionHeader
-            titleKey="servicesNearYou"
-            lang={lang}
-            listingStyle
-            noMarker
-            seeAll={{
-              onClick: () => {
-                dispatch({ type: "SET_CAT", cat: "services" });
-                setFilters({ cat: "services" });
-              },
-            }}
-          />
-          <ListingRail
-            items={servicesRail}
-            lang={lang}
-            zoneLabel={state.area}
-            loading={loading && liveCatalog}
-            ariaLabel={homeCopy("servicesNearYou", lang)}
-          />
-        </>
-      ) : null}
-      {verifiedRail.length >= 3 || (loading && liveCatalog) ? (
-        <>
-          <HomeSectionHeader
-            titleKey="verifiedSellers"
-            lang={lang}
-            listingStyle
-            noMarker
-            seeAll={{
-              onClick: () => setFilters({ verified: true }),
-            }}
-          />
-          <ListingRail
-            items={verifiedRail}
-            lang={lang}
-            zoneLabel={state.area}
-            loading={loading && liveCatalog}
-            ariaLabel={homeCopy("verifiedSellers", lang)}
-          />
-        </>
-      ) : null}
-      {propertyCarsRail.length || (loading && liveCatalog) ? (
-        <>
-          <HomeSectionHeader
-            titleKey="propertyAndCars"
-            lang={lang}
-            listingStyle
-            noMarker
-            seeAll={{
-              onClick: () => {
-                dispatch({ type: "SET_CAT", cat: "property" });
-                setFilters({ cat: "property" });
-              },
-            }}
-          />
-          <ListingRail
-            items={propertyCarsRail}
-            lang={lang}
-            zoneLabel={state.area}
-            loading={loading && liveCatalog}
-            ariaLabel={homeCopy("propertyAndCars", lang)}
-          />
-        </>
-      ) : null}
+      <div className="home-block">
+        <HomeSectionHeader
+          titleKey="servicesNearYou"
+          lang={lang}
+          listingStyle
+          noMarker
+          seeAll={{
+            onClick: () => {
+              dispatch({ type: "SET_CAT", cat: "services" });
+              setFilters({ cat: "services" });
+            },
+          }}
+        />
+        <ListingRail
+          items={servicesRail}
+          lang={lang}
+          zoneLabel={state.area}
+          loading={loading && liveCatalog}
+          ariaLabel={homeCopy("servicesNearYou", lang)}
+        />
+      </div>
+      <div className="home-block">
+        <HomeSectionHeader
+          titleKey="verifiedSellers"
+          lang={lang}
+          listingStyle
+          noMarker
+          seeAll={{
+            onClick: () => setFilters({ verified: true }),
+          }}
+        />
+        <ListingRail
+          items={verifiedRail}
+          lang={lang}
+          zoneLabel={state.area}
+          loading={loading && liveCatalog}
+          ariaLabel={homeCopy("verifiedSellers", lang)}
+        />
+      </div>
+      <div className="home-block">
+        <HomeSectionHeader
+          titleKey="propertyAndCars"
+          lang={lang}
+          listingStyle
+          noMarker
+          seeAll={{
+            onClick: () => {
+              dispatch({ type: "SET_CAT", cat: "property" });
+              setFilters({ cat: "property" });
+            },
+          }}
+        />
+        <ListingRail
+          items={propertyCarsRail}
+          lang={lang}
+          zoneLabel={state.area}
+          loading={loading && liveCatalog}
+          ariaLabel={homeCopy("propertyAndCars", lang)}
+        />
+      </div>
       {error && liveCatalog ? (
         <div className="err">{error}</div>
       ) : catalogItems.length || (loading && liveCatalog) ? (

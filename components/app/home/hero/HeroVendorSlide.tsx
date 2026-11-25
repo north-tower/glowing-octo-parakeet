@@ -45,20 +45,17 @@ export function HeroVendorSlide({
     >
       {hasPhoto ? (
         <>
-          {optimizable ? (
-            <Image
-              className="hero-slide-photo"
-              src={photoSrc}
-              alt=""
-              fill
-              sizes="(max-width: 560px) 100vw, 560px"
-              priority={slideIndex === 1}
-            />
-          ) : (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img className="hero-slide-photo" src={photoSrc} alt="" />
-          )}
+          <Image
+            className="hero-slide-photo"
+            src={photoSrc}
+            alt=""
+            fill
+            sizes="(max-width: 767px) 100vw, (max-width: 1023px) 100vw, (min-width: 1536px) 960px, 72vw"
+            priority={slideIndex === 0}
+            unoptimized={!optimizable}
+          />
           <div className="hero-slide-photo-scrim" aria-hidden />
+          <div className="hero-slide-scrim" aria-hidden />
         </>
       ) : (
         <div className="hero-slide-pattern" aria-hidden />

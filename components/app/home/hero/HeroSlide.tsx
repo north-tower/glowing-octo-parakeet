@@ -43,6 +43,7 @@ export function HeroSlide({
       className={`hero-slide ${slide.gradient} hero-slide--${slide.pattern}`}
     >
       <div className="hero-slide-pattern" aria-hidden />
+      <div className="hero-slide-scrim" aria-hidden />
       <div className="hero-slide-inner">
         <div className="hero-slide-copy">
           <h2 className="hero-slide-title">{title}</h2>

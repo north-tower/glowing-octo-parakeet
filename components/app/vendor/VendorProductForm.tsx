@@ -66,7 +66,6 @@ export function VendorProductForm({
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [emoji, setEmoji] = useState("🛍️");
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
   const [listingImage, setListingImage] = useState("");
@@ -97,11 +96,6 @@ export function VendorProductForm({
       return preferredDefault ?? listingOptions[0]!.slug;
     });
   }, [listingOptions, preferredDefault]);
-
-  useEffect(() => {
-    if (!selectedListingMode) return;
-    setEmoji(selectedListingMode === "shop" ? "🛍️" : "🔧");
-  }, [selectedListingMode]);
 
   const createCustomCategory = async (label: string): Promise<boolean> => {
     if (catCreateBusy || busy) return false;
@@ -161,9 +155,6 @@ export function VendorProductForm({
     setPrice("");
     setStock("");
     setListingImage("");
-    if (selectedListingMode) {
-      setEmoji(selectedListingMode === "shop" ? "🛍️" : "🔧");
-    }
   };
 
   const onListingImage = async (file: File | undefined) => {
@@ -227,7 +218,7 @@ export function VendorProductForm({
       category: selectedSlug,
       title: trimmedTitle,
       description: description.trim(),
-      emoji: emoji.trim() || (mode === "shop" ? "🛍️" : "🔧"),
+      emoji: mode === "shop" ? "🛍️" : "🔧",
       price: priceNum,
     };
     if (mode === "shop" && stockVal !== undefined) {
@@ -294,20 +285,24 @@ export function VendorProductForm({
   }
 
   return (
-    <form className="card" onSubmit={publish}>
-      <div className="t">Publish a listing</div>
-      <div className="m">
-        {shopArea
-          ? `Buyers will see this listing in ${shopArea}.`
-          : "Set your shop area on the profile above before publishing."}
-        {shopSections.length ? (
-          <>
-            {" "}
-            Your shop sections: {shopSections.join(", ")}.
-          </>
-        ) : null}
+    <form className="card vendor-listing-form" onSubmit={publish}>
+      <div className="vendor-listing-form-hd">
+        <div className="t">Publish a listing</div>
+        <div className="m">
+          {shopArea
+            ? `Buyers will see this listing in ${shopArea}.`
+            : "Set your shop area on the profile above before publishing."}
+          {shopSections.length ? (
+            <>
+              {" "}
+              Your shop sections: {shopSections.join(", ")}.
+            </>
+          ) : null}
+        </div>
       </div>
 
+      <div className="vendor-listing-form-body">
+        <div className="vendor-listing-form-main">
       <label>Listing category</label>
       {!showCategoryPicker ? (
         <div className="row" style={{ flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
@@ -402,84 +397,87 @@ export function VendorProductForm({
       <div className="m" id="vp-desc-hint" style={{ marginTop: 4 }}>
         {description.length}/500 — sizes, what&apos;s included, condition
       </div>
-
-      <label>Photo</label>
-      <input
-        ref={imageInputRef}
-        type="file"
-        accept="image/jpeg,image/png,image/webp"
-        hidden
-        disabled={busy || imageBusy || !shopArea}
-        onChange={(e) => {
-          const f = e.target.files?.[0];
-          e.target.value = "";
-          void onListingImage(f);
-        }}
-      />
-      <div className="listing-photo-row">
-        <button
-          type="button"
-          className="btn s"
-          disabled={busy || imageBusy || !shopArea}
-          onClick={() => imageInputRef.current?.click()}
-        >
-          {imageBusy ? "Processing…" : listingImage ? "Change photo" : "Add photo"}
-        </button>
-        {listingImage ? (
-          <button
-            type="button"
-            className="btn s"
-            disabled={busy || imageBusy}
-            onClick={() => setListingImage("")}
-          >
-            Remove
-          </button>
-        ) : null}
-      </div>
-      {listingImage ? (
-        <div className="listing-photo-preview">
-          <img src={listingImage} alt="Listing preview" />
         </div>
-      ) : (
-        <div className="m">JPG, PNG, or WebP up to 5 MB. Shown on the catalog card.</div>
-      )}
 
-      <label htmlFor="vp-emoji">Emoji (when no photo)</label>
-      <input
-        id="vp-emoji"
-        maxLength={8}
-        value={emoji}
-        disabled={busy || !!listingImage || !shopArea}
-        onChange={(e) => setEmoji(e.target.value)}
-      />
-
-      <label htmlFor="vp-price">Price (KES)</label>
-      <input
-        id="vp-price"
-        inputMode="numeric"
-        placeholder="e.g. 2500"
-        value={price}
-        disabled={busy || !shopArea}
-        onChange={(e) => setPrice(e.target.value)}
-      />
-
-      {selectedListingMode === "shop" ? (
-        <>
-          <label htmlFor="vp-stock">Stock (optional)</label>
+        <div className="vendor-listing-form-aside">
+          <label>Photo</label>
           <input
-            id="vp-stock"
-            inputMode="numeric"
-            placeholder="Leave empty if unlimited"
-            value={stock}
-            disabled={busy || !shopArea}
-            onChange={(e) => setStock(e.target.value)}
+            ref={imageInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            hidden
+            disabled={busy || imageBusy || !shopArea}
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              e.target.value = "";
+              void onListingImage(f);
+            }}
           />
-        </>
-      ) : null}
+          <div className="listing-photo-row">
+            <button
+              type="button"
+              className="btn s"
+              disabled={busy || imageBusy || !shopArea}
+              onClick={() => imageInputRef.current?.click()}
+            >
+              {imageBusy
+                ? "Processing…"
+                : listingImage
+                  ? "Change photo"
+                  : "Add photo"}
+            </button>
+            {listingImage ? (
+              <button
+                type="button"
+                className="btn s"
+                disabled={busy || imageBusy}
+                onClick={() => setListingImage("")}
+              >
+                Remove
+              </button>
+            ) : null}
+          </div>
+          {listingImage ? (
+            <div className="listing-photo-preview vendor-listing-photo-preview">
+              <img src={listingImage} alt="Listing preview" />
+            </div>
+          ) : (
+            <div className="m">
+              JPG, PNG, or WebP up to 5 MB. Shown on the catalog card.
+            </div>
+          )}
+        </div>
+
+        <div className="vendor-listing-form-pricing">
+          <label htmlFor="vp-price">Price (KES)</label>
+          <input
+            id="vp-price"
+            inputMode="numeric"
+            placeholder="e.g. 2500"
+            value={price}
+            disabled={busy || !shopArea}
+            onChange={(e) => setPrice(e.target.value)}
+          />
+
+          {selectedListingMode === "shop" ? (
+            <>
+              <label htmlFor="vp-stock">Stock (optional)</label>
+              <input
+                id="vp-stock"
+                inputMode="numeric"
+                placeholder="Leave empty if unlimited"
+                value={stock}
+                disabled={busy || !shopArea}
+                onChange={(e) => setStock(e.target.value)}
+              />
+            </>
+          ) : null}
+        </div>
+      </div>
 
       <button
         type="submit"
-        className="btn full"
+        className="btn full vendor-listing-form-submit"
         disabled={busy || !selectedSlug || !shopArea}
       >
         {busy ? "Publishing…" : "Publish listing"}

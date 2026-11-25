@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   DEMO_OTP_CODE,
+  isClientOtpDemo,
   isValidEmail,
   requestSignInCode,
   resetDemoOtpState,
@@ -37,5 +38,17 @@ describe("otp-adapter demo", () => {
     await expect(requestSignInCode("you@example.com")).rejects.toMatchObject({
       code: "rate_limited",
     });
+  });
+
+  it("uses server OTP when live API mode is on", () => {
+    vi.stubEnv("NEXT_PUBLIC_OTP_DEMO", "true");
+    vi.stubEnv("NEXT_PUBLIC_USE_LIVE_API", "true");
+    expect(isClientOtpDemo()).toBe(false);
+  });
+
+  it("disables client demo unless explicitly enabled", () => {
+    vi.stubEnv("NEXT_PUBLIC_OTP_DEMO", undefined);
+    vi.stubEnv("NEXT_PUBLIC_USE_LIVE_API", undefined);
+    expect(isClientOtpDemo()).toBe(false);
   });
 });

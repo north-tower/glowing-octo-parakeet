@@ -25,6 +25,7 @@ const DEMO_OWNERS = {
 } as const;
 
 type DemoProduct = {
+  seedKey: string;
   ownerKey: keyof typeof DEMO_OWNERS;
   vendorName: string;
   verified: boolean;
@@ -33,80 +34,155 @@ type DemoProduct = {
   title: string;
   emoji: string;
   priceKes: number;
-  description?: string;
+  description: string;
   stock?: number | null;
-  imageUrl?: string | null;
-  galleryUrls?: string[];
+  imageUrl: string;
+  galleryUrls: string[];
   attributes?: Record<string, string>;
 };
 
+function photo(id: string): string {
+  return `https://images.unsplash.com/${id}?auto=format&fit=crop&w=900&q=85`;
+}
+
 const DEMO_CATALOG: DemoProduct[] = [
   {
+    seedKey: "mama-denim-jacket",
     ownerKey: "mama",
     vendorName: "Mama Fashions",
     verified: true,
     categories: ["shop"],
     category: "shop",
-    title: "Mtumba jacket",
+    title: "Mtumba denim jacket, size L · Bondeni",
     emoji: "shirt",
     priceKes: 850,
-    stock: 12,
+    description:
+      "Thick Levi’s-style jacket, size L, no rips. Worn twice. Pickup at Bondeni stage or CBD drop-off same day if you order before 4 p.m. Cash on delivery.",
+    stock: 1,
+    imageUrl: photo("photo-1551028719-00167b16eac5"),
+    galleryUrls: [
+      photo("photo-1551028719-00167b16eac5"),
+      photo("photo-1544027993-37dbfe435803"),
+    ],
+    attributes: { size: "L", condition: "Excellent", area: "Bondeni" },
   },
   {
+    seedKey: "mama-kitenge",
+    ownerKey: "mama",
+    vendorName: "Mama Fashions",
+    verified: true,
+    categories: ["shop"],
+    category: "shop",
+    title: "Kitenge two-piece, sizes M–L · CBD",
+    emoji: "shirt",
+    priceKes: 3000,
+    description:
+      "Bright cotton kitenge set, freshly steamed. Fits M–L. Church, weddings, or office Fridays. Try-on at Mama Fashions, Kenyatta Avenue; delivery across Nakuru town.",
+    stock: 8,
+    imageUrl: photo("photo-1603252109303-27514432dd3a"),
+    galleryUrls: [
+      photo("photo-1603252109303-27514432dd3a"),
+      photo("photo-1596755094514-f87e34085b2c"),
+    ],
+    attributes: { size: "M–L", condition: "New", area: "Nakuru CBD" },
+  },
+  {
+    seedKey: "rift-charger",
     ownerKey: "rift",
     vendorName: "Rift Electro",
     verified: false,
     categories: ["shop"],
     category: "shop",
-    title: "Phone charger",
+    title: "Dual USB wall charger + 1.2 m cable",
     emoji: "smartphone",
     priceKes: 450,
     description:
-      "Dual USB wall adapter with 1.2 m braided cable, fits Type-C and Micro-USB phones. Tested in-shop before dispatch. Nakuru CBD same-day drop-off when you order before 4 p.m.",
+      "Fast wall adapter with braided cable. Type-C and Micro-USB heads in the pack. Tested on the counter before you leave. CBD pickup; Westside drop-off KES 50.",
     stock: 30,
-    imageUrl: "/demo/charger-1x1.svg",
-    galleryUrls: ["/demo/charger-1x1.svg"],
+    imageUrl: photo("photo-1583863788434-e58a36330cf0"),
+    galleryUrls: [
+      photo("photo-1583863788434-e58a36330cf0"),
+      photo("photo-1593640408182-31c70c8268f5"),
+    ],
+    attributes: { condition: "New", area: "Nakuru CBD" },
   },
   {
+    seedKey: "gilani-veggies",
     ownerKey: "gilani",
     vendorName: "Gilani Fresh",
     verified: true,
     categories: ["shop"],
     category: "shop",
-    title: "Fresh veggies",
+    title: "Sukuma, tomatoes & onions pack · Gilanis",
     emoji: "salad",
     priceKes: 120,
+    description:
+      "Morning market mix: sukuma wiki, ripe tomatoes, and red onions. Packed after 6 a.m. at Gilanis. Collect by noon or we drop around Section 58 for a small fee.",
     stock: 40,
+    imageUrl: photo("photo-1540420773420-3366772f4999"),
+    galleryUrls: [
+      photo("photo-1540420773420-3366772f4999"),
+      photo("photo-1512621776951-a57141f2eefd"),
+    ],
+    attributes: { pack: "Family mix", area: "Gilanis" },
   },
   {
+    seedKey: "mama-sofa",
+    ownerKey: "mama",
+    vendorName: "Mama Fashions",
+    verified: true,
+    categories: ["shop"],
+    category: "shop",
+    title: "5-seater sofa set, fabric · Gilanis",
+    emoji: "sofa",
+    priceKes: 18500,
+    description:
+      "3+2 fabric sofa, charcoal grey, firm cushions. One season in a living room, no pet hair. Viewing at Gilanis; delivery in Nakuru town with two helpers.",
+    stock: 2,
+    imageUrl: photo("photo-1555041469-a586c61ea9bc"),
+    galleryUrls: [
+      photo("photo-1555041469-a586c61ea9bc"),
+      photo("photo-1493666438817-866a91353ca9"),
+    ],
+    attributes: { condition: "Good", area: "Gilanis" },
+  },
+  {
+    seedKey: "peter-plumber",
     ownerKey: "peter",
     vendorName: "Peter Plumbing",
     verified: true,
     categories: ["services"],
     category: "services",
-    title: "Peter, plumber",
+    title: "Peter — leaks, tanks & fittings",
     emoji: "wrench",
     priceKes: 700,
-    description: "Leaks and fittings · quote on site",
+    description:
+      "Call-out from KES 700. Burst pipes, leaking toilets, tank stands, and new fittings. Same-day in CBD, Milimani, and Section 58. Quote on site before work starts.",
     stock: null,
+    imageUrl: photo("photo-1585704032915-c3400ca199e7"),
+    galleryUrls: [
+      photo("photo-1585704032915-c3400ca199e7"),
+      photo("photo-1504148455328-c376907d081c"),
+    ],
+    attributes: { area: "Nakuru town", callout: "KES 700" },
   },
   {
+    seedKey: "zawadi-2br",
     ownerKey: "zawadi",
     vendorName: "Zawadi Agents",
     verified: true,
     categories: ["property"],
     category: "property",
-    title: "2BR house for rent, Milimani",
+    title: "2-bedroom house to let · Milimani",
     emoji: "home",
     priceKes: 35000,
     description:
-      "Ground-floor unit with parking, water backup, and 24h guard. Viewing on Saturdays.",
+      "Ground-floor 2BR with parking, water backup, and 24h guard. Quiet cul-de-sac off Flamingo Road. Viewing Saturdays 10 a.m.–2 p.m. One month deposit.",
     stock: null,
-    imageUrl:
-      "https://images.unsplash.com/photo-1560448204-e02f11c0d0e2?auto=format&fit=crop&w=900&q=85",
+    imageUrl: photo("photo-1560448204-e02f11c0d0e2"),
     galleryUrls: [
-      "https://images.unsplash.com/photo-1560448204-e02f11c0d0e2?auto=format&fit=crop&w=900&q=85",
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=85",
+      photo("photo-1560448204-e02f11c0d0e2"),
+      photo("photo-1600585154340-be6161a56a0c"),
     ],
     attributes: {
       tenure: "rent",
@@ -115,22 +191,22 @@ const DEMO_CATALOG: DemoProduct[] = [
     },
   },
   {
+    seedKey: "prime-3br",
     ownerKey: "prime",
     vendorName: "Nakuru Prime Homes",
     verified: true,
     categories: ["property"],
     category: "property",
-    title: "Modern 3-bedroom home in Milimani",
+    title: "Modern 3-bedroom home for sale · Milimani",
     emoji: "home-sale",
     priceKes: 18500000,
     description:
-      "Spacious family home with a landscaped garden, secure parking and a modern kitchen.",
+      "Family house with garden, lock-up parking, and a fitted kitchen. Borehole and DSTV already in. Title at the lawyers. Viewing by appointment only.",
     stock: null,
-    imageUrl:
-      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=85",
+    imageUrl: photo("photo-1600607687939-ce8a6c25118c"),
     galleryUrls: [
-      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=85",
-      "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=900&q=85",
+      photo("photo-1600607687939-ce8a6c25118c"),
+      photo("photo-1600566753190-17f0baa2a6c3"),
     ],
     attributes: {
       tenure: "sale",
@@ -140,19 +216,23 @@ const DEMO_CATALOG: DemoProduct[] = [
     },
   },
   {
+    seedKey: "landmark-50x100",
     ownerKey: "landmark",
     vendorName: "Landmark Properties",
     verified: true,
     categories: ["property"],
     category: "property",
-    title: "50 × 100 residential plot near tarmac",
+    title: "50 × 100 plot near tarmac · Ngata",
     emoji: "land-plot",
     priceKes: 1650000,
     description:
-      "Well-positioned plot with access road and nearby utilities. Clean title.",
+      "Level residential plot, access road graded, power on the next street. Clean title. Weekday viewing; beacon certificate with the file.",
     stock: null,
-    imageUrl:
-      "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=900&q=85",
+    imageUrl: photo("photo-1500382017468-9049fed747ef"),
+    galleryUrls: [
+      photo("photo-1500382017468-9049fed747ef"),
+      photo("photo-1464146072230-91cabc968266"),
+    ],
     attributes: {
       tenure: "sale",
       plotSize: "50 × 100",
@@ -161,18 +241,23 @@ const DEMO_CATALOG: DemoProduct[] = [
     },
   },
   {
+    seedKey: "riftland-lanet",
     ownerKey: "riftland",
     vendorName: "Rift Land Ltd",
     verified: true,
     categories: ["property"],
     category: "property",
-    title: "¼ acre plot, Lanet",
+    title: "¼ acre serviced plot · Lanet",
     emoji: "land-plot",
     priceKes: 2800000,
-    description: "Serviced plot with murram road access and beacons in place.",
+    description:
+      "Beacons in, murram road in, ready to build. 10 minutes off the highway. Site visit with the caretaker any afternoon.",
     stock: null,
-    imageUrl:
-      "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=900&q=85",
+    imageUrl: photo("photo-1500382017468-9049fed747ef"),
+    galleryUrls: [
+      photo("photo-1500382017468-9049fed747ef"),
+      photo("photo-1470071459604-3b5ec3a7fe05"),
+    ],
     attributes: {
       tenure: "sale",
       plotSize: "¼ acre",
@@ -181,44 +266,29 @@ const DEMO_CATALOG: DemoProduct[] = [
     },
   },
   {
+    seedKey: "motors-axio",
     ownerKey: "motors",
     vendorName: "Nakuru Motors",
     verified: true,
     categories: ["cars"],
     category: "cars",
-    title: "Toyota Axio 2015",
+    title: "Toyota Axio 2015 · 68,000 km",
     emoji: "car",
     priceKes: 1250000,
-    description: "68,000 km",
-    stock: null,
-  },
-  {
-    ownerKey: "mama",
-    vendorName: "Mama Fashions",
-    verified: true,
-    categories: ["shop"],
-    category: "shop",
-    title: "Kitenge two-piece — QA showcase",
-    emoji: "shirt",
-    priceKes: 3000,
     description:
-      "Bright cotton kitenge set sized M–L. Freshly steamed, Nakuru CBD pickup or delivery. Ideal for church, weddings, or office Fridays.",
-    stock: 8,
-    imageUrl: "/demo/jacket-1x1.svg",
-    galleryUrls: ["/demo/jacket-1x1.svg", "/demo/sofa-1x1.svg"],
-    attributes: { year: "2024", area: "M–L" },
-  },
-  {
-    ownerKey: "mama",
-    vendorName: "Mama Fashions",
-    verified: true,
-    categories: ["shop"],
-    category: "shop",
-    title: "Sofa set — Gilanis",
-    emoji: "sofa",
-    priceKes: 18500,
-    stock: 2,
-    imageUrl: "/demo/sofa-1x1.svg",
+      "Silver Axio, petrol, auto. New tyres, service book, accident-free. Logbook ready for transfer at our CBD yard. Test drive with fuel in the tank.",
+    stock: null,
+    imageUrl: photo("photo-1549317661-bd32c8ce0db2"),
+    galleryUrls: [
+      photo("photo-1549317661-bd32c8ce0db2"),
+      photo("photo-1494976388531-d1058494cdd8"),
+    ],
+    attributes: {
+      mileage: "68,000 km",
+      year: "2015",
+      location: "Nakuru CBD",
+      badge: "Popular",
+    },
   },
 ];
 
@@ -294,23 +364,54 @@ async function ensureVendor(
   return ins.rows[0]!.id;
 }
 
+function productAttrs(row: DemoProduct): string {
+  return JSON.stringify({ ...row.attributes, seedKey: row.seedKey });
+}
+
 async function ensureProduct(
   vendorId: string,
   row: DemoProduct,
-): Promise<"inserted" | "skipped"> {
-  const exists = await db.q<{ id: string }>(
-    `select id from products where vendor_id = $1 and title = $2 limit 1`,
-    [vendorId, row.title],
-  );
-  if (exists.rows[0]?.id) return "skipped";
+): Promise<"inserted" | "updated"> {
+  const gallery = row.galleryUrls;
+  const primary = row.imageUrl;
+  const attrs = productAttrs(row);
 
-  const gallery = row.galleryUrls?.length
-    ? row.galleryUrls
-    : row.imageUrl
-      ? [row.imageUrl]
-      : [];
-  /** Leave null when no photo — app renders tinted category icon, not a fallback screenshot. */
-  const primary = row.imageUrl ?? null;
+  const exists = await db.q<{ id: string }>(
+    `select id from products
+     where vendor_id = $1 and attributes->>'seedKey' = $2
+     limit 1`,
+    [vendorId, row.seedKey],
+  );
+  if (exists.rows[0]?.id) {
+    await db.q(
+      `update products
+       set category = $2,
+           title = $3,
+           description = $4,
+           emoji = $5,
+           price_kes = $6,
+           stock = $7,
+           active = true,
+           image_url = $8,
+           gallery_urls = $9::text[],
+           attributes = $10::jsonb
+       where id = $1`,
+      [
+        exists.rows[0].id,
+        row.category,
+        row.title,
+        row.description,
+        row.emoji,
+        row.priceKes,
+        row.stock ?? null,
+        primary,
+        gallery,
+        attrs,
+      ],
+    );
+    return "updated";
+  }
+
   await db.q(
     `insert into products (
        vendor_id, category, title, description, emoji, price_kes, stock, active,
@@ -320,16 +421,29 @@ async function ensureProduct(
       vendorId,
       row.category,
       row.title,
-      row.description ?? "",
+      row.description,
       row.emoji,
       row.priceKes,
       row.stock ?? null,
       primary,
       gallery,
-      JSON.stringify(row.attributes ?? {}),
+      attrs,
     ],
   );
   return "inserted";
+}
+
+async function pruneStaleDemoProducts(keepKeys: string[]): Promise<number> {
+  const ownerIds = await demoOwnerIds();
+  if (ownerIds.length === 0) return 0;
+  const r = await db.q<{ id: string }>(
+    `delete from products
+     where vendor_id in (select id from vendors where owner_id = any($1::uuid[]))
+       and coalesce(attributes->>'seedKey', '') <> all($2::text[])
+     returning id`,
+    [ownerIds, keepKeys],
+  );
+  return r.rows.length;
 }
 
 async function main(): Promise<void> {
@@ -344,7 +458,7 @@ async function main(): Promise<void> {
   }
 
   let inserted = 0;
-  let skipped = 0;
+  let updated = 0;
 
   const vendorCache = new Map<string, string>();
 
@@ -365,14 +479,18 @@ async function main(): Promise<void> {
 
     const result = await ensureProduct(vendorId, row);
     if (result === "inserted") inserted += 1;
-    else skipped += 1;
+    else updated += 1;
   }
 
+  const pruned = await pruneStaleDemoProducts(
+    DEMO_CATALOG.map((row) => row.seedKey),
+  );
+
   console.log(
-    `Demo seed complete: ${inserted} product(s) inserted, ${skipped} already present.`,
+    `Demo seed complete: ${inserted} inserted, ${updated} updated, ${pruned} stale demo listing(s) removed.`,
   );
   console.log(
-    "Listings use category icon placeholders (image_url null). Enable live catalog with NEXT_PUBLIC_USE_LIVE_CATALOG=true.",
+    "Enable the live catalog with NEXT_PUBLIC_USE_LIVE_CATALOG=true to see these rows in /app.",
   );
   if (!reset) {
     console.log(

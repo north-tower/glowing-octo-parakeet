@@ -62,6 +62,8 @@ export function listingToCardProps(
     priceLabel: price.label,
     imageUrl: resolveListingImageSrc(item) ?? undefined,
     imageCount: gallery.length > 0 ? gallery.length : undefined,
+    imageWidth: Number(item.attrs?.imageWidth) || undefined,
+    imageHeight: Number(item.attrs?.imageHeight) || undefined,
     category: { tint: visual.tint, icon: visual.icon },
     seller: vendorName(item),
     sellerVerified: item.v === 1,

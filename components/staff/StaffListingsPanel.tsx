@@ -248,7 +248,9 @@ function ListingCard({
         method: "POST",
         body: JSON.stringify({
           productId: row.id,
-          sortOrder: 10,
+          sortOrder: 1,
+          headline: row.vendorName,
+          subtitle: row.title,
           active: true,
         }),
       });

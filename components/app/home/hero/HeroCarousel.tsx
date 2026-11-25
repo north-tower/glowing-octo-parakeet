@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, type KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
-import { Pause, Play } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import type { LandingLang } from "@/lib/nakuru/i18n";
 import { mergeHeroSlides } from "@/lib/nakuru/hero-slide-order";
 import { useHomePromotions } from "@/lib/nakuru/use-home-promotions";
@@ -106,7 +106,13 @@ export function HeroCarousel({
               lang={lang}
               progress={i === index ? progress : 0}
               reducedMotion={reducedMotion}
-              onCta={() => router.push(`/app/p/${entry.slide.productId}`)}
+              onCta={() =>
+                router.push(
+                  entry.slide.vendorId
+                    ? `/v/${entry.slide.vendorId}`
+                    : `/app/p/${entry.slide.productId}`,
+                )
+              }
             />
           ) : (
             <HeroSlide
@@ -124,6 +130,23 @@ export function HeroCarousel({
           ),
         )}
       </div>
+
+      <button
+        type="button"
+        className="hero-car-arrow hero-car-arrow--prev"
+        aria-label={lang === "sw" ? "Slaidi iliyotangulia" : "Previous slide"}
+        onClick={prev}
+      >
+        <ChevronLeft size={20} aria-hidden />
+      </button>
+      <button
+        type="button"
+        className="hero-car-arrow hero-car-arrow--next"
+        aria-label={lang === "sw" ? "Slaidi inayofuata" : "Next slide"}
+        onClick={next}
+      >
+        <ChevronRight size={20} aria-hidden />
+      </button>
 
       {!reducedMotion ? (
         <button

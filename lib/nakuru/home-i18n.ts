@@ -10,6 +10,7 @@ export type HomeCopyKey =
   | "searchPhoto"
   | "searchAsk"
   | "assistantPromptRow"
+  | "assistantPromptRowSub"
   | "skipToContent"
   | "homePageTitle"
   | "trustVerifiedTitle"
@@ -44,6 +45,7 @@ export type HomeCopyKey =
   | "topCategories"
   | "pickedForYou"
   | "freshInZone"
+  | "railEmpty"
   | "verifiedSellers"
   | "pickedFilterAll"
   | "pickedFilterVerified"
@@ -418,7 +420,30 @@ export type HomeCopyKey =
   | "navExplore"
   | "navHow"
   | "navSaved"
-  | "postListing";
+  | "postListing"
+  | "heroSidePostTitle"
+  | "heroSidePostCopy"
+  | "heroSidePostLink"
+  | "heroSidePayTitle"
+  | "heroSidePayCopy"
+  | "heroSidePayLink"
+  | "askChipPhones"
+  | "askChipPlumber"
+  | "askChipRent"
+  | "askChipVerified"
+  | "allCategoriesTile"
+  | "footerAbout"
+  | "footerHow"
+  | "footerVerified"
+  | "footerSell"
+  | "footerHelp"
+  | "footerTerms"
+  | "footerPrivacy"
+  | "footerWhatsapp"
+  | "footerPlace"
+  | "trustStripVerifiedSub"
+  | "trustStripPaySub"
+  | "trustStripFreeSub";
 
 export type TopCategorySlug =
   | "phone"
@@ -459,8 +484,12 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   searchPhoto: { en: "Search by photo", sw: "Tafuta kwa picha" },
   searchAsk: { en: "Ask", sw: "Uliza" },
   assistantPromptRow: {
-    en: "Not sure what to look for? Ask the assistant",
-    sw: "Hujui unachotafuta? Uliza msaidizi",
+    en: "Ask the assistant",
+    sw: "Uliza msaidizi",
+  },
+  assistantPromptRowSub: {
+    en: "Find phones, trades, and rentals in Nakuru",
+    sw: "Tafuta simu, fundi, na nyumba Nakuru",
   },
   photoSearchSoon: {
     en: "Photo search coming soon",
@@ -551,6 +580,10 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   topCategories: { en: "Top categories", sw: "Kategoria kuu" },
   pickedForYou: { en: "Picked for you", sw: "Imechaguliwa kwako" },
   freshInZone: { en: "Fresh in {zone}", sw: "Mpya {zone}" },
+  railEmpty: {
+    en: "Nothing here yet. Check back soon.",
+    sw: "Bado hakuna. Rudi baadaye.",
+  },
   verifiedSellers: { en: "Verified sellers", sw: "Wauzaji waliothibitishwa" },
   pickedFilterAll: { en: "All", sw: "Zote" },
   pickedFilterVerified: { en: "Verified only", sw: "Verified tu" },
@@ -603,7 +636,7 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   slide0Cta: { en: "Shop now", sw: "Nunua sasa" },
   slide1Cta: { en: "How we verify", sw: "Jinsi tunavyothibitisha" },
   slide2Cta: { en: "Start selling", sw: "Anza kuuza" },
-  heroVendorCta: { en: "View listing", sw: "Angalia tangazo" },
+  heroVendorCta: { en: "Visit shop", sw: "Tembelea duka" },
   heroVendorFeatured: { en: "Featured in Nakuru", sw: "Maalum Nakuru" },
   heroVendorVerified: { en: "Verified", sw: "Thibitishwa" },
   seeAll: { en: "See all", sw: "Angalia zote" },
@@ -1182,7 +1215,7 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   filterTypeCars: { en: "Cars", sw: "Magari" },
   filterApply: { en: "Show results", sw: "Onyesha matokeo" },
   filterVerifiedOnly: { en: "Verified only", sw: "Waliothibitishwa tu" },
-  trustStripVerified: { en: "ID-checked sellers", sw: "Wauzaji waliokaguliwa" },
+  trustStripVerified: { en: "ID-checked", sw: "Kitambulisho" },
   trustStripPay: { en: "Pay on delivery", sw: "Lipa ukifika" },
   trustStripFreeJoin: { en: "Free to list", sw: "Bure kuorodhesha" },
   trustVerifyTitle: { en: "How we verify", sw: "Jinsi tunavyothibitisha" },
@@ -1288,6 +1321,50 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   navHow: { en: "How it works", sw: "Jinsi inavyofanya" },
   navSaved: { en: "Saved", sw: "Vilivyohifadhiwa" },
   postListing: { en: "Post a listing", sw: "Weka tangazo" },
+  heroSidePostTitle: {
+    en: "Post a listing",
+    sw: "Weka tangazo",
+  },
+  heroSidePostCopy: {
+    en: "Free to join and list — reach buyers across Nakuru.",
+    sw: "Bure kujiunga na kuorodhesha — fika kwa wanunuzi Nakuru.",
+  },
+  heroSidePostLink: { en: "Start selling", sw: "Anza kuuza" },
+  heroSidePayTitle: {
+    en: "How pay on delivery works",
+    sw: "Jinsi malipo ukifika hufanya",
+  },
+  heroSidePayCopy: {
+    en: "Inspect first, then pay by M-Pesa or cash. ID-checked sellers.",
+    sw: "Kagua kwanza, kisha lipa kwa M-Pesa au taslimu.",
+  },
+  heroSidePayLink: { en: "Learn more", sw: "Soma zaidi" },
+  askChipPhones: { en: "Cheap phones", sw: "Simu nafuu" },
+  askChipPlumber: { en: "Plumber near me", sw: "Bomba karibu" },
+  askChipRent: { en: "Houses to rent", sw: "Nyumba kukodisha" },
+  askChipVerified: { en: "Verified shops", sw: "Maduka yaliyothibitishwa" },
+  allCategoriesTile: { en: "More", sw: "Zaidi" },
+  footerAbout: { en: "About", sw: "Kuhusu" },
+  footerHow: { en: "How it works", sw: "Jinsi inavyofanya" },
+  footerVerified: { en: "Verified sellers", sw: "Wauzaji waliothibitishwa" },
+  footerSell: { en: "Sell on NakuruHub", sw: "Uza kwenye NakuruHub" },
+  footerHelp: { en: "Help / Contact", sw: "Msaada / Wasiliana" },
+  footerTerms: { en: "Terms", sw: "Masharti" },
+  footerPrivacy: { en: "Privacy", sw: "Faragha" },
+  footerWhatsapp: { en: "WhatsApp support", sw: "Msaada wa WhatsApp" },
+  footerPlace: { en: "Nakuru, Kenya", sw: "Nakuru, Kenya" },
+  trustStripVerifiedSub: {
+    en: "Sellers show a government ID before they list.",
+    sw: "Wauzaji wanaonyesha kitambulisho kabla ya kuorodhesha.",
+  },
+  trustStripPaySub: {
+    en: "Inspect the item, then pay M-Pesa or cash.",
+    sw: "Kagua bidhaa, kisha lipa M-Pesa au taslimu.",
+  },
+  trustStripFreeSub: {
+    en: "Join and list at no charge.",
+    sw: "Jiunge na uorodhesha bila malipo.",
+  },
 };
 
 const TOP_CATEGORY_LABELS: Record<

@@ -25,8 +25,10 @@ export function TrustStrip({ lang, onSell }: Props) {
             className="trust-chip"
             onClick={() => setSheet("verify")}
           >
-            <BadgeCheck size={16} aria-hidden />
-            {homeCopy("trustStripVerified", lang)}
+            <BadgeCheck size={20} aria-hidden />
+            <span className="trust-copy">
+              <b>{homeCopy("trustStripVerified", lang)}</b>
+            </span>
           </button>
         </li>
         <li>
@@ -35,8 +37,10 @@ export function TrustStrip({ lang, onSell }: Props) {
             className="trust-chip"
             onClick={() => setSheet("pay")}
           >
-            <Wallet size={16} aria-hidden />
-            {homeCopy("trustStripPay", lang)}
+            <Wallet size={20} aria-hidden />
+            <span className="trust-copy">
+              <b>{homeCopy("trustStripPay", lang)}</b>
+            </span>
           </button>
         </li>
         <li>
@@ -45,8 +49,10 @@ export function TrustStrip({ lang, onSell }: Props) {
             className="trust-chip"
             onClick={() => setSheet("sell")}
           >
-            <Store size={16} aria-hidden />
-            {homeCopy("trustStripFreeJoin", lang)}
+            <Store size={20} aria-hidden />
+            <span className="trust-copy">
+              <b>{homeCopy("trustStripFreeJoin", lang)}</b>
+            </span>
           </button>
         </li>
       </ul>

@@ -47,13 +47,8 @@ export function BottomNav() {
       {APP_TAB_IDS.map((id) => {
         const active = highlightTab === id;
         const Icon = TAB_ICONS[id];
-        const badge =
-          id === "cart"
-            ? cartN
-            : id === "msg"
-              ? msgUnread
-              : 0;
-        const badgeText = formatBadge(badge);
+        const cartBadge = id === "cart" ? formatBadge(cartN) : "";
+        const msgDot = id === "msg" && msgUnread > 0;
 
         return (
           <button
@@ -61,18 +56,26 @@ export function BottomNav() {
             type="button"
             className={active ? "on" : ""}
             aria-current={active ? "page" : undefined}
+            aria-label={
+              id === "cart" && cartN
+                ? `${homeCopy(TAB_LABEL_KEYS[id], lang)}, ${cartN}`
+                : id === "msg" && msgUnread
+                  ? `${homeCopy(TAB_LABEL_KEYS[id], lang)}, unread`
+                  : undefined
+            }
             onClick={() => goTab(id)}
           >
             <span className="nav-tab-inner">
-              <span className="nav-tab-icon-wrap" data-badge={badgeText || undefined}>
+              <span className="nav-tab-icon-wrap">
                 <span className="nav-tab-pill">
                   <Icon size={24} />
                 </span>
-                {badgeText ? (
+                {cartBadge ? (
                   <span className="nav-tab-badge" aria-hidden>
-                    {badgeText}
+                    {cartBadge}
                   </span>
                 ) : null}
+                {msgDot ? <span className="nav-tab-dot" aria-hidden /> : null}
               </span>
               <span className="nav-tab-label">
                 {homeCopy(TAB_LABEL_KEYS[id], lang)}

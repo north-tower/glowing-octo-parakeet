@@ -2,6 +2,7 @@
 
 import { ListingCard } from "@/components/app/listing/ListingCard";
 import { ListingRow, ListingRowItem } from "@/components/app/listing/ListingRow";
+import { homeCopy } from "@/lib/nakuru/home-i18n";
 import { listingToCardProps } from "@/lib/nakuru/listing-card-props";
 import type { LandingLang } from "@/lib/nakuru/i18n";
 import type { Listing } from "@/lib/nakuru/types";
@@ -21,7 +22,13 @@ export function ListingRail({
   loading,
   ariaLabel,
 }: Props) {
-  if (!items.length && !loading) return null;
+  if (!items.length && !loading) {
+    return (
+      <p className="home-rail-empty" role="status">
+        {homeCopy("railEmpty", lang)}
+      </p>
+    );
+  }
 
   return (
     <ListingRow loading={loading} ariaLabel={ariaLabel}>

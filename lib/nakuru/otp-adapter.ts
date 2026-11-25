@@ -1,4 +1,5 @@
 import { apiFetch, ApiError } from "@/lib/nakuru/api";
+import { useLiveApi } from "@/lib/nakuru/api-mode";
 import { userFromAccessToken } from "@/lib/nakuru/auth";
 
 /**
@@ -8,8 +9,8 @@ import { userFromAccessToken } from "@/lib/nakuru/auth";
  * existing Next routes at `/api/auth/otp/*`.
  *
  * - Production (default): `liveOtpRequest` / `liveOtpVerify`.
- * - Client demo: set `NEXT_PUBLIC_OTP_DEMO=true`. Demo code is **123456**,
- *   expires in 10 minutes, and rate-limits after too many resends.
+ * - Client demo (opt-in): `NEXT_PUBLIC_OTP_DEMO=true`. Demo code is **123456**;
+ *   does not issue server JWTs (incompatible with live API / vendor apply).
  *
  * Keep this file as the only place that knows about those two backends.
  */
@@ -45,9 +46,9 @@ export function isValidEmail(raw: string): boolean {
 }
 
 export function isClientOtpDemo(): boolean {
-  if (process.env.NEXT_PUBLIC_OTP_DEMO === "true") return true;
+  if (useLiveApi()) return false;
   if (process.env.NEXT_PUBLIC_OTP_DEMO === "false") return false;
-  return process.env.NODE_ENV !== "production";
+  return process.env.NEXT_PUBLIC_OTP_DEMO === "true";
 }
 
 type DemoIssue = {
