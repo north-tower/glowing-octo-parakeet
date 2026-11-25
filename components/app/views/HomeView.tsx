@@ -1,34 +1,33 @@
 "use client";
 
 import { useMemo } from "react";
-import { useRouter } from "next/navigation";
-import { ProductCard } from "@/components/app/ProductCard";
 import { useNakuruApp } from "@/components/app/AppProvider";
-import { FEAT, TOPC } from "@/lib/nakuru/data/constants";
 import { ITEMS } from "@/lib/nakuru/data/items";
 import { isLiveCatalogEnabled } from "@/lib/nakuru/catalog-live";
 import {
   ListingsEmpty,
-  ListingsSkeleton,
 } from "@/components/app/catalog/ListingsStates";
 import { useCatalogListings } from "@/lib/nakuru/use-catalog-listings";
 import { useListingAct } from "@/lib/nakuru/use-listing-act";
 import { isOutsideArea } from "@/lib/nakuru/area";
+import { listingModeOf } from "@/lib/nakuru/listing-mode";
 import type { CategoryId, Listing } from "@/lib/nakuru/types";
 import { InstallHomeCard } from "@/components/app/pwa/InstallHomeCard";
 import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
-import { homeCopy, homeTopCategoryLabel } from "@/lib/nakuru/home-i18n";
-import { BrowseStyleTileButton } from "@/components/app/category/browse/BrowseStyleTile";
-import { popularLucideForTopcIndex } from "@/components/app/category/browse/popular-lucide";
+import { homeCopy } from "@/lib/nakuru/home-i18n";
 import { useAssistantUi } from "@/components/app/assistant/AssistantUiProvider";
-import { VendorSellCard } from "@/components/app/VendorSellCard";
 import { HomeSectionHeader } from "@/components/app/HomeSectionHeader";
-import { HomeCategoryStrip } from "@/components/app/home/HomeCategoryStrip";
-import { ProductSnapRail } from "@/components/app/home/ProductSnapRail";
-import { HomePickedForYou } from "@/components/app/home/HomePickedForYou";
 import { HomeHeroSection } from "@/components/app/home/hero/HomeHeroSection";
+import { TrustStrip } from "@/components/app/home/TrustStrip";
+import { CategoryTiles } from "@/components/app/home/CategoryTiles";
+import { ListingRail } from "@/components/app/home/ListingRail";
+import { SellPromoCard } from "@/components/app/home/SellPromoCard";
+import { AssistantPromptRow } from "@/components/app/home/AssistantPromptRow";
+import { MoreToExplore } from "@/components/app/home/MoreToExplore";
+import { ResultsGrid } from "@/components/app/home/ResultsGrid";
+import { useHomeFilters } from "@/components/app/home/useHomeFilters";
+import { homeFiltersLeaveLanding } from "@/lib/nakuru/home-filters";
 import type { HeroSlideAction } from "@/components/app/home/hero/heroSlides";
-import { useAppDesktopUp } from "@/lib/nakuru/use-media-query";
 
 function catalogCategoryForFilter(cat: CategoryId): CategoryId | "all" {
   if (cat === "all") return "all";
@@ -36,14 +35,13 @@ function catalogCategoryForFilter(cat: CategoryId): CategoryId | "all" {
 }
 
 export function HomeView() {
-  const router = useRouter();
   const { state, dispatch } = useNakuruApp();
   const { openAssistant } = useAssistantUi();
   const { lang } = usePwaInstall();
-  const desktopUp = useAppDesktopUp();
-  const { onAct, serviceInquiryEnabled, inquiryModal } = useListingAct();
+  const { inquiryModal } = useListingAct();
   const carouselEnabled = state.tab === "home";
   const liveCatalog = isLiveCatalogEnabled();
+  const { filters, setFilters, clearAll } = useHomeFilters();
 
   const activeCat = state.cat as CategoryId;
   const browseCat = catalogCategoryForFilter(activeCat);
@@ -56,7 +54,10 @@ export function HomeView() {
   });
 
   const onHomeLanding =
-    state.cat === "all" && !state.q.trim() && !isOutsideArea(state.area);
+    state.cat === "all" &&
+    !state.q.trim() &&
+    !isOutsideArea(state.area) &&
+    !homeFiltersLeaveLanding(filters);
 
   const catalogItems: Listing[] = useMemo(() => {
     if (!onHomeLanding) return [];
@@ -67,8 +68,23 @@ export function HomeView() {
     () => catalogItems.slice(0, 10),
     [catalogItems],
   );
+  const servicesRail = useMemo(
+    () =>
+      catalogItems.filter((i) => listingModeOf(i) === "services").slice(0, 10),
+    [catalogItems],
+  );
   const verifiedRail = useMemo(
     () => catalogItems.filter((i) => i.v === 1).slice(0, 10),
+    [catalogItems],
+  );
+  const propertyCarsRail = useMemo(
+    () =>
+      catalogItems
+        .filter((i) => {
+          const m = listingModeOf(i);
+          return m === "property" || m === "cars";
+        })
+        .slice(0, 10),
     [catalogItems],
   );
 
@@ -79,11 +95,7 @@ export function HomeView() {
           We&apos;re not in your area yet. NakuruHub serves Nakuru only. Join the
           waitlist and we&apos;ll tell you when we expand.
         </div>
-        <button
-          type="button"
-          className="btn full"
-          onClick={() => undefined}
-        >
+        <button type="button" className="btn full" onClick={() => undefined}>
           Join the waitlist
         </button>
       </>
@@ -96,73 +108,7 @@ export function HomeView() {
       (state.cat === "all" || i.c === state.cat) &&
       (i.t + i.s).toLowerCase().includes(q),
   );
-
   const filtered = liveCatalog ? liveItems : demoFiltered;
-
-  if (state.cat !== "all" || q) {
-    const warn =
-      !liveCatalog &&
-      (state.cat === "property" || state.cat === "cars") ? (
-        <div className="warn">
-          Safety: view first. Never pay before you inspect and verify ownership.
-        </div>
-      ) : null;
-
-    return (
-      <>
-        {inquiryModal}
-        {warn}
-        {error ? (
-          <div className="err" style={{ marginBottom: 8 }}>
-            {error}
-          </div>
-        ) : null}
-        {loading ? (
-          <ListingsSkeleton count={6} />
-        ) : filtered.length ? (
-          <div className="g2">
-            {filtered.map((i, idx) => (
-              <ProductCard
-                key={String(i.id)}
-                item={i}
-                zoneLabel={state.area}
-                priorityImage={idx < 2}
-                navOriginTab="home"
-                serviceInquiryEnabled={serviceInquiryEnabled}
-                onAct={onAct}
-              />
-            ))}
-          </div>
-        ) : liveCatalog ? (
-          <ListingsEmpty
-            key={`${state.q}|${state.cat}`}
-            lang={lang}
-            variant={q ? "search" : state.cat !== "all" ? "filter" : "default"}
-            query={state.q.trim() || undefined}
-            onClearFilters={
-              q || state.cat !== "all"
-                ? () => {
-                    if (state.q) dispatch({ type: "SET_Q", q: "" });
-                    if (state.cat !== "all") {
-                      dispatch({ type: "SET_CAT", cat: "all" });
-                    }
-                  }
-                : undefined
-            }
-            onBrowseCategories={() =>
-              dispatch({ type: "SET_TAB", tab: "cat" })
-            }
-          />
-        ) : (
-          <div className="m">
-            {lang === "sw"
-              ? "Hakuna matokeo. Jaribu utafutaji mwingine."
-              : "No results. Try a different search."}
-          </div>
-        )}
-      </>
-    );
-  }
 
   const onSlideAction = (action: HeroSlideAction) => {
     if (action === "shop") dispatch({ type: "SLIDE_SHOP" });
@@ -174,14 +120,42 @@ export function HomeView() {
       });
   };
 
-  const openHelp = (source: string) => {
-    openAssistant({ screen: "help", source });
-  };
-
+  const goSell = () => dispatch({ type: "SLIDE_VENDOR" });
+  const goCat = () => dispatch({ type: "SET_TAB", tab: "cat" });
   const freshTitle = homeCopy("freshInZone", lang).replace(
     "{zone}",
     state.area,
   );
+
+  if (!onHomeLanding) {
+    return (
+      <>
+        {inquiryModal}
+        <ResultsGrid
+          lang={lang}
+          items={filtered}
+          loading={loading && liveCatalog}
+          error={liveCatalog ? error : null}
+          zoneLabel={state.area}
+          filters={{ ...filters, cat: state.cat, q: state.q }}
+          query={state.q}
+          cat={state.cat}
+          onFilters={(patch) => {
+            if (patch.cat != null) dispatch({ type: "SET_CAT", cat: patch.cat });
+            if (patch.q != null) dispatch({ type: "SET_Q", q: patch.q });
+            setFilters(patch);
+          }}
+          onClearFilters={() => {
+            dispatch({ type: "SET_CAT", cat: "all" });
+            dispatch({ type: "SET_Q", q: "" });
+            clearAll();
+          }}
+          onZone={(zone) => dispatch({ type: "SET_AREA", area: zone })}
+          onBrowseCategories={goCat}
+        />
+      </>
+    );
+  }
 
   return (
     <div className="home-flow">
@@ -191,46 +165,19 @@ export function HomeView() {
         lang={lang}
         carouselEnabled={carouselEnabled}
         onSlideAction={onSlideAction}
-        onVendorListing={(productId) =>
-          router.push(`/app/p/${encodeURIComponent(productId)}`)
-        }
-        onTrustLink={() => openHelp("hero-trust-verify")}
-        onPayLink={() => openHelp("hero-trust-pay")}
       />
-      {!desktopUp ? (
-        <HomeCategoryStrip
-          lang={lang}
-          onCategory={(k) => dispatch({ type: "SELECT_TOPC", index: k })}
-          onSeeAll={() => dispatch({ type: "SET_TAB", tab: "cat" })}
-        />
-      ) : (
-        <>
-          <HomeSectionHeader
-            titleKey="topCategories"
-            lang={lang}
-            seeAll={{
-              onClick: () => dispatch({ type: "SET_TAB", tab: "cat" }),
-            }}
-          />
-          <div className="home-cat-grid">
-            {FEAT.slice(0, 8).map((k) => {
-              const t = TOPC[k]!;
-              const visual = popularLucideForTopcIndex(k);
-              return (
-                <BrowseStyleTileButton
-                  key={k}
-                  icon={visual.icon}
-                  tint={visual.tint}
-                  label={
-                    t[3] ? homeTopCategoryLabel(t[3], lang) : t[1]
-                  }
-                  onActivate={() => dispatch({ type: "SELECT_TOPC", index: k })}
-                />
-              );
-            })}
-          </div>
-        </>
-      )}
+      <TrustStrip lang={lang} onSell={goSell} />
+      <AssistantPromptRow
+        lang={lang}
+        onAsk={() =>
+          openAssistant({ screen: "help", source: "feed-ask-row" })
+        }
+      />
+      <CategoryTiles
+        lang={lang}
+        onCategory={(k) => dispatch({ type: "SELECT_TOPC", index: k })}
+        onSeeAll={goCat}
+      />
       {freshRail.length || (loading && liveCatalog) ? (
         <>
           <HomeSectionHeader
@@ -239,15 +186,38 @@ export function HomeView() {
             lang={lang}
             listingStyle
             noMarker
-            seeAll={{
-              onClick: () => dispatch({ type: "SET_TAB", tab: "cat" }),
-            }}
+            seeAll={{ onClick: goCat }}
           />
-          <ProductSnapRail
+          <ListingRail
             items={freshRail}
             lang={lang}
             zoneLabel={state.area}
             loading={loading && liveCatalog}
+            ariaLabel={freshTitle}
+          />
+        </>
+      ) : null}
+      <SellPromoCard placement="feed" />
+      {servicesRail.length || (loading && liveCatalog) ? (
+        <>
+          <HomeSectionHeader
+            titleKey="servicesNearYou"
+            lang={lang}
+            listingStyle
+            noMarker
+            seeAll={{
+              onClick: () => {
+                dispatch({ type: "SET_CAT", cat: "services" });
+                setFilters({ cat: "services" });
+              },
+            }}
+          />
+          <ListingRail
+            items={servicesRail}
+            lang={lang}
+            zoneLabel={state.area}
+            loading={loading && liveCatalog}
+            ariaLabel={homeCopy("servicesNearYou", lang)}
           />
         </>
       ) : null}
@@ -258,35 +228,65 @@ export function HomeView() {
             lang={lang}
             listingStyle
             noMarker
+            seeAll={{
+              onClick: () => setFilters({ verified: true }),
+            }}
           />
-          <ProductSnapRail
+          <ListingRail
             items={verifiedRail}
             lang={lang}
             zoneLabel={state.area}
             loading={loading && liveCatalog}
+            ariaLabel={homeCopy("verifiedSellers", lang)}
+          />
+        </>
+      ) : null}
+      {propertyCarsRail.length || (loading && liveCatalog) ? (
+        <>
+          <HomeSectionHeader
+            titleKey="propertyAndCars"
+            lang={lang}
+            listingStyle
+            noMarker
+            seeAll={{
+              onClick: () => {
+                dispatch({ type: "SET_CAT", cat: "property" });
+                setFilters({ cat: "property" });
+              },
+            }}
+          />
+          <ListingRail
+            items={propertyCarsRail}
+            lang={lang}
+            zoneLabel={state.area}
+            loading={loading && liveCatalog}
+            ariaLabel={homeCopy("propertyAndCars", lang)}
           />
         </>
       ) : null}
       {error && liveCatalog ? (
         <div className="err">{error}</div>
       ) : catalogItems.length || (loading && liveCatalog) ? (
-        <HomePickedForYou
+        <MoreToExplore
           lang={lang}
           items={catalogItems}
-          priorRailItems={[freshRail, verifiedRail]}
+          priorRailItems={[freshRail, servicesRail, verifiedRail, propertyCarsRail]}
           zoneLabel={state.area}
           loading={loading && liveCatalog}
+          filters={filters}
+          onFilters={setFilters}
+          onClearFilters={clearAll}
+          onZone={(zone) => dispatch({ type: "SET_AREA", area: zone })}
+          onBrowseCategories={goCat}
         />
       ) : liveCatalog ? (
         <ListingsEmpty
           lang={lang}
           spacious={false}
-          onBrowseCategories={() =>
-            dispatch({ type: "SET_TAB", tab: "cat" })
-          }
+          onBrowseCategories={goCat}
         />
       ) : null}
-      <VendorSellCard />
+      <SellPromoCard placement="footer" />
     </div>
   );
 }

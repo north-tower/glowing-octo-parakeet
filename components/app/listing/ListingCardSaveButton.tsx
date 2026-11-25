@@ -1,41 +1,39 @@
 "use client";
 
 import { Heart } from "lucide-react";
-import { useState } from "react";
-import { useNakuruApp } from "@/components/app/AppProvider";
 import { homeCopy } from "@/lib/nakuru/home-i18n";
 import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
+import { useSavedListing } from "@/components/app/product/useSavedListing";
 
 type Props = {
+  listingId: number | string;
   initialSaved?: boolean;
 };
 
-export function ListingCardSaveButton({ initialSaved = false }: Props) {
+export function ListingCardSaveButton({ listingId }: Props) {
   const { lang } = usePwaInstall();
-  const { dispatch } = useNakuruApp();
-  const [saved, setSaved] = useState(initialSaved);
+  const { saved, toggle } = useSavedListing(String(listingId));
 
   return (
     <button
       type="button"
-      className="absolute right-2 top-2 z-20 flex h-11 w-11 items-center justify-center"
+      className="lc-save"
       aria-pressed={saved}
-      aria-label={homeCopy("saveListingAria", lang)}
+      aria-label={
+        saved
+          ? homeCopy("productUnsaveAria", lang)
+          : homeCopy("saveListingAria", lang)
+      }
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
-        setSaved((v) => !v);
-        dispatch({ type: "ACCOUNT_ROW", id: "acc:saved" });
+        toggle();
       }}
     >
-      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur">
+      <span className="lc-save-hit">
         <Heart
           size={18}
-          className={
-            saved
-              ? "fill-red-500 stroke-red-500"
-              : "stroke-stone-700"
-          }
+          className={saved ? "lc-save-icon is-on" : "lc-save-icon"}
           aria-hidden
         />
       </span>

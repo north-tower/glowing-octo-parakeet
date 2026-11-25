@@ -48,7 +48,6 @@ import type {
   AssistantPart,
   AssistantScreen,
 } from "@/lib/assistant/types";
-import { AssistantFloatingButton } from "@/components/app/assistant/AssistantFloatingButton";
 import { AssistantSheet } from "@/components/app/assistant/AssistantSheet";
 
 export type OpenAssistantOptions = {
@@ -285,11 +284,6 @@ export function AssistantUiProvider({ children }: Props) {
   return (
     <AssistantUiContext.Provider value={value}>
       {children}
-      <AssistantFloatingButton
-        lang={lang}
-        sheetOpen={open}
-        onOpen={() => openAssistant({ source: "fab" })}
-      />
       <AssistantSheet
         open={open}
         lang={lang}

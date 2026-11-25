@@ -37,6 +37,7 @@ export type Listing = {
   imgs?: string[];
   /** Structured listing fields, e.g. bedrooms, mileage. */
   attrs?: Record<string, string>;
+  createdAt?: string | null;
 };
 
 export type OrderItemSnap = {

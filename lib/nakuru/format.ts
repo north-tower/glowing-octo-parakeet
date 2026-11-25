@@ -8,10 +8,12 @@ export function kes(n: number): string {
 
 export function formatListingPrice(
   amount: number,
-  opts?: { from?: boolean },
+  opts?: { from?: boolean; suffix?: string | null },
 ): string {
   const body = formatKES(amount);
-  return opts?.from ? `From ${body}` : body;
+  const withFrom = opts?.from ? `From ${body}` : body;
+  const suffix = opts?.suffix?.trim();
+  return suffix ? `${withFrom} ${suffix}` : withFrom;
 }
 
 /** Escape for rare residual HTML strings; React children do not need this. */

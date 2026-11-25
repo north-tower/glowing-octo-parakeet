@@ -50,5 +50,6 @@ export function toProductCardItem(api: ApiListing): Listing {
     v: api.verified ? 1 : 0,
     vn: api.vendor,
     attrs: api.attributes,
+    createdAt: api.createdAt ?? null,
   };
 }

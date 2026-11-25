@@ -14,12 +14,14 @@ type Props = {
   children: ReactNode;
   loading?: boolean;
   skeletonCount?: number;
+  ariaLabel?: string;
 };
 
 export function ListingRow({
   children,
   loading,
   skeletonCount = 4,
+  ariaLabel,
 }: Props) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [canPrev, setCanPrev] = useState(false);
@@ -64,12 +66,9 @@ export function ListingRow({
 
   if (loading) {
     return (
-      <div className="flex gap-3 overflow-x-hidden sm:gap-4">
+      <div className="lc-rail lc-rail--loading" aria-busy="true" aria-label={ariaLabel}>
         {Array.from({ length: skeletonCount }, (_, i) => (
-          <div
-            key={i}
-            className="w-[200px] shrink-0 sm:w-[220px] lg:w-[240px]"
-          >
+          <div key={i} className="lc-rail-slot">
             <ListingCardSkeleton />
           </div>
         ))}
@@ -78,11 +77,14 @@ export function ListingRow({
   }
 
   return (
-    <div className="listing-row-root relative col-span-full mb-4 [--slot-w:200px] sm:[--slot-w:220px] lg:[--slot-w:240px]">
+    <div
+      className="listing-row-root lc-rail-wrap"
+      aria-label={ariaLabel}
+    >
       {finePointer && canPrev ? (
         <button
           type="button"
-          className="absolute left-2 top-[calc(var(--slot-w)*3/8)] z-10 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-800 shadow-md disabled:opacity-40 [@media(hover:hover)]:inline-flex"
+          className="lc-rail-arrow lc-rail-arrow--prev"
           aria-label="Scroll listings left"
           disabled={!canPrev}
           onClick={() => scrollByViewport(-1)}
@@ -92,19 +94,19 @@ export function ListingRow({
       ) : null}
       <div
         ref={scrollerRef}
-        className="flex snap-x snap-mandatory items-stretch gap-3 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-4 [&::-webkit-scrollbar]:hidden"
+        className="lc-rail"
       >
         {children}
       </div>
       {finePointer && canNext ? (
         <>
           <div
-            className="pointer-events-none absolute bottom-2 right-0 top-0 z-[1] w-10 bg-gradient-to-l from-[var(--bg)] to-transparent"
+            className="lc-rail-fade"
             aria-hidden
           />
           <button
             type="button"
-            className="absolute right-2 top-[calc(var(--slot-w)*3/8)] z-10 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-800 shadow-md disabled:opacity-40 [@media(hover:hover)]:inline-flex"
+            className="lc-rail-arrow lc-rail-arrow--next"
             aria-label="Scroll listings right"
             disabled={!canNext}
             onClick={() => scrollByViewport(1)}
@@ -119,8 +121,8 @@ export function ListingRow({
 
 export function ListingRowItem({ children }: { children: ReactNode }) {
   return (
-    <div className="flex w-[200px] shrink-0 snap-start sm:w-[220px] lg:w-[240px]">
-      <div className="flex min-h-0 w-full flex-col">{children}</div>
+    <div className="lc-rail-slot">
+      {children}
     </div>
   );
 }

@@ -8,6 +8,8 @@ export type HomeCopyKey =
   | "searchPlaceholder"
   | "searchSubmit"
   | "searchPhoto"
+  | "searchAsk"
+  | "assistantPromptRow"
   | "skipToContent"
   | "homePageTitle"
   | "trustVerifiedTitle"
@@ -345,6 +347,43 @@ export type HomeCopyKey =
   | "discoverTitle"
   | "discoverSub"
   | "clearFilters"
+  | "priceFrom"
+  | "chipQuote"
+  | "chipViewing"
+  | "chipCod"
+  | "chipFreeDelivery"
+  | "browseCategories"
+  | "freshInZoneSeeAll"
+  | "servicesNearYou"
+  | "propertyAndCars"
+  | "moreToExplore"
+  | "filterBarSort"
+  | "filterBarFilter"
+  | "filterSheetTitle"
+  | "sortSheetTitle"
+  | "sortNearest"
+  | "filterPriceRange"
+  | "filterPriceMin"
+  | "filterPriceMax"
+  | "filterZone"
+  | "filterListingType"
+  | "filterCategory"
+  | "filterTypeAll"
+  | "filterTypeShop"
+  | "filterTypeServices"
+  | "filterTypeProperty"
+  | "filterTypeCars"
+  | "filterApply"
+  | "filterVerifiedOnly"
+  | "trustStripVerified"
+  | "trustStripPay"
+  | "trustStripFreeJoin"
+  | "trustVerifyTitle"
+  | "trustVerifyBody"
+  | "trustPayBody"
+  | "photoSearchSoon"
+  | "resultCountLive"
+  | "loadMoreFallback"
   | "featuredFirst"
   | "viewDetails"
   | "saveListingAria"
@@ -413,11 +452,20 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
     sw: "Nje ya Nakuru — jiunge na orodha ya kusubiri",
   },
   searchPlaceholder: {
-    en: "Search shops, homes, cars, services",
-    sw: "Tafuta maduka, nyumba, magari, huduma",
+    en: "Search Nakuru",
+    sw: "Tafuta Nakuru",
   },
   searchSubmit: { en: "Search", sw: "Tafuta" },
   searchPhoto: { en: "Search by photo", sw: "Tafuta kwa picha" },
+  searchAsk: { en: "Ask", sw: "Uliza" },
+  assistantPromptRow: {
+    en: "Not sure what to look for? Ask the assistant",
+    sw: "Hujui unachotafuta? Uliza msaidizi",
+  },
+  photoSearchSoon: {
+    en: "Photo search coming soon",
+    sw: "Utafutaji kwa picha unakuja hivi karibuni",
+  },
   skipToContent: { en: "Skip to content", sw: "Ruka hadi maudhui" },
   homePageTitle: {
     en: "NakuruHub marketplace home",
@@ -479,20 +527,20 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
     sw: "Lipa ukifika · Nakuru",
   },
   slide1Title: {
-    en: "List your home or car free",
-    sw: "Orodhesha nyumba au gari lako bure",
+    en: "Verified vendors",
+    sw: "Wauzaji waliothibitishwa",
   },
   slide1Sub: {
-    en: "Free to join and list",
-    sw: "Bure kujiunga na kuorodhesha",
+    en: "ID-checked sellers",
+    sw: "Wauzaji waliokaguliwa kwa kitambulisho",
   },
   slide2Title: {
-    en: "Get Verified, get paid upfront",
-    sw: "Thibitishwa, lipwa mapema",
+    en: "Sell on NakuruHub",
+    sw: "Uza kwenye NakuruHub",
   },
   slide2Sub: {
-    en: "M-Pesa for trusted vendors",
-    sw: "M-Pesa kwa wauzaji wanaoaminika",
+    en: "Free to join and list",
+    sw: "Bure kujiunga na kuorodhesha",
   },
   soon: { en: "Soon", sw: "Inakuja" },
   topRankings: { en: "Top rankings", sw: "Orodha bora" },
@@ -553,8 +601,8 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
     sw: "Ongeza {name} kwenye kikapu",
   },
   slide0Cta: { en: "Shop now", sw: "Nunua sasa" },
-  slide1Cta: { en: "Start selling", sw: "Anza kuuza" },
-  slide2Cta: { en: "Learn more", sw: "Jifunze zaidi" },
+  slide1Cta: { en: "How we verify", sw: "Jinsi tunavyothibitisha" },
+  slide2Cta: { en: "Start selling", sw: "Anza kuuza" },
   heroVendorCta: { en: "View listing", sw: "Angalia tangazo" },
   heroVendorFeatured: { en: "Featured in Nakuru", sw: "Maalum Nakuru" },
   heroVendorVerified: { en: "Verified", sw: "Thibitishwa" },
@@ -1106,6 +1154,51 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
     sw: "Matangazo ya nyumbani yaliyochaguliwa.",
   },
   clearFilters: { en: "Clear filters", sw: "Futa vichujio" },
+  priceFrom: { en: "From", sw: "Kuanzia" },
+  chipQuote: { en: "Quote", sw: "Bei" },
+  chipViewing: { en: "Viewing", sw: "Kutembelea" },
+  chipCod: { en: "Pay on delivery", sw: "Lipa ukifika" },
+  chipFreeDelivery: { en: "Free delivery", sw: "Usafirishaji bure" },
+  browseCategories: { en: "Browse categories", sw: "Vinjari kategoria" },
+  freshInZoneSeeAll: { en: "See all", sw: "Angalia zote" },
+  servicesNearYou: { en: "Services near you", sw: "Huduma karibu nawe" },
+  propertyAndCars: { en: "Property and cars", sw: "Mali na magari" },
+  moreToExplore: { en: "More to explore", sw: "Zaidi ya kuchunguza" },
+  filterBarSort: { en: "Sort", sw: "Panga" },
+  filterBarFilter: { en: "Filter", sw: "Chuja" },
+  filterSheetTitle: { en: "Filters", sw: "Vichujio" },
+  sortSheetTitle: { en: "Sort listings", sw: "Panga matangazo" },
+  sortNearest: { en: "Nearest zone", sw: "Eneo la karibu" },
+  filterPriceRange: { en: "Price range", sw: "Kiwango cha bei" },
+  filterPriceMin: { en: "Min", sw: "Chini" },
+  filterPriceMax: { en: "Max", sw: "Juu" },
+  filterZone: { en: "Zone", sw: "Eneo" },
+  filterListingType: { en: "Listing type", sw: "Aina ya tangazo" },
+  filterCategory: { en: "Category", sw: "Kategoria" },
+  filterTypeAll: { en: "Any type", sw: "Aina yoyote" },
+  filterTypeShop: { en: "Shop", sw: "Duka" },
+  filterTypeServices: { en: "Services", sw: "Huduma" },
+  filterTypeProperty: { en: "Property", sw: "Mali" },
+  filterTypeCars: { en: "Cars", sw: "Magari" },
+  filterApply: { en: "Show results", sw: "Onyesha matokeo" },
+  filterVerifiedOnly: { en: "Verified only", sw: "Waliothibitishwa tu" },
+  trustStripVerified: { en: "ID-checked sellers", sw: "Wauzaji waliokaguliwa" },
+  trustStripPay: { en: "Pay on delivery", sw: "Lipa ukifika" },
+  trustStripFreeJoin: { en: "Free to list", sw: "Bure kuorodhesha" },
+  trustVerifyTitle: { en: "How we verify", sw: "Jinsi tunavyothibitisha" },
+  trustVerifyBody: {
+    en: "Sellers upload a government ID. We review it before they can list. Verified shops show a check on the card and on their profile.",
+    sw: "Wauzaji wanapakia kitambulisho cha serikali. Tunakagua kabla ya kuorodhesha. Maduka yaliyothibitishwa yana alama kwenye kadi na wasifu.",
+  },
+  trustPayBody: {
+    en: "Inspect the item when it arrives, then pay by M-Pesa or cash. You are not charged before delivery.",
+    sw: "Kagua bidhaa inapofika, kisha lipa kwa M-Pesa au taslimu. Hutoziwi kabla ya kuwasilisha.",
+  },
+  resultCountLive: {
+    en: "{n} results",
+    sw: "Matokeo {n}",
+  },
+  loadMoreFallback: { en: "Load more", sw: "Pakia zaidi" },
   featuredFirst: { en: "Featured first", sw: "Maarufu kwanza" },
   viewDetails: { en: "View details", sw: "Tazama maelezo" },
   saveListingAria: { en: "Save listing", sw: "Hifadhi tangazo" },
