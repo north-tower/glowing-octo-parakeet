@@ -1255,7 +1255,7 @@ body.app .app-hd-band{position:sticky;top:env(safe-area-inset-top,0px);z-index:v
 body.app .app-hd-bar{display:flex;align-items:center;min-height:72px;gap:16px}
 body.app .app-hd-mobile-block{display:none}
 body.app .app-hd-wide-block{display:flex;align-items:center;gap:12px;flex:1;min-width:0;width:100%}
-body.app .app-hd-home-link{border:0;background:none;color:var(--ink);cursor:pointer;padding:0;min-height:44px;max-width:none;flex:none}
+body.app .app-hd-home-link{border:0;background:none;color:var(--ink);cursor:pointer;padding:0;min-height:44px;max-width:none;flex:none;text-decoration:none;display:flex;align-items:center;gap:8px}
 body.app .app-hd-zone-wrap{flex:none;min-width:0;max-width:min(280px,26vw)}
 body.app .app-hd-zone-wrap .zone-pill{flex:none;max-width:100%;min-width:9rem;margin-left:0;height:auto;min-height:40px;padding-block:6px}
 body.app .app-hd-zone-wrap .zone-pill-text{flex-direction:row;align-items:center;gap:5px;flex:1 1 auto}
@@ -2025,6 +2025,7 @@ html[data-theme="dark"] .lc-ph--teal{color:#5eead4}
   .home-sheet-root--modal .pwa-sheet-handle{display:none}
   .app-footer{display:block;margin-top:48px;padding:40px 0 24px;border-top:1px solid var(--line);background:transparent}
   .app-footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:32px}
+  .app-footer-links{display:flex;flex-direction:column;gap:4px}
   .app-footer a{color:var(--ink);text-decoration:none;min-height:40px;display:inline-flex;align-items:center;font-size:14px;font-weight:550}
   .app-footer a:hover,.app-footer a:focus-visible{color:var(--pri);text-decoration:underline}
   .app-footer-meta{margin:24px 0 0;padding-top:16px;border-top:1px solid var(--line);font-size:13px;color:var(--mut)}
@@ -2065,6 +2066,8 @@ html[data-theme="dark"] .lc-ph--teal{color:#5eead4}
   .lc-grid{grid-template-columns:repeat(5,minmax(0,1fr))}
   .cat-tiles-scroll{grid-template-columns:repeat(10,minmax(0,1fr))}
   .more-explore-layout{display:grid;grid-template-columns:240px minmax(0,1fr);gap:32px;align-items:start}
+  .more-explore-layout>.filter-bar{display:none}
+  .more-explore-main{min-width:0}
   .filter-bar{display:none}
   .filter-bar--panel{display:flex;flex-direction:column;gap:16px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 88px);padding:16px;border:1px solid var(--line);border-radius:16px;background:var(--card)}
   .filter-bar--panel .filter-bar-row{flex-direction:column;align-items:stretch}

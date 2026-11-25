@@ -27,6 +27,11 @@ import {
   IconSparkle,
 } from "@/components/app/icons/LineIcons";
 import { BRAND_NAME, BRAND_TAGLINE } from "@/lib/nakuru/brand";
+import {
+  SearchSuggest,
+  rememberSearch,
+} from "@/components/app/home/SearchSuggest";
+import Link from "next/link";
 
 export function AppHeader() {
   const { state, dispatch, toast } = useNakuruApp();
@@ -46,6 +51,9 @@ export function AppHeader() {
   const [qLocal, setQLocal] = useState(state.q);
   const [zoneOpen, setZoneOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [suggestOpen, setSuggestOpen] = useState(false);
+  const [suggestIdx, setSuggestIdx] = useState(0);
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const zoneBtnRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -80,6 +88,7 @@ export function AppHeader() {
     const onScroll = () => {
       const y = window.scrollY;
       const delta = y - lastY.current;
+      setScrolled(y > 8);
       if (y < 24) {
         setCollapsed(false);
       } else if (delta > 8) {
@@ -107,12 +116,14 @@ export function AppHeader() {
 
   const submitSearch = () => {
     if (searchTimer.current) clearTimeout(searchTimer.current);
+    rememberSearch(qLocal);
     dispatch({ type: "SET_Q", q: qLocal });
     dispatch({ type: "SET_TAB", tab: "home" });
     router.replace(
       homeFiltersHref({ ...urlFilters, cat: state.cat, q: qLocal }),
       { scroll: false },
     );
+    setSuggestOpen(false);
   };
 
   const onSelectCat = (slug: string) => {
@@ -147,7 +158,28 @@ export function AppHeader() {
         enterKeyHint="search"
         placeholder={homeCopy("searchPlaceholder", lang)}
         value={qLocal}
-        onChange={(e) => onSearchInput(e.target.value)}
+        onChange={(e) => {
+          onSearchInput(e.target.value);
+          setSuggestOpen(true);
+          setSuggestIdx(0);
+        }}
+        onFocus={() => tabletUp && setSuggestOpen(true)}
+        onBlur={() => {
+          window.setTimeout(() => setSuggestOpen(false), 160);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") setSuggestOpen(false);
+          if (e.key === "ArrowDown") {
+            e.preventDefault();
+            setSuggestIdx((n) => n + 1);
+          }
+          if (e.key === "ArrowUp") {
+            e.preventDefault();
+            setSuggestIdx((n) => Math.max(0, n - 1));
+          }
+        }}
+        autoComplete="off"
+        aria-autocomplete="list"
       />
       {tabletUp ? (
         <kbd className="search-kbd" aria-hidden>
@@ -186,7 +218,7 @@ export function AppHeader() {
     <>
       <header
         id="hd"
-        className={`t-${state.tab}${collapsed ? " hd-collapsed" : ""}`}
+        className={`t-${state.tab}${collapsed ? " hd-collapsed" : ""}${scrolled ? " hd-scrolled" : ""}`}
       >
         <div className="app-hd-band">
           <div className="app-container app-hd-bar">
@@ -222,10 +254,14 @@ export function AppHeader() {
               </div>
             ) : (
               <div className="app-hd-wide-block">
-                <button
-                  type="button"
+                <Link
+                  href="/app"
+                  prefetch
                   className="logo app-hd-home-link"
-                  onClick={goHome}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    goHome();
+                  }}
                 >
                   <BrandLogoMark size={40} />
                   <span className="logo-stack">
@@ -234,7 +270,7 @@ export function AppHeader() {
                       <span className="logo-tagline">{BRAND_TAGLINE}</span>
                     ) : null}
                   </span>
-                </button>
+                </Link>
                 <div className="app-hd-zone-wrap">
                   <button
                     type="button"
@@ -255,7 +291,36 @@ export function AppHeader() {
                     <IconChevronDown size={18} />
                   </button>
                 </div>
-                <div className="app-hd-search-wrap">{searchForm}</div>
+                <div className="app-hd-search-wrap">
+                  {searchForm}
+                  {tabletUp ? (
+                    <SearchSuggest
+                      lang={lang}
+                      query={qLocal}
+                      open={suggestOpen}
+                      activeIndex={suggestIdx}
+                      onActiveIndex={setSuggestIdx}
+                      onPickQuery={(q) => {
+                        setQLocal(q);
+                        rememberSearch(q);
+                        dispatch({ type: "SET_Q", q });
+                        router.replace(
+                          homeFiltersHref({ ...urlFilters, cat: state.cat, q }),
+                          { scroll: false },
+                        );
+                        setSuggestOpen(false);
+                      }}
+                      onPickListing={(id) => {
+                        setSuggestOpen(false);
+                        router.push(`/app/p/${id}`);
+                      }}
+                      onPickCategory={(index) => {
+                        setSuggestOpen(false);
+                        dispatch({ type: "SELECT_TOPC", index });
+                      }}
+                    />
+                  ) : null}
+                </div>
                 {desktopUp ? <PublicAppNav /> : <AppTopNav />}
               </div>
             )}

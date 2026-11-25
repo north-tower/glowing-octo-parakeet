@@ -17,12 +17,12 @@ type Props = {
 
 export function AssistantPromptRow({ lang, onAsk }: Props) {
   return (
-    <div className="ask-row">
+    <div className="ask-row" onClick={() => onAsk()}>
       <span className="ask-row-icon" aria-hidden>
         <IconSparkle size={18} />
       </span>
       <div className="ask-row-body">
-        <button type="button" className="ask-row-copy" onClick={() => onAsk()}>
+        <button type="button" className="ask-row-copy">
           {homeCopy("assistantPromptRow", lang)}
         </button>
         <div className="ask-row-chips">
@@ -31,7 +31,10 @@ export function AssistantPromptRow({ lang, onAsk }: Props) {
               key={c.key}
               type="button"
               className="ask-chip"
-              onClick={() => onAsk(homeCopy(c.key, lang))}
+              onClick={(e) => {
+                e.stopPropagation();
+                onAsk(homeCopy(c.key, lang));
+              }}
             >
               {homeCopy(c.key, lang)}
             </button>

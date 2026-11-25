@@ -1,6 +1,7 @@
 "use client";
 
 import { AppHeader } from "@/components/app/AppHeader";
+import { AppFooter } from "@/components/app/AppFooter";
 import { BottomNav } from "@/components/app/BottomNav";
 import { MainView } from "@/components/app/MainView";
 import { homeCopy } from "@/lib/nakuru/home-i18n";
@@ -17,6 +18,7 @@ export default function NakuruAppShell() {
       <div className="app-shell">
         <AppHeader />
         <MainView />
+        <AppFooter />
         <BottomNav />
       </div>
     </>
