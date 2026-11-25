@@ -1,11 +1,15 @@
 "use client";
 
 import { useCallback, useMemo, type KeyboardEvent } from "react";
+import { useRouter } from "next/navigation";
 import { Pause, Play } from "lucide-react";
 import type { LandingLang } from "@/lib/nakuru/i18n";
+import { mergeHeroSlides } from "@/lib/nakuru/hero-slide-order";
+import { useHomePromotions } from "@/lib/nakuru/use-home-promotions";
 import { heroSlides } from "./heroSlides";
 import { useCarousel } from "./useCarousel";
 import { HeroSlide } from "./HeroSlide";
+import { HeroVendorSlide } from "./HeroVendorSlide";
 import type { HeroSlideAction } from "./heroSlides";
 
 type HeroCarouselProps = {
@@ -19,7 +23,12 @@ export function HeroCarousel({
   enabled,
   onSlideAction,
 }: HeroCarouselProps) {
-  const slides = useMemo(() => heroSlides, []);
+  const router = useRouter();
+  const { promotions } = useHomePromotions(enabled);
+  const slides = useMemo(
+    () => mergeHeroSlides(heroSlides, promotions),
+    [promotions],
+  );
 
   const {
     scrollRef,
@@ -86,20 +95,34 @@ export function HeroCarousel({
         }}
         onTouchEnd={() => setDragging(false)}
       >
-        {slides.map((slide, i) => (
-          <HeroSlide
-            key={slide.id}
-            slide={slide}
-            slideIndex={i}
-            total={slides.length}
-            active={i === index}
-            lang={lang}
-            tone={slide.tone}
-            progress={i === index ? progress : 0}
-            reducedMotion={reducedMotion}
-            onCta={() => onSlideAction(slide.cta.action)}
-          />
-        ))}
+        {slides.map((entry, i) =>
+          entry.kind === "vendor" ? (
+            <HeroVendorSlide
+              key={entry.slide.id}
+              slide={entry.slide}
+              slideIndex={i}
+              total={slides.length}
+              active={i === index}
+              lang={lang}
+              progress={i === index ? progress : 0}
+              reducedMotion={reducedMotion}
+              onCta={() => router.push(`/app/p/${entry.slide.productId}`)}
+            />
+          ) : (
+            <HeroSlide
+              key={entry.slide.id}
+              slide={entry.slide}
+              slideIndex={i}
+              total={slides.length}
+              active={i === index}
+              lang={lang}
+              tone={entry.slide.tone}
+              progress={i === index ? progress : 0}
+              reducedMotion={reducedMotion}
+              onCta={() => onSlideAction(entry.slide.cta.action)}
+            />
+          ),
+        )}
       </div>
 
       {!reducedMotion ? (
@@ -126,9 +149,9 @@ export function HeroCarousel({
       ) : null}
 
       <div className="hero-dots" role="tablist" aria-label={carouselLabel}>
-        {slides.map((slide, i) => (
+        {slides.map((entry, i) => (
           <button
-            key={slide.id}
+            key={entry.kind === "vendor" ? entry.slide.id : entry.slide.id}
             type="button"
             role="tab"
             aria-selected={i === index}
