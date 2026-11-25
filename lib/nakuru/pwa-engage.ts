@@ -13,10 +13,20 @@ function now(): number {
   return Date.now();
 }
 
-function readJson<T>(key: string, fallback: T): T {
-  if (typeof window === "undefined") return fallback;
+function storage(): Storage | null {
+  if (typeof window === "undefined") return null;
   try {
-    const raw = localStorage.getItem(key);
+    return window.localStorage;
+  } catch {
+    return null;
+  }
+}
+
+function readJson<T>(key: string, fallback: T): T {
+  const store = storage();
+  if (!store) return fallback;
+  try {
+    const raw = store.getItem(key);
     if (!raw) return fallback;
     return JSON.parse(raw) as T;
   } catch {
@@ -25,55 +35,65 @@ function readJson<T>(key: string, fallback: T): T {
 }
 
 export function recordAppVisit(): void {
-  const n = Number(localStorage.getItem(VISIT_KEY) ?? "0") + 1;
-  localStorage.setItem(VISIT_KEY, String(n));
+  const store = storage();
+  if (!store) return;
+  const n = Number(store.getItem(VISIT_KEY) ?? "0") + 1;
+  store.setItem(VISIT_KEY, String(n));
 }
 
 export function recordProductOpen(id: string | number): void {
+  const store = storage();
+  if (!store) return;
   const set = new Set(readJson<string[]>(PRODUCTS_KEY, []));
   set.add(String(id));
-  localStorage.setItem(PRODUCTS_KEY, JSON.stringify([...set]));
+  store.setItem(PRODUCTS_KEY, JSON.stringify([...set]));
 }
 
 export function recordCartEngagement(): void {
-  localStorage.setItem(CART_KEY, "1");
+  storage()?.setItem(CART_KEY, "1");
 }
 
 export function isEngagedForInstall(): boolean {
-  const visits = Number(localStorage.getItem(VISIT_KEY) ?? "0");
+  const store = storage();
+  if (!store) return false;
+  const visits = Number(store.getItem(VISIT_KEY) ?? "0");
   const products = readJson<string[]>(PRODUCTS_KEY, []).length;
-  const cart = localStorage.getItem(CART_KEY) === "1";
+  const cart = store.getItem(CART_KEY) === "1";
   return visits >= 2 || products >= 2 || cart;
 }
 
 export function markInstallDismissed(): void {
-  localStorage.setItem(DISMISS_KEY, String(now()));
-  localStorage.removeItem(RETRIGGER_KEY);
+  const store = storage();
+  if (!store) return;
+  store.setItem(DISMISS_KEY, String(now()));
+  store.removeItem(RETRIGGER_KEY);
 }
 
 export function markPromptDismissed(): void {
-  localStorage.setItem(PROMPT_COOLDOWN_KEY, String(now()));
+  storage()?.setItem(PROMPT_COOLDOWN_KEY, String(now()));
 }
 
 export function markInstalled(): void {
-  localStorage.setItem(INSTALLED_KEY, "1");
+  storage()?.setItem(INSTALLED_KEY, "1");
 }
 
 export function readInstalled(): boolean {
-  return localStorage.getItem(INSTALLED_KEY) === "1";
+  return storage()?.getItem(INSTALLED_KEY) === "1";
 }
 
 export function requestInstallRetrigger(): void {
-  localStorage.setItem(RETRIGGER_KEY, String(now()));
+  storage()?.setItem(RETRIGGER_KEY, String(now()));
 }
 
 function withinCooldown(tsKey: string, ms: number): boolean {
-  const ts = Number(localStorage.getItem(tsKey) ?? "0");
+  const ts = Number(storage()?.getItem(tsKey) ?? "0");
   return ts > 0 && now() - ts < ms;
 }
 
 export function canShowInstallCard(): boolean {
-  if (withinCooldown(DISMISS_KEY, DISMISS_MS) && !localStorage.getItem(RETRIGGER_KEY)) {
+  const store = storage();
+  if (!store) return false;
+  if (withinCooldown(DISMISS_KEY, DISMISS_MS) && !store.getItem(RETRIGGER_KEY)) {
     return false;
   }
   if (withinCooldown(PROMPT_COOLDOWN_KEY, PROMPT_COOLDOWN_MS)) {
@@ -83,7 +103,7 @@ export function canShowInstallCard(): boolean {
 }
 
 export function clearRetriggerAfterShow(): void {
-  localStorage.removeItem(RETRIGGER_KEY);
+  storage()?.removeItem(RETRIGGER_KEY);
 }
 
 export function dispatchInstallEvent(
