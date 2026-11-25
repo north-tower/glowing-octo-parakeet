@@ -78,7 +78,7 @@ export function useCatalogListings({
   query = "",
 }: UseCatalogListingsOpts) {
   const [items, setItems] = useState<Listing[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {

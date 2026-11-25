@@ -24,6 +24,9 @@ describe("GET /api/listings category filter", () => {
       try {
         const { db } = await import("@/lib/server/db");
         await db.q("select 1");
+        await db.q(
+          "alter table vendors add column if not exists whatsapp text",
+        );
         dbReachable = true;
       } catch {
         dbReachable = false;
@@ -121,6 +124,25 @@ describe("GET /api/listings category filter", () => {
 
       const ids = shop.body.map((r: { id: string }) => r.id);
       expect(ids).not.toContain(productId);
+    },
+  );
+
+  it.skipIf(!hasDbEnv)(
+    "exposes the shop WhatsApp on listing attributes",
+    async ({ skip }) => {
+      if (!dbReachable) skip();
+      const { db } = await import("@/lib/server/db");
+      await db.q("update vendors set whatsapp = $2 where id = $1", [
+        vendorId,
+        "+254712345678",
+      ]);
+
+      const filtered = await request(server)
+        .get(`/api/listings?category=${communitySlug}`)
+        .expect(200);
+
+      const row = filtered.body.find((r: { id: string }) => r.id === productId);
+      expect(row?.attributes?.whatsapp).toBe("+254712345678");
     },
   );
 

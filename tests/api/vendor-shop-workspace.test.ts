@@ -39,6 +39,9 @@ describe("vendor shop workspace APIs", () => {
         await db.q(
           "alter table vendors add column if not exists banner_url text",
         );
+        await db.q(
+          "alter table vendors add column if not exists whatsapp text",
+        );
         dbReachable = true;
       } catch {
         dbReachable = false;
@@ -143,6 +146,40 @@ describe("vendor shop workspace APIs", () => {
     expect(mine.body[0]).toEqual(
       expect.objectContaining({ id: vendorId, area: "Milimani" }),
     );
+  });
+
+  it.skipIf(!hasDbEnv)("saves a Kenyan WhatsApp number on the shop", async ({ skip }) => {
+    if (!dbReachable) skip();
+
+    await request(server)
+      .patch("/api/vendors/mine")
+      .set("Authorization", `Bearer ${ownerAccess}`)
+      .send({ whatsapp: "0712 345 678" })
+      .expect(200)
+      .expect({ whatsapp: "+254712345678" });
+
+    const mine = await request(server)
+      .get("/api/vendors/mine")
+      .set("Authorization", `Bearer ${ownerAccess}`)
+      .expect(200);
+
+    expect(mine.body[0]).toEqual(
+      expect.objectContaining({
+        id: vendorId,
+        whatsapp: "+254712345678",
+      }),
+    );
+  });
+
+  it.skipIf(!hasDbEnv)("rejects a non-Kenyan WhatsApp number", async ({ skip }) => {
+    if (!dbReachable) skip();
+
+    await request(server)
+      .patch("/api/vendors/mine")
+      .set("Authorization", `Bearer ${ownerAccess}`)
+      .send({ whatsapp: "123" })
+      .expect(400)
+      .expect({ error: "bad_request" });
   });
 
   it.skipIf(!hasDbEnv)("lists vendor orders and accepts a new one", async ({ skip }) => {

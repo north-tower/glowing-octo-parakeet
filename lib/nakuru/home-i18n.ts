@@ -8,6 +8,8 @@ export type HomeCopyKey =
   | "searchPlaceholder"
   | "searchSubmit"
   | "searchPhoto"
+  | "searchAsk"
+  | "assistantPromptRow"
   | "skipToContent"
   | "homePageTitle"
   | "trustVerifiedTitle"
@@ -64,6 +66,9 @@ export type HomeCopyKey =
   | "slide0Cta"
   | "slide1Cta"
   | "slide2Cta"
+  | "heroVendorCta"
+  | "heroVendorFeatured"
+  | "heroVendorVerified"
   | "seeAll"
   | "verifiedPill"
   | "payOnDelivery"
@@ -144,6 +149,33 @@ export type HomeCopyKey =
   | "productAttrLocation"
   | "productAttrTenure"
   | "productAttrPlotSize"
+  | "productAttrBathrooms"
+  | "productAttrHours"
+  | "productAttrServiceArea"
+  | "productAttrWalkIn"
+  | "productAttrTransmission"
+  | "productAttrCondition"
+  | "productAttrPosted"
+  | "productAttrCategory"
+  | "productSellerTitle"
+  | "productNotVerifiedPill"
+  | "productVerifiedMeaningTitle"
+  | "productVerifiedMeaningBody"
+  | "productUnverifiedMeaningBody"
+  | "productWhatVerifiedMeans"
+  | "productViewSellerListings"
+  | "productSafetyTitle"
+  | "productSafetyMeet"
+  | "productSafetyPay"
+  | "productReport"
+  | "productNoReviews"
+  | "productCall"
+  | "productServiceAreaTitle"
+  | "productWalkInTitle"
+  | "productLightboxClose"
+  | "productSimilarIn"
+  | "productSaveAria"
+  | "productUnsaveAria"
   | "productPricePerMonth"
   | "productPriceForSale"
   | "inquiryViewingTitle"
@@ -283,10 +315,31 @@ export type HomeCopyKey =
   | "signInRemember"
   | "signInTitle"
   | "signInLead"
+  | "signInHelper"
+  | "signInEmailLabel"
+  | "signInEmailError"
+  | "signInSending"
   | "signInCta"
   | "signInCodeTitle"
+  | "signInCodeSent"
+  | "signInChangeEmail"
+  | "signInExpiry"
+  | "signInResend"
+  | "signInResendIn"
+  | "signInWrongCode"
+  | "signInExpired"
+  | "signInRateLimit"
+  | "signInVerifying"
   | "signInVerifyCta"
   | "signInSuccess"
+  | "signInContextOrders"
+  | "signInContextSaved"
+  | "signInTermsBefore"
+  | "signInTerms"
+  | "signInPrivacy"
+  | "signInPhoneSoon"
+  | "accAddresses"
+  | "accSellPromoSub"
   | "vendorApplySameAccount"
   | "accUploadPhotoAria"
   | "accDefaultName"
@@ -294,6 +347,43 @@ export type HomeCopyKey =
   | "discoverTitle"
   | "discoverSub"
   | "clearFilters"
+  | "priceFrom"
+  | "chipQuote"
+  | "chipViewing"
+  | "chipCod"
+  | "chipFreeDelivery"
+  | "browseCategories"
+  | "freshInZoneSeeAll"
+  | "servicesNearYou"
+  | "propertyAndCars"
+  | "moreToExplore"
+  | "filterBarSort"
+  | "filterBarFilter"
+  | "filterSheetTitle"
+  | "sortSheetTitle"
+  | "sortNearest"
+  | "filterPriceRange"
+  | "filterPriceMin"
+  | "filterPriceMax"
+  | "filterZone"
+  | "filterListingType"
+  | "filterCategory"
+  | "filterTypeAll"
+  | "filterTypeShop"
+  | "filterTypeServices"
+  | "filterTypeProperty"
+  | "filterTypeCars"
+  | "filterApply"
+  | "filterVerifiedOnly"
+  | "trustStripVerified"
+  | "trustStripPay"
+  | "trustStripFreeJoin"
+  | "trustVerifyTitle"
+  | "trustVerifyBody"
+  | "trustPayBody"
+  | "photoSearchSoon"
+  | "resultCountLive"
+  | "loadMoreFallback"
   | "featuredFirst"
   | "viewDetails"
   | "saveListingAria"
@@ -362,11 +452,20 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
     sw: "Nje ya Nakuru — jiunge na orodha ya kusubiri",
   },
   searchPlaceholder: {
-    en: "Search shops, homes, cars, services",
-    sw: "Tafuta maduka, nyumba, magari, huduma",
+    en: "Search Nakuru",
+    sw: "Tafuta Nakuru",
   },
   searchSubmit: { en: "Search", sw: "Tafuta" },
   searchPhoto: { en: "Search by photo", sw: "Tafuta kwa picha" },
+  searchAsk: { en: "Ask", sw: "Uliza" },
+  assistantPromptRow: {
+    en: "Not sure what to look for? Ask the assistant",
+    sw: "Hujui unachotafuta? Uliza msaidizi",
+  },
+  photoSearchSoon: {
+    en: "Photo search coming soon",
+    sw: "Utafutaji kwa picha unakuja hivi karibuni",
+  },
   skipToContent: { en: "Skip to content", sw: "Ruka hadi maudhui" },
   homePageTitle: {
     en: "NakuruHub marketplace home",
@@ -428,20 +527,20 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
     sw: "Lipa ukifika · Nakuru",
   },
   slide1Title: {
-    en: "List your home or car free",
-    sw: "Orodhesha nyumba au gari lako bure",
+    en: "Verified vendors",
+    sw: "Wauzaji waliothibitishwa",
   },
   slide1Sub: {
-    en: "Free to join and list",
-    sw: "Bure kujiunga na kuorodhesha",
+    en: "ID-checked sellers",
+    sw: "Wauzaji waliokaguliwa kwa kitambulisho",
   },
   slide2Title: {
-    en: "Get Verified, get paid upfront",
-    sw: "Thibitishwa, lipwa mapema",
+    en: "Sell on NakuruHub",
+    sw: "Uza kwenye NakuruHub",
   },
   slide2Sub: {
-    en: "M-Pesa for trusted vendors",
-    sw: "M-Pesa kwa wauzaji wanaoaminika",
+    en: "Free to join and list",
+    sw: "Bure kujiunga na kuorodhesha",
   },
   soon: { en: "Soon", sw: "Inakuja" },
   topRankings: { en: "Top rankings", sw: "Orodha bora" },
@@ -502,8 +601,11 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
     sw: "Ongeza {name} kwenye kikapu",
   },
   slide0Cta: { en: "Shop now", sw: "Nunua sasa" },
-  slide1Cta: { en: "Start selling", sw: "Anza kuuza" },
-  slide2Cta: { en: "Learn more", sw: "Jifunze zaidi" },
+  slide1Cta: { en: "How we verify", sw: "Jinsi tunavyothibitisha" },
+  slide2Cta: { en: "Start selling", sw: "Anza kuuza" },
+  heroVendorCta: { en: "View listing", sw: "Angalia tangazo" },
+  heroVendorFeatured: { en: "Featured in Nakuru", sw: "Maalum Nakuru" },
+  heroVendorVerified: { en: "Verified", sw: "Thibitishwa" },
   seeAll: { en: "See all", sw: "Angalia zote" },
   verifiedPill: { en: "Verified", sw: "Thibitishwa" },
   payOnDelivery: { en: "Pay on delivery", sw: "Lipa ukifika" },
@@ -656,6 +758,48 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   productAttrLocation: { en: "Location", sw: "Mahali" },
   productAttrTenure: { en: "Listing type", sw: "Aina ya tangazo" },
   productAttrPlotSize: { en: "Plot size", sw: "Ukubwa wa kiwanja" },
+  productAttrBathrooms: { en: "Bathrooms", sw: "Bafu" },
+  productAttrHours: { en: "Hours", sw: "Saa" },
+  productAttrServiceArea: { en: "Service area", sw: "Eneo la huduma" },
+  productAttrWalkIn: { en: "Walk-in address", sw: "Anwani ya ofisi" },
+  productAttrTransmission: { en: "Transmission", sw: "Gia" },
+  productAttrCondition: { en: "Condition", sw: "Hali" },
+  productAttrPosted: { en: "Posted", sw: "Imewekwa" },
+  productAttrCategory: { en: "Category", sw: "Kundi" },
+  productSellerTitle: { en: "Seller", sw: "Muuzaji" },
+  productNotVerifiedPill: { en: "Not yet verified", sw: "Bado haijathibitishwa" },
+  productVerifiedMeaningTitle: { en: "What does this mean?", sw: "Hii inamaanisha nini?" },
+  productVerifiedMeaningBody: {
+    en: "Verified sellers can take M-Pesa upfront. You can pay before delivery with more protection.",
+    sw: "Wauzaji waliothibitishwa wanaweza kupokea M-Pesa mapema. Unaweza kulipa kabla ya kuwasilisha.",
+  },
+  productUnverifiedMeaningBody: {
+    en: "This seller is not yet Verified. Pay cash or M-Pesa on delivery — don’t send money in advance.",
+    sw: "Muuzaji huyu bado hajathibitishwa. Lipa taslimu au M-Pesa ukifika — usitume pesa mapema.",
+  },
+  productWhatVerifiedMeans: { en: "What does this mean?", sw: "Hii inamaanisha nini?" },
+  productViewSellerListings: {
+    en: "View all listings from this seller",
+    sw: "Tazama matangazo yote ya muuzaji huyu",
+  },
+  productSafetyTitle: { en: "Safety tips", sw: "Vidokezo vya usalama" },
+  productSafetyMeet: {
+    en: "Meet in public places when you inspect an item, home, or car.",
+    sw: "Kutane sehemu za umma unapokagua bidhaa, nyumba, au gari.",
+  },
+  productSafetyPay: {
+    en: "Don’t pay in advance unless the seller is Verified.",
+    sw: "Usilipe mapema isipokuwa muuzaji ame Verified.",
+  },
+  productReport: { en: "Report listing", sw: "Ripoti tangazo" },
+  productNoReviews: { en: "No reviews yet", sw: "Bado hakuna maoni" },
+  productCall: { en: "Call", sw: "Piga" },
+  productServiceAreaTitle: { en: "Service area", sw: "Eneo la huduma" },
+  productWalkInTitle: { en: "Walk-in address / hours", sw: "Ofisi na saa" },
+  productLightboxClose: { en: "Close photos", sw: "Funga picha" },
+  productSimilarIn: { en: "Similar in", sw: "Zinazofanana katika" },
+  productSaveAria: { en: "Save listing", sw: "Hifadhi tangazo" },
+  productUnsaveAria: { en: "Remove from saved", sw: "Ondoa kwenye vilivyohifadhiwa" },
   productPricePerMonth: { en: "/ month", sw: "/ mwezi" },
   productPriceForSale: { en: "for sale", sw: "kwa kuuza" },
   inquiryViewingTitle: { en: "Request a viewing", sw: "Omba kutembelea" },
@@ -820,10 +964,15 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   accMyShop: { en: "My shop", sw: "Duka langu" },
   accOrdersBuyer: { en: "Orders as buyer", sw: "Maagizo kama mnunuzi" },
   accSaved: { en: "Saved items", sw: "Vilivyohifadhiwa" },
+  accAddresses: { en: "Addresses", sw: "Anwani" },
   accHelp: { en: "Help and support", sw: "Msaada" },
   accApplicationStatus: { en: "Application status", sw: "Hali ya ombi" },
   accApplyAgain: { en: "Apply again", sw: "Omba tena" },
   accSell: { en: "Sell on NakuruHub", sw: "Uza kwenye NakuruHub" },
+  accSellPromoSub: {
+    en: "List products, property, or services.",
+    sw: "Orodhesha bidhaa, mali, au huduma.",
+  },
   accMyOrders: { en: "My orders", sw: "Maagizo yangu" },
   accShopAfterApproval: {
     en: "Available after approval",
@@ -866,15 +1015,67 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
     en: "Keep me signed in",
     sw: "Nikumbuke",
   },
-  signInTitle: { en: "Sign in", sw: "Ingia" },
+  signInTitle: { en: "Welcome back", sw: "Karibu tena" },
   signInLead: {
-    en: "Save orders, cart, and quote requests. We email a one-time code — no password.",
-    sw: "Hifadhi maagizo, kikapu, na maombi ya bei. Tunatuma kodi ya mara moja kwa barua pepe — bila nenosiri.",
+    en: "We’ll email a 6-digit code — no password needed.",
+    sw: "Tutakutumia kodi ya tarakimu 6 — bila nenosiri.",
   },
+  signInHelper: {
+    en: "The code expires in 10 minutes.",
+    sw: "Kodi inaisha baada ya dakika 10.",
+  },
+  signInEmailLabel: { en: "Email", sw: "Barua pepe" },
+  signInEmailError: {
+    en: "Enter a valid email address",
+    sw: "Weka barua pepe sahihi",
+  },
+  signInSending: { en: "Sending…", sw: "Inatuma…" },
   signInCta: { en: "Send code", sw: "Tuma kodi" },
-  signInCodeTitle: { en: "Confirm sign-in", sw: "Thibitisha kuingia" },
+  signInCodeTitle: { en: "Check your email", sw: "Angalia barua pepe" },
+  signInCodeSent: {
+    en: "Code sent to {email}",
+    sw: "Kodi imetumwa kwa {email}",
+  },
+  signInChangeEmail: { en: "Change email", sw: "Badilisha barua pepe" },
+  signInExpiry: {
+    en: "Expires in 10 minutes.",
+    sw: "Inaisha baada ya dakika 10.",
+  },
+  signInResend: { en: "Resend code", sw: "Tuma kodi tena" },
+  signInResendIn: { en: "Resend in {n}s", sw: "Tuma tena baada ya {n}s" },
+  signInWrongCode: {
+    en: "That code doesn’t match. Try again.",
+    sw: "Kodi hailingani. Jaribu tena.",
+  },
+  signInExpired: {
+    en: "This code expired. Request a new one.",
+    sw: "Kodi hii imeisha. Omba nyingine.",
+  },
+  signInRateLimit: {
+    en: "Too many codes sent. Wait a few minutes.",
+    sw: "Kodi nyingi zimetumwa. Subiri dakika chache.",
+  },
+  signInVerifying: { en: "Verifying…", sw: "Inathibitisha…" },
   signInVerifyCta: { en: "Verify and sign in", sw: "Thibitisha na uingie" },
   signInSuccess: { en: "Signed in", sw: "Umeingia" },
+  signInContextOrders: {
+    en: "Sign in to see your orders",
+    sw: "Ingia ili uone maagizo yako",
+  },
+  signInContextSaved: {
+    en: "Sign in to see your saved items",
+    sw: "Ingia ili uone vilivyohifadhiwa",
+  },
+  signInTermsBefore: {
+    en: "By continuing you agree to our",
+    sw: "Kwa kuendelea unakubali",
+  },
+  signInTerms: { en: "Terms", sw: "Masharti" },
+  signInPrivacy: { en: "Privacy Policy", sw: "Sera ya faragha" },
+  signInPhoneSoon: {
+    en: "Phone sign-in is coming soon. Use email for now.",
+    sw: "Kuingia kwa simu inakuja. Tumia barua pepe kwa sasa.",
+  },
   vendorApplySameAccount: {
     en: "This uses the same account as shopping — not a second login.",
     sw: "Hii inatumia akaunti ile ile ya ununuzi — si kuingia kwa pili.",
@@ -915,8 +1116,8 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
     sw: "Uliza msaidizi",
   },
   assistantEntryProduct: {
-    en: "Ask about this item",
-    sw: "Uliza kuhusu bidhaa hii",
+    en: "Ask about this listing",
+    sw: "Uliza kuhusu tangazo hili",
   },
   assistantEntryCartPay: {
     en: "Need help with payment?",
@@ -953,6 +1154,51 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
     sw: "Matangazo ya nyumbani yaliyochaguliwa.",
   },
   clearFilters: { en: "Clear filters", sw: "Futa vichujio" },
+  priceFrom: { en: "From", sw: "Kuanzia" },
+  chipQuote: { en: "Quote", sw: "Bei" },
+  chipViewing: { en: "Viewing", sw: "Kutembelea" },
+  chipCod: { en: "Pay on delivery", sw: "Lipa ukifika" },
+  chipFreeDelivery: { en: "Free delivery", sw: "Usafirishaji bure" },
+  browseCategories: { en: "Browse categories", sw: "Vinjari kategoria" },
+  freshInZoneSeeAll: { en: "See all", sw: "Angalia zote" },
+  servicesNearYou: { en: "Services near you", sw: "Huduma karibu nawe" },
+  propertyAndCars: { en: "Property and cars", sw: "Mali na magari" },
+  moreToExplore: { en: "More to explore", sw: "Zaidi ya kuchunguza" },
+  filterBarSort: { en: "Sort", sw: "Panga" },
+  filterBarFilter: { en: "Filter", sw: "Chuja" },
+  filterSheetTitle: { en: "Filters", sw: "Vichujio" },
+  sortSheetTitle: { en: "Sort listings", sw: "Panga matangazo" },
+  sortNearest: { en: "Nearest zone", sw: "Eneo la karibu" },
+  filterPriceRange: { en: "Price range", sw: "Kiwango cha bei" },
+  filterPriceMin: { en: "Min", sw: "Chini" },
+  filterPriceMax: { en: "Max", sw: "Juu" },
+  filterZone: { en: "Zone", sw: "Eneo" },
+  filterListingType: { en: "Listing type", sw: "Aina ya tangazo" },
+  filterCategory: { en: "Category", sw: "Kategoria" },
+  filterTypeAll: { en: "Any type", sw: "Aina yoyote" },
+  filterTypeShop: { en: "Shop", sw: "Duka" },
+  filterTypeServices: { en: "Services", sw: "Huduma" },
+  filterTypeProperty: { en: "Property", sw: "Mali" },
+  filterTypeCars: { en: "Cars", sw: "Magari" },
+  filterApply: { en: "Show results", sw: "Onyesha matokeo" },
+  filterVerifiedOnly: { en: "Verified only", sw: "Waliothibitishwa tu" },
+  trustStripVerified: { en: "ID-checked sellers", sw: "Wauzaji waliokaguliwa" },
+  trustStripPay: { en: "Pay on delivery", sw: "Lipa ukifika" },
+  trustStripFreeJoin: { en: "Free to list", sw: "Bure kuorodhesha" },
+  trustVerifyTitle: { en: "How we verify", sw: "Jinsi tunavyothibitisha" },
+  trustVerifyBody: {
+    en: "Sellers upload a government ID. We review it before they can list. Verified shops show a check on the card and on their profile.",
+    sw: "Wauzaji wanapakia kitambulisho cha serikali. Tunakagua kabla ya kuorodhesha. Maduka yaliyothibitishwa yana alama kwenye kadi na wasifu.",
+  },
+  trustPayBody: {
+    en: "Inspect the item when it arrives, then pay by M-Pesa or cash. You are not charged before delivery.",
+    sw: "Kagua bidhaa inapofika, kisha lipa kwa M-Pesa au taslimu. Hutoziwi kabla ya kuwasilisha.",
+  },
+  resultCountLive: {
+    en: "{n} results",
+    sw: "Matokeo {n}",
+  },
+  loadMoreFallback: { en: "Load more", sw: "Pakia zaidi" },
   featuredFirst: { en: "Featured first", sw: "Maarufu kwanza" },
   viewDetails: { en: "View details", sw: "Tazama maelezo" },
   saveListingAria: { en: "Save listing", sw: "Hifadhi tangazo" },
@@ -963,8 +1209,8 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   },
   commentsTitle: { en: "Comments", sw: "Maoni" },
   commentsEmpty: {
-    en: "Be the first to comment.",
-    sw: "Kuwa wa kwanza kutoa maoni.",
+    en: "Be the first to ask a question",
+    sw: "Kuwa wa kwanza kuuliza swali",
   },
   commentsPlaceholder: { en: "Write a comment", sw: "Andika maoni" },
   commentsSubmit: { en: "Post comment", sw: "Tuma maoni" },

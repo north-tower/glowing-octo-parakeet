@@ -1,75 +1,54 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useNakuruApp } from "@/components/app/AppProvider";
 import { AppTopNav } from "@/components/app/AppTopNav";
 import { PublicAppNav } from "@/components/app/PublicAppNav";
 import { BrandLogoMark } from "@/components/app/BrandLogoMark";
-import { homeCategoryLabel, homeCopy } from "@/lib/nakuru/home-i18n";
-import type { DirectoryCategory } from "@/lib/nakuru/data/category-directory";
-import type { CategoryId } from "@/lib/nakuru/types";
+import { CategoryTabs } from "@/components/app/home/CategoryTabs";
+import { homeCopy } from "@/lib/nakuru/home-i18n";
+import { homeFiltersHref, parseHomeFilters } from "@/lib/nakuru/home-filters";
 import { useCategories } from "@/lib/nakuru/use-categories";
 import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
 import { ZoneSheet } from "@/components/app/ZoneSheet";
 import { usePrimaryNav } from "@/components/app/usePrimaryNav";
+import { useAssistantUi } from "@/components/app/assistant/AssistantUiProvider";
 import { useAppDesktopUp, useAppTabletUp } from "@/lib/nakuru/use-media-query";
 import {
   IconCamera,
   IconChevronDown,
   IconMapPin,
   IconSearch,
+  IconSparkle,
 } from "@/components/app/icons/LineIcons";
 import { BRAND_NAME, BRAND_TAGLINE } from "@/lib/nakuru/brand";
-import type { LandingLang } from "@/lib/nakuru/i18n";
-
-const OFFICIAL_TAB_IDS = new Set<CategoryId>([
-  "shop",
-  "property",
-  "cars",
-  "services",
-  "stays",
-  "taxi",
-  "rider",
-]);
-
-function directoryTabLabel(row: DirectoryCategory, lang: LandingLang): string {
-  if (row.kind === "official" && OFFICIAL_TAB_IDS.has(row.slug as CategoryId)) {
-    return homeCategoryLabel(row.slug, lang);
-  }
-  return row.label;
-}
 
 export function AppHeader() {
   const { state, dispatch, toast } = useNakuruApp();
   const { rows: categoryRows } = useCategories();
   const { lang } = usePwaInstall();
   const { goHome } = usePrimaryNav();
+  const { openAssistant } = useAssistantUi();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const urlFilters = useMemo(
+    () => parseHomeFilters(searchParams),
+    [searchParams],
+  );
   const tabletUp = useAppTabletUp();
   const desktopUp = useAppDesktopUp();
   const [qLocal, setQLocal] = useState(state.q);
   const [zoneOpen, setZoneOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const tabsRef = useRef<HTMLDivElement>(null);
   const zoneBtnRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
-  const reduced =
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const lastY = useRef(0);
 
   useEffect(() => {
     setQLocal(state.q);
   }, [state.q]);
-
-  useEffect(() => {
-    const tabs = tabsRef.current;
-    if (!tabs || (state.tab !== "home" && state.tab !== "cat")) return;
-    const active = tabs.querySelector<HTMLElement>(".tb.on");
-    active?.scrollIntoView({
-      inline: "center",
-      block: "nearest",
-      behavior: reduced ? "auto" : "smooth",
-    });
-  }, [state.cat, state.tab, reduced]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -91,11 +70,33 @@ export function AppHeader() {
     return () => document.removeEventListener("keydown", onKey);
   }, []);
 
+  useEffect(() => {
+    lastY.current = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      const delta = y - lastY.current;
+      if (y < 24) {
+        setCollapsed(false);
+      } else if (delta > 8) {
+        setCollapsed(true);
+      } else if (delta < -8) {
+        setCollapsed(false);
+      }
+      lastY.current = y;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   const onSearchInput = (value: string) => {
     setQLocal(value);
     if (searchTimer.current) clearTimeout(searchTimer.current);
     searchTimer.current = setTimeout(() => {
       dispatch({ type: "SET_Q", q: value });
+      router.replace(
+        homeFiltersHref({ ...urlFilters, cat: state.cat, q: value }),
+        { scroll: false },
+      );
     }, 120);
   };
 
@@ -103,36 +104,24 @@ export function AppHeader() {
     if (searchTimer.current) clearTimeout(searchTimer.current);
     dispatch({ type: "SET_Q", q: qLocal });
     dispatch({ type: "SET_TAB", tab: "home" });
+    router.replace(
+      homeFiltersHref({ ...urlFilters, cat: state.cat, q: qLocal }),
+      { scroll: false },
+    );
   };
 
-  const officialTabs = categoryRows.filter((r) => r.kind === "official");
-  const communityTabs = categoryRows.filter((r) => r.kind === "community");
+  const onSelectCat = (slug: string) => {
+    dispatch({ type: "SET_CAT", cat: slug });
+    router.replace(homeFiltersHref({ cat: slug, q: "" }), { scroll: false });
+  };
 
   const tabsBlock = (
-    <div className="tabs-scroll">
-      <div className="tabs" id="tabs" ref={tabsRef}>
-        <button
-          type="button"
-          className={`tb${state.cat === "all" ? " on" : ""}`}
-          onClick={() => dispatch({ type: "SET_CAT", cat: "all" })}
-        >
-          {homeCategoryLabel("all", lang)}
-        </button>
-        {[...officialTabs, ...communityTabs].map((row) => {
-          const label = directoryTabLabel(row, lang);
-          return (
-            <button
-              key={row.slug}
-              type="button"
-              className={`tb${state.cat === row.slug ? " on" : ""}`}
-              onClick={() => dispatch({ type: "SET_CAT", cat: row.slug })}
-            >
-              {label}
-            </button>
-          );
-        })}
-      </div>
-    </div>
+    <CategoryTabs
+      lang={lang}
+      cat={state.cat}
+      rows={categoryRows}
+      onSelect={onSelectCat}
+    />
   );
 
   const searchForm = (
@@ -144,7 +133,7 @@ export function AppHeader() {
       }}
     >
       <span className="search-ico" aria-hidden>
-        <IconSearch size={24} />
+        <IconSearch size={22} />
       </span>
       <input
         id="q"
@@ -161,19 +150,22 @@ export function AppHeader() {
         </kbd>
       ) : null}
       <button
+        type="button"
+        className="search-ghost-btn search-ask-btn"
+        aria-label={homeCopy("assistantFabAria", lang)}
+        onClick={() => openAssistant({ source: "search-ask" })}
+      >
+        <IconSparkle size={20} />
+        <span className="search-ask-label">{homeCopy("searchAsk", lang)}</span>
+      </button>
+      <button
         id="cam"
         type="button"
         className="search-ghost-btn"
         aria-label={homeCopy("searchPhoto", lang)}
-        onClick={() =>
-          toast(
-            lang === "sw"
-              ? "Utafutaji kwa picha unakuja hivi karibuni"
-              : "Search by photo is coming soon",
-          )
-        }
+        onClick={() => toast(homeCopy("photoSearchSoon", lang))}
       >
-        <IconCamera size={24} />
+        <IconCamera size={22} />
       </button>
       <button type="submit" className="sr-only">
         {homeCopy("searchSubmit", lang)}
@@ -183,7 +175,10 @@ export function AppHeader() {
 
   return (
     <>
-      <header id="hd" className={`t-${state.tab}`}>
+      <header
+        id="hd"
+        className={`t-${state.tab}${collapsed ? " hd-collapsed" : ""}`}
+      >
         <div className="app-hd-band">
           <div className="app-container app-hd-bar">
             {!tabletUp ? (
@@ -271,3 +266,5 @@ export function AppHeader() {
     </>
   );
 }
+
+export { AppHeader as HomeHeader };

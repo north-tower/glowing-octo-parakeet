@@ -53,7 +53,7 @@ export function HomeSectionHeader({
   ) : null;
 
   const titleClass = listingStyle
-    ? "m-0 text-xl font-semibold text-stone-900"
+    ? "home-section-title home-section-title--listing"
     : noMarker
       ? "home-section-title home-section-title--no-marker"
       : "home-section-title";

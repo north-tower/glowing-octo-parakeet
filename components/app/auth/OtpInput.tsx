@@ -18,6 +18,7 @@ type Props = {
   disabled?: boolean;
   error?: string | null;
   autoFocus?: boolean;
+  labelledBy?: string;
 };
 
 export function OtpInput({
@@ -27,6 +28,7 @@ export function OtpInput({
   disabled = false,
   error = null,
   autoFocus = false,
+  labelledBy,
 }: Props) {
   const baseId = useId();
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
@@ -118,10 +120,11 @@ export function OtpInput({
     <div>
       <div
         key={error ?? "ok"}
-        className={`flex justify-center gap-2 sm:gap-2.5${error && !reduced ? " motion-safe:animate-[auth-shake_0.4s_ease-in-out]" : ""}`}
+        className={`otp-boxes${error && !reduced ? " motion-safe:animate-[auth-shake_0.4s_ease-in-out]" : ""}`}
         role="group"
-        aria-label="6-digit code"
-        aria-describedby={error ? errId : undefined}
+        aria-label={labelledBy ? undefined : "6-digit sign-in code"}
+        aria-labelledby={labelledBy}
+        aria-describedby={errId}
       >
         {digits.map((d, i) => (
           <input
@@ -130,6 +133,7 @@ export function OtpInput({
               inputsRef.current[i] = el;
             }}
             id={`${baseId}-${i}`}
+            className={`otp-box${error ? " is-invalid" : ""}`}
             type="text"
             inputMode="numeric"
             autoComplete={i === 0 ? "one-time-code" : "off"}
@@ -138,11 +142,6 @@ export function OtpInput({
             value={d}
             disabled={disabled}
             aria-invalid={error ? true : undefined}
-            className={`h-14 w-11 rounded-xl border bg-white text-center text-2xl font-semibold tabular-nums text-stone-900 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700 sm:h-14 sm:w-14 ${
-              error
-                ? "border-red-400 focus-visible:ring-red-500"
-                : "border-stone-300"
-            }`}
             onChange={(e) => onDigitInput(i, e.target.value)}
             onKeyDown={(e) => onKeyDown(i, e)}
             onPaste={onPaste}
@@ -150,11 +149,9 @@ export function OtpInput({
           />
         ))}
       </div>
-      {error ? (
-        <p id={errId} role="alert" className="mt-3 text-center text-sm text-red-600">
-          {error}
-        </p>
-      ) : null}
+      <p id={errId} role="alert" className="otp-error">
+        {error ?? "\u00a0"}
+      </p>
     </div>
   );
 }

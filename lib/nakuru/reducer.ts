@@ -156,6 +156,9 @@ export function nakuruReducer(
       if (id === "acc:saved") {
         return { state, toast: "Saved items are coming soon" };
       }
+      if (id === "acc:addresses") {
+        return { state, toast: "Addresses are coming soon" };
+      }
       if (id === "acc:help" || id === "toast") {
         return { state, toast: "Help is coming soon" };
       }

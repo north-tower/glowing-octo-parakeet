@@ -12,8 +12,28 @@ export type PostSignInReturn = {
 
 function safeReturnPath(path: string): string | null {
   if (!path.startsWith("/") || path.startsWith("//")) return null;
+  if (path.startsWith("/\\") || path.includes("://")) return null;
   if (!path.startsWith("/app")) return null;
   return path;
+}
+
+/** Same-origin in-app path from a `returnTo` query value. */
+export function parseReturnToParam(
+  raw: string | null | undefined,
+): string | null {
+  if (!raw) return null;
+  try {
+    const decoded = decodeURIComponent(raw.trim());
+    return safeReturnPath(decoded);
+  } catch {
+    return null;
+  }
+}
+
+export function signInHref(returnTo?: string | null): string {
+  const path = returnTo ? parseReturnToParam(returnTo) : null;
+  if (!path) return "/auth/sign-in";
+  return `/auth/sign-in?returnTo=${encodeURIComponent(path)}`;
 }
 
 /** Remember where to send the shopper after in-app sign-in. */

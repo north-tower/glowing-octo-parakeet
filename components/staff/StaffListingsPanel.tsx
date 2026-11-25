@@ -14,6 +14,7 @@ import {
 import { CardRowsSkeleton } from "@/components/app/loading/LoadingUi";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { useStaffSession } from "./StaffSessionContext";
 
 type ActiveFilter = "all" | "active" | "inactive";
 type VendorFilter = "all" | "pending" | "approved" | "rejected";
@@ -43,6 +44,8 @@ function buildQuery(
 }
 
 export function StaffListingsPanel() {
+  const { me } = useStaffSession();
+  const isAdmin = me.role === "admin";
   const [activeFilter, setActiveFilter] = useState<ActiveFilter>("all");
   const [vendorFilter, setVendorFilter] = useState<VendorFilter>("all");
   const [catalogFilter, setCatalogFilter] = useState<CatalogFilter>("all");
@@ -205,7 +208,7 @@ export function StaffListingsPanel() {
         </div>
       ) : (
         visible.map((row) => (
-          <ListingCard key={row.id} row={row} />
+          <ListingCard key={row.id} row={row} canPromoteHero={isAdmin} />
         ))
       )}
 
@@ -224,9 +227,49 @@ export function StaffListingsPanel() {
   );
 }
 
-function ListingCard({ row }: { row: StaffListingRow }) {
+function ListingCard({
+  row,
+  canPromoteHero,
+}: {
+  row: StaffListingRow;
+  canPromoteHero: boolean;
+}) {
   const stock =
     row.stock == null ? "Unlimited" : row.stock === 0 ? "Out of stock" : row.stock;
+  const [heroBusy, setHeroBusy] = useState(false);
+  const [heroMsg, setHeroMsg] = useState<string | null>(null);
+
+  const promoteHero = async () => {
+    if (!getStaffAccessToken()) return;
+    setHeroBusy(true);
+    setHeroMsg(null);
+    try {
+      await staffFetch("/api/admin/home-placements", {
+        method: "POST",
+        body: JSON.stringify({
+          productId: row.id,
+          sortOrder: 10,
+          active: true,
+        }),
+      });
+      setHeroMsg("Added to home hero carousel.");
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) {
+        clearStaffAccessToken();
+        window.location.reload();
+        return;
+      }
+      const code =
+        err instanceof ApiError ? String(err.message) : "Could not promote.";
+      setHeroMsg(
+        err instanceof ApiError && err.status === 409
+          ? "Already on hero carousel — edit on Hero carousel page."
+          : code,
+      );
+    } finally {
+      setHeroBusy(false);
+    }
+  };
 
   return (
     <div className="card staff-ops-order-card">
@@ -260,10 +303,30 @@ function ListingCard({ row }: { row: StaffListingRow }) {
             Open listing
           </Link>
         ) : null}
+        {canPromoteHero && row.onPublicCatalog ? (
+          <button
+            type="button"
+            className="btn s o"
+            disabled={heroBusy}
+            onClick={() => void promoteHero()}
+          >
+            {heroBusy ? "Adding…" : "Add to hero carousel"}
+          </button>
+        ) : null}
+        {canPromoteHero ? (
+          <Link href="/staff/promotions" className="btn s o">
+            Hero carousel
+          </Link>
+        ) : null}
         <code style={{ fontSize: 11, wordBreak: "break-all", alignSelf: "center" }}>
           {row.id}
         </code>
       </div>
+      {heroMsg ? (
+        <div className="m" style={{ marginTop: 8 }}>
+          {heroMsg}
+        </div>
+      ) : null}
     </div>
   );
 }

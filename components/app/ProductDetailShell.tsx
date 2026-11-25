@@ -1,7 +1,6 @@
 "use client";
 
 import { AppHeader } from "@/components/app/AppHeader";
-import { BottomNav } from "@/components/app/BottomNav";
 import { ProductDetailView } from "@/components/app/ProductDetailView";
 
 type Props = {
@@ -15,7 +14,6 @@ export function ProductDetailShell({ productId }: Props) {
       <main id="v" className="pd-main">
         <ProductDetailView productId={productId} />
       </main>
-      <BottomNav />
     </div>
   );
 }

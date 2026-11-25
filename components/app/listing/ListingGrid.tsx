@@ -7,9 +7,7 @@ type Props = {
 
 export function ListingGrid({ children, className = "" }: Props) {
   return (
-    <div
-      className={`col-span-full grid grid-cols-2 items-stretch gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5 ${className}`}
-    >
+    <div className={`lc-grid${className ? ` ${className}` : ""}`}>
       {children}
     </div>
   );

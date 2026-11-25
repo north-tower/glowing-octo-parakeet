@@ -1,50 +1,25 @@
 "use client";
 
-import { SignInForm } from "@/components/app/auth/SignInForm";
+import { SignInForm, type SignInIntent } from "@/components/app/auth/SignInForm";
 import { AccountSignedInView } from "@/components/app/account/AccountSignedInView";
+import { AccountGuestPanel } from "@/components/app/account/AccountGuestPanel";
 import { useAuth } from "@/components/app/AppAuthProvider";
 import { VendorView } from "@/components/app/views/VendorView";
 import { useNakuruApp } from "@/components/app/AppProvider";
 import { useMyVendorProfile } from "@/components/app/useMyVendorProfile";
-import { accountMenuRowsSignedOut } from "@/lib/nakuru/vendor-profile";
 import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
-import { consumePostSignInReturn } from "@/lib/nakuru/post-sign-in-tab";
-import { useAssistantUi } from "@/components/app/assistant/AssistantUiProvider";
+import { consumePostSignInReturn, requestPostSignInReturn } from "@/lib/nakuru/post-sign-in-tab";
 import { homeCopy } from "@/lib/nakuru/home-i18n";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
-function InstallAccountRowSignedOut() {
-  const { standalone, openInstallSheet, t } = usePwaInstall();
-  if (standalone) return null;
-  return (
-    <div
-      className="card li"
-      role="button"
-      tabIndex={0}
-      onClick={() => openInstallSheet("account")}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") openInstallSheet("account");
-      }}
-    >
-      <div className="av pwa-install-av" aria-hidden>
-        <img src="/icons/icon-192.png" alt="" width={28} height={28} />
-      </div>
-      <div className="t" style={{ flex: 1 }}>
-        {t("installRow")}
-      </div>
-      <span className="m">›</span>
-    </div>
-  );
-}
 
 export function AccountView() {
   const { state, dispatch, toast } = useNakuruApp();
-  const { openAssistant } = useAssistantUi();
   const { user, ready, logout } = useAuth();
   const { profile: vendorProfile } = useMyVendorProfile();
   const { lang, setLang, standalone, openInstallSheet } = usePwaInstall();
   const router = useRouter();
+  const [intent, setIntent] = useState<SignInIntent>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -93,47 +68,18 @@ export function AccountView() {
 
   if (!signedIn) {
     return (
-      <>
-        <SignInForm />
-        <div
-          className="card li"
-          role="button"
-          tabIndex={0}
-          onClick={() => openAssistant({ screen: "help", source: "account-signed-out" })}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              openAssistant({ screen: "help", source: "account-signed-out" });
-            }
+      <div className="account-signed-out">
+        <SignInForm showGuestBrowse={false} intent={intent} />
+        <AccountGuestPanel
+          onNeedSignIn={(next) => {
+            setIntent(next);
+            if (next === "orders") requestPostSignInReturn({ tab: "cart" });
+            else requestPostSignInReturn({ tab: "acc" });
+            document.getElementById("signin-email")?.focus();
           }}
-        >
-          <div className="av">✦</div>
-          <div className="t" style={{ flex: 1 }}>
-            {homeCopy("assistantEntryAccount", lang)}
-          </div>
-          <span className="m">›</span>
-        </div>
-        <InstallAccountRowSignedOut />
-        {accountMenuRowsSignedOut().map((r, i) => (
-          <div
-            key={`${r[2]}-${i}`}
-            className="card li"
-            role="button"
-            tabIndex={0}
-            onClick={() => dispatch({ type: "ACCOUNT_ROW", id: r[2] })}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                dispatch({ type: "ACCOUNT_ROW", id: r[2] });
-              }
-            }}
-          >
-            <div className="av">{r[0]}</div>
-            <div className="t" style={{ flex: 1 }}>
-              {r[1]}
-            </div>
-            <span className="m">›</span>
-          </div>
-        ))}
-      </>
+          onSell={() => dispatch({ type: "ACCOUNT_ROW", id: "acc:vendor" })}
+        />
+      </div>
     );
   }
 

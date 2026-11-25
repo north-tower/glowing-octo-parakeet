@@ -1,41 +1,18 @@
-import {
-  Building2,
-  Car,
-  Handshake,
-  Shirt,
-  type LucideIcon,
-} from "lucide-react";
-import type { CategoryTint } from "@/components/app/category/browse/categories";
 import { classifiedLocation } from "@/lib/nakuru/listing-card-display";
+import { listingPlaceholder } from "@/lib/nakuru/category-placeholder";
+import { formatListingPriceParts } from "@/lib/nakuru/format-listing-price";
 import { listingModeOf } from "@/lib/nakuru/listing-mode";
 import {
   listingGallery,
   resolveListingImageSrc,
 } from "@/lib/nakuru/listing-image";
-import {
-  formatPropertyPrice,
-  propertyListingBadge,
-  propertyTenure,
-} from "@/lib/nakuru/property-display";
+import { propertyListingBadge } from "@/lib/nakuru/property-display";
 import type { LandingLang } from "@/lib/nakuru/i18n";
 import type { Listing } from "@/lib/nakuru/types";
-import type { ListingCardProps } from "@/lib/nakuru/listing-card-types";
-
-const DEFAULT_ICON: Record<string, LucideIcon> = {
-  shop: Shirt,
-  property: Building2,
-  cars: Car,
-  services: Handshake,
-  stays: Building2,
-};
-
-const DEFAULT_TINT: Record<string, CategoryTint> = {
-  shop: "rose",
-  property: "teal",
-  cars: "amber",
-  services: "emerald",
-  stays: "sky",
-};
+import type {
+  ListingCardChip,
+  ListingCardProps,
+} from "@/lib/nakuru/listing-card-types";
 
 function vendorName(item: Listing): string {
   return item.vn ?? item.s.split("·")[0]?.trim() ?? item.s;
@@ -54,24 +31,13 @@ function listingBadges(item: Listing): ListingCardProps["badges"] {
   return badges.sort((a, b) => order.indexOf(a) - order.indexOf(b));
 }
 
-function listingAction(
-  item: Listing,
-): ListingCardProps["action"] | undefined {
+function listingChip(item: Listing): ListingCardChip | undefined {
   const mode = listingModeOf(item);
+  if (item.attrs?.freeDelivery?.trim()) return "free-delivery";
   if (mode === "property" || mode === "cars") return "viewing";
   if (mode === "services") return "quote";
+  if (mode === "shop") return "cod";
   return undefined;
-}
-
-function categoryVisual(item: Listing): {
-  tint: CategoryTint;
-  icon: LucideIcon;
-} {
-  const c = item.c in DEFAULT_TINT ? item.c : "shop";
-  return {
-    tint: DEFAULT_TINT[c] ?? "stone",
-    icon: DEFAULT_ICON[c] ?? Shirt,
-  };
 }
 
 export function listingToCardProps(
@@ -79,32 +45,32 @@ export function listingToCardProps(
   lang: LandingLang,
   zoneLabel?: string,
 ): ListingCardProps {
-  const mode = listingModeOf(item);
   const gallery = listingGallery(item);
   const loc = classifiedLocation(item, zoneLabel);
-  const visual = categoryVisual(item);
-  const tenure = mode === "property" ? propertyTenure(item) : null;
-  const priceSuffix =
-    mode === "property"
-      ? formatPropertyPrice(item.p, tenure, lang).suffix
-      : null;
+  const visual = listingPlaceholder(item);
+  const price = formatListingPriceParts(item, lang);
+  const chip = listingChip(item);
 
   return {
     id: item.id,
     href: `/app/p/${item.id}`,
     title: item.t,
     price: item.p,
-    currency: "KES",
-    priceSuffix,
+    currency: price.currency,
+    pricePrefix: price.prefix,
+    priceSuffix: price.suffix,
+    priceLabel: price.label,
     imageUrl: resolveListingImageSrc(item) ?? undefined,
     imageCount: gallery.length > 0 ? gallery.length : undefined,
-    category: visual,
+    category: { tint: visual.tint, icon: visual.icon },
     seller: vendorName(item),
     sellerVerified: item.v === 1,
     location: loc ?? zoneLabel ?? "",
     badges: listingBadges(item),
-    payOnDelivery: mode === "shop" && item.v !== 1,
-    action: listingAction(item),
+    chip,
+    payOnDelivery: chip === "cod",
+    action:
+      chip === "quote" ? "quote" : chip === "viewing" ? "viewing" : undefined,
     saved: false,
   };
 }

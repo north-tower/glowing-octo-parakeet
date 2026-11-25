@@ -1,6 +1,8 @@
 "use client";
 
-import { ProductCard } from "@/components/app/ProductCard";
+import { ListingCard } from "@/components/app/listing/ListingCard";
+import { ListingGrid } from "@/components/app/listing/ListingGrid";
+import { listingToCardProps } from "@/lib/nakuru/listing-card-props";
 import { useNakuruApp } from "@/components/app/AppProvider";
 import { CategoryRow } from "@/components/app/category/CategoryRow";
 import { CategoryTile } from "@/components/app/CategoryTile";
@@ -44,8 +46,8 @@ type Props = {
   lang: LandingLang;
   liveCatalog: boolean;
   listings: ListingsState;
-  serviceInquiryEnabled: boolean;
-  onAct: Parameters<typeof ProductCard>[0]["onAct"];
+  serviceInquiryEnabled?: boolean;
+  onAct?: (id: number | string) => void;
 };
 
 function topIndicesForSide(side: string): number[] {
@@ -95,8 +97,6 @@ export function CategoryPanel({
   lang,
   liveCatalog,
   listings,
-  serviceInquiryEnabled,
-  onAct,
 }: Props) {
   const { state, dispatch } = useNakuruApp();
   const router = useRouter();
@@ -284,17 +284,17 @@ export function CategoryPanel({
           {listings.loading ? (
             <ListingsSkeleton count={4} />
           ) : listings.items.length ? (
-            <div className="g2" style={{ marginTop: 8 }}>
-              {listings.items.map((i) => (
-                <ProductCard
+            <ListingGrid className="mt-2">
+              {listings.items.map((i, idx) => (
+                <ListingCard
                   key={String(i.id)}
-                  item={i}
-                  navOriginTab="cat"
-                  serviceInquiryEnabled={serviceInquiryEnabled}
-                  onAct={onAct}
+                  {...listingToCardProps(i, lang, state.area)}
+                  lang={lang}
+                  variant="grid"
+                  priorityImage={idx < 2}
                 />
               ))}
-            </div>
+            </ListingGrid>
           ) : (
             <div style={{ marginTop: 8 }}>
               <ListingsEmpty

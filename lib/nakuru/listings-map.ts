@@ -16,6 +16,9 @@ export type ApiListing = {
   vendor: string;
   vendorId?: string;
   verified: boolean;
+  vendorLogoUrl?: string | null;
+  createdAt?: string | null;
+  vendorCreatedAt?: string | null;
 };
 
 export function toProductCardItem(api: ApiListing): Listing {
@@ -47,5 +50,6 @@ export function toProductCardItem(api: ApiListing): Listing {
     v: api.verified ? 1 : 0,
     vn: api.vendor,
     attrs: api.attributes,
+    createdAt: api.createdAt ?? null,
   };
 }

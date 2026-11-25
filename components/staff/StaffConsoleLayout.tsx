@@ -21,6 +21,7 @@ function navForRole(role: "admin" | "support"): NavItem[] {
     { href: "/staff/audit", label: "Audit" },
     ...shared,
     { href: "/staff/categories", label: "Categories" },
+    { href: "/staff/promotions", label: "Hero carousel" },
     { href: "/staff/orders", label: "Orders" },
   ];
 }

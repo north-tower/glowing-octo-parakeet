@@ -20,6 +20,9 @@ export type PublicListingRow = {
   vendor: string;
   vendorId: string;
   verified: boolean;
+  vendorLogoUrl: string | null;
+  createdAt: string | null;
+  vendorCreatedAt: string | null;
 };
 
 async function visibleLeafSlugsOrNone(
@@ -33,13 +36,36 @@ async function visibleLeafSlugsOrNone(
   return leaves;
 }
 
-type ListingRow = PublicListingRow & { vendorArea: string | null };
+type ListingRow = Omit<
+  PublicListingRow,
+  "vendorLogoUrl" | "createdAt" | "vendorCreatedAt"
+> & {
+  vendorArea: string | null;
+  vendorWhatsapp: string | null;
+  vendorLogoUrl: string | null;
+  createdAt: Date | string | null;
+  vendorCreatedAt: Date | string | null;
+};
+
+function isoOrNull(value: Date | string | null | undefined): string | null {
+  if (!value) return null;
+  if (value instanceof Date) return value.toISOString();
+  const parsed = Date.parse(value);
+  return Number.isNaN(parsed) ? value : new Date(parsed).toISOString();
+}
 
 function shapeListing(row: ListingRow): PublicListingRow {
-  const { vendorArea, ...rest } = row;
+  const { vendorArea, vendorWhatsapp, createdAt, vendorCreatedAt, ...rest } =
+    row;
   return {
     ...rest,
-    attributes: listingAttributesWithShopArea(rest.attributes, vendorArea),
+    createdAt: isoOrNull(createdAt),
+    vendorCreatedAt: isoOrNull(vendorCreatedAt),
+    attributes: listingAttributesWithShopArea(
+      rest.attributes,
+      vendorArea,
+      vendorWhatsapp,
+    ),
   };
 }
 
@@ -48,7 +74,9 @@ const LISTINGS_SQL = `select p.id, p.category, c.label as "categoryLabel", c.lis
        coalesce(p.gallery_urls, '{}') as "galleryUrls",
        coalesce(p.attributes, '{}')::jsonb as attributes,
        p.price_kes::int price, v.name vendor, v.id as "vendorId", v.verified,
-       v.area as "vendorArea"
+       v.logo_url as "vendorLogoUrl",
+       p.created_at as "createdAt", v.created_at as "vendorCreatedAt",
+       v.area as "vendorArea", v.whatsapp as "vendorWhatsapp"
 from products p
 join vendors v on v.id = p.vendor_id
 join categories c on c.slug = p.category
@@ -79,7 +107,9 @@ export async function getPublicListingById(
             coalesce(p.gallery_urls, '{}') as "galleryUrls",
             coalesce(p.attributes, '{}')::jsonb as attributes,
             p.price_kes::int price, v.name vendor, v.id as "vendorId", v.verified,
-            v.area as "vendorArea"
+            v.logo_url as "vendorLogoUrl",
+            p.created_at as "createdAt", v.created_at as "vendorCreatedAt",
+            v.area as "vendorArea", v.whatsapp as "vendorWhatsapp"
      from products p
      join vendors v on v.id = p.vendor_id
      join categories c on c.slug = p.category

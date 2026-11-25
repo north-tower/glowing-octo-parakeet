@@ -10,6 +10,13 @@ export type ListingCommentRow = {
 
 const HANDLE_MAX = 32;
 
+export function commentInitials(handle: string): string {
+  const parts = handle.trim().split(/[\s._-]+/).filter(Boolean);
+  if (!parts.length) return "?";
+  const letters = parts.slice(0, 2).map((w) => w[0] ?? "");
+  return letters.join("").toUpperCase();
+}
+
 export function commentPublicHandle(
   email: string | null | undefined,
 ): string {
