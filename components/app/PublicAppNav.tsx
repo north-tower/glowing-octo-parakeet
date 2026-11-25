@@ -5,6 +5,7 @@ import { useNakuruApp } from "@/components/app/AppProvider";
 import { usePrimaryNav } from "@/components/app/usePrimaryNav";
 import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
 import {
+  IconHeart,
   IconMessageCircle,
   IconShoppingCart,
   IconUser,
@@ -20,22 +21,11 @@ export function PublicAppNav() {
     <nav className="public-app-nav" aria-label="Primary">
       <button
         type="button"
-        className={`public-app-link${highlightTab === "home" ? " on" : ""}`}
-        onClick={() => goTab("home")}
-      >
-        {homeCopy("navExplore", lang)}
-      </button>
-      <button
-        type="button"
         className={`public-app-link${highlightTab === "cat" ? " on" : ""}`}
         onClick={() => goTab("cat")}
       >
         {homeCopy("navCategory", lang)}
       </button>
-      <Link className="public-app-link" href="/#how">
-        {homeCopy("navHow", lang)}
-      </Link>
-      <span className="public-app-spacer" />
       <button
         type="button"
         className="public-app-icon"
@@ -56,10 +46,11 @@ export function PublicAppNav() {
       </button>
       <button
         type="button"
-        className="public-app-link"
+        className="public-app-icon"
+        aria-label={homeCopy("navSaved", lang)}
         onClick={() => dispatch({ type: "ACCOUNT_ROW", id: "acc:saved" })}
       >
-        {homeCopy("navSaved", lang)}
+        <IconHeart size={20} />
       </button>
       <Link className="btn fl public-app-post" href="/app?start=vendor">
         {homeCopy("postListing", lang)}

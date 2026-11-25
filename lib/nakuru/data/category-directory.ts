@@ -16,8 +16,8 @@ export type DirectoryCategory = {
 };
 
 export const OFFICIAL_DIRECTORY_FALLBACK: DirectoryCategory[] = [
-  { slug: "vehicles", label: "Vehicles", kind: "official", listingMode: "cars", visible: true, openForApply: false, sortOrder: 10, parentSlug: null, depth: 0, hasChildren: true },
-  { slug: "real-estate", label: "Real Estate", kind: "official", listingMode: "property", visible: true, openForApply: false, sortOrder: 20, parentSlug: null, depth: 0, hasChildren: true },
+  { slug: "vehicles", label: "Vehicles", kind: "official", listingMode: "cars", visible: true, openForApply: true, sortOrder: 10, parentSlug: null, depth: 0, hasChildren: true },
+  { slug: "real-estate", label: "Real Estate", kind: "official", listingMode: "property", visible: true, openForApply: true, sortOrder: 20, parentSlug: null, depth: 0, hasChildren: true },
   { slug: "mobile-phones-tablets", label: "Mobile Phones", kind: "official", listingMode: "shop", visible: true, openForApply: true, sortOrder: 30, parentSlug: null, depth: 0, hasChildren: true },
   { slug: "electronics", label: "Electronics", kind: "official", listingMode: "shop", visible: true, openForApply: true, sortOrder: 40, parentSlug: null, depth: 0, hasChildren: true },
   { slug: "services", label: "Services", kind: "official", listingMode: "services", visible: true, openForApply: true, sortOrder: 170, parentSlug: null, depth: 0, hasChildren: true },

@@ -14,7 +14,11 @@ import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
 import { ZoneSheet } from "@/components/app/ZoneSheet";
 import { usePrimaryNav } from "@/components/app/usePrimaryNav";
 import { useAssistantUi } from "@/components/app/assistant/AssistantUiProvider";
-import { useAppDesktopUp, useAppTabletUp } from "@/lib/nakuru/use-media-query";
+import {
+  useAppDesktopUp,
+  useAppTabletUp,
+  useMediaQuery,
+} from "@/lib/nakuru/use-media-query";
 import {
   IconCamera,
   IconChevronDown,
@@ -38,6 +42,7 @@ export function AppHeader() {
   );
   const tabletUp = useAppTabletUp();
   const desktopUp = useAppDesktopUp();
+  const wideUp = useMediaQuery("(min-width: 1280px)");
   const [qLocal, setQLocal] = useState(state.q);
   const [zoneOpen, setZoneOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
@@ -151,22 +156,26 @@ export function AppHeader() {
       ) : null}
       <button
         type="button"
-        className="search-ghost-btn search-ask-btn"
+        className="search-ask-btn"
         aria-label={homeCopy("assistantFabAria", lang)}
         onClick={() => openAssistant({ source: "search-ask" })}
       >
-        <IconSparkle size={20} />
+        <span className="search-ask-icon" aria-hidden>
+          <IconSparkle size={16} />
+        </span>
         <span className="search-ask-label">{homeCopy("searchAsk", lang)}</span>
       </button>
-      <button
-        id="cam"
-        type="button"
-        className="search-ghost-btn"
-        aria-label={homeCopy("searchPhoto", lang)}
-        onClick={() => toast(homeCopy("photoSearchSoon", lang))}
-      >
-        <IconCamera size={22} />
-      </button>
+      {!tabletUp ? (
+        <button
+          id="cam"
+          type="button"
+          className="search-ghost-btn"
+          aria-label={homeCopy("searchPhoto", lang)}
+          onClick={() => toast(homeCopy("photoSearchSoon", lang))}
+        >
+          <IconCamera size={22} />
+        </button>
+      ) : null}
       <button type="submit" className="sr-only">
         {homeCopy("searchSubmit", lang)}
       </button>
@@ -221,7 +230,7 @@ export function AppHeader() {
                   <BrandLogoMark size={40} />
                   <span className="logo-stack">
                     <span className="logo-text">{BRAND_NAME}</span>
-                    {desktopUp ? (
+                    {wideUp ? (
                       <span className="logo-tagline">{BRAND_TAGLINE}</span>
                     ) : null}
                   </span>

@@ -471,7 +471,11 @@ function SignInFormInner({
 
         {devCode ? (
           <div className="otp-dev-banner" role="status" aria-live="polite">
-            <p className="otp-dev-banner-label">Development — use this code</p>
+            <p className="otp-dev-banner-label">
+              {isClientOtpDemo()
+                ? "Demo code — selling and orders need server sign-in (turn off client demo OTP)"
+                : "Development — use this code"}
+            </p>
             <p className="otp-dev-code">{devCode}</p>
           </div>
         ) : null}
