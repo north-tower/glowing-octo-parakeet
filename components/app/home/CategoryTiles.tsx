@@ -65,7 +65,7 @@ export function CategoryTiles({ lang, onCategory, onSeeAll }: Props) {
         <ChevronLeft size={18} aria-hidden />
       </button>
       <div className="cat-tiles-scroll" role="list" ref={scrollerRef}>
-        {FEAT.map((k) => {
+        {FEAT.slice(0, 7).map((k) => {
           const t = TOPC[k]!;
           const visual = popularLucideForTopcIndex(k);
           return (

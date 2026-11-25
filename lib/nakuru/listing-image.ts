@@ -19,11 +19,11 @@ export function listingGallery(item: Listing): string[] {
 }
 
 const DEMO_ART: { match: RegExp; slug: string }[] = [
-  { match: /jacket|kitenge|shirt/i, slug: "jacket" },
-  { match: /charger|phone/i, slug: "charger" },
-  { match: /vegg|salad|fresh/i, slug: "veggies" },
+  { match: /jacket|kitenge|shirt|denim/i, slug: "jacket" },
+  { match: /charger|phone|laptop|repair/i, slug: "charger" },
+  { match: /vegg|salad|fresh|sukuma/i, slug: "veggies" },
   { match: /sofa|couch/i, slug: "sofa" },
-  { match: /house|bedroom|rent|milimani|property|plot|acre/i, slug: "house" },
+  { match: /house|bedroom|rent|milimani|property|plot|acre|bedsitter/i, slug: "house" },
   { match: /toyota|car|axio|subaru|motors/i, slug: "car" },
   { match: /plumb|wrench|electric|service|clean/i, slug: "tools" },
 ];
@@ -69,11 +69,21 @@ export function displayImageSrc(item: Listing): string {
 export const LISTING_BLUR_DATA_URL =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
 
+/** Banners/posters (very wide or very tall) should contain, not cover. */
+export function isExtremePhotoAspect(
+  width?: number | null,
+  height?: number | null,
+): boolean {
+  if (!width || !height) return false;
+  const ratio = width / height;
+  return ratio > 1.85 || ratio < 0.7;
+}
+
 export function productImageSizes(
   variant: "rail" | "grid" | "classified" | "hero" = "grid",
 ): string {
   if (variant === "rail") {
-    return "(max-width: 767px) 42vw, (max-width: 1023px) 33vw, (max-width: 1279px) 25vw, (max-width: 1535px) 20vw, 16vw";
+    return "(max-width: 767px) 46vw, (max-width: 1023px) 33vw, (max-width: 1279px) 25vw, (max-width: 1535px) 20vw, 16vw";
   }
   if (variant === "classified") {
     return "(min-width: 1440px) 270px, (min-width: 1024px) 360px, 90vw";

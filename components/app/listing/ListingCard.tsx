@@ -52,6 +52,8 @@ export function ListingCard({
           title={card.title}
           imageUrl={card.imageUrl}
           imageCount={card.imageCount}
+          imageWidth={card.imageWidth}
+          imageHeight={card.imageHeight}
           category={card.category}
           priority={priorityImage}
           variant={variant}
@@ -76,20 +78,21 @@ export function ListingCard({
             ) : null}
           </p>
           <h3 className="lc-title">{card.title}</h3>
-          <p className="lc-seller">
-            <span className="lc-seller-name">{card.seller}</span>
-            {card.sellerVerified ? (
-              <BadgeCheck size={14} className="lc-seller-check" aria-hidden />
-            ) : null}
+          <div className="lc-seller">
+            <p className="lc-seller-l1">
+              <span className="lc-seller-name">{card.seller}</span>
+              {card.sellerVerified ? (
+                <BadgeCheck size={14} className="lc-seller-check" aria-hidden />
+              ) : null}
+            </p>
             {card.location ? (
-              <>
-                <span className="lc-seller-dot" aria-hidden>
-                  ·
-                </span>
-                <span className="lc-seller-zone">{card.location}</span>
-              </>
-            ) : null}
-          </p>
+              <p className="lc-seller-zone">{card.location}</p>
+            ) : (
+              <p className="lc-seller-zone" aria-hidden>
+                &nbsp;
+              </p>
+            )}
+          </div>
           {card.chip ? (
             <span className="lc-chip">{chipLabel(card.chip, lang)}</span>
           ) : (

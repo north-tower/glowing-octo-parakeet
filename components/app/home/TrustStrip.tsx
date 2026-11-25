@@ -28,7 +28,6 @@ export function TrustStrip({ lang, onSell }: Props) {
             <BadgeCheck size={20} aria-hidden />
             <span className="trust-copy">
               <b>{homeCopy("trustStripVerified", lang)}</b>
-              <span className="m">{homeCopy("trustStripVerifiedSub", lang)}</span>
             </span>
           </button>
         </li>
@@ -41,7 +40,6 @@ export function TrustStrip({ lang, onSell }: Props) {
             <Wallet size={20} aria-hidden />
             <span className="trust-copy">
               <b>{homeCopy("trustStripPay", lang)}</b>
-              <span className="m">{homeCopy("trustStripPaySub", lang)}</span>
             </span>
           </button>
         </li>
@@ -54,7 +52,6 @@ export function TrustStrip({ lang, onSell }: Props) {
             <Store size={20} aria-hidden />
             <span className="trust-copy">
               <b>{homeCopy("trustStripFreeJoin", lang)}</b>
-              <span className="m">{homeCopy("trustStripFreeSub", lang)}</span>
             </span>
           </button>
         </li>

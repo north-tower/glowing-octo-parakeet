@@ -4,6 +4,7 @@ import { db } from "./db";
 export type HomeHeroPromotionRow = {
   id: string;
   productId: string;
+  vendorId: string;
   title: string;
   subtitle: string;
   imageUrl: string | null;
@@ -33,6 +34,7 @@ export type StaffHomePlacementRow = {
 type PlacementProductRow = {
   placement_id: string;
   product_id: string;
+  vendor_id: string;
   product_title: string;
   product_image: string | null;
   gallery_urls: string[] | null;
@@ -47,6 +49,7 @@ type PlacementProductRow = {
 const LIVE_PLACEMENT_SQL = `
   select hp.id as placement_id,
          p.id as product_id,
+         v.id as vendor_id,
          p.title as product_title,
          p.image_url as product_image,
          coalesce(p.gallery_urls, '{}') as gallery_urls,
@@ -87,6 +90,7 @@ export function heroPromotionToJson(row: HomeHeroPromotionRow) {
   return {
     id: row.id,
     productId: row.productId,
+    vendorId: row.vendorId,
     title: row.title,
     subtitle: row.subtitle,
     imageUrl: row.imageUrl,
@@ -104,6 +108,7 @@ export async function listLiveHeroPromotions(): Promise<HomeHeroPromotionRow[]> 
     return {
       id: row.placement_id,
       productId: row.product_id,
+      vendorId: row.vendor_id,
       title,
       subtitle,
       imageUrl: resolveHeroImage(row),

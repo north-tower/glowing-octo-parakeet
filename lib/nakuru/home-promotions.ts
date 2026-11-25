@@ -1,6 +1,7 @@
 export type HomeHeroPromotion = {
   id: string;
   productId: string;
+  vendorId: string;
   title: string;
   subtitle: string;
   imageUrl: string | null;

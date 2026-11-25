@@ -140,5 +140,6 @@ describe("home hero placements", () => {
     const hit = pub.body.find((r: { productId: string }) => r.productId === productId);
     expect(hit?.title).toBe("Phone repair in Nakuru");
     expect(hit?.productId).toBe(productId);
+    expect(typeof hit?.vendorId).toBe("string");
   });
 });

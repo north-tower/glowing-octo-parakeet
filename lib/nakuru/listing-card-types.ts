@@ -29,6 +29,8 @@ export type ListingCardProps = {
   priceLabel?: string;
   imageUrl?: string;
   imageCount?: number;
+  imageWidth?: number;
+  imageHeight?: number;
   category: ListingCardCategory;
   seller: string;
   sellerVerified: boolean;

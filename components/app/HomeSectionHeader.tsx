@@ -24,7 +24,7 @@ export function HomeSectionHeader({
   lang,
   title,
   subtitle,
-  noMarker,
+  noMarker: _noMarker,
   listingStyle,
   seeAll,
   actions,
@@ -56,9 +56,7 @@ export function HomeSectionHeader({
 
   const titleClass = listingStyle
     ? "home-section-title home-section-title--listing"
-    : noMarker
-      ? "home-section-title home-section-title--no-marker"
-      : "home-section-title";
+    : "home-section-title home-section-title--no-marker";
 
   return (
     <div className="home-section-hd">

@@ -106,7 +106,13 @@ export function HeroCarousel({
               lang={lang}
               progress={i === index ? progress : 0}
               reducedMotion={reducedMotion}
-              onCta={() => router.push(`/app/p/${entry.slide.productId}`)}
+              onCta={() =>
+                router.push(
+                  entry.slide.vendorId
+                    ? `/v/${entry.slide.vendorId}`
+                    : `/app/p/${entry.slide.productId}`,
+                )
+              }
             />
           ) : (
             <HeroSlide

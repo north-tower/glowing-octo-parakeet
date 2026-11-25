@@ -11,6 +11,7 @@
     "test:watch": "vitest",
     "staff:seed-dev": "tsx scripts/seed-dev-staff.ts",
     "seed:demo": "tsx scripts/seed-demo.ts",
+    "vendors:promote": "tsx scripts/promote-vendor.ts",
     "icons:pwa": "node scripts/generate-pwa-icons.mjs",
     "categories:fetch-grab3d": "node scripts/fetch-grab3d-pack.mjs",
     "categories:import-grab3d": "node scripts/import-grab3d-category-images.mjs",

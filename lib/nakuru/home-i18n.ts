@@ -10,6 +10,7 @@ export type HomeCopyKey =
   | "searchPhoto"
   | "searchAsk"
   | "assistantPromptRow"
+  | "assistantPromptRowSub"
   | "skipToContent"
   | "homePageTitle"
   | "trustVerifiedTitle"
@@ -44,6 +45,7 @@ export type HomeCopyKey =
   | "topCategories"
   | "pickedForYou"
   | "freshInZone"
+  | "railEmpty"
   | "verifiedSellers"
   | "pickedFilterAll"
   | "pickedFilterVerified"
@@ -428,6 +430,7 @@ export type HomeCopyKey =
   | "askChipPhones"
   | "askChipPlumber"
   | "askChipRent"
+  | "askChipVerified"
   | "allCategoriesTile"
   | "footerAbout"
   | "footerHow"
@@ -481,8 +484,12 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   searchPhoto: { en: "Search by photo", sw: "Tafuta kwa picha" },
   searchAsk: { en: "Ask", sw: "Uliza" },
   assistantPromptRow: {
-    en: "Not sure what to look for? Ask the assistant",
-    sw: "Hujui unachotafuta? Uliza msaidizi",
+    en: "Ask the assistant",
+    sw: "Uliza msaidizi",
+  },
+  assistantPromptRowSub: {
+    en: "Find phones, trades, and rentals in Nakuru",
+    sw: "Tafuta simu, fundi, na nyumba Nakuru",
   },
   photoSearchSoon: {
     en: "Photo search coming soon",
@@ -573,6 +580,10 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   topCategories: { en: "Top categories", sw: "Kategoria kuu" },
   pickedForYou: { en: "Picked for you", sw: "Imechaguliwa kwako" },
   freshInZone: { en: "Fresh in {zone}", sw: "Mpya {zone}" },
+  railEmpty: {
+    en: "Nothing here yet. Check back soon.",
+    sw: "Bado hakuna. Rudi baadaye.",
+  },
   verifiedSellers: { en: "Verified sellers", sw: "Wauzaji waliothibitishwa" },
   pickedFilterAll: { en: "All", sw: "Zote" },
   pickedFilterVerified: { en: "Verified only", sw: "Verified tu" },
@@ -625,7 +636,7 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   slide0Cta: { en: "Shop now", sw: "Nunua sasa" },
   slide1Cta: { en: "How we verify", sw: "Jinsi tunavyothibitisha" },
   slide2Cta: { en: "Start selling", sw: "Anza kuuza" },
-  heroVendorCta: { en: "View listing", sw: "Angalia tangazo" },
+  heroVendorCta: { en: "Visit shop", sw: "Tembelea duka" },
   heroVendorFeatured: { en: "Featured in Nakuru", sw: "Maalum Nakuru" },
   heroVendorVerified: { en: "Verified", sw: "Thibitishwa" },
   seeAll: { en: "See all", sw: "Angalia zote" },
@@ -1204,7 +1215,7 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   filterTypeCars: { en: "Cars", sw: "Magari" },
   filterApply: { en: "Show results", sw: "Onyesha matokeo" },
   filterVerifiedOnly: { en: "Verified only", sw: "Waliothibitishwa tu" },
-  trustStripVerified: { en: "ID-checked sellers", sw: "Wauzaji waliokaguliwa" },
+  trustStripVerified: { en: "ID-checked", sw: "Kitambulisho" },
   trustStripPay: { en: "Pay on delivery", sw: "Lipa ukifika" },
   trustStripFreeJoin: { en: "Free to list", sw: "Bure kuorodhesha" },
   trustVerifyTitle: { en: "How we verify", sw: "Jinsi tunavyothibitisha" },
@@ -1328,10 +1339,11 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
     sw: "Kagua kwanza, kisha lipa kwa M-Pesa au taslimu.",
   },
   heroSidePayLink: { en: "Learn more", sw: "Soma zaidi" },
-  askChipPhones: { en: "Cheap phones in Nakuru", sw: "Simu nafuu Nakuru" },
-  askChipPlumber: { en: "Plumber near Milimani", sw: "Bomba karibu na Milimani" },
-  askChipRent: { en: "Houses to rent under 20k", sw: "Nyumba za kukodisha chini ya 20k" },
-  allCategoriesTile: { en: "All categories", sw: "Kategoria zote" },
+  askChipPhones: { en: "Cheap phones", sw: "Simu nafuu" },
+  askChipPlumber: { en: "Plumber near me", sw: "Bomba karibu" },
+  askChipRent: { en: "Houses to rent", sw: "Nyumba kukodisha" },
+  askChipVerified: { en: "Verified shops", sw: "Maduka yaliyothibitishwa" },
+  allCategoriesTile: { en: "More", sw: "Zaidi" },
   footerAbout: { en: "About", sw: "Kuhusu" },
   footerHow: { en: "How it works", sw: "Jinsi inavyofanya" },
   footerVerified: { en: "Verified sellers", sw: "Wauzaji waliothibitishwa" },
