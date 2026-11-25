@@ -12,6 +12,7 @@ import { useAssistantUi } from "@/components/app/assistant/AssistantUiProvider";
 import { usePwaInstall } from "@/components/app/pwa/InstallProvider";
 import { homeCopy } from "@/lib/nakuru/home-i18n";
 import { installCopy } from "@/lib/nakuru/pwa-install-i18n";
+import { readInstalled } from "@/lib/nakuru/pwa-engage";
 import type { SignInIntent } from "@/components/app/auth/SignInForm";
 
 type Props = {
@@ -22,6 +23,7 @@ type Props = {
 export function AccountGuestPanel({ onNeedSignIn, onSell }: Props) {
   const { lang, standalone, openInstallSheet } = usePwaInstall();
   const { openAssistant } = useAssistantUi();
+  const hideInstall = standalone || readInstalled();
 
   return (
     <>
@@ -52,14 +54,14 @@ export function AccountGuestPanel({ onNeedSignIn, onSell }: Props) {
               <IconChevronRight size={20} />
             </span>
           </button>
-          {!standalone ? (
+          {!hideInstall ? (
             <button
               type="button"
               className="acc-menu-row"
               onClick={() => openInstallSheet("account")}
             >
               <span className="acc-menu-tile acc-menu-tile--brand" aria-hidden>
-                <BrandLogoMark size={22} className="" />
+                <BrandLogoMark size={22} />
               </span>
               <span className="acc-menu-copy">
                 <span className="acc-menu-label">

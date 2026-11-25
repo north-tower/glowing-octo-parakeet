@@ -309,7 +309,11 @@ function SignInFormInner({
             </div>
           ) : null}
 
-          <div className="sign-in-status is-error" role="alert" aria-live="assertive">
+          <div
+            className={`sign-in-status${formError ? " is-error" : ""}`}
+            role="alert"
+            aria-live="assertive"
+          >
             {formError ?? "\u00a0"}
           </div>
 
@@ -397,6 +401,7 @@ function SignInFormInner({
             type="submit"
             className={`sign-in-submit${busy ? " is-busy" : ""}`}
             disabled={busy || !canSubmitEmail}
+            aria-busy={busy || undefined}
           >
             {busy ? (
               <>
@@ -486,6 +491,7 @@ function SignInFormInner({
           type="submit"
           className={`sign-in-submit${busy ? " is-busy" : ""}`}
           disabled={busy || code.replace(/\D/g, "").length !== 6}
+          aria-busy={busy || undefined}
         >
           {busy ? (
             <>

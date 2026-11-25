@@ -18,6 +18,7 @@ body.app :is(.m,.trust-copy .m,.sl span,p){text-wrap:pretty}
 body:not(.landing)::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--hd);z-index:10}
 select,input,button{font:inherit;color:inherit}
 header{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--hd);color:#fff;padding:10px 14px 8px}
+body.app #hd{z-index:25}
 .row{display:flex;align-items:center;gap:8px}.row select{flex:1;min-width:0}.sp{justify-content:space-between}
 .hd-top{min-width:0;gap:10px;flex-wrap:nowrap;align-items:center}
 .logo{font-family:var(--font-display);font-optical-sizing:auto;font-size:clamp(17px,4.6vw,21px);font-weight:620;letter-spacing:-.02em;flex:1 1 auto;min-width:0;max-width:48%;white-space:nowrap;display:inline-flex;align-items:center;gap:.4rem;overflow:hidden}
@@ -102,17 +103,20 @@ body.app .sign-in-context{margin:0 0 12px;padding:10px 12px;border-radius:12px;b
 body.app .sign-in-channel{display:flex;margin-top:16px;padding:4px;border-radius:12px;border:1px solid var(--line);background:var(--bg)}
 body.app .sign-in-channel button{flex:1;min-height:40px;border:0;border-radius:8px;background:transparent;color:var(--mut);font-weight:550;cursor:pointer}
 body.app .sign-in-channel button[aria-selected="true"]{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.06)}
-body.app .sign-in-status{margin:12px 0 0;font-size:13px;line-height:1.4;color:var(--ok);min-height:0}
+body.app .sign-in-status{margin:12px 0 0;font-size:13px;line-height:1.4;color:var(--ok);min-height:18px}
 body.app .sign-in-status.is-error,body.app .sign-in-field-error{color:var(--errt)}
 body.app .sign-in-field-wrap{margin-top:16px}
 body.app .sign-in-field-wrap label{display:block;margin:0 0 6px;font-size:14px;font-weight:600;color:var(--ink)}
-body.app .sign-in-field{position:relative}
-body.app .sign-in-field-ico{position:absolute;left:14px;top:50%;width:20px;height:20px;margin-top:-10px;display:grid;place-items:center;color:var(--mut);pointer-events:none;z-index:1}
-body.app .sign-in-input{display:block;width:100%;min-height:48px;height:48px;padding:0 16px 0 48px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font-size:16px;line-height:1.2}
-body.app .sign-in-input--plain{padding-left:16px}
+body.app .sign-in-field{display:flex;align-items:center;gap:10px;min-height:48px;padding:0 14px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+body.app .sign-in-field-ico{flex:none;display:grid;place-items:center;width:20px;height:20px;color:var(--mut);pointer-events:none}
+body.app .sign-in-field-ico svg{display:block}
+body.app .sign-in-field:focus-within{outline:3px solid var(--gold);outline-offset:2px;border-color:var(--pri)}
+body.app .sign-in-field:has(.sign-in-input.is-invalid){border-color:var(--errt)}
+body.app .sign-in-input,body.app main input.sign-in-input{display:block;flex:1;min-width:0;width:100%;min-height:46px;height:46px;margin:0;padding:0;border:0;border-radius:0;background:transparent;color:var(--ink);font-size:16px;line-height:1.2;outline:none;box-shadow:none;-webkit-appearance:none;appearance:none}
+body.app main input.sign-in-input.sign-in-input--plain{flex:1;width:auto;padding:0 16px;border:1px solid var(--line);border-radius:12px;background:var(--bg);height:48px;min-height:48px}
 body.app .sign-in-input::placeholder{color:var(--mut)}
-body.app .sign-in-input:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-color:var(--pri)}
-body.app .sign-in-input.is-invalid{border-color:var(--errt)}
+body.app .sign-in-field .sign-in-input:focus-visible{outline:none}
+body.app main input.sign-in-input.sign-in-input--plain:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-color:var(--pri)}
 body.app .sign-in-input:disabled{opacity:.7}
 body.app .sign-in-field-error{display:block;min-height:18px;margin:6px 0 0;font-size:13px;line-height:1.35}
 body.app .sign-in-remember{display:flex;align-items:center;gap:4px;margin:8px 0 0;min-height:44px;cursor:pointer;font-size:14px;font-weight:500;color:var(--ink);user-select:none}
@@ -708,7 +712,7 @@ nav.app-bottom-nav .nav-tab-badge{position:absolute;top:-2px;right:6px;min-width
 .toast{position:fixed;left:50%;bottom:calc(72px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--dk);color:var(--ondk);padding:10px 16px;border-radius:12px;font-size:13px;max-width:90%;z-index:20}
 .stat{flex:1;text-align:center}.stat b{display:block;font-size:20px}
 label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px}
-main input:not([type=checkbox]):not([type=radio]):not([type=hidden]),main select,main textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+main input:not([type=checkbox]):not([type=radio]):not([type=hidden]):not(.sign-in-input),main select,main textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card)}
 main textarea{resize:vertical;min-height:96px;line-height:1.45}
 main select{
   min-height:44px;
@@ -1187,12 +1191,12 @@ body.app{padding-bottom:24px;min-height:100dvh}
 body.app .app-shell{display:flex;flex-direction:column;min-height:100dvh;width:100%}
 body.app .app-container{padding-inline:var(--app-pad-tablet)}
 body.app #nav.app-bottom-nav{display:none}
-body.app #hd{position:sticky;top:0;z-index:11;padding:0;background:transparent;color:#fff}
-body.app .app-hd-band{position:sticky;top:env(safe-area-inset-top,0px);z-index:11}
+body.app #hd{position:sticky;top:0;z-index:25;padding:0;background:transparent;color:#fff}
+body.app .app-hd-band{position:sticky;top:env(safe-area-inset-top,0px);z-index:25}
 body.app .app-hd-bar{display:flex;align-items:center;min-height:72px;gap:16px}
 body.app .app-hd-mobile-block{display:none}
 body.app .app-hd-wide-block{display:flex;align-items:center;gap:12px;flex:1;min-width:0;width:100%}
-body.app .app-hd-home-link{border:0;background:none;color:#fff;cursor:pointer;padding:0;min-height:44px}
+body.app .app-hd-home-link{border:0;background:none;color:#fff;cursor:pointer;padding:0;min-height:44px;max-width:none;flex:none}
 body.app .app-hd-zone-wrap{flex:none;min-width:0;max-width:min(280px,26vw)}
 body.app .app-hd-zone-wrap .zone-pill{flex:none;max-width:100%;min-width:9rem;margin-left:0;height:auto;min-height:40px;padding-block:6px}
 body.app .app-hd-zone-wrap .zone-pill-text{flex-direction:row;align-items:center;gap:5px;flex:1 1 auto}
