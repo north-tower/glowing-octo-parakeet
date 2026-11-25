@@ -1,4 +1,5 @@
 import { BadgeCheck } from "lucide-react";
+import { formatKES } from "@/lib/nakuru/format";
 import { homeCopy } from "@/lib/nakuru/home-i18n";
 import type { LandingLang } from "@/lib/nakuru/i18n";
 import { ListingCardMedia } from "@/components/app/listing/ListingCardMedia";
@@ -33,9 +34,10 @@ export function ListingCard({
   ...card
 }: Props) {
   const badges = pickListingBadges(card.badges);
+  const kes = formatKES(card.price);
   const priceLabel =
     card.priceLabel ??
-    `${card.pricePrefix ? `${card.pricePrefix} ` : ""}${card.currency} ${card.price.toLocaleString("en-KE")}${card.priceSuffix ? ` ${card.priceSuffix}` : ""}`;
+    `${card.pricePrefix ? `${card.pricePrefix} ` : ""}${kes}${card.priceSuffix ? ` ${card.priceSuffix}` : ""}`;
   const ariaLabel = `${card.title}, ${priceLabel}`;
 
   return (
@@ -68,8 +70,7 @@ export function ListingCard({
             {card.pricePrefix ? (
               <span className="lc-price-prefix">{card.pricePrefix}</span>
             ) : null}
-            <span className="lc-price-cur">{card.currency}&nbsp;</span>
-            <span className="lc-price-num">{card.price.toLocaleString("en-KE")}</span>
+            <span className="lc-price-num">{kes}</span>
             {card.priceSuffix ? (
               <span className="lc-price-sfx">{card.priceSuffix}</span>
             ) : null}

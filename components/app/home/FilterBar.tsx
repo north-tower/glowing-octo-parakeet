@@ -11,6 +11,7 @@ import {
   type HomeSort,
 } from "@/lib/nakuru/home-filters";
 import type { LandingLang } from "@/lib/nakuru/i18n";
+import { NAKURU_AREA_KEYS } from "@/lib/nakuru/data/zones";
 
 const SORT_LABEL: Record<HomeSort, HomeCopyKey> = {
   newest: "pickedSortNewest",
@@ -92,6 +93,7 @@ export function FilterBar({
   }
 
   return (
+    <>
     <div className="filter-bar">
       <div className="filter-bar-row" role="toolbar" aria-label={homeCopy("pickedFiltersAria", lang)}>
         <button
@@ -152,5 +154,106 @@ export function FilterBar({
         }}
       />
     </div>
+    <aside className="filter-bar--panel" aria-label={homeCopy("pickedFiltersAria", lang)}>
+      <span className="filter-bar-live" aria-live="polite">
+        {homeCopy("resultCountLive", lang).replace("{n}", String(resultCount))}
+      </span>
+      <label className="home-filter-check">
+        {homeCopy("filterBarSort", lang)}
+        <select
+          value={filters.sort}
+          onChange={(e) => onChange({ sort: e.target.value as HomeSort })}
+        >
+          <option value="newest">{homeCopy("pickedSortNewest", lang)}</option>
+          <option value="price-asc">{homeCopy("pickedSortPriceLow", lang)}</option>
+          <option value="price-desc">{homeCopy("pickedSortPriceHigh", lang)}</option>
+          <option value="nearest">{homeCopy("sortNearest", lang)}</option>
+        </select>
+      </label>
+      <label className="home-filter-check">
+        <input
+          type="checkbox"
+          checked={filters.verified}
+          onChange={(e) => onChange({ verified: e.target.checked })}
+        />
+        {homeCopy("filterVerifiedOnly", lang)}
+      </label>
+      <fieldset className="home-filter-fieldset">
+        <legend>{homeCopy("filterPriceRange", lang)}</legend>
+        <div className="home-filter-prices">
+          <label>
+            {homeCopy("filterPriceMin", lang)}
+            <input
+              type="number"
+              min={0}
+              value={filters.min ?? ""}
+              onChange={(e) =>
+                onChange({
+                  min: e.target.value === "" ? null : Number(e.target.value),
+                })
+              }
+            />
+          </label>
+          <label>
+            {homeCopy("filterPriceMax", lang)}
+            <input
+              type="number"
+              min={0}
+              value={filters.max ?? ""}
+              onChange={(e) =>
+                onChange({
+                  max: e.target.value === "" ? null : Number(e.target.value),
+                })
+              }
+            />
+          </label>
+        </div>
+      </fieldset>
+      <fieldset className="home-filter-fieldset">
+        <legend>{homeCopy("filterZone", lang)}</legend>
+        <select
+          value={zone}
+          onChange={(e) => onZone?.(e.target.value)}
+        >
+          {NAKURU_AREA_KEYS.map((z) => (
+            <option key={z} value={z}>
+              {z}
+            </option>
+          ))}
+        </select>
+      </fieldset>
+      <fieldset className="home-filter-fieldset">
+        <legend>{homeCopy("filterCategory", lang)}</legend>
+        <select
+          value={filters.cat}
+          onChange={(e) => onChange({ cat: e.target.value })}
+        >
+          {(["all", "shop", "services", "property", "cars"] as const).map((id) => (
+            <option key={id} value={id}>
+              {homeCategoryLabel(id, lang)}
+            </option>
+          ))}
+        </select>
+      </fieldset>
+      {chips.length ? (
+        <div className="filter-bar-chips">
+          {chips.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              className="filter-chip-removable"
+              onClick={c.onRemove}
+            >
+              {c.label}
+              <X size={14} aria-hidden />
+            </button>
+          ))}
+          <button type="button" className="filter-bar-clear" onClick={onClear}>
+            {homeCopy("clearFilters", lang)}
+          </button>
+        </div>
+      ) : null}
+    </aside>
+    </>
   );
 }

@@ -1,21 +1,43 @@
 "use client";
 
 import { IconSparkle } from "@/components/app/icons/LineIcons";
-import { homeCopy } from "@/lib/nakuru/home-i18n";
+import { homeCopy, type HomeCopyKey } from "@/lib/nakuru/home-i18n";
 import type { LandingLang } from "@/lib/nakuru/i18n";
+
+const CHIPS: { key: HomeCopyKey; prompt: string }[] = [
+  { key: "askChipPhones", prompt: "Cheap phones in Nakuru" },
+  { key: "askChipPlumber", prompt: "Plumber near Milimani" },
+  { key: "askChipRent", prompt: "Houses to rent under 20k" },
+];
 
 type Props = {
   lang: LandingLang;
-  onAsk: () => void;
+  onAsk: (prompt?: string) => void;
 };
 
 export function AssistantPromptRow({ lang, onAsk }: Props) {
   return (
-    <button type="button" className="ask-row" onClick={onAsk}>
+    <div className="ask-row">
       <span className="ask-row-icon" aria-hidden>
         <IconSparkle size={18} />
       </span>
-      <span className="ask-row-copy">{homeCopy("assistantPromptRow", lang)}</span>
-    </button>
+      <div className="ask-row-body">
+        <button type="button" className="ask-row-copy" onClick={() => onAsk()}>
+          {homeCopy("assistantPromptRow", lang)}
+        </button>
+        <div className="ask-row-chips">
+          {CHIPS.map((c) => (
+            <button
+              key={c.key}
+              type="button"
+              className="ask-chip"
+              onClick={() => onAsk(homeCopy(c.key, lang))}
+            >
+              {homeCopy(c.key, lang)}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }

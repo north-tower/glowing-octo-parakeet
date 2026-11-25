@@ -26,7 +26,6 @@ export function ListingRow({
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(false);
-  const [finePointer, setFinePointer] = useState(false);
 
   const syncEdges = useCallback(() => {
     const el = scrollerRef.current;
@@ -48,15 +47,7 @@ export function ListingRow({
       el.removeEventListener("scroll", onScroll);
       ro.disconnect();
     };
-  }, [syncEdges, loading]);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(hover: hover) and (pointer: fine)");
-    const apply = () => setFinePointer(mq.matches);
-    apply();
-    mq.addEventListener("change", apply);
-    return () => mq.removeEventListener("change", apply);
-  }, []);
+  }, [syncEdges, loading, children]);
 
   const scrollByViewport = (dir: -1 | 1) => {
     const el = scrollerRef.current;
@@ -66,7 +57,12 @@ export function ListingRow({
 
   if (loading) {
     return (
-      <div className="lc-rail lc-rail--loading" aria-busy="true" aria-label={ariaLabel}>
+      <div
+        className="lc-rail lc-rail--loading"
+        role="region"
+        aria-busy="true"
+        aria-label={ariaLabel}
+      >
         {Array.from({ length: skeletonCount }, (_, i) => (
           <div key={i} className="lc-rail-slot">
             <ListingCardSkeleton />
@@ -79,50 +75,35 @@ export function ListingRow({
   return (
     <div
       className="listing-row-root lc-rail-wrap"
+      role="region"
       aria-label={ariaLabel}
     >
-      {finePointer && canPrev ? (
-        <button
-          type="button"
-          className="lc-rail-arrow lc-rail-arrow--prev"
-          aria-label="Scroll listings left"
-          disabled={!canPrev}
-          onClick={() => scrollByViewport(-1)}
-        >
-          <ChevronLeft size={20} aria-hidden />
-        </button>
-      ) : null}
-      <div
-        ref={scrollerRef}
-        className="lc-rail"
+      <button
+        type="button"
+        className="lc-rail-arrow lc-rail-arrow--prev"
+        aria-label="Scroll listings left"
+        disabled={!canPrev}
+        onClick={() => scrollByViewport(-1)}
       >
+        <ChevronLeft size={20} aria-hidden />
+      </button>
+      <div ref={scrollerRef} className="lc-rail">
         {children}
       </div>
-      {finePointer && canNext ? (
-        <>
-          <div
-            className="lc-rail-fade"
-            aria-hidden
-          />
-          <button
-            type="button"
-            className="lc-rail-arrow lc-rail-arrow--next"
-            aria-label="Scroll listings right"
-            disabled={!canNext}
-            onClick={() => scrollByViewport(1)}
-          >
-            <ChevronRight size={20} aria-hidden />
-          </button>
-        </>
-      ) : null}
+      <div className="lc-rail-fade" hidden={!canNext} aria-hidden />
+      <button
+        type="button"
+        className="lc-rail-arrow lc-rail-arrow--next"
+        aria-label="Scroll listings right"
+        disabled={!canNext}
+        onClick={() => scrollByViewport(1)}
+      >
+        <ChevronRight size={20} aria-hidden />
+      </button>
     </div>
   );
 }
 
 export function ListingRowItem({ children }: { children: ReactNode }) {
-  return (
-    <div className="lc-rail-slot">
-      {children}
-    </div>
-  );
+  return <div className="lc-rail-slot">{children}</div>;
 }

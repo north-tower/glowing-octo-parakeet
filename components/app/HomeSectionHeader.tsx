@@ -10,6 +10,7 @@ type Props = {
   lang: LandingLang;
   /** Replaces default copy (e.g. zone interpolation). */
   title?: string;
+  subtitle?: string;
   /** Hide the decorative title marker (browse-by-type section). */
   noMarker?: boolean;
   /** Listing rows: Tailwind title without bullet marker. */
@@ -22,6 +23,7 @@ export function HomeSectionHeader({
   titleKey,
   lang,
   title,
+  subtitle,
   noMarker,
   listingStyle,
   seeAll,
@@ -60,7 +62,10 @@ export function HomeSectionHeader({
 
   return (
     <div className="home-section-hd">
-      <h2 className={titleClass}>{title ?? homeCopy(titleKey, lang)}</h2>
+      <div className="home-section-hd-copy">
+        <h2 className={titleClass}>{title ?? homeCopy(titleKey, lang)}</h2>
+        {subtitle ? <p className="home-section-sub">{subtitle}</p> : null}
+      </div>
       {end}
     </div>
   );

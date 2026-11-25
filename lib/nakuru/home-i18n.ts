@@ -418,7 +418,29 @@ export type HomeCopyKey =
   | "navExplore"
   | "navHow"
   | "navSaved"
-  | "postListing";
+  | "postListing"
+  | "heroSidePostTitle"
+  | "heroSidePostCopy"
+  | "heroSidePostLink"
+  | "heroSidePayTitle"
+  | "heroSidePayCopy"
+  | "heroSidePayLink"
+  | "askChipPhones"
+  | "askChipPlumber"
+  | "askChipRent"
+  | "allCategoriesTile"
+  | "footerAbout"
+  | "footerHow"
+  | "footerVerified"
+  | "footerSell"
+  | "footerHelp"
+  | "footerTerms"
+  | "footerPrivacy"
+  | "footerWhatsapp"
+  | "footerPlace"
+  | "trustStripVerifiedSub"
+  | "trustStripPaySub"
+  | "trustStripFreeSub";
 
 export type TopCategorySlug =
   | "phone"
@@ -1288,6 +1310,49 @@ const COPY: Record<HomeCopyKey, Record<LandingLang, string>> = {
   navHow: { en: "How it works", sw: "Jinsi inavyofanya" },
   navSaved: { en: "Saved", sw: "Vilivyohifadhiwa" },
   postListing: { en: "Post a listing", sw: "Weka tangazo" },
+  heroSidePostTitle: {
+    en: "Post a listing",
+    sw: "Weka tangazo",
+  },
+  heroSidePostCopy: {
+    en: "Free to join and list — reach buyers across Nakuru.",
+    sw: "Bure kujiunga na kuorodhesha — fika kwa wanunuzi Nakuru.",
+  },
+  heroSidePostLink: { en: "Start selling", sw: "Anza kuuza" },
+  heroSidePayTitle: {
+    en: "How pay on delivery works",
+    sw: "Jinsi malipo ukifika hufanya",
+  },
+  heroSidePayCopy: {
+    en: "Inspect first, then pay by M-Pesa or cash. ID-checked sellers.",
+    sw: "Kagua kwanza, kisha lipa kwa M-Pesa au taslimu.",
+  },
+  heroSidePayLink: { en: "Learn more", sw: "Soma zaidi" },
+  askChipPhones: { en: "Cheap phones in Nakuru", sw: "Simu nafuu Nakuru" },
+  askChipPlumber: { en: "Plumber near Milimani", sw: "Bomba karibu na Milimani" },
+  askChipRent: { en: "Houses to rent under 20k", sw: "Nyumba za kukodisha chini ya 20k" },
+  allCategoriesTile: { en: "All categories", sw: "Kategoria zote" },
+  footerAbout: { en: "About", sw: "Kuhusu" },
+  footerHow: { en: "How it works", sw: "Jinsi inavyofanya" },
+  footerVerified: { en: "Verified sellers", sw: "Wauzaji waliothibitishwa" },
+  footerSell: { en: "Sell on NakuruHub", sw: "Uza kwenye NakuruHub" },
+  footerHelp: { en: "Help / Contact", sw: "Msaada / Wasiliana" },
+  footerTerms: { en: "Terms", sw: "Masharti" },
+  footerPrivacy: { en: "Privacy", sw: "Faragha" },
+  footerWhatsapp: { en: "WhatsApp support", sw: "Msaada wa WhatsApp" },
+  footerPlace: { en: "Nakuru, Kenya", sw: "Nakuru, Kenya" },
+  trustStripVerifiedSub: {
+    en: "Sellers show a government ID before they list.",
+    sw: "Wauzaji wanaonyesha kitambulisho kabla ya kuorodhesha.",
+  },
+  trustStripPaySub: {
+    en: "Inspect the item, then pay M-Pesa or cash.",
+    sw: "Kagua bidhaa, kisha lipa M-Pesa au taslimu.",
+  },
+  trustStripFreeSub: {
+    en: "Join and list at no charge.",
+    sw: "Jiunge na uorodhesha bila malipo.",
+  },
 };
 
 const TOP_CATEGORY_LABELS: Record<

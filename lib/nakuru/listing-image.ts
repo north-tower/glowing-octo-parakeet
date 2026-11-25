@@ -73,15 +73,15 @@ export function productImageSizes(
   variant: "rail" | "grid" | "classified" | "hero" = "grid",
 ): string {
   if (variant === "rail") {
-    return "(max-width: 480px) 42vw, (max-width: 768px) 36vw, 320px";
+    return "(max-width: 767px) 42vw, (max-width: 1023px) 33vw, (max-width: 1279px) 25vw, (max-width: 1535px) 20vw, 16vw";
   }
   if (variant === "classified") {
     return "(min-width: 1440px) 270px, (min-width: 1024px) 360px, 90vw";
   }
   if (variant === "hero") {
-    return "(max-width: 560px) 100vw, (max-width: 1024px) 560px, 720px";
+    return "(max-width: 767px) 100vw, (max-width: 1023px) 100vw, (min-width: 1536px) 960px, 70vw";
   }
-  return "(max-width: 480px) 44vw, (max-width: 1024px) 33vw, 320px";
+  return "(max-width: 767px) 48vw, (max-width: 1023px) 33vw, (max-width: 1279px) 25vw, (max-width: 1535px) 20vw, 16vw";
 }
 
 export function isOptimizablePhotoUrl(src: string): boolean {

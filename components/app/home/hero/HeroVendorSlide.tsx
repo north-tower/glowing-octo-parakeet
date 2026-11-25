@@ -51,8 +51,8 @@ export function HeroVendorSlide({
               src={photoSrc}
               alt=""
               fill
-              sizes="(max-width: 560px) 100vw, 560px"
-              priority={slideIndex === 1}
+              sizes="(max-width: 767px) 100vw, (max-width: 1023px) 100vw, (min-width: 1536px) 960px, 72vw"
+              priority={slideIndex === 0}
             />
           ) : (
             // eslint-disable-next-line @next/next/no-img-element
