@@ -35,7 +35,7 @@ export function createInitialState(
       { n: "Kicks254", cats: ["shop"], st: "Pending", ver: 0 },
     ],
     me: null,
-    vc: ["shop"],
+    vc: ["business-and-industry"],
     vn: "",
     vp: "",
     photo: "",
@@ -68,7 +68,7 @@ export type NakuruAction =
   | { type: "SET_ORDERS"; orders: Order[] }
   | { type: "APPEND_ORDERS"; orders: Order[] }
   | { type: "ADV_ORDER"; id: number | string }
-  | { type: "VC_TOGGLE"; cat: CategoryId }
+  | { type: "VC_TOGGLE"; cat: string }
   | { type: "SET_VN"; vn: string }
   | { type: "SET_VP"; vp: string }
   | { type: "SET_PHOTO"; photo: string }

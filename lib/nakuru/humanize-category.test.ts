@@ -8,10 +8,10 @@ describe("humanizeCategoryName", () => {
     );
   });
 
-  it("prefers the name map over a raw API label", () => {
+  it("prefers the directory/API label over the legacy map", () => {
     expect(
       humanizeCategoryName("phone-and-laptop-repair", "Phone and laptop repair"),
-    ).toBe("Phone & Laptop Repair");
+    ).toBe("Phone and laptop repair");
   });
 
   it("uses API labels for unmapped slugs", () => {

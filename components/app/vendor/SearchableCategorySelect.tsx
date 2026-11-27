@@ -20,12 +20,33 @@ type Props = {
   /** When the typed name is new, create a community category and select it. */
   onCreateCustom?: (label: string) => boolean | void | Promise<boolean | void>;
   createBusy?: boolean;
+  groupOfficialBy?: (row: DirectoryCategory) => string;
 };
 
 function matchesLabel(label: string, query: string): boolean {
   const q = query.trim().toLowerCase();
   if (!q) return true;
   return label.toLowerCase().includes(q);
+}
+
+function groupOfficialRows(
+  rows: DirectoryCategory[],
+  groupOfficialBy?: (row: DirectoryCategory) => string,
+): { title: string; rows: DirectoryCategory[] }[] {
+  if (!groupOfficialBy) {
+    return [{ title: "Official", rows }];
+  }
+  const order: string[] = [];
+  const map = new Map<string, DirectoryCategory[]>();
+  for (const row of rows) {
+    const title = groupOfficialBy(row) || "Other";
+    if (!map.has(title)) {
+      map.set(title, []);
+      order.push(title);
+    }
+    map.get(title)!.push(row);
+  }
+  return order.map((title) => ({ title, rows: map.get(title)! }));
 }
 
 export function SearchableCategorySelect({
@@ -37,6 +58,7 @@ export function SearchableCategorySelect({
   onChange,
   onCreateCustom,
   createBusy,
+  groupOfficialBy,
 }: Props) {
   const listId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -247,30 +269,36 @@ export function SearchableCategorySelect({
               ) : null}
               {filteredOfficial.length ? (
                 <>
-                  <div className="cat-combo-group" role="presentation">
-                    Official
-                  </div>
-                  {filteredOfficial.map((row) => {
-                    optionIndex += 1;
-                    const idx = optionIndex;
-                    const active = idx === highlight;
-                    return (
-                      <button
-                        key={row.slug}
-                        id={`${id}-opt-${row.slug}`}
-                        type="button"
-                        role="option"
-                        aria-selected={row.slug === value}
-                        className={`cat-combo-option${active ? " is-active" : ""}${
-                          row.slug === value ? " is-selected" : ""
-                        }`}
-                        onMouseEnter={() => setHighlight(idx)}
-                        onClick={() => pick(row.slug)}
-                      >
-                        {row.label}
-                      </button>
-                    );
-                  })}
+                  {groupOfficialRows(filteredOfficial, groupOfficialBy).map(
+                    (section) => (
+                      <div key={section.title}>
+                        <div className="cat-combo-group" role="presentation">
+                          {section.title}
+                        </div>
+                        {section.rows.map((row) => {
+                          optionIndex += 1;
+                          const idx = optionIndex;
+                          const active = idx === highlight;
+                          return (
+                            <button
+                              key={row.slug}
+                              id={`${id}-opt-${row.slug}`}
+                              type="button"
+                              role="option"
+                              aria-selected={row.slug === value}
+                              className={`cat-combo-option${active ? " is-active" : ""}${
+                                row.slug === value ? " is-selected" : ""
+                              }`}
+                              onMouseEnter={() => setHighlight(idx)}
+                              onClick={() => pick(row.slug)}
+                            >
+                              {row.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ),
+                  )}
                 </>
               ) : null}
               {filteredCommunity.length ? (

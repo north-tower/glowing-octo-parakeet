@@ -94,7 +94,7 @@ export type NakuruState = {
   area: string;
   apps: VendorApplication[];
   me: VendorMe | null;
-  vc: CategoryId[];
+  vc: string[];
   vn: string;
   vp: string;
   photo: string;

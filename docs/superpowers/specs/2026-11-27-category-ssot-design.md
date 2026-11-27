@@ -1,6 +1,6 @@
 # Category single source of truth — design spec
 
-**Status:** Draft (awaiting user review)  
+**Status:** Approved (implementation in progress)  
 **Date:** 2026-11-27  
 **Repo:** `C:\Users\mhki\hub`  
 **Related:** [Category directory](./2026-11-20-category-directory-design.md), [Jiji-style category tree](./2026-11-23-jiji-category-tree-design.md)

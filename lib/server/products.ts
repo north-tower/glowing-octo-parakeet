@@ -6,6 +6,7 @@ import {
   vendorMayUseProductCategory,
 } from "./category-tree";
 import { db } from "./db";
+import { listingCreateDebug } from "./listing-create-debug";
 import {
   parseImageDataUrl,
   StorageError,
@@ -63,6 +64,12 @@ export async function createProduct(
   ip: string | null,
 ): Promise<{ id: string }> {
   const v = await approvedVendorForOwner(ownerId, data.vendorId);
+  listingCreateDebug("vendor", {
+    found: Boolean(v),
+    vendorId: v?.id ?? null,
+    area: v?.area ?? null,
+    vendorCategories: v?.categories ?? null,
+  });
   if (!v) {
     throw new ProductError(403, "no_approved_vendor");
   }
@@ -71,6 +78,12 @@ export async function createProduct(
   }
 
   const dir = await getCategoryBySlug(data.category);
+  listingCreateDebug("category", {
+    slug: data.category,
+    found: Boolean(dir),
+    visible: dir?.visible ?? null,
+    listingMode: dir?.listing_mode ?? null,
+  });
   if (!dir || !dir.visible) {
     throw new ProductError(400, "bad_request");
   }
@@ -79,14 +92,16 @@ export async function createProduct(
     await assertCategoryIsListableLeaf(data.category);
   } catch (err) {
     if (err instanceof CategoryTreeError) {
+      listingCreateDebug("leaf-check", { code: err.code });
       throw new ProductError(err.status, err.code);
     }
     throw err;
   }
 
-  if (!(await vendorMayUseProductCategory(v.categories, data.category))) {
-    throw new ProductError(400, "bad_request");
-  }
+  listingCreateDebug("vendor-may-use-category", {
+    skipped: true,
+    reason: "approved vendors may file any listable leaf",
+  });
 
   const n = (
     await db.q<{ n: number }>(
@@ -104,6 +119,14 @@ export async function createProduct(
         ? null
         : data.stock
       : null;
+
+  listingCreateDebug("insert", {
+    vendorId: v.id,
+    category: data.category,
+    stock,
+    listingMode: dir.listing_mode,
+    hasImage: Boolean(data.imageDataUrl),
+  });
 
   const p = (
     await db.q<{ id: string }>(
@@ -139,6 +162,10 @@ export async function createProduct(
         [p.id, imageUrl],
       );
     } catch (err) {
+      listingCreateDebug("image-upload", {
+        failed: true,
+        storage: err instanceof StorageError,
+      });
       if (err instanceof StorageError) {
         throw new ProductError(503, "image_upload_failed");
       }

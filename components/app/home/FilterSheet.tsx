@@ -7,6 +7,7 @@ import type { HomeFilters } from "@/lib/nakuru/home-filters";
 import type { LandingLang } from "@/lib/nakuru/i18n";
 import type { ListingMode } from "@/lib/nakuru/types";
 import { NAKURU_AREA_KEYS } from "@/lib/nakuru/data/zones";
+import { useCategories } from "@/lib/nakuru/use-categories";
 
 const TYPES: { id: ListingMode | ""; labelKey: "filterTypeAll" | "filterTypeShop" | "filterTypeServices" | "filterTypeProperty" | "filterTypeCars" }[] = [
   { id: "", labelKey: "filterTypeAll" },
@@ -15,8 +16,6 @@ const TYPES: { id: ListingMode | ""; labelKey: "filterTypeAll" | "filterTypeShop
   { id: "property", labelKey: "filterTypeProperty" },
   { id: "cars", labelKey: "filterTypeCars" },
 ];
-
-const CATS = ["all", "shop", "services", "property", "cars"] as const;
 
 type Props = {
   open: boolean;
@@ -37,6 +36,13 @@ export function FilterSheet({
 }: Props) {
   const [draft, setDraft] = useState(filters);
   const [draftZone, setDraftZone] = useState(zone);
+  const { rows: categoryRows } = useCategories();
+  const categoryChips = [
+    { slug: "all", label: homeCategoryLabel("all", lang) },
+    ...categoryRows
+      .filter((r) => r.visible && r.depth === 0 && r.kind === "official")
+      .map((r) => ({ slug: r.slug, label: r.label })),
+  ];
 
   useEffect(() => {
     if (open) {
@@ -54,15 +60,15 @@ export function FilterSheet({
       <fieldset className="home-filter-fieldset">
         <legend>{homeCopy("filterCategory", lang)}</legend>
         <div className="home-filter-chips">
-          {CATS.map((id) => (
+          {categoryChips.map((chip) => (
             <button
-              key={id}
+              key={chip.slug}
               type="button"
-              className={`home-filter-chip${draft.cat === id ? " on" : ""}`}
-              aria-pressed={draft.cat === id}
-              onClick={() => setDraft((d) => ({ ...d, cat: id }))}
+              className={`home-filter-chip${draft.cat === chip.slug ? " on" : ""}`}
+              aria-pressed={draft.cat === chip.slug}
+              onClick={() => setDraft((d) => ({ ...d, cat: chip.slug }))}
             >
-              {homeCategoryLabel(id, lang)}
+              {chip.label}
             </button>
           ))}
         </div>
