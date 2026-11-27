@@ -119,6 +119,9 @@ export function StaffListingsPanel() {
         Every product row in the database, including inactive listings and shops
         still pending approval. <strong>On storefront</strong> matches public
         catalog rules.
+        {isAdmin
+          ? " Admins can delete a listing unless it is already on an order."
+          : ""}
       </p>
 
       <div className="m" style={{ marginBottom: 6 }}>
@@ -208,7 +211,15 @@ export function StaffListingsPanel() {
         </div>
       ) : (
         visible.map((row) => (
-          <ListingCard key={row.id} row={row} canPromoteHero={isAdmin} />
+          <ListingCard
+            key={row.id}
+            row={row}
+            canPromoteHero={isAdmin}
+            canDelete={isAdmin}
+            onDeleted={(id) =>
+              setRows((prev) => prev.filter((r) => r.id !== id))
+            }
+          />
         ))
       )}
 
@@ -230,14 +241,20 @@ export function StaffListingsPanel() {
 function ListingCard({
   row,
   canPromoteHero,
+  canDelete,
+  onDeleted,
 }: {
   row: StaffListingRow;
   canPromoteHero: boolean;
+  canDelete: boolean;
+  onDeleted: (id: string) => void;
 }) {
   const stock =
     row.stock == null ? "Unlimited" : row.stock === 0 ? "Out of stock" : row.stock;
   const [heroBusy, setHeroBusy] = useState(false);
   const [heroMsg, setHeroMsg] = useState<string | null>(null);
+  const [deleteBusy, setDeleteBusy] = useState(false);
+  const [deleteMsg, setDeleteMsg] = useState<string | null>(null);
 
   const promoteHero = async () => {
     if (!getStaffAccessToken()) return;
@@ -270,6 +287,37 @@ function ListingCard({
       );
     } finally {
       setHeroBusy(false);
+    }
+  };
+
+  const removeListing = async () => {
+    if (!getStaffAccessToken()) return;
+    const ok = window.confirm(
+      `Delete “${row.title}”? This cannot be undone. Listings that appear on orders cannot be deleted.`,
+    );
+    if (!ok) return;
+    setDeleteBusy(true);
+    setDeleteMsg(null);
+    try {
+      await staffFetch(`/api/admin/listings/${row.id}`, { method: "DELETE" });
+      onDeleted(row.id);
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) {
+        clearStaffAccessToken();
+        window.location.reload();
+        return;
+      }
+      if (err instanceof ApiError && err.status === 409) {
+        setDeleteMsg(
+          "This listing is on an order, so it cannot be deleted. Hide it from the vendor shop instead, or leave it inactive.",
+        );
+        return;
+      }
+      setDeleteMsg(
+        err instanceof ApiError ? err.message : "Could not delete listing.",
+      );
+    } finally {
+      setDeleteBusy(false);
     }
   };
 
@@ -320,6 +368,16 @@ function ListingCard({
             Hero carousel
           </Link>
         ) : null}
+        {canDelete ? (
+          <button
+            type="button"
+            className="btn s o"
+            disabled={deleteBusy}
+            onClick={() => void removeListing()}
+          >
+            {deleteBusy ? "Deleting…" : "Delete listing"}
+          </button>
+        ) : null}
         <code style={{ fontSize: 11, wordBreak: "break-all", alignSelf: "center" }}>
           {row.id}
         </code>
@@ -327,6 +385,11 @@ function ListingCard({
       {heroMsg ? (
         <div className="m" style={{ marginTop: 8 }}>
           {heroMsg}
+        </div>
+      ) : null}
+      {deleteMsg ? (
+        <div className="err" style={{ marginTop: 8 }}>
+          {deleteMsg}
         </div>
       ) : null}
     </div>
