@@ -9,7 +9,6 @@ import { listingModeOf } from "@/lib/nakuru/listing-mode";
 import { isOutsideArea } from "@/lib/nakuru/area";
 import type {
   AccView,
-  CategoryId,
   NakuruState,
   Order,
   OrderItemSnap,

@@ -70,14 +70,15 @@ export type Order = {
 
 export type VendorApplication = {
   n: string;
-  cats: CategoryId[];
+  /** Official / community category slugs from vendor apply. */
+  cats: string[];
   st: string;
   ver: number;
 };
 
 export type VendorMe = {
   n: string;
-  cats: CategoryId[];
+  cats: string[];
   st: string;
   ver: number;
 };
