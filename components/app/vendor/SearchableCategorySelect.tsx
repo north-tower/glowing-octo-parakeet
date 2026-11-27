@@ -63,6 +63,7 @@ export function SearchableCategorySelect({
   const listId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const skipFocusOpenRef = useRef(false);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [highlight, setHighlight] = useState(0);
@@ -102,19 +103,25 @@ export function SearchableCategorySelect({
 
   const runCreate = async () => {
     if (!onCreateCustom || !mayCreate || createBusy || disabled) return;
+    skipFocusOpenRef.current = true;
     const ok = await onCreateCustom(trimmedQuery);
-    if (ok !== false) close();
+    if (ok !== false) {
+      close();
+      inputRef.current?.blur();
+    } else {
+      skipFocusOpenRef.current = false;
+    }
   };
 
   useEffect(() => {
     if (!open) return;
-    const onDoc = (e: MouseEvent) => {
+    const onDoc = (e: PointerEvent) => {
       if (rootRef.current?.contains(e.target as Node)) return;
       setOpen(false);
       setQuery("");
     };
-    document.addEventListener("mousedown", onDoc);
-    return () => document.removeEventListener("mousedown", onDoc);
+    document.addEventListener("pointerdown", onDoc);
+    return () => document.removeEventListener("pointerdown", onDoc);
   }, [open]);
 
   useEffect(() => {
@@ -127,8 +134,15 @@ export function SearchableCategorySelect({
   };
 
   const pick = (slug: string) => {
+    skipFocusOpenRef.current = true;
     onChange(slug);
     close();
+    inputRef.current?.blur();
+  };
+
+  const pickFromPointer = (slug: string, e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    pick(slug);
   };
 
   const openList = () => {
@@ -184,7 +198,7 @@ export function SearchableCategorySelect({
         <input
           ref={inputRef}
           id={id}
-          type="search"
+          type="text"
           role="combobox"
           aria-expanded={open}
           aria-controls={listId}
@@ -204,6 +218,10 @@ export function SearchableCategorySelect({
             if (!open) setOpen(true);
           }}
           onFocus={() => {
+            if (skipFocusOpenRef.current) {
+              skipFocusOpenRef.current = false;
+              return;
+            }
             if (!disabled && !open) openList();
           }}
           onKeyDown={onKeyDown}
@@ -238,7 +256,10 @@ export function SearchableCategorySelect({
                   }`}
                   disabled={createBusy || disabled}
                   onMouseEnter={() => setHighlight(0)}
-                  onClick={() => void runCreate()}
+                  onPointerDown={(e) => {
+                    e.preventDefault();
+                    void runCreate();
+                  }}
                 >
                   {createBusy
                     ? "Creating…"
@@ -260,7 +281,10 @@ export function SearchableCategorySelect({
                   }`}
                   disabled={createBusy || disabled}
                   onMouseEnter={() => setHighlight(createOptionIndex)}
-                  onClick={() => void runCreate()}
+                  onPointerDown={(e) => {
+                    e.preventDefault();
+                    void runCreate();
+                  }}
                 >
                   {createBusy
                     ? "Creating…"
@@ -290,7 +314,7 @@ export function SearchableCategorySelect({
                                 row.slug === value ? " is-selected" : ""
                               }`}
                               onMouseEnter={() => setHighlight(idx)}
-                              onClick={() => pick(row.slug)}
+                              onPointerDown={(e) => pickFromPointer(row.slug, e)}
                             >
                               {row.label}
                             </button>
@@ -321,7 +345,7 @@ export function SearchableCategorySelect({
                           row.slug === value ? " is-selected" : ""
                         }`}
                         onMouseEnter={() => setHighlight(idx)}
-                        onClick={() => pick(row.slug)}
+                        onPointerDown={(e) => pickFromPointer(row.slug, e)}
                       >
                         {row.label}
                       </button>

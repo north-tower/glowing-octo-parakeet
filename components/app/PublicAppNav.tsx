@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useNakuruApp } from "@/components/app/AppProvider";
@@ -22,20 +22,62 @@ export function PublicAppNav() {
   const router = useRouter();
   const { highlightTab, cartN, msgUnread, goTab } = usePrimaryNav();
   const [megaOpen, setMegaOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const closeTimer = useRef<number | null>(null);
+
+  const cancelClose = () => {
+    if (closeTimer.current != null) {
+      window.clearTimeout(closeTimer.current);
+      closeTimer.current = null;
+    }
+  };
+
+  const openMega = () => {
+    cancelClose();
+    setMegaOpen(true);
+  };
+
+  const scheduleClose = () => {
+    cancelClose();
+    closeTimer.current = window.setTimeout(() => {
+      setMegaOpen(false);
+      closeTimer.current = null;
+    }, 220);
+  };
+
+  useEffect(() => () => cancelClose(), []);
+
+  useEffect(() => {
+    if (!megaOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMegaOpen(false);
+    };
+    const onPtr = (e: MouseEvent) => {
+      if (!wrapRef.current?.contains(e.target as Node)) setMegaOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("mousedown", onPtr);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("mousedown", onPtr);
+    };
+  }, [megaOpen]);
 
   return (
     <nav className="public-app-nav" aria-label="Primary">
       <div
         className="public-app-cat"
-        onMouseEnter={() => setMegaOpen(true)}
-        onMouseLeave={() => setMegaOpen(false)}
+        ref={wrapRef}
+        onMouseEnter={openMega}
+        onMouseLeave={scheduleClose}
       >
         <button
           type="button"
           className={`public-app-link${highlightTab === "cat" || megaOpen ? " on" : ""}`}
           aria-expanded={megaOpen}
           aria-haspopup="menu"
-          onClick={() => setMegaOpen((v) => !v)}
+          onClick={openMega}
+          onFocus={openMega}
         >
           {homeCopy("navCategory", lang)}
         </button>
