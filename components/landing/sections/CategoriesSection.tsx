@@ -4,11 +4,11 @@ import Link from "next/link";
 import { Bi } from "@/components/landing/Bi";
 
 const CATS = [
-  { href: "/app?cat=property", en: "Property", sw: "Mali" },
-  { href: "/app?cat=cars", en: "Vehicles", sw: "Magari" },
-  { href: "/app?cat=shop", en: "Shopping", sw: "Duka" },
+  { href: "/app?cat=real-estate", en: "Property", sw: "Mali" },
+  { href: "/app?cat=vehicles", en: "Vehicles", sw: "Magari" },
+  { href: "/app?cat=business-and-industry", en: "Shopping", sw: "Duka" },
   { href: "/app?cat=services", en: "Services", sw: "Huduma" },
-  { href: "/app?tab=cat", en: "Jobs", sw: "Kazi" },
+  { href: "/app?tab=cat&side=jobs", en: "Jobs", sw: "Kazi" },
   { href: "/app", en: "Events", sw: "Matukio" },
 ] as const;
 

@@ -62,7 +62,23 @@ function rowHasAncestorInSet(
   return false;
 }
 
-/** Visible listable leaves the vendor may publish under (profile roots + descendants). */
+/** Visible official top-level verticals (main categories). */
+export function visibleOfficialRoots(
+  rows: DirectoryCategory[],
+): DirectoryCategory[] {
+  return rows
+    .filter((r) => r.visible && r.kind === "official" && r.depth === 0)
+    .sort((a, b) => a.sortOrder - b.sortOrder || a.label.localeCompare(b.label));
+}
+
+/** Every visible listable leaf in the directory. */
+export function listingLeavesAll(
+  rows: DirectoryCategory[],
+): DirectoryCategory[] {
+  return rows.filter((r) => r.visible && !r.hasChildren);
+}
+
+/** Visible listable leaves under the given roots (or descendants). */
 export function listingLeavesForVendor(
   rows: DirectoryCategory[],
   vendorRoots: string[],
@@ -104,4 +120,18 @@ export function vendorRootLabels(
   return vendorRoots
     .map((slug) => bySlug.get(slug)?.label ?? slug)
     .filter(Boolean);
+}
+
+/** `Parent › Leaf` when the listing category is nested. */
+export function listingCategoryBreadcrumb(
+  slug: string | null,
+  rows: DirectoryCategory[],
+): string {
+  if (!slug) return "";
+  const bySlug = new Map(rows.map((r) => [r.slug, r]));
+  const leaf = bySlug.get(slug);
+  if (!leaf) return slug;
+  const parent = leaf.parentSlug ? bySlug.get(leaf.parentSlug) : null;
+  if (parent) return `${parent.label} › ${leaf.label}`;
+  return leaf.label;
 }

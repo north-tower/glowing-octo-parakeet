@@ -1,5 +1,5 @@
-const CATEGORY_NAME_MAP: Record<string, string> = {
-  "phone-and-laptop-repair": "Phone & Laptop Repair",
+/** Only used when the directory/API did not supply a label. */
+const LEGACY_SLUG_LABELS: Record<string, string> = {
   shop: "Shopping",
   property: "Property",
   cars: "Vehicles",
@@ -7,6 +7,7 @@ const CATEGORY_NAME_MAP: Record<string, string> = {
   stays: "Stays",
   taxi: "Taxi",
   rider: "Riders",
+  "phone-and-laptop-repair": "Phone & Laptop Repair",
 };
 
 function titleCaseSlug(slug: string): string {
@@ -26,10 +27,10 @@ export function humanizeCategoryName(
   slug: string,
   categoryLabel?: string | null,
 ): string {
-  const mapped = CATEGORY_NAME_MAP[slug];
-  if (mapped) return mapped;
   const fromApi = categoryLabel?.trim();
   if (fromApi && fromApi !== slug) return fromApi;
+  const mapped = LEGACY_SLUG_LABELS[slug];
+  if (mapped) return mapped;
   if (!slug || slug === "all") return "All";
   return titleCaseSlug(slug);
 }

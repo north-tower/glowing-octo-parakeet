@@ -10,8 +10,7 @@ import { VendorApplyForm } from "@/components/app/vendor/VendorApplyForm";
 import { VendorShopWorkspace } from "@/components/app/vendor/VendorShopWorkspace";
 import { apiFetch, ApiError } from "@/lib/nakuru/api";
 import { useLiveApi } from "@/lib/nakuru/api-mode";
-import { CATS } from "@/lib/nakuru/data/constants";
-import type { CategoryId } from "@/lib/nakuru/types";
+import { OFFICIAL_DIRECTORY_FALLBACK } from "@/lib/nakuru/data/category-directory";
 import {
   pickPrimaryVendor,
   vendorStatusLabel,
@@ -219,18 +218,18 @@ function DemoVendorPanel() {
         />
         <label>Categories (tap to add or remove)</label>
         <div>
-          {CATS.slice(1).map((c) => {
-            const on = state.vc.includes(c[0]);
+          {OFFICIAL_DIRECTORY_FALLBACK.filter(
+            (r) => r.depth === 0 && r.visible,
+          ).map((c) => {
+            const on = state.vc.includes(c.slug);
             return (
               <button
-                key={c[0]}
+                key={c.slug}
                 type="button"
                 className={`chip${on ? " on" : ""}`}
-                onClick={() =>
-                  dispatch({ type: "VC_TOGGLE", cat: c[0] as CategoryId })
-                }
+                onClick={() => dispatch({ type: "VC_TOGGLE", cat: c.slug })}
               >
-                {c[1]}
+                {c.label}
               </button>
             );
           })}

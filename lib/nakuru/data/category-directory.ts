@@ -1,4 +1,5 @@
 import type { ListingMode } from "@/lib/nakuru/types";
+import { OFFICIAL_CATEGORY_SEED } from "@/lib/nakuru/data/official-category-seed";
 
 export type DirectoryKind = "official" | "community";
 
@@ -15,28 +16,20 @@ export type DirectoryCategory = {
   hasChildren: boolean;
 };
 
-export const OFFICIAL_DIRECTORY_FALLBACK: DirectoryCategory[] = [
-  { slug: "vehicles", label: "Vehicles", kind: "official", listingMode: "cars", visible: true, openForApply: true, sortOrder: 10, parentSlug: null, depth: 0, hasChildren: true },
-  { slug: "real-estate", label: "Real Estate", kind: "official", listingMode: "property", visible: true, openForApply: true, sortOrder: 20, parentSlug: null, depth: 0, hasChildren: true },
-  { slug: "mobile-phones-tablets", label: "Mobile Phones", kind: "official", listingMode: "shop", visible: true, openForApply: true, sortOrder: 30, parentSlug: null, depth: 0, hasChildren: true },
-  { slug: "electronics", label: "Electronics", kind: "official", listingMode: "shop", visible: true, openForApply: true, sortOrder: 40, parentSlug: null, depth: 0, hasChildren: true },
-  { slug: "services", label: "Services", kind: "official", listingMode: "services", visible: true, openForApply: true, sortOrder: 170, parentSlug: null, depth: 0, hasChildren: true },
-  { slug: "stays", label: "Stays", kind: "official", listingMode: "shop", visible: true, openForApply: true, sortOrder: 180, parentSlug: null, depth: 0, hasChildren: true },
-  { slug: "taxi", label: "Taxi", kind: "official", listingMode: "services", visible: true, openForApply: true, sortOrder: 190, parentSlug: null, depth: 0, hasChildren: true },
-  { slug: "rider", label: "Rider", kind: "official", listingMode: "services", visible: true, openForApply: true, sortOrder: 195, parentSlug: null, depth: 0, hasChildren: true },
-  {
-    slug: "business-and-industry",
-    label: "Business & Industry",
-    kind: "official",
-    listingMode: "shop",
-    visible: true,
-    openForApply: true,
-    sortOrder: 140,
-    parentSlug: null,
-    depth: 0,
-    hasChildren: true,
-  },
-  { slug: "cars", label: "Cars", kind: "official", listingMode: "cars", visible: true, openForApply: false, sortOrder: 12, parentSlug: "vehicles", depth: 1, hasChildren: false },
-  { slug: "mobile-phones", label: "Mobile Phones", kind: "official", listingMode: "shop", visible: true, openForApply: true, sortOrder: 32, parentSlug: "mobile-phones-tablets", depth: 1, hasChildren: false },
-  { slug: "general-merchandise", label: "General Merchandise", kind: "official", listingMode: "shop", visible: true, openForApply: true, sortOrder: 145, parentSlug: "business-and-industry", depth: 1, hasChildren: false },
-];
+export const LEGACY_CATEGORY_ALIASES: Record<string, string> = {
+  shop: "business-and-industry",
+  property: "real-estate",
+};
+
+export function resolveCategoryAlias(slug: string): string {
+  return LEGACY_CATEGORY_ALIASES[slug] ?? slug;
+}
+
+export const OFFICIAL_DIRECTORY_FALLBACK: DirectoryCategory[] =
+  OFFICIAL_CATEGORY_SEED;
+
+export function officialRootSlugs(): string[] {
+  return OFFICIAL_DIRECTORY_FALLBACK.filter(
+    (r) => r.visible && r.depth === 0,
+  ).map((r) => r.slug);
+}
