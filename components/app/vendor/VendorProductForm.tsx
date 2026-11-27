@@ -79,6 +79,8 @@ export function VendorProductForm({
   const [listingImage, setListingImage] = useState("");
   const [imageBusy, setImageBusy] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const titleInputRef = useRef<HTMLInputElement>(null);
+  const priceInputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [catCreateBusy, setCatCreateBusy] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
@@ -197,23 +199,33 @@ export function VendorProductForm({
     }
   };
 
+  const need = (msg: string, el?: HTMLElement | null) => {
+    toast(msg);
+    el?.focus();
+    el?.scrollIntoView({ block: "center", behavior: "smooth" });
+  };
+
   const publish = async (ev: FormEvent) => {
     ev.preventDefault();
-    if (!selectedSlug || busy) return;
+    if (busy) return;
     if (!shopArea) {
-      toast("Set your shop area on the profile first.");
+      need("Shop area is required. Set it on your profile above before publishing.");
+      return;
+    }
+    if (!selectedSlug) {
+      need("Pick a subcategory before publishing.");
       return;
     }
 
     const trimmedTitle = title.trim();
     if (trimmedTitle.length < 2) {
-      toast("Enter a title (at least 2 characters).");
+      need("Title is required (at least 2 characters).", titleInputRef.current);
       return;
     }
 
     const priceNum = Number.parseInt(price.replace(/\D/g, ""), 10);
     if (!Number.isFinite(priceNum) || priceNum < 0) {
-      toast("Enter a valid price in KES.");
+      need("Price is required. Enter an amount in KES.", priceInputRef.current);
       return;
     }
 
@@ -332,7 +344,7 @@ export function VendorProductForm({
         <div className="m">
           {shopArea
             ? `Buyers will see this listing in ${shopArea}.`
-            : "Set your shop area on the profile above before publishing."}
+            : "Set your shop area on the profile above. You can fill this form now; publishing stays locked until the area is set."}
         </div>
       </div>
 
@@ -403,22 +415,27 @@ export function VendorProductForm({
 
       <label htmlFor="vp-title">Title</label>
       <input
+        ref={titleInputRef}
         id="vp-title"
+        type="text"
+        name="listing-title"
+        autoComplete="off"
         maxLength={80}
         placeholder="e.g. Men's size 42 sneakers"
         value={title}
-        disabled={busy || !shopArea}
+        disabled={busy}
         onChange={(e) => setTitle(e.target.value)}
       />
 
       <label htmlFor="vp-desc">Description (optional)</label>
       <textarea
         id="vp-desc"
+        name="listing-description"
         maxLength={500}
         rows={4}
         placeholder="e.g. Size 42, worn twice, box included"
         value={description}
-        disabled={busy || !shopArea}
+        disabled={busy}
         onChange={(e) => setDescription(e.target.value)}
         aria-describedby="vp-desc-hint"
       />
@@ -434,7 +451,7 @@ export function VendorProductForm({
             type="file"
             accept="image/jpeg,image/png,image/webp"
             hidden
-            disabled={busy || imageBusy || !shopArea}
+            disabled={busy || imageBusy}
             onChange={(e) => {
               const f = e.target.files?.[0];
               e.target.value = "";
@@ -445,7 +462,7 @@ export function VendorProductForm({
             <button
               type="button"
               className="btn s"
-              disabled={busy || imageBusy || !shopArea}
+              disabled={busy || imageBusy}
               onClick={() => imageInputRef.current?.click()}
             >
               {imageBusy
@@ -479,11 +496,12 @@ export function VendorProductForm({
         <div className="vendor-listing-form-pricing">
           <label htmlFor="vp-price">Price (KES)</label>
           <input
+            ref={priceInputRef}
             id="vp-price"
             inputMode="numeric"
             placeholder="e.g. 2500"
             value={price}
-            disabled={busy || !shopArea}
+            disabled={busy}
             onChange={(e) => setPrice(e.target.value)}
           />
 
@@ -495,7 +513,7 @@ export function VendorProductForm({
                 inputMode="numeric"
                 placeholder="Leave empty if unlimited"
                 value={stock}
-                disabled={busy || !shopArea}
+                disabled={busy}
                 onChange={(e) => setStock(e.target.value)}
               />
             </>
@@ -506,7 +524,7 @@ export function VendorProductForm({
       <button
         type="submit"
         className="btn full vendor-listing-form-submit"
-        disabled={busy || !selectedSlug || !shopArea}
+        disabled={busy}
       >
         {busy ? "Publishing…" : "Publish listing"}
       </button>

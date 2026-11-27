@@ -1,5 +1,5 @@
 /* NakuruHub service worker — version bump invalidates caches */
-const CACHE_VERSION = "nakuruhub-shell-v4";
+const CACHE_VERSION = "nakuruhub-shell-v5";
 const PRECACHE_URLS = [
   "/offline-fallback.html",
   "/manifest.webmanifest",
