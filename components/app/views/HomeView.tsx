@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { useNakuruApp } from "@/components/app/AppProvider";
 import { ITEMS } from "@/lib/nakuru/data/items";
 import { isLiveCatalogEnabled } from "@/lib/nakuru/catalog-live";
@@ -26,7 +27,7 @@ import { AssistantPromptRow } from "@/components/app/home/AssistantPromptRow";
 import { MoreToExplore } from "@/components/app/home/MoreToExplore";
 import { ResultsGrid } from "@/components/app/home/ResultsGrid";
 import { useHomeFilters } from "@/components/app/home/useHomeFilters";
-import { homeFiltersLeaveLanding } from "@/lib/nakuru/home-filters";
+import { homeFiltersHref, homeFiltersLeaveLanding } from "@/lib/nakuru/home-filters";
 import type { HeroSlideAction } from "@/components/app/home/hero/heroSlides";
 
 function catalogCategoryForFilter(cat: CategoryId): CategoryId | "all" {
@@ -36,6 +37,7 @@ function catalogCategoryForFilter(cat: CategoryId): CategoryId | "all" {
 
 export function HomeView() {
   const { state, dispatch } = useNakuruApp();
+  const router = useRouter();
   const { openAssistant } = useAssistantUi();
   const { lang } = usePwaInstall();
   const { inquiryModal } = useListingAct();
@@ -183,7 +185,13 @@ export function HomeView() {
       />
       <CategoryTiles
         lang={lang}
-        onCategory={(k) => dispatch({ type: "SELECT_TOPC", index: k })}
+        onCategory={(slug) => {
+          dispatch({ type: "SET_CAT", cat: slug });
+          dispatch({ type: "SET_TAB", tab: "home" });
+          router.replace(homeFiltersHref({ cat: slug, q: "" }), {
+            scroll: false,
+          });
+        }}
         onSeeAll={goCat}
       />
       <div className="home-block">

@@ -19,4 +19,11 @@ describe("category presentation", () => {
     expect(p.icon).toBeTruthy();
     expect(p.image).toBeNull();
   });
+
+  it("exposes root art for official category tiles", () => {
+    expect(presentationForSlug("vehicles").image).toBe("/categories/vehicles.png");
+    expect(presentationForSlug("electronics").image).toBe(
+      "/categories/electronics.png",
+    );
+  });
 });

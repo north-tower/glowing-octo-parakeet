@@ -1,17 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, LayoutGrid } from "lucide-react";
 import { BrowseStyleTileButton } from "@/components/app/category/browse/BrowseStyleTile";
 import { HomeSectionHeader } from "@/components/app/HomeSectionHeader";
-import { popularLucideForTopcIndex } from "@/components/app/category/browse/popular-lucide";
-import { FEAT, TOPC } from "@/lib/nakuru/data/constants";
-import { homeCopy, homeTopCategoryLabel } from "@/lib/nakuru/home-i18n";
+import { presentationForSlug } from "@/lib/nakuru/category-presentation";
+import { homeCopy } from "@/lib/nakuru/home-i18n";
+import { useCategories } from "@/lib/nakuru/use-categories";
 import type { LandingLang } from "@/lib/nakuru/i18n";
 
 type Props = {
   lang: LandingLang;
-  onCategory: (index: number) => void;
+  onCategory: (slug: string) => void;
   onSeeAll: () => void;
 };
 
@@ -19,6 +19,15 @@ export function CategoryTiles({ lang, onCategory, onSeeAll }: Props) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(false);
+  const { rows } = useCategories();
+  const roots = useMemo(
+    () =>
+      rows
+        .filter((r) => r.visible && r.depth === 0 && r.kind === "official")
+        .sort((a, b) => a.sortOrder - b.sortOrder)
+        .slice(0, 10),
+    [rows],
+  );
 
   const sync = useCallback(() => {
     const el = scrollerRef.current;
@@ -39,7 +48,7 @@ export function CategoryTiles({ lang, onCategory, onSeeAll }: Props) {
       el.removeEventListener("scroll", sync);
       ro.disconnect();
     };
-  }, [sync]);
+  }, [sync, roots.length]);
 
   return (
     <section className="cat-tiles">
@@ -65,16 +74,16 @@ export function CategoryTiles({ lang, onCategory, onSeeAll }: Props) {
         <ChevronLeft size={18} aria-hidden />
       </button>
       <div className="cat-tiles-scroll" role="list" ref={scrollerRef}>
-        {FEAT.slice(0, 7).map((k) => {
-          const t = TOPC[k]!;
-          const visual = popularLucideForTopcIndex(k);
+        {roots.map((row) => {
+          const visual = presentationForSlug(row.slug);
           return (
-            <div key={k} className="cat-tiles-item" role="listitem">
+            <div key={row.slug} className="cat-tiles-item" role="listitem">
               <BrowseStyleTileButton
                 icon={visual.icon}
                 tint={visual.tint}
-                label={t[3] ? homeTopCategoryLabel(t[3], lang) : t[1]}
-                onActivate={() => onCategory(k)}
+                image={visual.image}
+                label={row.label}
+                onActivate={() => onCategory(row.slug)}
               />
             </div>
           );

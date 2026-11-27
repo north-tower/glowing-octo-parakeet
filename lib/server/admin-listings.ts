@@ -1,3 +1,4 @@
+import { audit } from "./audit";
 import { db } from "./db";
 
 export type AdminListingRow = {
@@ -139,4 +140,48 @@ export async function listAdminListings(
     createdAt: row.created_at,
     onPublicCatalog: row.on_public,
   }));
+}
+
+export class AdminListingError extends Error {
+  constructor(
+    public code: "not_found" | "has_orders",
+    public status: number,
+  ) {
+    super(code);
+    this.name = "AdminListingError";
+  }
+}
+
+export async function staffDeleteListing(
+  productId: string,
+  actorId: string,
+  ip: string | null,
+): Promise<void> {
+  await db.tx(async (client) => {
+    const exists = await client.query<{ title: string }>(
+      `select title from products where id = $1::uuid`,
+      [productId],
+    );
+    const row = exists.rows[0];
+    if (!row) throw new AdminListingError("not_found", 404);
+
+    const orders = await client.query<{ n: number }>(
+      `select count(*)::int as n from order_items where product_id = $1::uuid`,
+      [productId],
+    );
+    if ((orders.rows[0]?.n ?? 0) > 0) {
+      throw new AdminListingError("has_orders", 409);
+    }
+
+    await client.query(
+      `delete from service_inquiries where product_id = $1::uuid`,
+      [productId],
+    );
+    await client.query(`delete from products where id = $1::uuid`, [productId]);
+
+    audit("admin_listing_delete", actorId, ip, {
+      product: productId,
+      title: row.title,
+    });
+  });
 }

@@ -34,6 +34,7 @@ export function BrowseByTypeSection({ lang }: Props) {
             label: row.label,
             icon: p.icon,
             tint: p.tint,
+            image: p.image,
           };
         }),
       }),

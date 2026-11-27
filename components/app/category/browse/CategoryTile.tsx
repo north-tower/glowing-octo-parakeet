@@ -10,10 +10,11 @@ type Props = {
   label: string;
   icon: LucideIcon;
   tint: CategoryTint;
+  image?: string | null;
   count?: string;
 };
 
-export function CategoryTile({ slug, label, icon, tint, count }: Props) {
+export function CategoryTile({ slug, label, icon, tint, image, count }: Props) {
   const pathname = usePathname();
   const href = `/category/${slug}`;
   const selected = pathname === href || pathname === `${href}/`;
@@ -24,6 +25,7 @@ export function CategoryTile({ slug, label, icon, tint, count }: Props) {
       label={label}
       icon={icon}
       tint={tint}
+      image={image}
       count={count}
       selected={selected}
     />

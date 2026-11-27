@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import request from "supertest";
 import { GET } from "@/app/api/admin/listings/route";
+import { DELETE } from "@/app/api/admin/listings/[id]/route";
 import { accessToken } from "@/lib/server/tokens";
 import { createTestServer } from "./test-server";
 
@@ -16,7 +17,23 @@ describe("/api/admin/listings", () => {
 
   let adminId = "";
   let adminAccess = "";
+  let supportId = "";
+  let supportAccess = "";
+  let ownerId = "";
+  let vendorId = "";
+  let productId = "";
+  let leftoverProductId = "";
   const tag = `lst-${Date.now()}`;
+  const categorySlug = `${tag}-cat`;
+
+  function deleteReq(id: string, token?: string) {
+    const headers: Record<string, string> = {};
+    if (token) headers.Authorization = `Bearer ${token}`;
+    return DELETE(new Request(`http://test/api/admin/listings/${id}`, {
+      method: "DELETE",
+      headers,
+    }), { params: Promise.resolve({ id }) });
+  }
 
   beforeAll(async () => {
     if (hasDbEnv) {
@@ -46,11 +63,56 @@ describe("/api/admin/listings", () => {
       )
     ).rows[0].id;
     adminAccess = accessToken({ id: adminId, role: "admin" });
+
+    supportId = (
+      await db.q<{ id: string }>(
+        `insert into users(email, role) values($1, 'support') returning id`,
+        [`${tag}-support@example.com`],
+      )
+    ).rows[0].id;
+    supportAccess = accessToken({ id: supportId, role: "support" });
+
+    ownerId = (
+      await db.q<{ id: string }>(
+        `insert into users(email, role) values($1, 'customer') returning id`,
+        [`${tag}-owner@example.com`],
+      )
+    ).rows[0].id;
+
+    vendorId = (
+      await db.q<{ id: string }>(
+        `insert into vendors(owner_id, name, status, categories)
+         values($1, $2, 'approved', '{shop}')
+         returning id`,
+        [ownerId, `${tag} Vendor`],
+      )
+    ).rows[0].id;
+
+    await db.q(
+      `insert into categories (slug, label, kind, listing_mode, visible, open_for_apply, sort_order)
+       values ($1, 'Admin listings test', 'community', 'shop', true, true, 500)`,
+      [categorySlug],
+    );
+
+    productId = (
+      await db.q<{ id: string }>(
+        `insert into products(vendor_id, category, title, price_kes, active)
+         values($1, $2, $3, 900, true)
+         returning id`,
+        [vendorId, categorySlug, `${tag} Product`],
+      )
+    ).rows[0].id;
   });
 
   afterAll(async () => {
     if (dbReachable) {
       const { db } = await import("@/lib/server/db");
+      const leftover = leftoverProductId || productId;
+      if (leftover) await db.q("delete from products where id = $1", [leftover]);
+      if (vendorId) await db.q("delete from vendors where id = $1", [vendorId]);
+      await db.q("delete from categories where slug = $1", [categorySlug]);
+      if (ownerId) await db.q("delete from users where id = $1", [ownerId]);
+      if (supportId) await db.q("delete from users where id = $1", [supportId]);
       if (adminId) await db.q("delete from users where id = $1", [adminId]);
     }
     await new Promise<void>((resolve, reject) => {
@@ -91,5 +153,34 @@ describe("/api/admin/listings", () => {
         }),
       );
     }
+  });
+
+  it("DELETE without auth returns 401", async () => {
+    const res = await deleteReq("00000000-0000-4000-8000-000000000001");
+    expect(res.status).toBe(401);
+    expect(await res.json()).toEqual({ error: "unauthorized" });
+  });
+
+  it.skipIf(!hasDbEnv)("DELETE is admin-only", async ({ skip }) => {
+    if (!dbReachable) skip();
+    const res = await deleteReq(productId, supportAccess);
+    expect(res.status).toBe(403);
+    expect(await res.json()).toEqual({ error: "forbidden" });
+  });
+
+  it.skipIf(!hasDbEnv)("DELETE removes a listing", async ({ skip }) => {
+    if (!dbReachable) skip();
+
+    const res = await deleteReq(productId, adminAccess);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ ok: true });
+    leftoverProductId = "";
+    productId = "";
+
+    const missing = await deleteReq(
+      "00000000-0000-4000-8000-000000000001",
+      adminAccess,
+    );
+    expect(missing.status).toBe(404);
   });
 });

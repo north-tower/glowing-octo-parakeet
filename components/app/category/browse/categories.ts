@@ -19,6 +19,7 @@ export type BrowseCategoryItem = {
   label: string;
   icon: LucideIcon;
   tint: CategoryTint;
+  image?: string | null;
   count?: string;
 };
 
