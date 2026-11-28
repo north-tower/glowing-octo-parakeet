@@ -32,7 +32,7 @@ export function useLandingNav(navId = "site-nav", headerId = "site-header") {
     const nav = document.getElementById(navId);
     if (!nav) return;
 
-    const navLinks = nav.querySelectorAll<HTMLAnchorElement>("a[href^='#']");
+    const navLinks = nav.querySelectorAll<HTMLAnchorElement>("a[href*='#']");
     const sections: {
       link: HTMLAnchorElement;
       id: string;
@@ -40,7 +40,9 @@ export function useLandingNav(navId = "site-nav", headerId = "site-header") {
     }[] = [];
 
     navLinks.forEach((a) => {
-      const id = a.getAttribute("href")?.slice(1) ?? "";
+      const href = a.getAttribute("href") ?? "";
+      const hashAt = href.indexOf("#");
+      const id = hashAt >= 0 ? href.slice(hashAt + 1) : "";
       const sec = document.getElementById(id);
       if (sec) sections.push({ link: a, id, el: sec });
       const closeOnNav = () => setMenu(false);

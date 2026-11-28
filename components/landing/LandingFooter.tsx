@@ -30,6 +30,9 @@ export function LandingFooter() {
           <Link href="/app">
             <Bi en="Customer app" sw="Programu ya mnunuzi" />
           </Link>
+          <Link href="/pos">
+            <Bi en="NakuruHub POS" sw="NakuruHub POS" />
+          </Link>
         </nav>
         <div className="foot-meta">
           <LangToggle />

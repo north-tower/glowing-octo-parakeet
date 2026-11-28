@@ -39,6 +39,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     page("/", 1, "weekly"),
     page("/nakuru", 0.9),
+    page("/pos", 0.7, "weekly"),
     page("/app", 0.65),
     ...categoryPages,
     ...areaPages,
