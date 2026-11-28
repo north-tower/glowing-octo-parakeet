@@ -1,29 +1,17 @@
 "use client";
 
-import Link from "next/link";
 import { Bi } from "@/components/landing/Bi";
-import {
-  IconBolt,
-  IconCar,
-  IconHome,
-  IconShoppingBag,
-  IconSparkle,
-  IconTools,
-} from "@/components/app/icons/LineIcons";
+import { BrowseStyleTileLink } from "@/components/app/category/browse/BrowseStyleTile";
+import { groupOfficialRoots } from "@/lib/nakuru/category-hub-groups";
+import { presentationForSlug } from "@/lib/nakuru/category-presentation";
+import { OFFICIAL_DIRECTORY_FALLBACK } from "@/lib/nakuru/data/category-directory";
+import { homeCopy } from "@/lib/nakuru/home-i18n";
 
-const CATS = [
-  { href: "/app?cat=real-estate", en: "Property", sw: "Mali", Icon: IconHome },
-  { href: "/app?cat=vehicles", en: "Vehicles", sw: "Magari", Icon: IconCar },
-  {
-    href: "/app?cat=business-and-industry",
-    en: "Shopping",
-    sw: "Duka",
-    Icon: IconShoppingBag,
-  },
-  { href: "/app?cat=services", en: "Services", sw: "Huduma", Icon: IconTools },
-  { href: "/app?tab=cat&side=jobs", en: "Jobs", sw: "Kazi", Icon: IconBolt },
-  { href: "/app", en: "Events", sw: "Matukio", Icon: IconSparkle },
-] as const;
+const GROUPS = groupOfficialRoots(
+  OFFICIAL_DIRECTORY_FALLBACK.filter(
+    (r) => r.visible && r.depth === 0 && r.kind === "official",
+  ),
+);
 
 export function CategoriesSection() {
   return (
@@ -42,21 +30,32 @@ export function CategoriesSection() {
         >
           Whatever you are looking for, start here.
         </p>
-        <ul className="browse-cat-row">
-          {CATS.map((cat) => {
-            const Icon = cat.Icon;
-            return (
-              <li key={cat.href + cat.en}>
-                <Link href={cat.href} className="browse-cat-card">
-                  <span className="browse-cat-icon" aria-hidden>
-                    <Icon size={28} />
-                  </span>
-                  <Bi en={cat.en} sw={cat.sw} />
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+        <div className="browse-by-type">
+          {GROUPS.map(({ group, items }) => (
+            <section key={group.id} className="browse-group">
+              <h3 className="browse-group__title">
+                <Bi
+                  en={homeCopy(group.titleKey, "en")}
+                  sw={homeCopy(group.titleKey, "sw")}
+                />
+              </h3>
+              <div className="browse-grid">
+                {items.map((row) => {
+                  const visual = presentationForSlug(row.slug);
+                  return (
+                    <BrowseStyleTileLink
+                      key={row.slug}
+                      href={`/app?tab=cat&side=${row.slug}`}
+                      label={row.label}
+                      icon={visual.icon}
+                      tint={visual.tint}
+                    />
+                  );
+                })}
+              </div>
+            </section>
+          ))}
+        </div>
       </div>
     </section>
   );
