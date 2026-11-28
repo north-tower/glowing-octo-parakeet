@@ -37,6 +37,8 @@ Legacy paths redirect via `next.config.ts`: `/landing.html` → `/`, `/index.htm
 
 For production canonical URLs, set `NEXT_PUBLIC_SITE_URL` (e.g. `https://nakuruhub.co.ke`) so Open Graph and sitemap metadata resolve correctly. It defaults to `https://nakuruhub.co.ke`. Set `GOOGLE_SITE_VERIFICATION` to the Search Console HTML-tag token to emit the verification meta tag.
 
+NakuruHub POS showcase (`/pos` and the landing band): set `NEXT_PUBLIC_POS_URL` to the POS origin with no trailing slash (e.g. `https://pos.nakuruhub.co.ke`). If unset, “Try the till” is hidden.
+
 ## Demo catalog (screenshots)
 
 The built-in demo listings in `lib/nakuru/data/items.ts` use specific Nakuru titles, descriptions, and photos, with a mix of verified (`v: 1`) and unverified (`v: 0`) sellers. They appear when live catalog is off (default): leave `NEXT_PUBLIC_USE_LIVE_CATALOG` unset or `false`, then restart `pnpm dev` and open `/app`.

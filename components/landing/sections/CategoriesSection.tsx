@@ -2,14 +2,27 @@
 
 import Link from "next/link";
 import { Bi } from "@/components/landing/Bi";
+import {
+  IconBolt,
+  IconCar,
+  IconHome,
+  IconShoppingBag,
+  IconSparkle,
+  IconTools,
+} from "@/components/app/icons/LineIcons";
 
 const CATS = [
-  { href: "/app?cat=real-estate", en: "Property", sw: "Mali" },
-  { href: "/app?cat=vehicles", en: "Vehicles", sw: "Magari" },
-  { href: "/app?cat=business-and-industry", en: "Shopping", sw: "Duka" },
-  { href: "/app?cat=services", en: "Services", sw: "Huduma" },
-  { href: "/app?tab=cat&side=jobs", en: "Jobs", sw: "Kazi" },
-  { href: "/app", en: "Events", sw: "Matukio" },
+  { href: "/app?cat=real-estate", en: "Property", sw: "Mali", Icon: IconHome },
+  { href: "/app?cat=vehicles", en: "Vehicles", sw: "Magari", Icon: IconCar },
+  {
+    href: "/app?cat=business-and-industry",
+    en: "Shopping",
+    sw: "Duka",
+    Icon: IconShoppingBag,
+  },
+  { href: "/app?cat=services", en: "Services", sw: "Huduma", Icon: IconTools },
+  { href: "/app?tab=cat&side=jobs", en: "Jobs", sw: "Kazi", Icon: IconBolt },
+  { href: "/app", en: "Events", sw: "Matukio", Icon: IconSparkle },
 ] as const;
 
 export function CategoriesSection() {
@@ -30,13 +43,19 @@ export function CategoriesSection() {
           Whatever you are looking for, start here.
         </p>
         <ul className="browse-cat-row">
-          {CATS.map((cat) => (
-            <li key={cat.href + cat.en}>
-              <Link href={cat.href} className="browse-cat-card">
-                <Bi en={cat.en} sw={cat.sw} />
-              </Link>
-            </li>
-          ))}
+          {CATS.map((cat) => {
+            const Icon = cat.Icon;
+            return (
+              <li key={cat.href + cat.en}>
+                <Link href={cat.href} className="browse-cat-card">
+                  <span className="browse-cat-icon" aria-hidden>
+                    <Icon size={28} />
+                  </span>
+                  <Bi en={cat.en} sw={cat.sw} />
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </div>
     </section>

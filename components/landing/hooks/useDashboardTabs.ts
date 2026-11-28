@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-type DashTab = "products" | "orders" | "verified";
+type DashTab = "stock" | "orders";
 
 export function useDashboardTabs(): void {
   useEffect(() => {
@@ -12,8 +12,8 @@ export function useDashboardTabs(): void {
     const tabs = root.querySelectorAll<HTMLButtonElement>("[data-dash-tab]");
     const panels = root.querySelectorAll<HTMLElement>("[data-dash-panel]");
     const panelsWrap = document.getElementById("dash-panels");
-    const tabOrder: DashTab[] = ["products", "orders", "verified"];
-    let current: DashTab = "orders";
+    const tabOrder: DashTab[] = ["stock", "orders"];
+    let current: DashTab = "stock";
     const motionOk = !window.matchMedia("(prefers-reduced-motion: reduce)")
       .matches;
 
@@ -87,12 +87,19 @@ export function useDashboardTabs(): void {
       });
     });
 
+    root.querySelectorAll("img").forEach((img) => {
+      if (img.complete) return;
+      const onLoad = () => measurePanels();
+      img.addEventListener("load", onLoad);
+      cleanups.push(() => img.removeEventListener("load", onLoad));
+    });
+
     measurePanels();
     const onResize = () => measurePanels();
     window.addEventListener("resize", onResize, { passive: true });
-    setPanel("orders");
 
-    if (!motionOk && panelsWrap) panelsWrap.classList.add("dash-panels--reduced");
+    if (!motionOk && panelsWrap)
+      panelsWrap.classList.add("dash-panels--reduced");
 
     return () => {
       cleanups.forEach((fn) => fn());

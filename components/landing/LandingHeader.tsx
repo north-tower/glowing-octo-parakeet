@@ -13,8 +13,9 @@ export function LandingHeader() {
 
   const navLinks = [
     { href: "/app", en: "Explore", sw: "Gundua" },
-    { href: "#categories", en: "Categories", sw: "Kategoria" },
-    { href: "#how", en: "How it works", sw: "Jinsi inavyofanya" },
+    { href: "/#categories", en: "Categories", sw: "Kategoria" },
+    { href: "/#how", en: "How it works", sw: "Jinsi inavyofanya" },
+    { href: "/pos", en: "POS", sw: "POS" },
   ] as const;
 
   return (
@@ -37,7 +38,7 @@ export function LandingHeader() {
           <Link className="logo logo--classified" href="/" aria-label="NakuruHub">
             <BrandLogoMark variant="lockup" size={52} priority />
           </Link>
-          <nav className="top-nav" id="site-nav" aria-label="On this page">
+          <nav className="top-nav" id="site-nav" aria-label="Site">
             {navLinks.map((item) => (
               <a
                 key={item.href}
